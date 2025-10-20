@@ -50,6 +50,7 @@ from .hangouts import CmdHangouts, CmdHangoutAdmin
 from .bbs.bbs_cmdset import BBSCmdSet
 from commands.commonmux.CmdPage import CmdPage
 from .shapeshifting import CmdShift, CmdForm
+from .character_submit import CmdSubmit
 
 # Custom help command that escapes ANSI codes in help text
 from .help_custom import CmdHelp
@@ -89,6 +90,7 @@ class CharacterCmdSet(default_cmds.CharacterCmdSet):
         self.add(CmdIntegrity())
         self.add(CmdLookup())
         self.add(CmdLegacy())
+        self.add(CmdSubmit())
         
         # Shapeshifting (Werewolf)
         self.add(CmdShift())

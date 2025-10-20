@@ -19,6 +19,7 @@ from evennia.help.models import HelpEntry
 from evennia.accounts.models import AccountDB
 from utils.search_helpers import search_character
 from evennia.comms.models import Msg
+from django.conf import settings
 
 class CmdJobs(MuxCommand):
     """
@@ -64,13 +65,14 @@ class CmdJobs(MuxCommand):
       XP     - XP requests
       PRP    - PRP requests
       VAMP   - Vampire requests
-      SHIFT  - Shifter requests
+      WERE   - Werewolf requests
       MORT   - Mortal requests
-      POSS   - Possessed requests
-      COMP   - Companion requests
-      LING   - Changeling requests
-      MAGE   - Mage requests
-      EQUIP  - Equipment requests
+      M+     - Mortal+ requests
+      PROM   - Promethean requests
+      GEIST  - Geist requests
+      MUMMY  - Mummy requests
+      DVNT    - Deviant requests
+      CORE   - Core requests
     """
 
     key = "+jobs"
@@ -182,7 +184,7 @@ class CmdJobs(MuxCommand):
             'status': 8      # "Status   "
         }
 
-        output = header("Exordium to Entropy Jobs", width=78, fillchar="|r-|n") + "\n"
+        output = header(f"{settings.SERVERNAME} Jobs", width=78, color="|r") + "\n"
         
         # Create the header row with fixed column widths
         header_row = (
@@ -218,7 +220,7 @@ class CmdJobs(MuxCommand):
             row = f"{job_id}{queue}{title}{originator}{assignee}{status}"
             output += row + "\n"
 
-        output += footer(width=78, fillchar="|r-|n")
+        output += footer(width=78, color="|r")
         self.caller.msg(output)
 
     def view_job(self):
@@ -233,7 +235,7 @@ class CmdJobs(MuxCommand):
             # Mark the job as viewed by this account using mark_viewed
             job.mark_viewed(self.caller.account)
 
-            output = header(f"Job {job.id}", width=78, fillchar="|r-|n") + "\n"
+            output = header(f"Job {job.id}", width=78, color="|r") + "\n"
             output += f"|cTitle:|n {job.title}\n"
             output += f"|cStatus:|n {job.status}\n"
             output += f"|cRequester:|n {job.requester.username}\n"
@@ -259,7 +261,7 @@ class CmdJobs(MuxCommand):
             else:
                 output += "|cAttached Objects:|n None\n"
             
-            output += divider("Description", width=78, fillchar="-", color="|r", text_color="|c") + "\n"
+            output += "|c" + "Description".center(78, "-") + "|n\n"
             
             # Handle description text without wrapping
             paragraphs = [p.strip() for p in job.description.split('\n\n') if p.strip()]
@@ -269,12 +271,12 @@ class CmdJobs(MuxCommand):
                     output += "\n"
             
             if job.comments:
-                output += divider("Comments", width=78, fillchar="-", color="|r", text_color="|c") + "\n"
+                output += "|c" + "Comments".center(78, "-") + "|n\n"
                 for comment in job.comments:
                     output += f"|c{comment['author']} [{comment['created_at']}]:|n\n"
                     output += comment['text'] + "\n\n"
             
-            output += divider("", width=78, fillchar="-", color="|r") + "\n"
+            output += footer(width=78, color="|r")
             self.caller.msg(output)
         except ValueError:
             self.caller.msg("Invalid job ID.")
@@ -303,13 +305,19 @@ class CmdJobs(MuxCommand):
                 
                 # Map splat to category
                 splat_category_map = {
-                    'Mage': 'MAGE',
+                    'Promethean': 'PROM',
                     'Vampire': 'VAMP',
-                    'Changeling': 'LING',
-                    'Companion': 'COMP',
+                    'Werewolf': 'WERE',
                     'Mortal': 'MORT',
-                    'Possessed': 'POSS',
-                    'Shifter': 'SHIFT',
+                    'Mage': 'MAGE',
+                    'Mortal+': 'M+',
+                    'Deviant': 'DVNT',
+                    'Core': 'CORE',
+                    'Geist': 'GEIST',
+                    'Mummy': 'MUMMY',
+                    'Demon': 'DEMON',
+                    'Hunter': 'HUNT',
+                    'Changeling': 'LING',
                 }
                 
                 # Handle Mortal+ subtypes
@@ -317,12 +325,15 @@ class CmdJobs(MuxCommand):
                     if 'identity' in stats and 'lineage' in stats['identity']:
                         mortal_type = stats['identity']['lineage'].get('Type', {}).get('perm', '')
                         mortal_plus_map = {
-                            'Kinain': 'LING',
+                            'Fae-Touched': 'LING',
                             'Ghoul': 'VAMP',
-                            'Kinfolk': 'SHIFT',
-                            'Sorcerer': 'MAGE',
+                            'Wolf-Blooded': 'WERE',
+                            'Sleepwalker': 'MAGE',
+                            'Immortal': 'MUMMY',
+                            'Demon-Blooded': 'DEMON',
+                            'Stigmatic': 'DEMON',
                         }
-                        return mortal_plus_map.get(mortal_type, 'MORT')
+                        return mortal_plus_map.get(mortal_type, 'M+')
                 else:
                     category = splat_category_map.get(splat)
                     if category:
@@ -440,8 +451,9 @@ class CmdJobs(MuxCommand):
 
         # Validate category - make case-insensitive comparison
         valid_categories = ["REQ", "BUG", "PLOT", "BUILD", "MISC", "XP", 
-                          "PRP", "VAMP", "SHIFT", "MORT", "POSS", "COMP", 
-                          "LING", "MAGE", "EQUIP"]
+                          "PRP", "VAMP", "WERE", "MORT", "M+", "PROM", "GEIST", 
+                          "MUMMY", "DVNT", "CORE", "DEMON", "HUNT", "LING", 
+                          "MAGE"]
         
         if category not in valid_categories:
             self.caller.msg(f"Invalid category. Valid categories are: {', '.join(valid_categories)}")
@@ -1330,7 +1342,7 @@ class CmdJobs(MuxCommand):
                 self.caller.msg("There are no archived jobs.")
                 return
 
-            output = header("Archived Exordium to Entropy Jobs", width=78, fillchar="|r-|n") + "\n"
+            output = header(f"Archived {settings.SERVERNAME} Jobs", width=78, color="|r") + "\n"
             
             # Create the header row
             header_row = "|cJob #  Queue      Job Title                 Closed   Assignee          Requester|n"
@@ -1353,7 +1365,7 @@ class CmdJobs(MuxCommand):
                 )
                 output += row + "\n"
 
-            output += footer(width=78, fillchar="|r-|n")
+            output += footer(width=78, color="|r")
             self.caller.msg(output)
 
         else:
@@ -1371,7 +1383,7 @@ class CmdJobs(MuxCommand):
                 requester_name = archived_job.requester.username if archived_job.requester else "[Deleted User]"
                 assignee_name = archived_job.assignee.username if archived_job.assignee else "-----"
                 
-                output = header(f"Archived Job {archived_job.original_id}", width=78, fillchar="|r-|n") + "\n"
+                output = header(f"Archived Job {archived_job.original_id}", width=78, color="|r") + "\n"
                 output += f"|cTitle:|n {archived_job.title}\n"
                 output += f"|cStatus:|n {archived_job.status}\n"
                 output += f"|cRequester:|n {requester_name}\n"
@@ -1380,14 +1392,14 @@ class CmdJobs(MuxCommand):
                 output += f"|cCreated At:|n {archived_job.created_at.strftime('%Y-%m-%d %H:%M:%S')}\n"
                 output += f"|cClosed At:|n {archived_job.closed_at.strftime('%Y-%m-%d %H:%M:%S')}\n"
                 
-                output += divider("Description", width=78, fillchar="-", color="|r", text_color="|c") + "\n"
+                output += "|c" + "Description".center(78, "-") + "|n\n"
                 output += archived_job.description + "\n\n"
                 
                 if archived_job.comments:
-                    output += divider("Comments", width=78, fillchar="-", color="|r", text_color="|c") + "\n"
+                    output += "|c" + "Comments".center(78, "-") + "|n\n"
                     output += archived_job.comments + "\n"
                 
-                output += footer(width=78, fillchar="|r-|n")
+                output += footer(width=78, color="|r")
                 self.caller.msg(output)
             except ValueError:
                 self.caller.msg("Invalid job ID.")
@@ -1681,7 +1693,7 @@ class CmdJobs(MuxCommand):
     def display_note(self, note):
         """Display a note with formatting."""
         width = 78
-        output = header(f"Job #{note.note_id}", width=width, color="|y", fillchar="|r=|n", bcolor="|b")
+        output = header(f"Job #{note.note_id}", width=width, color="|y")
 
         if note.category:
             output += f"|c{note.category}|n"
@@ -1705,7 +1717,7 @@ class CmdJobs(MuxCommand):
             output += format_stat("Created:", note.created_at.strftime("%Y-%m-%d %H:%M:%S"), width=width) + "\n"
             output += format_stat("Updated:", note.updated_at.strftime("%Y-%m-%d %H:%M:%S"), width=width) + "\n"
 
-        output += divider("", width=width, fillchar="-", color="|r") + "\n"
+        output += divider(width=width, char="-", color="|r") + "\n"
         
         # Note content - properly handle line breaks and indentation
         text = note.text.strip()
@@ -1723,7 +1735,7 @@ class CmdJobs(MuxCommand):
             if i < len(paragraphs) - 1:
                 output += "\n"
         
-        output += footer(width=width, fillchar="|r=|n")
+        output += footer(width=width, color="|r")
         self.caller.msg(output)
 
     def list_my_jobs(self):
@@ -1746,7 +1758,7 @@ class CmdJobs(MuxCommand):
             self.caller.msg("You have no open jobs.")
             return
 
-        output = header("My Exordium to Entropy Jobs", width=78, fillchar="|r-|n") + "\n"
+        output = header(f"My {settings.SERVERNAME} Jobs", width=78, color="|r") + "\n"
         
         # Create the header row without fixed widths
         header_row = "|cJob #  Queue      Job Title           Originator    Assignee      Status|n"
@@ -1769,7 +1781,7 @@ class CmdJobs(MuxCommand):
             )
             output += row + "\n"
 
-        output += footer(width=78, fillchar="|r-|n")
+        output += footer(width=78, color="|r")
         self.caller.msg(output)
 
     def reopen_job(self):
@@ -1885,7 +1897,7 @@ class CmdJobs(MuxCommand):
             self.caller.msg("You have no jobs assigned to you.")
             return
 
-        output = header("My Assigned Jobs", width=78, fillchar="|r-|n") + "\n"
+        output = header("My Assigned Jobs", width=78, color="|r") + "\n"
         
         # Create the header row without fixed widths
         header_row = "|cJob #  Queue      Job Title                 Originator    Status|n"
@@ -1907,7 +1919,7 @@ class CmdJobs(MuxCommand):
             )
             output += row + "\n"
 
-        output += footer(width=78, fillchar="|r-|n")
+        output += footer(width=78, color="|r")
         self.caller.msg(output)
 
     def clear_archive(self):
@@ -1950,7 +1962,7 @@ class CmdJobs(MuxCommand):
             # Write archived jobs to the log file
             try:
                 with open(log_file, 'w', encoding='utf-8') as f:
-                    f.write(f"Exordium to Entropy Jobs Archive - {datetime.now().strftime('%Y-%m-%d %H:%M:%S')}\n")
+                    f.write(f"{settings.SERVERNAME} Jobs Archive - {datetime.now().strftime('%Y-%m-%d %H:%M:%S')}\n")
                 f.write("=" * 80 + "\n\n")
                 
                 for job in archived_jobs:
@@ -2110,8 +2122,9 @@ class CmdJobs(MuxCommand):
         
         # Validate category - make case-insensitive comparison
         valid_categories = ["REQ", "BUG", "PLOT", "BUILD", "MISC", "XP", 
-                          "PRP", "VAMP", "SHIFT", "MORT", "POSS", "COMP", 
-                          "LING", "MAGE", "EQUIP"]
+                          "PRP", "VAMP", "WERE", "MORT", "M+", "PROM", "GEIST", 
+                          "MUMMY", "DVNT", "CORE", "DEMON", "HUNT", "LING", 
+                          "MAGE"]
         
         if new_category not in valid_categories:
             self.caller.msg(f"Invalid category. Valid categories are: {', '.join(valid_categories)}")
@@ -2244,7 +2257,7 @@ class CmdJobs(MuxCommand):
                 'archived': 9   # "Archived "
             }
 
-            output = header(f"Jobs for {player_username} ({total_count} total)", width=78, fillchar="|r-|n") + "\n"
+            output = header(f"Jobs for {player_username} ({total_count} total)", width=78, color="|r") + "\n"
             
             # Create the header row with fixed column widths
             header_row = (
@@ -2308,7 +2321,7 @@ class CmdJobs(MuxCommand):
                     row = f"{job_id}{queue}{title}{role_display}{status}{archived}"
                     output += row + "\n"
 
-            output += footer(width=78, fillchar="|r-|n")
+            output += footer(width=78, color="|r")
             self.caller.msg(output)
             
         except Exception as e:

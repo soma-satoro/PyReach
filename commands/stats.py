@@ -863,6 +863,48 @@ class CmdStat(MuxCommand):
             self.caller.msg(f"Changing template from {old_template} to {value}...")
             
             # Nuclear option: completely wipe stats but initialize with defaults
+            # Determine power stat for this template
+            power_stat_map = {
+                "vampire": "blood_potency",
+                "legacy_vampire": "blood_potency",
+                "werewolf": "primal_urge",
+                "legacy_werewolf": "primal_urge",
+                "mage": "gnosis",
+                "legacy_mage": "gnosis",
+                "changeling": "wyrd",
+                "legacy_changeling": "wyrd",
+                "geist": "synergy",
+                "legacy_geist": "psyche",
+                "demon": "primum",
+                "promethean": "azoth",
+                "legacy_promethean": "azoth",
+                "deviant": "acclimation",
+                "beast": "satiety",
+                "mummy": "psyche",
+                "legacy_changingbreeds": "feral_heart",
+                "legacy_changing_breeds": "feral_heart"
+            }
+            
+            # Get the normalized template name for lookup
+            template_normalized = value.lower().replace(" ", "_")
+            if template_normalized == "mortal_plus":
+                template_normalized = "mortal_plus"
+            
+            # Create base advantages dict
+            base_advantages = {
+                # Calculate derived stats from default attributes
+                "willpower": 2,  # resolve (1) + composure (1) = 2
+                "health": 6,     # size (5) + stamina (1) = 6
+                "speed": 7,      # strength (1) + dexterity (1) + 5 = 7
+                "defense": 1,    # min(wits, dexterity) + athletics = min(1,1) + 0 = 1
+                "initiative": 2  # dexterity (1) + composure (1) = 2
+            }
+            
+            # Add power stat if template has one
+            if template_normalized in power_stat_map:
+                power_stat = power_stat_map[template_normalized]
+                base_advantages[power_stat] = 1
+            
             target.db.stats = {
                 "attributes": {
                     # Mental attributes
@@ -907,14 +949,7 @@ class CmdStat(MuxCommand):
                     "streetwise": 0,
                     "subterfuge": 0
                 },
-                "advantages": {
-                    # Calculate derived stats from default attributes
-                    "willpower": 2,  # resolve (1) + composure (1) = 2
-                    "health": 6,     # size (5) + stamina (1) = 6
-                    "speed": 7,      # strength (1) + dexterity (1) + 5 = 7
-                    "defense": 1,    # min(wits, dexterity) + athletics = min(1,1) + 0 = 1
-                    "initiative": 2  # dexterity (1) + composure (1) = 2
-                },
+                "advantages": base_advantages,
                 "anchors": {},
                 "bio": {},
                 "merits": {},
