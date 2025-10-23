@@ -1,0 +1,141 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title %}Home{% endblock %} - {{ game_name }}</title>
+    
+    <!-- Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;600;700;900&family=Cormorant+Garamond:ital,wght@0,400;0,600;0,700;1,400&family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    
+    <!-- Font Awesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    
+    <!-- Custom CSS -->
+    <link rel="stylesheet" href="{% static 'website/css/style.css' %}">
+    
+    {% block extra_head %}{% endblock %}
+</head>
+<body>
+    <!-- Navigation -->
+    <nav class="wiki-nav">
+        <div class="container">
+            <div class="nav-brand">
+                <a href="/">
+                    <i class="fas fa-book-dead"></i>
+                    <span>{{ game_name }}</span>
+                </a>
+            </div>
+            
+            <div class="nav-menu">
+                <a href="/" class="nav-link">
+                    <i class="fas fa-home"></i> Home
+                </a>
+                <a href="/characters/" class="nav-link">
+                    <i class="fas fa-users"></i> Characters
+                </a>
+                <a href="/channels/" class="nav-link">
+                    <i class="fas fa-comments"></i> Channels
+                </a>
+                <a href="/wiki/" class="nav-link">
+                    <i class="fas fa-book"></i> Wiki
+                </a>
+                <a href="/help/" class="nav-link">
+                    <i class="fas fa-question-circle"></i> Help
+                </a>
+                <a href="/webclient/" class="nav-link nav-link-special">
+                    <i class="fas fa-play"></i> Play Now
+                </a>
+                
+                {% if account %}
+                    <div class="nav-dropdown">
+                        <button class="nav-link">
+                            <i class="fas fa-user"></i> {{ account.username }}
+                        </button>
+                        <div class="nav-dropdown-menu">
+                            <a href="/accounts/{{ account.id }}/"><i class="fas fa-user-circle"></i> Profile</a>
+                            {% if account.is_superuser %}
+                            <a href="/admin/"><i class="fas fa-shield-alt"></i> Admin</a>
+                            {% endif %}
+                            <a href="/accounts/logout/"><i class="fas fa-sign-out-alt"></i> Logout</a>
+                        </div>
+                    </div>
+                {% else %}
+                    <a href="/accounts/login/" class="nav-link">
+                        <i class="fas fa-sign-in-alt"></i> Login
+                    </a>
+                    <a href="/accounts/register/" class="nav-link">
+                        <i class="fas fa-user-plus"></i> Register
+                    </a>
+                {% endif %}
+            </div>
+        </div>
+    </nav>
+
+    <!-- Messages -->
+    {% if messages %}
+    <div class="messages-container">
+        <div class="container">
+            {% for message in messages %}
+            <div class="alert alert-{{ message.tags }}">
+                <i class="fas fa-{% if message.tags == 'success' %}check-circle{% elif message.tags == 'error' %}exclamation-circle{% elif message.tags == 'warning' %}exclamation-triangle{% else %}info-circle{% endif %}"></i>
+                {{ message }}
+            </div>
+            {% endfor %}
+        </div>
+    </div>
+    {% endif %}
+
+    <!-- Main Content -->
+    <main class="main-content">
+        <div class="container">
+            {% block content %}{% endblock %}
+        </div>
+    </main>
+
+    <!-- Footer -->
+    <footer class="wiki-footer">
+        <div class="container">
+            <div class="footer-content">
+                <div class="footer-section">
+                    <h3>About</h3>
+                    <p>{{ game_name }} is powered by Evennia, the Python MUD/MU* creation system.</p>
+                </div>
+                <div class="footer-section">
+                    <h3>Quick Links</h3>
+                    <ul>
+                        <li><a href="/">Home</a></li>
+                        <li><a href="/characters/">Characters</a></li>
+                        <li><a href="/channels/">Channels</a></li>
+                        <li><a href="/wiki/">Wiki</a></li>
+                        <li><a href="/help/">Help</a></li>
+                    </ul>
+                </div>
+                <div class="footer-section">
+                    <h3>Connect</h3>
+                    <ul>
+                        <li><a href="/webclient/">Play Online</a></li>
+                        <li><a href="/accounts/register/">Create Account</a></li>
+                        {% if account.is_superuser %}
+                        <li><a href="/admin/">Admin Panel</a></li>
+                        {% endif %}
+                    </ul>
+                </div>
+            </div>
+            <div class="footer-bottom">
+                <p>&copy; {% now "Y" %} {{ game_name }}. All rights reserved.</p>
+                <p class="powered-by">Powered by <a href="https://www.evennia.com" target="_blank">Evennia</a></p>
+            </div>
+        </div>
+    </footer>
+
+    <!-- Scripts -->
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script src="{% static 'wiki/js/wiki.js' %}"></script>
+    {% block extra_scripts %}{% endblock %}
+</body>
+</html>
+

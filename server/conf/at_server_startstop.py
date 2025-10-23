@@ -21,6 +21,9 @@ at_server_cold_stop()
 def at_server_init():
     """
     This is called first as the server is starting up, regardless of how.
+    
+    Note: AccountDB patches for unpuppet_all, at_server_shutdown, and at_server_reload
+    are now applied in typeclasses/accounts.py at module import time.
     """
     pass
 

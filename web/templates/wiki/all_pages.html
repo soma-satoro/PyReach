@@ -1,0 +1,88 @@
+{% extends "wiki/base.html" %}
+{% load static %}
+
+{% block title %}All Pages{% endblock %}
+
+{% block content %}
+<div class="container">
+    <div class="card" style="margin-bottom: 2rem;">
+        <div class="card-header">
+            <h1 style="margin: 0;">
+                <i class="fas fa-list"></i> All Wiki Pages
+            </h1>
+        </div>
+    </div>
+
+    {% if pages %}
+    <div class="card">
+        <div class="card-body">
+            <table class="table">
+                <thead>
+                    <tr>
+                        <th>Title</th>
+                        <th>Category</th>
+                        <th style="text-align: center;">Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for page in pages %}
+                    <tr>
+                        <td>
+                            <a href="{% url 'wiki:page' page.slug %}" style="font-weight: 600; font-size: 1.05rem;">
+                                {{ page.title }}
+                            </a>
+                        </td>
+                        <td>
+                            {% if page.category__name %}
+                            <span class="badge badge-primary">
+                                {{ page.category__name }}
+                            </span>
+                            {% else %}
+                            <span class="text-muted">Uncategorized</span>
+                            {% endif %}
+                        </td>
+                        <td style="text-align: center;">
+                            <a href="{% url 'wiki:page' page.slug %}" class="btn btn-sm btn-secondary">
+                                <i class="fas fa-eye"></i> View
+                            </a>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+    {% else %}
+    <div class="card" style="text-align: center; padding: 3rem;">
+        <i class="fas fa-file-alt" style="font-size: 4rem; color: var(--color-text-muted); margin-bottom: 1rem;"></i>
+        <p class="text-muted">No wiki pages have been created yet.</p>
+        {% if user.is_staff or perms.wiki.can_edit_wiki %}
+        <a href="{% url 'wiki:page_create' %}" class="btn btn-primary mt-2">
+            <i class="fas fa-plus"></i> Create First Page
+        </a>
+        {% endif %}
+    </div>
+    {% endif %}
+
+    <div class="text-center" style="margin-top: 2rem;">
+        <a href="{% url 'wiki:index' %}" class="btn btn-secondary">
+            <i class="fas fa-arrow-left"></i> Back to Wiki Home
+        </a>
+    </div>
+</div>
+
+<style>
+.table td:first-child {
+    width: 50%;
+}
+
+.table td:nth-child(2) {
+    width: 30%;
+}
+
+.table td:last-child {
+    width: 20%;
+}
+</style>
+{% endblock %}
+

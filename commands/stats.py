@@ -44,7 +44,10 @@ class CmdStat(MuxCommand):
                    composure, intelligence, wits, resolve
         Skills: All CoD skills (athletics, brawl, investigation, etc.)
         Specialties: specialty/[skill]=[specialty name] (requires dots in skill)
-        Advantages: health, willpower, speed, defense, initiative
+        Derived Stats: health, willpower, speed, defense, initiative
+                       (automatically calculated from attributes - staff only)
+        Power Stats: blood_potency, gnosis, primal_urge, wyrd, synergy, 
+                    azoth, primum, satiety, deviation, psyche, feral_heart
         Merits: All Chronicles of Darkness merits (see +xp/list merits)
         Favors: Innate breed abilities (Legacy Changing Breeds only)
         Aspects: Supernatural powers (Legacy Changing Breeds only)
@@ -518,10 +521,31 @@ class CmdStat(MuxCommand):
                 self.caller.msg("Skills must be between 0 and 5.")
                 return
         
-        # Check advantages (including supernatural power stats)
-        elif stat in ["health", "willpower", "speed", "defense", "initiative", 
-                      "blood_potency", "gnosis", "primal_urge", "wyrd", "synergy", 
-                      "azoth", "primum", "satiety", "deviation", "psyche"]:
+        # Check derived stats (should not be set directly by players)
+        elif stat in ["health", "willpower", "speed", "defense", "initiative"]:
+            # Only staff can directly set derived stats
+            if not self.caller.check_permstring("Builder"):
+                self.caller.msg(f"|r{stat.title()} is a derived stat and cannot be set directly.|n")
+                self.caller.msg(f"|wDerived stats are automatically calculated from your attributes.|n")
+                self.caller.msg(f"To update {stat}, modify the relevant attributes (Strength, Dexterity, Stamina, etc.)")
+                self.caller.msg(f"Or use |y+recalc|n to recalculate all derived stats.")
+                return
+            
+            # Staff override: allow direct setting
+            if isinstance(value, int) and value >= 0:
+                # Initialize advantages dict if missing
+                if "advantages" not in target.db.stats:
+                    target.db.stats["advantages"] = {}
+                target.db.stats["advantages"][stat] = value
+                stat_set = True
+                self.caller.msg(f"|yStaff override:|n Set {target.name}'s {stat} to {value}.")
+            else:
+                self.caller.msg("Derived stats must be positive numbers.")
+                return
+        
+        # Check supernatural power stats (these CAN be set by players)
+        elif stat in ["blood_potency", "gnosis", "primal_urge", "wyrd", "synergy", 
+                      "azoth", "primum", "satiety", "deviation", "psyche", "feral_heart", "acclimation"]:
             if isinstance(value, int) and value >= 0:
                 # Initialize advantages dict if missing
                 if "advantages" not in target.db.stats:
@@ -529,7 +553,7 @@ class CmdStat(MuxCommand):
                 target.db.stats["advantages"][stat] = value
                 stat_set = True
             else:
-                self.caller.msg("Advantages must be positive numbers.")
+                self.caller.msg("Power stats must be positive numbers.")
                 return
         
         # Check bio fields
@@ -649,7 +673,7 @@ class CmdStat(MuxCommand):
                     self.caller.msg(f"Valid fields for {character_template}: {', '.join(valid_fields).title()}")
                     return
                 
-                # Custom validation for Mage Legacy field
+                # validation for Mage Legacy field
                 if stat == "legacy" and character_template.lower() in ["mage", "legacy_mage"]:
                     legacy_value = str(value).lower()
                     
@@ -720,7 +744,7 @@ class CmdStat(MuxCommand):
                                 self.caller.msg(part)
                             return
                 
-                # Custom validation for Promethean Athanor field
+                # validation for Promethean Athanor field
                 if stat == "athanor" and character_template.lower() == "promethean":
                     athanor_value = str(value).lower()
                     
@@ -1454,7 +1478,32 @@ class CmdStat(MuxCommand):
                 else:
                     self.caller.msg(f"Set {target.name}'s {power_display} to {value} dots.")
         
-        # Custom stat handling
+        # Before allowing custom stat, validate that it's not a power from another template
+        if not stat_set:
+            from world.cofd.templates import is_power_from_any_template
+            
+            is_power, power_templates = is_power_from_any_template(stat)
+            if is_power:
+                # This is a known power but not for this character's template
+                character_template = target.db.stats.get("other", {}).get("template", "Mortal")
+                
+                # Format template names nicely for display
+                template_names = []
+                for template in power_templates:
+                    # Convert template names to display format
+                    display_name = template.replace("_", " ").title()
+                    if display_name.startswith("Legacy "):
+                        display_name = display_name  # Keep "Legacy" prefix
+                    template_names.append(display_name)
+                
+                templates_str = ", ".join(template_names)
+                
+                self.caller.msg(f"|r{stat.replace('_', ' ').title()} is not a valid power for {character_template} characters.|n")
+                self.caller.msg(f"|wThis power belongs to: {templates_str}|n")
+                self.caller.msg(f"Use |y+lookup powers|n to see available powers for {character_template}.")
+                return
+        
+        # Custom stat handling (power/ability not showing up for character)
         if not stat_set:
             target.db.stats["other"][stat] = value
             stat_set = True

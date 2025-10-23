@@ -1,0 +1,142 @@
+{% extends "wiki/base.html" %}
+{% load static %}
+
+{% block title %}Search{% if query %} - {{ query }}{% endif %}{% endblock %}
+
+{% block content %}
+<div class="container">
+    <!-- Search Header -->
+    <div class="card" style="margin-bottom: 2rem;">
+        <div class="card-header">
+            <h1 style="margin: 0;">
+                <i class="fas fa-search"></i> Search the Wiki
+            </h1>
+        </div>
+        <div class="card-body">
+            <form method="get" action="{% url 'wiki:search' %}">
+                <div class="grid grid-2" style="gap: 1rem;">
+                    <div class="form-group" style="margin: 0;">
+                        <input type="text" name="query" class="form-control" 
+                               placeholder="Enter search terms..." 
+                               value="{{ query }}"
+                               style="height: 50px; font-size: 1.1rem;">
+                    </div>
+                    <div class="form-group" style="margin: 0;">
+                        {{ search_form.category }}
+                    </div>
+                </div>
+                <div class="text-center" style="margin-top: 1rem;">
+                    <button type="submit" class="btn btn-primary btn-lg">
+                        <i class="fas fa-search"></i> Search
+                    </button>
+                    <a href="{% url 'wiki:search' %}" class="btn btn-secondary btn-lg">
+                        <i class="fas fa-times"></i> Clear
+                    </a>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Search Results -->
+    {% if query %}
+    <div style="margin-bottom: 2rem;">
+        <h2>
+            {% if results %}
+            Found {{ paginator.count }} result{{ paginator.count|pluralize }} for "{{ query }}"
+            {% else %}
+            No results found for "{{ query }}"
+            {% endif %}
+        </h2>
+    </div>
+
+    {% if results %}
+    <div class="grid grid-2">
+        {% for page in results %}
+        <div class="card">
+            <div class="card-header">
+                <div class="flex-between">
+                    <h3 class="card-title">
+                        <a href="{% url 'wiki:page' page.slug %}">{{ page.title }}</a>
+                    </h3>
+                    {% if page.category %}
+                    <span class="badge badge-primary">
+                        <i class="{{ page.category.icon|default:'fa-folder' }}"></i>
+                        {{ page.category.name }}
+                    </span>
+                    {% endif %}
+                </div>
+            </div>
+            <div class="card-body">
+                <p>{{ page.summary|truncatewords:30 }}</p>
+                {% if page.get_tags_list %}
+                <div class="flex gap-1" style="flex-wrap: wrap; margin-top: 1rem;">
+                    {% for tag in page.get_tags_list|slice:":5" %}
+                    <span class="badge badge-primary">{{ tag }}</span>
+                    {% endfor %}
+                </div>
+                {% endif %}
+            </div>
+            <div class="card-footer">
+                <div class="flex gap-3">
+                    <span><i class="fas fa-eye"></i> {{ page.view_count }}</span>
+                    <span><i class="fas fa-calendar"></i> {{ page.updated_at|date:"M d, Y" }}</span>
+                </div>
+                <a href="{% url 'wiki:page' page.slug %}" class="btn btn-sm btn-secondary">
+                    Read More <i class="fas fa-arrow-right"></i>
+                </a>
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+
+    <!-- Pagination -->
+    {% if is_paginated %}
+    <div class="pagination-wrapper" style="margin-top: 2rem; text-align: center;">
+        <div class="flex-center gap-2">
+            {% if page_obj.has_previous %}
+            <a href="?query={{ query }}&page=1" class="btn btn-secondary btn-sm">
+                <i class="fas fa-angle-double-left"></i>
+            </a>
+            <a href="?query={{ query }}&page={{ page_obj.previous_page_number }}" class="btn btn-secondary btn-sm">
+                <i class="fas fa-angle-left"></i>
+            </a>
+            {% endif %}
+            
+            <span class="badge badge-gold" style="padding: 0.5rem 1rem;">
+                Page {{ page_obj.number }} of {{ page_obj.paginator.num_pages }}
+            </span>
+            
+            {% if page_obj.has_next %}
+            <a href="?query={{ query }}&page={{ page_obj.next_page_number }}" class="btn btn-secondary btn-sm">
+                <i class="fas fa-angle-right"></i>
+            </a>
+            <a href="?query={{ query }}&page={{ page_obj.paginator.num_pages }}" class="btn btn-secondary btn-sm">
+                <i class="fas fa-angle-double-right"></i>
+            </a>
+            {% endif %}
+        </div>
+    </div>
+    {% endif %}
+    {% else %}
+    <div class="card" style="text-align: center; padding: 3rem;">
+        <i class="fas fa-search" style="font-size: 4rem; color: var(--color-text-muted); margin-bottom: 1rem;"></i>
+        <p class="text-muted">Try different search terms or browse by category.</p>
+        <a href="{% url 'wiki:index' %}" class="btn btn-primary mt-2">
+            <i class="fas fa-home"></i> Browse Wiki
+        </a>
+    </div>
+    {% endif %}
+    {% else %}
+    <!-- No search performed yet -->
+    <div class="card" style="text-align: center; padding: 3rem;">
+        <i class="fas fa-search" style="font-size: 4rem; color: var(--color-text-muted); margin-bottom: 1rem;"></i>
+        <h3>Search the Wiki</h3>
+        <p class="text-muted">Enter keywords above to find pages, or browse by category.</p>
+        <a href="{% url 'wiki:index' %}" class="btn btn-secondary mt-2">
+            <i class="fas fa-home"></i> Back to Wiki Home
+        </a>
+    </div>
+    {% endif %}
+</div>
+{% endblock %}
+

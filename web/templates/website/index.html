@@ -1,0 +1,163 @@
+{% extends "website/base.html" %}
+{% load static %}
+
+{% block title %}Home{% endblock %}
+
+{% block content %}
+<!-- Hero Section -->
+<section class="hero-section">
+    <h1 class="hero-title"><i class="fas fa-book-dead"></i> {{ game_name }}</h1>
+    <p class="hero-subtitle">
+        Enter a world of darkness and intrigue. A text-based multiplayer roleplaying game where shadows hold secrets and power comes at a price.
+    </p>
+    <div class="action-buttons">
+        {% if not account %}
+        <a href="/accounts/register/" class="btn btn-primary btn-lg">
+            <i class="fas fa-user-plus"></i> Create Account
+        </a>
+        {% endif %}
+        <a href="/webclient/" class="btn btn-{% if account %}primary{% else %}secondary{% endif %} btn-lg">
+            <i class="fas fa-play"></i> {% if account %}Play Now{% else %}Play as Guest{% endif %}
+        </a>
+        <a href="/wiki/" class="btn btn-secondary btn-lg">
+            <i class="fas fa-book"></i> Explore Wiki
+        </a>
+    </div>
+</section>
+
+<!-- Game Stats -->
+<section class="stats-grid">
+    <div class="stat-box">
+        <span class="stat-number">{{ num_accounts_connected }}</span>
+        <span class="stat-label">{% if num_accounts_connected == 1 %}Player{% else %}Players{% endif %} Online</span>
+    </div>
+    <div class="stat-box">
+        <span class="stat-number">{{ num_accounts_registered }}</span>
+        <span class="stat-label">Registered Accounts</span>
+    </div>
+    <div class="stat-box">
+        <span class="stat-number">{{ num_characters_total }}</span>
+        <span class="stat-label">Characters</span>
+    </div>
+    <div class="stat-box">
+        <span class="stat-number">{{ num_rooms_total }}</span>
+        <span class="stat-label">Locations</span>
+    </div>
+</section>
+
+<!-- Two Column Layout -->
+<div class="grid grid-2" style="margin-top: 3rem;">
+    <!-- Recently Connected -->
+    <section>
+        <div class="card">
+            <div class="card-header">
+                <h2 class="card-title"><i class="fas fa-users"></i> Recently Connected</h2>
+            </div>
+            <div class="card-body">
+                {% if latest_accounts %}
+                <ul class="account-list">
+                    {% for account in latest_accounts %}
+                    <li class="account-item">
+                        <span class="account-name">{{ account.username }}</span>
+                        <span class="account-time">{{ account.last_login|timesince }} ago</span>
+                    </li>
+                    {% endfor %}
+                </ul>
+                {% else %}
+                <div class="empty-state">
+                    <i class="fas fa-user-slash empty-state-icon"></i>
+                    <p>No recent activity</p>
+                </div>
+                {% endif %}
+            </div>
+        </div>
+    </section>
+
+    <!-- Game Info -->
+    <section>
+        <div class="card">
+            <div class="card-header">
+                <h2 class="card-title"><i class="fas fa-info-circle"></i> About</h2>
+            </div>
+            <div class="card-body">
+                <p style="font-family: var(--font-serif); font-size: 1.1rem; line-height: 1.8; margin-bottom: 1rem;">
+                    {{ game_name }} is a text-based multiplayer roleplaying game (MUD/MUSH) set in a gothic-punk universe. 
+                    Create your character, explore the dark city, interact with other players, and weave your own story 
+                    in a world where shadows hold secrets.
+                </p>
+                <h3 style="color: var(--color-accent-purple); font-size: 1.3rem; margin-top: 1.5rem; margin-bottom: 0.75rem;">Getting Started</h3>
+                <ul style="font-family: var(--font-serif); line-height: 1.8; padding-left: 1.5rem;">
+                    <li><a href="/wiki/">Read the Wiki</a> to learn about our world</li>
+                    <li><a href="/accounts/register/">Create an Account</a> to begin playing</li>
+                    <li><a href="/help/">Browse Help</a> for commands and guides</li>
+                    <li><a href="/channels/">View Channels</a> for communication info</li>
+                </ul>
+            </div>
+        </div>
+    </section>
+</div>
+
+<!-- Connection Info -->
+<section class="action-section" style="margin-top: 3rem;">
+    <h2 style="color: var(--color-accent-gold); margin-bottom: 1rem;">
+        <i class="fas fa-network-wired"></i> Connect to {{ game_name }}
+    </h2>
+    <p style="color: var(--color-text-secondary); font-family: var(--font-serif); font-size: 1.1rem; margin-bottom: 1.5rem;">
+        Play directly in your browser or connect with your favorite MUD client
+    </p>
+    <div class="grid grid-2" style="max-width: 800px; margin: 0 auto; text-align: left;">
+        <div>
+            <h3 style="color: var(--color-accent-purple); margin-bottom: 0.5rem;">
+                <i class="fas fa-globe"></i> Web Client
+            </h3>
+            <p style="color: var(--color-text-muted);">
+                Play instantly in your browser at:<br>
+                <a href="/webclient/" style="color: var(--color-accent-gold); font-weight: 600;">/webclient/</a>
+            </p>
+        </div>
+        <div>
+            <h3 style="color: var(--color-accent-purple); margin-bottom: 0.5rem;">
+                <i class="fas fa-terminal"></i> Telnet Client
+            </h3>
+            <p style="color: var(--color-text-muted);">
+                Connect with any MUD client:<br>
+                <span style="color: var(--color-accent-gold); font-family: monospace; font-weight: 600;">
+                    {% if telnet_ports %}{{ server_hostname }}:{{ telnet_ports.0 }}{% else %}localhost:4000{% endif %}
+                </span>
+            </p>
+        </div>
+    </div>
+</section>
+
+<!-- Database Stats (for staff/debugging) -->
+{% if account.is_superuser %}
+<section style="margin-top: 3rem;">
+    <div class="card">
+        <div class="card-header">
+            <h2 class="card-title"><i class="fas fa-database"></i> Database Statistics</h2>
+        </div>
+        <div class="card-body">
+            <div class="grid grid-4">
+                <div>
+                    <strong>Accounts:</strong> {{ num_accounts_registered }}<br>
+                    <small class="text-muted">Created this week: {{ num_accounts_registered_recent }}</small>
+                </div>
+                <div>
+                    <strong>Characters:</strong> {{ num_characters_total }}<br>
+                    <small class="text-muted">Total in database</small>
+                </div>
+                <div>
+                    <strong>Rooms:</strong> {{ num_rooms_total }}<br>
+                    <small class="text-muted">Total locations</small>
+                </div>
+                <div>
+                    <strong>Exits:</strong> {{ num_exits_total }}<br>
+                    <small class="text-muted">Total connections</small>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+{% endif %}
+{% endblock %}
+

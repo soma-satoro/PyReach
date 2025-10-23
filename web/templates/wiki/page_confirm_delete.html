@@ -1,0 +1,76 @@
+{% extends "wiki/base.html" %}
+{% load static %}
+
+{% block title %}Delete Page - {{ object.title }}{% endblock %}
+
+{% block content %}
+<div class="container">
+    <div class="card" style="max-width: 700px; margin: 0 auto;">
+        <div class="card-header" style="background: rgba(220, 20, 60, 0.1); border-color: var(--color-accent-crimson);">
+            <h1 style="margin: 0; color: var(--color-accent-crimson);">
+                <i class="fas fa-exclamation-triangle"></i> Confirm Deletion
+            </h1>
+        </div>
+        <div class="card-body">
+            <div class="alert alert-error">
+                <i class="fas fa-exclamation-circle"></i>
+                <strong>Warning:</strong> This action cannot be undone!
+            </div>
+            
+            <p style="font-size: 1.1rem; margin: 1.5rem 0;">
+                Are you sure you want to delete the following page?
+            </p>
+            
+            <div style="background: var(--color-bg-tertiary); border: 1px solid var(--color-border); border-radius: var(--radius-md); padding: 1.5rem; margin: 1.5rem 0;">
+                <h2 style="margin-top: 0;">{{ object.title }}</h2>
+                {% if object.category %}
+                <p class="text-muted">
+                    <i class="fas fa-folder"></i> Category: {{ object.category.name }}
+                </p>
+                {% endif %}
+                <p class="text-muted">
+                    <i class="fas fa-calendar"></i> Created: {{ object.created_at|date:"F d, Y" }}
+                </p>
+                <p class="text-muted">
+                    <i class="fas fa-eye"></i> Views: {{ object.view_count }}
+                </p>
+            </div>
+            
+            <ul style="color: var(--color-text-muted); margin: 1.5rem 0; padding-left: 1.5rem;">
+                <li>The page will be permanently deleted</li>
+                <li>All revisions and history will be lost</li>
+                <li>Any links to this page will break</li>
+                <li>This action cannot be undone</li>
+            </ul>
+
+            <form method="post">
+                {% csrf_token %}
+                <div class="flex gap-2" style="margin-top: 2rem;">
+                    <button type="submit" class="btn btn-danger btn-lg">
+                        <i class="fas fa-trash"></i> Yes, Delete This Page
+                    </button>
+                    <a href="{% url 'wiki:page' object.slug %}" class="btn btn-secondary btn-lg">
+                        <i class="fas fa-arrow-left"></i> No, Keep This Page
+                    </a>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<style>
+.alert-error {
+    animation: pulse 2s infinite;
+}
+
+@keyframes pulse {
+    0%, 100% {
+        opacity: 1;
+    }
+    50% {
+        opacity: 0.8;
+    }
+}
+</style>
+{% endblock %}
+

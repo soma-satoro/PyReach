@@ -1,0 +1,92 @@
+{% extends "website/base.html" %}
+{% load static %}
+
+{% block title %}Channels{% endblock %}
+
+{% block content %}
+<div class="section-header">
+    <h1 class="section-title"><i class="fas fa-comments"></i> Communication Channels</h1>
+    <p class="section-subtitle">Stay connected with the {{ game_name }} community</p>
+</div>
+
+<div class="card" style="margin-bottom: 2rem;">
+    <div class="card-body">
+        <p style="font-family: var(--font-serif); font-size: 1.1rem; line-height: 1.8;">
+            Channels are communication tools that allow players to chat with each other across the game. 
+            Use them to roleplay, coordinate with your group, or chat out-of-character with fellow players.
+        </p>
+    </div>
+</div>
+
+{% if object_list %}
+<div class="channel-list">
+    {% for channel in object_list %}
+    <div class="channel-item">
+        <div class="channel-header">
+            <div>
+                <div class="channel-name">
+                    <i class="fas fa-hashtag"></i> {{ channel.db_key }}
+                </div>
+                {% if channel.db.aliases %}
+                <div class="channel-alias">
+                    Aliases: {{ channel.db.aliases|join:", " }}
+                </div>
+                {% endif %}
+            </div>
+            <div>
+                <span class="badge badge-primary">
+                    {% with channel.subscriptions.all.count as sub_count %}
+                    <i class="fas fa-users"></i> {{ sub_count }} subscriber{{ sub_count|pluralize }}
+                    {% endwith %}
+                </span>
+            </div>
+        </div>
+        {% if channel.db.desc %}
+        <div class="channel-desc">
+            {{ channel.db.desc }}
+        </div>
+        {% endif %}
+    </div>
+    {% endfor %}
+</div>
+{% else %}
+<div class="empty-state">
+    <i class="fas fa-comments-slash empty-state-icon"></i>
+    <h3>No Public Channels</h3>
+    <p>Channels will appear here once they are created.</p>
+</div>
+{% endif %}
+
+<div class="card" style="margin-top: 3rem; background: var(--color-bg-tertiary);">
+    <div class="card-header">
+        <h3 class="card-title"><i class="fas fa-info-circle"></i> Using Channels</h3>
+    </div>
+    <div class="card-body">
+        <p style="font-family: var(--font-serif); font-size: 1.05rem; margin-bottom: 1rem;">
+            Once connected to the game, you can use these commands to interact with channels:
+        </p>
+        <ul style="font-family: var(--font-serif); line-height: 2; list-style: none; padding-left: 0;">
+            <li><code style="background: var(--color-bg-secondary); padding: 0.25rem 0.5rem; border-radius: 4px; color: var(--color-accent-purple);">channels</code> - List all available channels</li>
+            <li><code style="background: var(--color-bg-secondary); padding: 0.25rem 0.5rem; border-radius: 4px; color: var(--color-accent-purple);">addcom &lt;alias&gt; = &lt;channel&gt;</code> - Subscribe to a channel</li>
+            <li><code style="background: var(--color-bg-secondary); padding: 0.25rem 0.5rem; border-radius: 4px; color: var(--color-accent-purple);">&lt;alias&gt; &lt;message&gt;</code> - Send a message to a channel</li>
+            <li><code style="background: var(--color-bg-secondary); padding: 0.25rem 0.5rem; border-radius: 4px; color: var(--color-accent-purple);">delcom &lt;alias&gt;</code> - Unsubscribe from a channel</li>
+        </ul>
+    </div>
+</div>
+
+{% if not account %}
+<div class="action-section" style="margin-top: 3rem;">
+    <h3><i class="fas fa-comments"></i> Join the Conversation</h3>
+    <p style="margin-top: 1rem;">Create an account to connect with the {{ game_name }} community.</p>
+    <div class="action-buttons" style="margin-top: 1rem;">
+        <a href="/accounts/register/" class="btn btn-primary btn-lg">
+            <i class="fas fa-user-plus"></i> Create Account
+        </a>
+        <a href="/webclient/" class="btn btn-secondary btn-lg">
+            <i class="fas fa-play"></i> Play as Guest
+        </a>
+    </div>
+</div>
+{% endif %}
+{% endblock %}
+

@@ -12,7 +12,7 @@ from evennia.objects.objects import DefaultExit
 from .objects import ObjectParent
 
 
-class Exit(ObjectParent, DefaultExit):
+class Exit(DefaultExit, ObjectParent):
     """
     Exits are connectors between rooms. Exits are normal Objects except
     they defines the `destination` property and overrides some hooks

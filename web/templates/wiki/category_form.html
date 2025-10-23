@@ -1,0 +1,151 @@
+{% extends "wiki/base.html" %}
+{% load static %}
+
+{% block title %}{% if form.instance.pk %}Edit{% else %}Create{% endif %} Category{% endblock %}
+
+{% block content %}
+<div class="container">
+    <div class="card" style="max-width: 800px; margin: 0 auto;">
+        <div class="card-header">
+            <h1 style="margin: 0;">
+                <i class="fas fa-{% if form.instance.pk %}edit{% else %}plus{% endif %}"></i>
+                {% if form.instance.pk %}Edit Category: {{ form.instance.name }}{% else %}Create New Category{% endif %}
+            </h1>
+        </div>
+        <div class="card-body">
+            <form method="post">
+                {% csrf_token %}
+                
+                {% if form.non_field_errors %}
+                <div class="alert alert-error">
+                    {{ form.non_field_errors }}
+                </div>
+                {% endif %}
+
+                <!-- Name -->
+                <div class="form-group">
+                    <label class="form-label" for="{{ form.name.id_for_label }}">
+                        <i class="fas fa-tag"></i> Category Name *
+                    </label>
+                    {{ form.name }}
+                    {% if form.name.errors %}
+                    <div class="alert alert-error" style="margin-top: 0.5rem;">
+                        {{ form.name.errors }}
+                    </div>
+                    {% endif %}
+                </div>
+
+                <!-- Slug -->
+                <div class="form-group">
+                    <label class="form-label" for="{{ form.slug.id_for_label }}">
+                        <i class="fas fa-link"></i> URL Slug
+                    </label>
+                    {{ form.slug }}
+                    {% if form.slug.errors %}
+                    <div class="alert alert-error" style="margin-top: 0.5rem;">
+                        {{ form.slug.errors }}
+                    </div>
+                    {% endif %}
+                    <small class="form-help">Leave blank to auto-generate from name</small>
+                </div>
+
+                <!-- Description -->
+                <div class="form-group">
+                    <label class="form-label" for="{{ form.description.id_for_label }}">
+                        <i class="fas fa-align-left"></i> Description
+                    </label>
+                    {{ form.description }}
+                    {% if form.description.errors %}
+                    <div class="alert alert-error" style="margin-top: 0.5rem;">
+                        {{ form.description.errors }}
+                    </div>
+                    {% endif %}
+                    <small class="form-help">Brief description of this category</small>
+                </div>
+
+                <!-- Icon -->
+                <div class="form-group">
+                    <label class="form-label" for="{{ form.icon.id_for_label }}">
+                        <i class="fas fa-icons"></i> Icon
+                    </label>
+                    {{ form.icon }}
+                    {% if form.icon.errors %}
+                    <div class="alert alert-error" style="margin-top: 0.5rem;">
+                        {{ form.icon.errors }}
+                    </div>
+                    {% endif %}
+                    <small class="form-help">
+                        Font Awesome icon class (e.g., "fa-book", "fa-users", "fa-crown").
+                        See <a href="https://fontawesome.com/icons" target="_blank">Font Awesome</a> for options.
+                    </small>
+                </div>
+
+                <!-- Parent Category -->
+                <div class="form-group">
+                    <label class="form-label" for="{{ form.parent.id_for_label }}">
+                        <i class="fas fa-sitemap"></i> Parent Category
+                    </label>
+                    {{ form.parent }}
+                    {% if form.parent.errors %}
+                    <div class="alert alert-error" style="margin-top: 0.5rem;">
+                        {{ form.parent.errors }}
+                    </div>
+                    {% endif %}
+                    <small class="form-help">Optional: Make this a subcategory of another category</small>
+                </div>
+
+                <!-- Order -->
+                <div class="form-group">
+                    <label class="form-label" for="{{ form.order.id_for_label }}">
+                        <i class="fas fa-sort"></i> Display Order
+                    </label>
+                    {{ form.order }}
+                    {% if form.order.errors %}
+                    <div class="alert alert-error" style="margin-top: 0.5rem;">
+                        {{ form.order.errors }}
+                    </div>
+                    {% endif %}
+                    <small class="form-help">Lower numbers appear first (0 is first)</small>
+                </div>
+
+                <!-- Buttons -->
+                <div class="flex gap-2" style="margin-top: 2rem;">
+                    <button type="submit" class="btn btn-primary btn-lg">
+                        <i class="fas fa-save"></i> 
+                        {% if form.instance.pk %}Update Category{% else %}Create Category{% endif %}
+                    </button>
+                    <a href="{% url 'wiki:index' %}" class="btn btn-secondary btn-lg">
+                        <i class="fas fa-times"></i> Cancel
+                    </a>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_scripts %}
+<script>
+$(document).ready(function() {
+    // Auto-generate slug from name
+    $('#id_name').on('input', function() {
+        if ($('#id_slug').val() === '' || $('#id_slug').data('auto-generated')) {
+            var slug = $(this).val()
+                .toLowerCase()
+                .replace(/[^\w\s-]/g, '')
+                .replace(/[\s_-]+/g, '-')
+                .replace(/^-+|-+$/g, '');
+            $('#id_slug').val(slug).data('auto-generated', true);
+        }
+    });
+
+    // Remove auto-generated flag if user manually edits slug
+    $('#id_slug').on('input', function() {
+        if ($(this).val() !== '') {
+            $(this).data('auto-generated', false);
+        }
+    });
+});
+</script>
+{% endblock %}
+

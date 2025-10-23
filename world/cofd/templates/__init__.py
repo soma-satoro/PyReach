@@ -180,4 +180,38 @@ def get_template_all_powers(template_name):
     # Fallback: combine primary and secondary
     primary = get_template_primary_powers(template_name)
     secondary = get_template_secondary_powers(template_name)
-    return primary + secondary 
+    return primary + secondary
+
+
+def is_power_from_any_template(power_name):
+    """
+    Check if a power belongs to any template and return which template(s).
+    
+    Args:
+        power_name (str): Name of the power to check
+        
+    Returns:
+        tuple: (is_power, template_list) where is_power is bool and template_list is list of template names
+    """
+    power_name = power_name.lower()
+    matching_templates = []
+    
+    # List of all templates to check
+    all_templates = [
+        'vampire', 'legacy_vampire',
+        'mage', 'legacy_mage',
+        'werewolf', 'legacy_werewolf',
+        'changeling', 'legacy_changeling',
+        'geist', 'legacy_geist',
+        'promethean', 'legacy_promethean',
+        'demon', 'hunter', 'legacy_hunter',
+        'deviant', 'mummy',
+        'legacy_changingbreeds'
+    ]
+    
+    for template in all_templates:
+        template_powers = get_template_all_powers(template)
+        if power_name in template_powers:
+            matching_templates.append(template)
+    
+    return (len(matching_templates) > 0, matching_templates) 

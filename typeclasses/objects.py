@@ -11,7 +11,7 @@ with a location in the game world (like Characters, Rooms, Exits).
 from evennia.objects.objects import DefaultObject
 
 
-class ObjectParent:
+class ObjectParent(object):
     """
     This is a mixin that can be used to override *all* entities inheriting at
     some distance from DefaultObject (Objects, Exits, Characters and Rooms).
@@ -21,9 +21,10 @@ class ObjectParent:
     take precedence.
 
     """
+    pass
 
 
-class Object(ObjectParent, DefaultObject):
+class Object(DefaultObject, ObjectParent):
     """
     This is the root Object typeclass, representing all entities that
     have an actual presence in-game. DefaultObjects generally have a

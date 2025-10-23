@@ -12,76 +12,103 @@ class CmdSheet(MuxCommand):
     
     Usage:
         +sheet [character] - Display character sheet
-        +sheet/ascii [character] - Force ASCII display (no Unicode dots)
-        +sheet/geist [character] - Display geist character sheet (Sin-Eater only)
-        +sheet/geist/ascii [character] - Display geist sheet in ASCII mode
-        +sheet/mage [character] - Display mage-specific sheet (Mage only)
-        +sheet/mage/ascii [character] - Display mage sheet in ASCII mode
-        +sheet/demon [character] - Display demonic form sheet (Demon only)
-        +sheet/demon/ascii [character] - Display demon form sheet in ASCII mode
-        +sheet/deviant [character] - Display deviant powers sheet (Deviant only)
-        +sheet/deviant/ascii [character] - Display deviant sheet in ASCII mode
+        +sheet/ascii [character] - Display with numeric format this time
+        +sheet/unicode [character] - Display with Unicode dots (●●●○○) this time
+        +sheet/ascii default - Set numeric display as your permanent default
+        +sheet/unicode default - Set Unicode dots as your permanent default
+        +sheet/[template] [character] - Display template secondary sheet
+            - Mage: Nimbus, Obsessions, Praxes, and Dedicated Tool
+            - Demon: Modifications, Technologies, Propulsion, and Process
+            - Deviant: Variations and Scars
+            - Geist: Bound Geist
         +sheet/show - Show your sheet to everyone in the room
         +sheet/show [player] - Show your sheet to a specific player
-        +sheet/show/geist [player] - Show your geist sheet to the room or a player
-        +sheet/show/mage [player] - Show your mage sheet to the room or a player
-        +sheet/show/demon [player] - Show your demon form sheet to the room or a player
-        +sheet/show/deviant [player] - Show your deviant sheet to the room or a player
-        +sheet/show/ascii [player] - Show your sheet in ASCII mode
+        +sheet/show/[template] [player] - Show your template secondary sheet to a player
         
     Shows all character statistics in an organized format.
-    The /geist switch displays the secondary character sheet for a Sin-Eater's bound geist.
-    The /mage switch displays mage-specific details like Nimbus, Obsessions, Praxes, and Dedicated Tool.
-    The /demon switch displays the demonic form sheet showing Modifications, Technologies, Propulsion, and Process.
-    The /deviant switch displays the Deviant powers sheet showing Variations and Scars with their entanglements.
-    The /show switch allows you to share your character sheet with others in the room or privately.
+    
+    Display Modes:
+    - Numeric (Default): Stats shown as numbers (Strength.......3, Health 5/7)
+    - Unicode (Opt-in): Stats shown as dots (●●●○○)
+    
+    To set your permanent preference:
+      +sheet/unicode default  - Always use Unicode dots
+      +sheet/ascii default    - Always use numeric (resets to default)
+    
+    Your preference persists across logins.
     """
     
     key = "+sheet"
     aliases = ["sheet"]
     help_category = "Character Sheets and Development"
     
-    def _get_dots_style(self, force_ascii=False):
+    def _get_dots_style(self, force_ascii=False, force_unicode=False):
         """
-        Determine whether to use Unicode or ASCII dots based on client support.
+        Determine whether to use Unicode dots or numeric display.
         
         Args:
-            force_ascii (bool): Force ASCII display regardless of client support
+            force_ascii (bool): Force numeric display regardless of user preference
+            force_unicode (bool): Force Unicode display regardless of user preference
             
         Returns:
-            tuple: (filled_char, empty_char, supports_utf8)
+            tuple: (filled_char, empty_char, supports_utf8, use_numeric)
         """
-        # Check if user explicitly wants ASCII
+        # Check if user explicitly wants numeric display via switch
         if force_ascii or "ascii" in self.switches:
-            return ("*", "-", False)
+            return ("*", "-", False, True)  # use_numeric=True
         
-        # Check session UTF-8 support
-        if self.session:
-            # Check if the client explicitly supports UTF-8:
-            utf8_support = self.session.protocol_flags.get("UTF-8", None)
-            encoding = self.session.protocol_flags.get("ENCODING", "utf-8").lower()
-            
-            # If the client explicitly doesn't support UTF-8 or uses non-UTF-8 encoding:
-            if utf8_support is False or encoding not in ["utf-8", "utf8"]:
-                return ("*", "-", False)
+        # Check if user explicitly wants Unicode display via switch
+        if force_unicode or "unicode" in self.switches:
+            return ("●", "○", True, False)  # use_numeric=False
         
-        # Unicode is default if there's not a specific error, the client is unknown, or the player doesn't specify ascii
-        return ("●", "○", True)
+        # Check user's saved preference (from +sheet/unicode default or +sheet/ascii default)
+        if hasattr(self.caller, 'db') and hasattr(self.caller.db, 'use_unicode_dots'):
+            if self.caller.db.use_unicode_dots:
+                return ("●", "○", True, False)  # User saved Unicode preference
+        
+        # Fallback: Check if set via @option (for backward compatibility)
+        if hasattr(self.caller, 'account') and self.caller.account:
+            try:
+                unicode_option = self.caller.account.options.get("UNICODE_DOTS")
+                if unicode_option is True:  # Explicitly check for True (boolean)
+                    return ("●", "○", True, False)  # User explicitly enabled Unicode
+            except Exception:
+                pass  # Option not available, continue to default
+        
+        # Default to numeric display for all users
+        return ("*", "-", False, True)  # use_numeric=True as default
     
-    def _format_dots(self, value, max_value=5, force_ascii=False):
+    def _format_dots(self, value, max_value=5, force_ascii=False, show_max=False):
         """
-        Format a stat value as dots (Unicode or ASCII).
+        Format a stat value as dots (Unicode), numbers (non-UTF8), or ASCII.
         
         Args:
             value (int): Current stat value
             max_value (int): Maximum possible value
-            force_ascii (bool): Force ASCII display
+            force_ascii (bool): Force numeric display
+            show_max (bool): For numeric mode, show max value (e.g., pools vs stats)
             
         Returns:
-            str: Formatted dot display
+            str: Formatted dot display or numeric display
         """
-        filled_char, empty_char, supports_utf8 = self._get_dots_style(force_ascii)
+        filled_char, empty_char, supports_utf8, use_numeric = self._get_dots_style(force_ascii)
         
+        # If numeric display is requested (non-UTF8 clients or /ascii switch)
+        if use_numeric:
+            # Handle values exceeding maximum (e.g., shapeshifted werewolves)
+            if value > max_value:
+                if show_max:
+                    return f"{value}/{max_value} |y(+{value - max_value})|n"
+                else:
+                    return f"{value} |y(+{value - max_value})|n"
+            else:
+                # For pools, show current/max; for stats, show just the value
+                if show_max:
+                    return f"{value}/{max_value}"
+                else:
+                    return str(value)
+        
+        # Unicode/ASCII dots display
         # Handle values exceeding maximum (e.g., shapeshifted werewolves)
         if value > max_value:
             # Show all filled dots with a special indicator
@@ -93,25 +120,6 @@ class CmdSheet(MuxCommand):
             empty = empty_char * (max_value - value)
             return filled + empty
     
-    def _show_encoding_warning(self, supports_utf8):
-        """
-        Show encoding warning if not using UTF-8.
-        
-        Args:
-            supports_utf8 (bool): Whether UTF-8 is supported
-        """
-        if not supports_utf8:
-            warning = [
-                "",
-                "|y" + "="*78 + "|n",
-                "|rNOTE: Your client doesn't support UTF-8 encoding.|n",
-                "|w- Set your MUD client to use UTF-8 encoding|n",
-                "|w- Or use: option encoding=utf-8  (if you're not logged in)|n",
-                "|w- Or use: +sheet/ascii for ASCII display|n",
-                "|y" + "="*78 + "|n",
-                ""
-            ]
-            self.caller.msg("\n".join(warning))
 
     def _get_template_bio_fields(self, template):
         """Get valid bio fields for a specific template from the template registry"""
@@ -187,6 +195,34 @@ class CmdSheet(MuxCommand):
         """Set health track from array format back to dictionary format."""
         set_health_track(character, track)
     
+    def _calculate_health_stats(self, health_track, health_max):
+        """
+        Calculate health statistics from health track.
+        
+        Args:
+            health_track (list): Health track array with damage types
+            health_max (int): Maximum health
+            
+        Returns:
+            tuple: (current_health, bashing_count, lethal_count, aggravated_count)
+        """
+        bashing_count = 0
+        lethal_count = 0
+        aggravated_count = 0
+        
+        for damage_type in health_track:
+            if damage_type == "bashing":
+                bashing_count += 1
+            elif damage_type == "lethal":
+                lethal_count += 1
+            elif damage_type == "aggravated":
+                aggravated_count += 1
+        
+        total_damage = bashing_count + lethal_count + aggravated_count
+        current_health = health_max - total_damage
+        
+        return (current_health, bashing_count, lethal_count, aggravated_count)
+    
     def _get_template_powers(self, template):
         """Get the list of available primary powers for a specific template."""
         if not template:
@@ -223,7 +259,7 @@ class CmdSheet(MuxCommand):
             # If mage_spells not found, return empty list
             return []
     
-    def _format_powers_display(self, powers, template_powers, force_ascii):
+    def _format_powers_display(self, powers, template_powers, force_ascii, use_numeric=False):
         """Format the powers section for display."""
         if not template_powers:
             return ["No powers available for this template."]
@@ -260,7 +296,13 @@ class CmdSheet(MuxCommand):
                 
                 # Format display with or without dots
                 if dots:
-                    power_display = f"{display_name.replace('_', ' ').title():<20} {dots}"
+                    power_name_display = display_name.replace('_', ' ').title()
+                    # Use dot padding in numeric mode for better readability
+                    if use_numeric:
+                        padding = '.' * (37 - len(power_name_display))
+                        power_display = f"{power_name_display}{padding}{dots}"
+                    else:
+                        power_display = f"{power_name_display:<37} {dots}"
                 else:
                     power_display = f"{display_name.replace('_', ' ').title()}"
                 displayed_powers.append(power_display)
@@ -274,12 +316,12 @@ class CmdSheet(MuxCommand):
             right_power = displayed_powers[i + 1] if i + 1 < len(displayed_powers) else ""
             
             # Format with proper spacing (39 chars for left column)
-            left_formatted = left_power.ljust(39)
-            power_lines.append(f"{left_formatted} {right_power}")
+            left_formatted = left_power.ljust(42)
+            power_lines.append(f"{left_formatted}{right_power}")
         
         return power_lines
     
-    def _format_secondary_powers_display(self, powers, template_secondary_powers, force_ascii):
+    def _format_secondary_powers_display(self, powers, template_secondary_powers, force_ascii, use_numeric=False):
         """Format the secondary powers (rituals/rites) section for display."""
         if not template_secondary_powers:
             return ["No secondary powers available for this template."]
@@ -317,7 +359,13 @@ class CmdSheet(MuxCommand):
                 
                 # Format display with or without dots
                 if display_marker:
-                    power_display = f"{display_name.replace('_', ' ').title():<20} {display_marker}"
+                    power_name_display = display_name.replace('_', ' ').title()
+                    # Use dot padding in numeric mode for better readability
+                    if use_numeric:
+                        padding = '.' * (37 - len(power_name_display))
+                        power_display = f"{power_name_display}{padding}{display_marker}"
+                    else:
+                        power_display = f"{power_name_display:<37} {display_marker}"
                 else:
                     power_display = f"{display_name.replace('_', ' ').title()}"
                 displayed_powers.append(power_display)
@@ -331,13 +379,29 @@ class CmdSheet(MuxCommand):
             right_power = displayed_powers[i + 1] if i + 1 < len(displayed_powers) else ""
             
             # Format with proper spacing (39 chars for left column)
-            left_formatted = left_power.ljust(39)
-            power_lines.append(f"{left_formatted} {right_power}")
+            left_formatted = left_power.ljust(42)
+            power_lines.append(f"{left_formatted}{right_power}")
         
         return power_lines
 
     def func(self):
         """Display the character sheet"""
+        # Check if this is a request to set default display mode
+        if self.args and self.args.strip().lower() == "default":
+            if "unicode" in self.switches:
+                self.caller.db.use_unicode_dots = True
+                self.caller.msg("|gUnicode dots display (●●●○○) set as your permanent default.|n")
+                self.caller.msg("Use |w+sheet/ascii default|n to switch back to numeric display.")
+                return
+            elif "ascii" in self.switches:
+                self.caller.db.use_unicode_dots = False
+                self.caller.msg("|gNumeric display set as your permanent default.|n")
+                self.caller.msg("Use |w+sheet/unicode default|n to switch to Unicode dots.")
+                return
+            else:
+                self.caller.msg("|rYou must use either |w+sheet/unicode default|r or |w+sheet/ascii default|r.|n")
+                return
+        
         # Check if this is a show request
         if "show" in self.switches:
             self.show_sheet_to_others()
@@ -386,11 +450,7 @@ class CmdSheet(MuxCommand):
         
         # Get dot style and check UTF-8 support
         force_ascii = "ascii" in self.switches
-        filled_char, empty_char, supports_utf8 = self._get_dots_style(force_ascii)
-        
-        # Show encoding warning if needed (only for self, not when viewing others)
-        if target == self.caller and not supports_utf8 and "ascii" not in self.switches:
-            self._show_encoding_warning(supports_utf8)
+        filled_char, empty_char, supports_utf8, use_numeric = self._get_dots_style(force_ascii)
         
         # Build the sheet display
         output = []
@@ -494,21 +554,39 @@ class CmdSheet(MuxCommand):
             for attr in ["intelligence", "wits", "resolve"]:
                 val = attrs.get(attr, 0)
                 dots = self._format_dots(val, 5, force_ascii)
-                mental.append(f"{attr.title():<15} {dots}")
+                # Use dot padding in numeric mode for better readability
+                if use_numeric:
+                    attr_name = attr.title()
+                    padding = '.' * (20 - len(attr_name))
+                    mental.append(f"{attr_name}{padding}{dots}")
+                else:
+                    mental.append(f"{attr.title():<15} {dots}")
             
             # Physical
             physical = []
             for attr in ["strength", "dexterity", "stamina"]:
                 val = attrs.get(attr, 0)
                 dots = self._format_dots(val, 5, force_ascii)
-                physical.append(f"{attr.title():<15} {dots}")
+                # Use dot padding in numeric mode for better readability
+                if use_numeric:
+                    attr_name = attr.title()
+                    padding = '.' * (20 - len(attr_name))
+                    physical.append(f"{attr_name}{padding}{dots}")
+                else:
+                    physical.append(f"{attr.title():<15} {dots}")
             
             # Social
             social = []
             for attr in ["presence", "manipulation", "composure"]:
                 val = attrs.get(attr, 0)
                 dots = self._format_dots(val, 5, force_ascii)
-                social.append(f"{attr.title():<15} {dots}")
+                # Use dot padding in numeric mode for better readability
+                if use_numeric:
+                    attr_name = attr.title()
+                    padding = '.' * (20 - len(attr_name))
+                    social.append(f"{attr_name}{padding}{dots}")
+                else:
+                    social.append(f"{attr.title():<15} {dots}")
             
             # Display in columns (aligned with skills)
             for i in range(3):
@@ -534,7 +612,13 @@ class CmdSheet(MuxCommand):
             for skill in mental_skills:
                 val = skills.get(skill, 0)
                 dots = self._format_dots(val, 5, force_ascii)
-                skill_text = f"{skill.replace('_', ' ').title():<15} {dots}"
+                skill_name = skill.replace('_', ' ').title()
+                # Use dot padding in numeric mode for better readability
+                if use_numeric:
+                    padding = '.' * (20 - len(skill_name))
+                    skill_text = f"{skill_name}{padding}{dots}"
+                else:
+                    skill_text = f"{skill_name:<15} {dots}"
                 mental_display.append(skill_text)
                 
                 # Collect specialties for separate display
@@ -551,7 +635,13 @@ class CmdSheet(MuxCommand):
             for skill in physical_skills:
                 val = skills.get(skill, 0)
                 dots = self._format_dots(val, 5, force_ascii)
-                skill_text = f"{skill.replace('_', ' ').title():<15} {dots}"
+                skill_name = skill.replace('_', ' ').title()
+                # Use dot padding in numeric mode for better readability
+                if use_numeric:
+                    padding = '.' * (20 - len(skill_name))
+                    skill_text = f"{skill_name}{padding}{dots}"
+                else:
+                    skill_text = f"{skill_name:<15} {dots}"
                 physical_display.append(skill_text)
                 
                 # Collect specialties for separate display
@@ -568,7 +658,13 @@ class CmdSheet(MuxCommand):
             for skill in social_skills:
                 val = skills.get(skill, 0)
                 dots = self._format_dots(val, 5, force_ascii)
-                skill_text = f"{skill.replace('_', ' ').title():<15} {dots}"
+                skill_name = skill.replace('_', ' ').title()
+                # Use dot padding in numeric mode for better readability
+                if use_numeric:
+                    padding = '.' * (20 - len(skill_name))
+                    skill_text = f"{skill_name}{padding}{dots}"
+                else:
+                    skill_text = f"{skill_name:<15} {dots}"
                 social_display.append(skill_text)
                 
                 # Collect specialties for separate display
@@ -629,68 +725,109 @@ class CmdSheet(MuxCommand):
                 else:
                     display_name = merit_name.replace('_', ' ').title()
                 
-                merit_display = f"{display_name:<25} {dots}"
+                # Use dot padding in numeric mode for better readability
+                if use_numeric:
+                    padding = '.' * (28 - len(display_name))
+                    merit_display = f"{display_name}{padding}{dots}"
+                else:
+                    merit_display = f"{display_name:<28} {dots}"
                 merit_list.append(merit_display)
         
         # Create advantages list (including integrity)
-        advantage_list = [
-            f"{'Defense':<15} : {advantages.get('defense', 0)}",
-            f"{'Speed':<15} : {advantages.get('speed', 0)}",
-            f"{'Initiative':<15} : {advantages.get('initiative', 0)}",
-            f"{'Size':<15} : {other.get('size', 5)}"
-        ]
+        # Use dot padding in numeric mode for consistency
+        if use_numeric:
+            advantage_list = [
+                f"Defense................... {advantages.get('defense', 0)}",
+                f"Speed..................... {advantages.get('speed', 0)}",
+                f"Initiative................ {advantages.get('initiative', 0)}",
+                f"Size...................... {other.get('size', 5)}"
+            ]
+        else:
+            advantage_list = [
+                f"{'Defense':<15} : {advantages.get('defense', 0)}",
+                f"{'Speed':<15} : {advantages.get('speed', 0)}",
+                f"{'Initiative':<15} : {advantages.get('initiative', 0)}",
+                f"{'Size':<15} : {other.get('size', 5)}"
+            ]
         
         # Add integrity to advantages (except for Geist characters who don't use integrity)
         if template != "geist":
             integrity_name = target.get_integrity_name(template)
-            advantage_list.append(f"{integrity_name:<15} : {other.get('integrity', 7)}")
+            if use_numeric:
+                padding = '.' * (21 - len(integrity_name))
+                advantage_list.append(f"{integrity_name}{padding} {other.get('integrity', 7)}")
+            else:
+                advantage_list.append(f"{integrity_name:<15} : {other.get('integrity', 7)}")
         
         # Add template-specific advantages
         if template == "changeling":
             wyrd = advantages.get("wyrd", 0)
             if wyrd > 0:
-                advantage_list.append(f"{'Wyrd':<15} : {wyrd}")
+                if use_numeric:
+                    advantage_list.append(f"Wyrd...................... {wyrd}")
+                else:
+                    advantage_list.append(f"{'Wyrd':<15} : {wyrd}")
         elif template == "werewolf":
             primal_urge = advantages.get("primal_urge", 0)
             if primal_urge > 0:
-                advantage_list.append(f"{'Primal Urge':<15} : {primal_urge}")
+                if use_numeric:
+                    advantage_list.append(f"Primal Urge............... {primal_urge}")
+                else:
+                    advantage_list.append(f"{'Primal Urge':<15} : {primal_urge}")
         elif template == "vampire":
             blood_potency = advantages.get("blood_potency", 0)
             if blood_potency > 0:
-                advantage_list.append(f"{'Blood Potency':<15} : {blood_potency}")
+                if use_numeric:
+                    advantage_list.append(f"Blood Potency............. {blood_potency}")
+                else:
+                    advantage_list.append(f"{'Blood Potency':<15} : {blood_potency}")
         elif template == "mage":
             gnosis = advantages.get("gnosis", 0)
             if gnosis > 0:
-                advantage_list.append(f"{'Gnosis':<15} : {gnosis}")
-        #elif template == "beast":
-        #    satiety = advantages.get("satiety", 0)
-        #    if satiety > 0:
-        #        advantage_list.append(f"{'Satiety':<15} : {satiety}")
+                if use_numeric:
+                    advantage_list.append(f"Gnosis.................... {gnosis}")
+                else:
+                    advantage_list.append(f"{'Gnosis':<15} : {gnosis}")
         elif template == "deviant":
             deviation = advantages.get("deviation", 0)
             if deviation > 0:
-                advantage_list.append(f"{'Deviation':<15} : {deviation}")
+                if use_numeric:
+                    advantage_list.append(f"Deviation................. {deviation}")
+                else:
+                    advantage_list.append(f"{'Deviation':<15} : {deviation}")
         elif template == "demon":
             primum = advantages.get("primum", 0)
             if primum > 0:
-                advantage_list.append(f"{'Primum':<15} : {primum}")
+                if use_numeric:
+                    advantage_list.append(f"Primum.................... {primum}")
+                else:
+                    advantage_list.append(f"{'Primum':<15} : {primum}")
         elif template == "promethean":
             azoth = advantages.get("azoth", 0)
             if azoth > 0:
-                advantage_list.append(f"{'Azoth':<15} : {azoth}")
+                if use_numeric:
+                    advantage_list.append(f"Azoth..................... {azoth}")
+                else:
+                    advantage_list.append(f"{'Azoth':<15} : {azoth}")
         elif template == "geist":
             # Geist characters use Synergy instead of integrity
             synergy = advantages.get("synergy", 1)
-            advantage_list.append(f"{'Synergy':<15} : {synergy}")
+            if use_numeric:
+                advantage_list.append(f"Synergy................... {synergy}")
+            else:
+                advantage_list.append(f"{'Synergy':<15} : {synergy}")
         elif template == "legacy_changingbreeds":
             feral_heart = advantages.get("feral_heart", 1)
             if feral_heart > 0:
-                advantage_list.append(f"{'Feral Heart':<15} : {feral_heart}")
+                if use_numeric:
+                    advantage_list.append(f"Feral Heart............... {feral_heart}")
+                else:
+                    advantage_list.append(f"{'Feral Heart':<15} : {feral_heart}")
         
         # Create section headers using the same format as other sections
         merits_header = f"|g<{'-' * 12} MERITS {'-' * 13}>|n"
-        advantages_header = f"|g<{'-' * 12} ADVANTAGES {'-' * 13}>|n"
-        output.append(f"{merits_header.ljust(36)} {advantages_header}")
+        advantages_header = f"|g<{'-' * 10} ADVANTAGES {'-' * 11}>|n"
+        output.append(f"{merits_header.ljust(42)} {advantages_header}")
         
         # Display merits and advantages side by side
         max_rows = max(len(merit_list) if merit_list else 1, len(advantage_list))
@@ -702,14 +839,14 @@ class CmdSheet(MuxCommand):
             if not merit_list and i == 0:
                 left_item = "No merits yet."
             
-            left_formatted = left_item.ljust(48)
-            output.append(f"{left_formatted} {right_item}")
+            left_formatted = left_item.ljust(38)
+            output.append(f"{left_formatted}{right_item}")
         
         # Add note if werewolf is shifted
         if template.lower() == "werewolf":
             current_form = getattr(target.db, 'current_form', 'hishu')
             if current_form != 'hishu':
-                output.append(" " * 48 + " |y▸ Modified by form|n")
+                output.append(" " * 42 + " |y▸ Modified by form|n")
         
         # Changing Breeds: Favors and Aspects sections side by side
         if template == "legacy_changingbreeds":
@@ -724,7 +861,13 @@ class CmdSheet(MuxCommand):
                         dots = favor_data.get("dots", 0)
                         if dots > 0:
                             dots_display = self._format_dots(dots, favor_data.get("max_dots", 5), force_ascii)
-                            favor_display = f"{favor_name.replace('_', ' ').title():<25} {dots_display}"
+                            favor_name_display = favor_name.replace('_', ' ').title()
+                            # Use dot padding in numeric mode for better readability
+                            if use_numeric:
+                                padding = '.' * (37 - len(favor_name_display))
+                                favor_display = f"{favor_name_display}{padding}{dots_display}"
+                            else:
+                                favor_display = f"{favor_name_display:<37} {dots_display}"
                         else:
                             favor_display = f"{favor_name.replace('_', ' ').title()}"
                     else:
@@ -739,7 +882,13 @@ class CmdSheet(MuxCommand):
                         dots = aspect_data.get("dots", 0)
                         if dots > 0:
                             dots_display = self._format_dots(dots, aspect_data.get("max_dots", 5), force_ascii)
-                            aspect_display = f"{aspect_name.replace('_', ' ').title():<25} {dots_display}"
+                            aspect_name_display = aspect_name.replace('_', ' ').title()
+                            # Use dot padding in numeric mode for better readability
+                            if use_numeric:
+                                padding = '.' * (37 - len(aspect_name_display))
+                                aspect_display = f"{aspect_name_display}{padding}{dots_display}"
+                            else:
+                                aspect_display = f"{aspect_name_display:<37} {dots_display}"
                         else:
                             aspect_display = f"{aspect_name.replace('_', ' ').title()}"
                     else:
@@ -748,8 +897,8 @@ class CmdSheet(MuxCommand):
             
             # Create section headers
             favors_header = f"|g<{'-' * 12} FAVORS {'-' * 13}>|n"
-            aspects_header = f"|g<{'-' * 12} ASPECTS {'-' * 13}>|n"
-            output.append(f"{favors_header.ljust(36)} {aspects_header}")
+            aspects_header = f"|g<{'-' * 10} ASPECTS {'-' * 11}>|n"
+            output.append(f"{favors_header.ljust(42)} {aspects_header}")
             
             # Display favors and aspects side by side
             max_rows = max(len(favor_list) if favor_list else 1, len(aspect_list) if aspect_list else 1)
@@ -763,8 +912,8 @@ class CmdSheet(MuxCommand):
                 if not aspect_list and i == 0:
                     right_item = "No aspects yet."
                 
-                left_formatted = left_item.ljust(48)
-                output.append(f"{left_formatted} {right_item}")
+                left_formatted = left_item.ljust(38)
+                output.append(f"{left_formatted}{right_item}")
         
         # Primary Powers (disciplines, arcana, gifts)
         powers = target.db.stats.get("powers", {})
@@ -786,7 +935,6 @@ class CmdSheet(MuxCommand):
             'promethean': 'TRANSMUTATIONS',
             'legacy_promethean': 'TRANSMUTATIONS',
             'demon': 'EMBEDS',
-            'beast': 'NIGHTMARES',
             'hunter': 'ENDOWMENTS',
             'legacy_hunter': 'TACTICS',
             'deviant': 'VARIATIONS'
@@ -797,7 +945,6 @@ class CmdSheet(MuxCommand):
             'geist': 'CEREMONIES',
             'promethean': 'BESTOWMENTS',
             'demon': 'EXPLOITS',
-            'beast': 'RITUALS',
             'hunter': 'TACTICS',
             'deviant': 'RITUALS'
         }
@@ -823,7 +970,7 @@ class CmdSheet(MuxCommand):
                         left_key = key_list[i] if i < len(key_list) else ""
                         right_key = key_list[i + 1] if i + 1 < len(key_list) else ""
                         
-                        left_formatted = left_key.ljust(39)
+                        left_formatted = left_key.ljust(42)
                         output.append(f"{left_formatted} {right_key}")
                 else:
                     output.append("No keys unlocked yet.")
@@ -859,7 +1006,13 @@ class CmdSheet(MuxCommand):
                 haunt_list = []
                 for haunt_name, haunt_rating in all_haunts.items():
                     dots = self._format_dots(haunt_rating, 5, force_ascii)
-                    haunt_display = f"{haunt_name.replace('_', ' ').title():<15} {dots}"
+                    haunt_name_display = haunt_name.replace('_', ' ').title()
+                    # Use dot padding in numeric mode for better readability
+                    if use_numeric:
+                        padding = '.' * (37 - len(haunt_name_display))
+                        haunt_display = f"{haunt_name_display}{padding}{dots}"
+                    else:
+                        haunt_display = f"{haunt_name_display:<37} {dots}"
                     haunt_list.append(haunt_display)
                 
                 # Display haunts in 2 columns like merits
@@ -868,7 +1021,7 @@ class CmdSheet(MuxCommand):
                     right_haunt = haunt_list[i + 1] if i + 1 < len(haunt_list) else ""
                     
                     # Format with proper spacing (39 chars for left column)
-                    left_formatted = left_haunt.ljust(39)
+                    left_formatted = left_haunt.ljust(42)
                     output.append(f"{left_formatted} {right_haunt}")
             else:
                 output.append("No haunts learned yet.")
@@ -895,7 +1048,7 @@ class CmdSheet(MuxCommand):
                     left_ceremony = ceremony_list[i] if i < len(ceremony_list) else ""
                     right_ceremony = ceremony_list[i + 1] if i + 1 < len(ceremony_list) else ""
                     
-                    left_formatted = left_ceremony.ljust(39)
+                    left_formatted = left_ceremony.ljust(42)
                     output.append(f"{left_formatted} {right_ceremony}")
             else:
                 output.append("No ceremonies learned yet.")
@@ -907,7 +1060,7 @@ class CmdSheet(MuxCommand):
                     output.append(self._format_section_header(f"|w{primary_section}|n"))
                     
                     if template_powers:
-                        power_display = self._format_powers_display(powers, template_powers, force_ascii)
+                        power_display = self._format_powers_display(powers, template_powers, force_ascii, use_numeric)
                         output.extend(power_display)
                     else:
                         output.append("No primary powers available for this template.")
@@ -917,7 +1070,7 @@ class CmdSheet(MuxCommand):
             if template_secondary_powers:  # Only show section if template has secondary powers
                 output.append(self._format_section_header(f"|w{secondary_section}|n"))
                 
-                secondary_power_display = self._format_secondary_powers_display(powers, template_secondary_powers, force_ascii)
+                secondary_power_display = self._format_secondary_powers_display(powers, template_secondary_powers, force_ascii, use_numeric)
                 output.extend(secondary_power_display)
                 
                 # Add hint for demon characters
@@ -1002,7 +1155,7 @@ class CmdSheet(MuxCommand):
                     if len(right_endowment) > 37:
                         right_endowment = right_endowment[:34] + "..."
                     
-                    left_formatted = left_endowment.ljust(39)
+                    left_formatted = left_endowment.ljust(42)
                     output.append(f"  {left_formatted} {right_endowment}")
             else:
                 output.append("No endowment powers learned yet.")
@@ -1205,7 +1358,7 @@ class CmdSheet(MuxCommand):
                         left_tell = tell_list[i] if i < len(tell_list) else ""
                         right_tell = tell_list[i + 1] if i + 1 < len(tell_list) else ""
                         
-                        left_formatted = left_tell.ljust(39)
+                        left_formatted = left_tell.ljust(42)
                         output.append(f"  {left_formatted} {right_tell}")
                 else:
                     output.append("  No tells manifested yet.")
@@ -1271,7 +1424,7 @@ class CmdSheet(MuxCommand):
                         left_power = psychic_powers[i] if i < len(psychic_powers) else ""
                         right_power = psychic_powers[i + 1] if i + 1 < len(psychic_powers) else ""
                         
-                        left_formatted = left_power.ljust(39)
+                        left_formatted = left_power.ljust(42)
                         output.append(f"{left_formatted} {right_power}")
         
         # Pools section (horizontal layout)
@@ -1283,6 +1436,9 @@ class CmdSheet(MuxCommand):
         
         # Save the compacted track back to ensure consistency
         self._set_health_track(target, health_track)
+        
+        # Calculate health statistics
+        current_health, bashing_count, lethal_count, aggravated_count = self._calculate_health_stats(health_track, health_max)
         
         # Create health boxes
         health_boxes = []
@@ -1309,7 +1465,7 @@ class CmdSheet(MuxCommand):
         if willpower_current is None:
             willpower_current = willpower_max  # Default to full
         
-        willpower_dots = self._format_dots(willpower_current, willpower_max, force_ascii)
+        willpower_dots = self._format_dots(willpower_current, willpower_max, force_ascii, show_max=True)
         
         # Template-specific resource pools
         resource_pools = {
@@ -1331,26 +1487,59 @@ class CmdSheet(MuxCommand):
             if pool_current is None:
                 pool_current = pool_max  # Default to full
             
-            pool_dots = self._format_dots(pool_current, pool_max, force_ascii)
-            pool_display = f"{pool_name} ({pool_current}/{pool_max})"
+            pool_dots = self._format_dots(pool_current, pool_max, force_ascii, show_max=True)
+            # In numeric mode, don't duplicate the max in label (it's shown below)
+            if use_numeric:
+                pool_display = pool_name
+            else:
+                pool_display = f"{pool_name} ({pool_current}/{pool_max})"
         
-        # Create horizontal pools layout
-        health_label = "Health"
-        willpower_label = f"Willpower ({willpower_current}/{willpower_max})"
+        # Create horizontal pools layout with health numeric display
+        # Build health label with current/max and damage breakdown (always shown for health)
+        health_label = f"Health ({current_health}/{health_max}"
+        if bashing_count > 0 or lethal_count > 0 or aggravated_count > 0:
+            damage_parts = []
+            if bashing_count > 0:
+                damage_parts.append(f"{bashing_count}B")
+            if lethal_count > 0:
+                damage_parts.append(f"{lethal_count}L")
+            if aggravated_count > 0:
+                damage_parts.append(f"{aggravated_count}A")
+            health_label += f" - {' '.join(damage_parts)}"
+        health_label += ")"
         
-        if pool_display:
-            # Three pools: Health, Resource Pool, Willpower
-            output.append(f"{health_label:^26}{pool_display:^26}{willpower_label:^26}")
-            health_section = f"{''.join(health_boxes):^26}"
-            pool_section = f"{pool_dots if 'pool_dots' in locals() else '':^26}"
-            willpower_section = f"{willpower_dots:^26}"
-            output.append(f"{health_section}{pool_section}{willpower_section}")
+        # In numeric mode, don't duplicate the max in label (it's shown below)
+        if use_numeric:
+            willpower_label = "Willpower"
         else:
-            # Two pools: Health, Willpower
-            output.append(f"{health_label:^39}{willpower_label:^39}")
-            health_section = f"{''.join(health_boxes):^39}"
-            willpower_section = f"{willpower_dots:^39}"
-            output.append(f"{health_section}{willpower_section}")
+            willpower_label = f"Willpower ({willpower_current}/{willpower_max})"
+        
+        if use_numeric:
+            # Numeric mode: Horizontal layout with numeric values
+            # Health on left with boxes, pools on right
+            if pool_display:
+                # Three items: Health, Resource Pool, Willpower  
+                output.append(f"{health_label:<28}{pool_name}: {pool_current}/{pool_max}")
+                output.append(f"{''.join(health_boxes):<40}Willpower: {willpower_current}/{willpower_max}")
+            else:
+                # Two items: Health, Willpower
+                output.append(f"{health_label:<40}Willpower: {willpower_current}/{willpower_max}")
+                output.append(f"{''.join(health_boxes):<40}")
+        else:
+            # Unicode mode: Side-by-side layout
+            if pool_display:
+                # Three pools: Health, Resource Pool, Willpower
+                output.append(f"{health_label:^26}{pool_display:^26}{willpower_label:^26}")
+                health_section = f"{''.join(health_boxes):^26}"
+                pool_section = f"{pool_dots if 'pool_dots' in locals() else '':^26}"
+                willpower_section = f"{willpower_dots:^26}"
+                output.append(f"{health_section}{pool_section}{willpower_section}")
+            else:
+                # Two pools: Health, Willpower
+                output.append(f"{health_label:^39}{willpower_label:^39}")
+                health_section = f"{''.join(health_boxes):^39}"
+                willpower_section = f"{willpower_dots:^39}"
+                output.append(f"{health_section}{willpower_section}")
 
         # Aspirations (only show if there are any and not in legacy mode)
         if not legacy_mode:
@@ -1367,13 +1556,6 @@ class CmdSheet(MuxCommand):
             output.append(f"Experience Points: |y{legacy_xp}|n")
         
         output.append(f"|y{'='*78}|n")
-        
-        # Add encoding info to bottom if ASCII mode is being used
-        if not supports_utf8 or force_ascii:
-            if force_ascii:
-                output.append("|g(ASCII mode active - use +sheet without /ascii for Unicode)|n")
-            else:
-                output.append("|y(ASCII mode due to encoding - see note above for UTF-8)|n")
         
         self.caller.msg("\n".join(output))
     
@@ -1402,11 +1584,7 @@ class CmdSheet(MuxCommand):
         
         # Get dot style and check UTF-8 support
         force_ascii = "ascii" in self.switches
-        filled_char, empty_char, supports_utf8 = self._get_dots_style(force_ascii)
-        
-        # Show encoding warning if needed (only for self, not when viewing others)
-        if target == self.caller and not supports_utf8 and "ascii" not in self.switches:
-            self._show_encoding_warning(supports_utf8)
+        filled_char, empty_char, supports_utf8, use_numeric = self._get_dots_style(force_ascii)
         
         # Import the template-specific render function
         from world.cofd.templates.geist import render_geist_sheet
@@ -1444,11 +1622,7 @@ class CmdSheet(MuxCommand):
         
         # Get dot style and check UTF-8 support
         force_ascii = "ascii" in self.switches
-        filled_char, empty_char, supports_utf8 = self._get_dots_style(force_ascii)
-        
-        # Show encoding warning if needed
-        if target == self.caller and not supports_utf8 and "ascii" not in self.switches:
-            self._show_encoding_warning(supports_utf8)
+        filled_char, empty_char, supports_utf8, use_numeric = self._get_dots_style(force_ascii)
         
         # Import the template-specific render function
         from world.cofd.templates.mage import render_mage_sheet
@@ -1492,11 +1666,7 @@ class CmdSheet(MuxCommand):
         
         # Get dot style and check UTF-8 support
         force_ascii = "ascii" in self.switches
-        filled_char, empty_char, supports_utf8 = self._get_dots_style(force_ascii)
-        
-        # Show encoding warning if needed (only for self, not when viewing others)
-        if target == self.caller and not supports_utf8 and "ascii" not in self.switches:
-            self._show_encoding_warning(supports_utf8)
+        filled_char, empty_char, supports_utf8, use_numeric = self._get_dots_style(force_ascii)
         
         # Import the template-specific render function
         from world.cofd.templates.demon import render_demon_form_sheet
@@ -1534,11 +1704,7 @@ class CmdSheet(MuxCommand):
         
         # Get dot style and check UTF-8 support
         force_ascii = "ascii" in self.switches
-        filled_char, empty_char, supports_utf8 = self._get_dots_style(force_ascii)
-        
-        # Show encoding warning if needed (only for self, not when viewing others)
-        if target == self.caller and not supports_utf8 and "ascii" not in self.switches:
-            self._show_encoding_warning(supports_utf8)
+        filled_char, empty_char, supports_utf8, use_numeric = self._get_dots_style(force_ascii)
         
         # Import the template-specific render function
         from world.cofd.templates.deviant import render_deviant_sheet
@@ -1641,7 +1807,7 @@ class CmdSheet(MuxCommand):
                 
                 # Get dot style and check UTF-8 support
                 force_ascii = "ascii" in display_switches
-                filled_char, empty_char, supports_utf8 = self._get_dots_style(force_ascii)
+                filled_char, empty_char, supports_utf8, use_numeric = self._get_dots_style(force_ascii)
                 
                 # Build the sheet display (copying the main logic from func())
                 output = self._build_main_sheet(character, force_ascii, supports_utf8)
@@ -1699,6 +1865,9 @@ class CmdSheet(MuxCommand):
     def _build_main_sheet(self, target, force_ascii, supports_utf8):
         """Build the main character sheet output (extracted from func for reuse)"""
         # This is the main sheet building logic from func()
+        
+        # Get use_numeric flag for formatting
+        _, _, _, use_numeric = self._get_dots_style(force_ascii)
         # Check if legacy mode is active
         from commands.CmdLegacy import is_legacy_mode
         legacy_mode = is_legacy_mode()
@@ -1805,21 +1974,39 @@ class CmdSheet(MuxCommand):
             for attr in ["intelligence", "wits", "resolve"]:
                 val = attrs.get(attr, 0)
                 dots = self._format_dots(val, 5, force_ascii)
-                mental.append(f"{attr.title():<15} {dots}")
+                # Use dot padding in numeric mode for better readability
+                if use_numeric:
+                    attr_name = attr.title()
+                    padding = '.' * (15 - len(attr_name))
+                    mental.append(f"{attr_name}{padding}{dots}")
+                else:
+                    mental.append(f"{attr.title():<15} {dots}")
             
             # Physical
             physical = []
             for attr in ["strength", "dexterity", "stamina"]:
                 val = attrs.get(attr, 0)
                 dots = self._format_dots(val, 5, force_ascii)
-                physical.append(f"{attr.title():<15} {dots}")
+                # Use dot padding in numeric mode for better readability
+                if use_numeric:
+                    attr_name = attr.title()
+                    padding = '.' * (15 - len(attr_name))
+                    physical.append(f"{attr_name}{padding}{dots}")
+                else:
+                    physical.append(f"{attr.title():<15} {dots}")
             
             # Social
             social = []
             for attr in ["presence", "manipulation", "composure"]:
                 val = attrs.get(attr, 0)
                 dots = self._format_dots(val, 5, force_ascii)
-                social.append(f"{attr.title():<15} {dots}")
+                # Use dot padding in numeric mode for better readability
+                if use_numeric:
+                    attr_name = attr.title()
+                    padding = '.' * (15 - len(attr_name))
+                    social.append(f"{attr_name}{padding}{dots}")
+                else:
+                    social.append(f"{attr.title():<15} {dots}")
             
             # Display in columns (aligned with skills)
             for i in range(3):
@@ -1845,7 +2032,13 @@ class CmdSheet(MuxCommand):
             for skill in mental_skills:
                 val = skills.get(skill, 0)
                 dots = self._format_dots(val, 5, force_ascii)
-                skill_text = f"{skill.replace('_', ' ').title():<15} {dots}"
+                skill_name = skill.replace('_', ' ').title()
+                # Use dot padding in numeric mode for better readability
+                if use_numeric:
+                    padding = '.' * (15 - len(skill_name))
+                    skill_text = f"{skill_name}{padding}{dots}"
+                else:
+                    skill_text = f"{skill_name:<15} {dots}"
                 mental_display.append(skill_text)
                 
                 # Collect specialties for separate display
@@ -1862,7 +2055,13 @@ class CmdSheet(MuxCommand):
             for skill in physical_skills:
                 val = skills.get(skill, 0)
                 dots = self._format_dots(val, 5, force_ascii)
-                skill_text = f"{skill.replace('_', ' ').title():<15} {dots}"
+                skill_name = skill.replace('_', ' ').title()
+                # Use dot padding in numeric mode for better readability
+                if use_numeric:
+                    padding = '.' * (15 - len(skill_name))
+                    skill_text = f"{skill_name}{padding}{dots}"
+                else:
+                    skill_text = f"{skill_name:<15} {dots}"
                 physical_display.append(skill_text)
                 
                 # Collect specialties for separate display
@@ -1879,7 +2078,13 @@ class CmdSheet(MuxCommand):
             for skill in social_skills:
                 val = skills.get(skill, 0)
                 dots = self._format_dots(val, 5, force_ascii)
-                skill_text = f"{skill.replace('_', ' ').title():<15} {dots}"
+                skill_name = skill.replace('_', ' ').title()
+                # Use dot padding in numeric mode for better readability
+                if use_numeric:
+                    padding = '.' * (15 - len(skill_name))
+                    skill_text = f"{skill_name}{padding}{dots}"
+                else:
+                    skill_text = f"{skill_name:<15} {dots}"
                 social_display.append(skill_text)
                 
                 # Collect specialties for separate display
@@ -1940,64 +2145,109 @@ class CmdSheet(MuxCommand):
                 else:
                     display_name = merit_name.replace('_', ' ').title()
                 
-                merit_display = f"{display_name:<25} {dots}"
+                # Use dot padding in numeric mode for better readability
+                if use_numeric:
+                    padding = '.' * (28 - len(display_name))
+                    merit_display = f"{display_name}{padding}{dots}"
+                else:
+                    merit_display = f"{display_name:<28} {dots}"
                 merit_list.append(merit_display)
         
         # Create advantages list (including integrity)
-        advantage_list = [
-            f"{'Defense':<15} : {advantages.get('defense', 0)}",
-            f"{'Speed':<15} : {advantages.get('speed', 0)}",
-            f"{'Initiative':<15} : {advantages.get('initiative', 0)}",
-            f"{'Size':<15} : {other.get('size', 5)}"
-        ]
+        # Use dot padding in numeric mode for consistency
+        if use_numeric:
+            advantage_list = [
+                f"Defense................... {advantages.get('defense', 0)}",
+                f"Speed..................... {advantages.get('speed', 0)}",
+                f"Initiative................ {advantages.get('initiative', 0)}",
+                f"Size...................... {other.get('size', 5)}"
+            ]
+        else:
+            advantage_list = [
+                f"{'Defense':<15} : {advantages.get('defense', 0)}",
+                f"{'Speed':<15} : {advantages.get('speed', 0)}",
+                f"{'Initiative':<15} : {advantages.get('initiative', 0)}",
+                f"{'Size':<15} : {other.get('size', 5)}"
+            ]
         
         # Add integrity to advantages (except for Geist characters who don't use integrity)
         if template != "geist":
             integrity_name = target.get_integrity_name(template)
-            advantage_list.append(f"{integrity_name:<15} : {other.get('integrity', 7)}")
+            if use_numeric:
+                padding = '.' * (21 - len(integrity_name))
+                advantage_list.append(f"{integrity_name}{padding} {other.get('integrity', 7)}")
+            else:
+                advantage_list.append(f"{integrity_name:<15} : {other.get('integrity', 7)}")
         
         # Add template-specific advantages
         if template == "changeling":
             wyrd = advantages.get("wyrd", 0)
             if wyrd > 0:
-                advantage_list.append(f"{'Wyrd':<15} : {wyrd}")
+                if use_numeric:
+                    advantage_list.append(f"Wyrd...................... {wyrd}")
+                else:
+                    advantage_list.append(f"{'Wyrd':<15} : {wyrd}")
         elif template == "werewolf":
             primal_urge = advantages.get("primal_urge", 0)
             if primal_urge > 0:
-                advantage_list.append(f"{'Primal Urge':<15} : {primal_urge}")
+                if use_numeric:
+                    advantage_list.append(f"Primal Urge............... {primal_urge}")
+                else:
+                    advantage_list.append(f"{'Primal Urge':<15} : {primal_urge}")
         elif template == "vampire":
             blood_potency = advantages.get("blood_potency", 0)
             if blood_potency > 0:
-                advantage_list.append(f"{'Blood Potency':<15} : {blood_potency}")
+                if use_numeric:
+                    advantage_list.append(f"Blood Potency............. {blood_potency}")
+                else:
+                    advantage_list.append(f"{'Blood Potency':<15} : {blood_potency}")
         elif template == "mage":
             gnosis = advantages.get("gnosis", 0)
             if gnosis > 0:
-                advantage_list.append(f"{'Gnosis':<15} : {gnosis}")
+                if use_numeric:
+                    advantage_list.append(f"Gnosis.................... {gnosis}")
+                else:
+                    advantage_list.append(f"{'Gnosis':<15} : {gnosis}")
         elif template == "deviant":
             deviation = advantages.get("deviation", 0)
             if deviation > 0:
-                advantage_list.append(f"{'Deviation':<15} : {deviation}")
+                if use_numeric:
+                    advantage_list.append(f"Deviation................. {deviation}")
+                else:
+                    advantage_list.append(f"{'Deviation':<15} : {deviation}")
         elif template == "demon":
             primum = advantages.get("primum", 0)
             if primum > 0:
-                advantage_list.append(f"{'Primum':<15} : {primum}")
+                if use_numeric:
+                    advantage_list.append(f"Primum.................... {primum}")
+                else:
+                    advantage_list.append(f"{'Primum':<15} : {primum}")
         elif template == "promethean":
             azoth = advantages.get("azoth", 0)
             if azoth > 0:
-                advantage_list.append(f"{'Azoth':<15} : {azoth}")
+                if use_numeric:
+                    advantage_list.append(f"Azoth..................... {azoth}")
+                else:
+                    advantage_list.append(f"{'Azoth':<15} : {azoth}")
         elif template == "geist":
             # Geist characters use Synergy instead of integrity
             synergy = advantages.get("synergy", 1)
-            advantage_list.append(f"{'Synergy':<15} : {synergy}")
+            if use_numeric:
+                advantage_list.append(f"Synergy................... {synergy}")
+            else:
+                advantage_list.append(f"{'Synergy':<15} : {synergy}")
         elif template == "legacy_changingbreeds":
             feral_heart = advantages.get("feral_heart", 1)
             if feral_heart > 0:
-                advantage_list.append(f"{'Feral Heart':<15} : {feral_heart}")
+                if use_numeric:
+                    advantage_list.append(f"Feral Heart............... {feral_heart}")
+                else:
+                    advantage_list.append(f"{'Feral Heart':<15} : {feral_heart}")
         
         # Create section headers using the same format as other sections
         merits_header = f"|g<{'-' * 12} MERITS {'-' * 13}>|n"
-        advantages_header = f"|g<{'-' * 12} ADVANTAGES {'-' * 13}>|n"
-        output.append(f"{merits_header.ljust(36)} {advantages_header}")
+        advantages_header = f"|g<{'-' * 10} ADVANTAGES {'-' * 11}>|n"
+        output.append(f"{merits_header.ljust(42)} {advantages_header}")
         
         # Display merits and advantages side by side
         max_rows = max(len(merit_list) if merit_list else 1, len(advantage_list))
@@ -2009,14 +2259,14 @@ class CmdSheet(MuxCommand):
             if not merit_list and i == 0:
                 left_item = "No merits yet."
             
-            left_formatted = left_item.ljust(48)
-            output.append(f"{left_formatted} {right_item}")
+            left_formatted = left_item.ljust(38)
+            output.append(f"{left_formatted}{right_item}")
         
         # Add note if werewolf is shifted
         if template.lower() == "werewolf":
             current_form = getattr(target.db, 'current_form', 'hishu')
             if current_form != 'hishu':
-                output.append(" " * 48 + " |y▸ Modified by form|n")
+                output.append(" " * 42 + " |y▸ Modified by form|n")
         
         # Changing Breeds: Favors and Aspects sections side by side
         if template == "legacy_changingbreeds":
@@ -2031,7 +2281,13 @@ class CmdSheet(MuxCommand):
                         dots = favor_data.get("dots", 0)
                         if dots > 0:
                             dots_display = self._format_dots(dots, favor_data.get("max_dots", 5), force_ascii)
-                            favor_display = f"{favor_name.replace('_', ' ').title():<25} {dots_display}"
+                            favor_name_display = favor_name.replace('_', ' ').title()
+                            # Use dot padding in numeric mode for better readability
+                            if use_numeric:
+                                padding = '.' * (37 - len(favor_name_display))
+                                favor_display = f"{favor_name_display}{padding}{dots_display}"
+                            else:
+                                favor_display = f"{favor_name_display:<37} {dots_display}"
                         else:
                             favor_display = f"{favor_name.replace('_', ' ').title()}"
                     else:
@@ -2046,7 +2302,13 @@ class CmdSheet(MuxCommand):
                         dots = aspect_data.get("dots", 0)
                         if dots > 0:
                             dots_display = self._format_dots(dots, aspect_data.get("max_dots", 5), force_ascii)
-                            aspect_display = f"{aspect_name.replace('_', ' ').title():<25} {dots_display}"
+                            aspect_name_display = aspect_name.replace('_', ' ').title()
+                            # Use dot padding in numeric mode for better readability
+                            if use_numeric:
+                                padding = '.' * (37 - len(aspect_name_display))
+                                aspect_display = f"{aspect_name_display}{padding}{dots_display}"
+                            else:
+                                aspect_display = f"{aspect_name_display:<37} {dots_display}"
                         else:
                             aspect_display = f"{aspect_name.replace('_', ' ').title()}"
                     else:
@@ -2055,8 +2317,8 @@ class CmdSheet(MuxCommand):
             
             # Create section headers
             favors_header = f"|g<{'-' * 12} FAVORS {'-' * 13}>|n"
-            aspects_header = f"|g<{'-' * 12} ASPECTS {'-' * 13}>|n"
-            output.append(f"{favors_header.ljust(36)} {aspects_header}")
+            aspects_header = f"|g<{'-' * 10} ASPECTS {'-' * 11}>|n"
+            output.append(f"{favors_header.ljust(42)} {aspects_header}")
             
             # Display favors and aspects side by side
             max_rows = max(len(favor_list) if favor_list else 1, len(aspect_list) if aspect_list else 1)
@@ -2070,8 +2332,8 @@ class CmdSheet(MuxCommand):
                 if not aspect_list and i == 0:
                     right_item = "No aspects yet."
                 
-                left_formatted = left_item.ljust(48)
-                output.append(f"{left_formatted} {right_item}")
+                left_formatted = left_item.ljust(38)
+                output.append(f"{left_formatted}{right_item}")
         
         # Primary Powers (disciplines, arcana, gifts)
         powers = target.db.stats.get("powers", {})
@@ -2093,7 +2355,6 @@ class CmdSheet(MuxCommand):
             'promethean': 'TRANSMUTATIONS',
             'legacy_promethean': 'TRANSMUTATIONS',
             'demon': 'EMBEDS',
-            'beast': 'NIGHTMARES',
             'hunter': 'ENDOWMENTS',
             'legacy_hunter': 'TACTICS',
             'deviant': 'VARIATIONS'
@@ -2104,7 +2365,6 @@ class CmdSheet(MuxCommand):
             'geist': 'CEREMONIES',
             'promethean': 'BESTOWMENTS',
             'demon': 'EXPLOITS',
-            'beast': 'RITUALS',
             'hunter': 'TACTICS',
             'deviant': 'RITUALS'
         }
@@ -2130,7 +2390,7 @@ class CmdSheet(MuxCommand):
                         left_key = key_list[i] if i < len(key_list) else ""
                         right_key = key_list[i + 1] if i + 1 < len(key_list) else ""
                         
-                        left_formatted = left_key.ljust(39)
+                        left_formatted = left_key.ljust(42)
                         output.append(f"{left_formatted} {right_key}")
                 else:
                     output.append("No keys unlocked yet.")
@@ -2166,7 +2426,13 @@ class CmdSheet(MuxCommand):
                 haunt_list = []
                 for haunt_name, haunt_rating in all_haunts.items():
                     dots = self._format_dots(haunt_rating, 5, force_ascii)
-                    haunt_display = f"{haunt_name.replace('_', ' ').title():<15} {dots}"
+                    haunt_name_display = haunt_name.replace('_', ' ').title()
+                    # Use dot padding in numeric mode for better readability
+                    if use_numeric:
+                        padding = '.' * (37 - len(haunt_name_display))
+                        haunt_display = f"{haunt_name_display}{padding}{dots}"
+                    else:
+                        haunt_display = f"{haunt_name_display:<37} {dots}"
                     haunt_list.append(haunt_display)
                 
                 # Display haunts in 2 columns like merits
@@ -2175,7 +2441,7 @@ class CmdSheet(MuxCommand):
                     right_haunt = haunt_list[i + 1] if i + 1 < len(haunt_list) else ""
                     
                     # Format with proper spacing (39 chars for left column)
-                    left_formatted = left_haunt.ljust(39)
+                    left_formatted = left_haunt.ljust(42)
                     output.append(f"{left_formatted} {right_haunt}")
             else:
                 output.append("No haunts learned yet.")
@@ -2202,7 +2468,7 @@ class CmdSheet(MuxCommand):
                     left_ceremony = ceremony_list[i] if i < len(ceremony_list) else ""
                     right_ceremony = ceremony_list[i + 1] if i + 1 < len(ceremony_list) else ""
                     
-                    left_formatted = left_ceremony.ljust(39)
+                    left_formatted = left_ceremony.ljust(42)
                     output.append(f"{left_formatted} {right_ceremony}")
             else:
                 output.append("No ceremonies learned yet.")
@@ -2214,7 +2480,7 @@ class CmdSheet(MuxCommand):
                     output.append(self._format_section_header(f"|w{primary_section}|n"))
                     
                     if template_powers:
-                        power_display = self._format_powers_display(powers, template_powers, force_ascii)
+                        power_display = self._format_powers_display(powers, template_powers, force_ascii, use_numeric)
                         output.extend(power_display)
                     else:
                         output.append("No primary powers available for this template.")
@@ -2224,7 +2490,7 @@ class CmdSheet(MuxCommand):
             if template_secondary_powers:  # Only show section if template has secondary powers
                 output.append(self._format_section_header(f"|w{secondary_section}|n"))
                 
-                secondary_power_display = self._format_secondary_powers_display(powers, template_secondary_powers, force_ascii)
+                secondary_power_display = self._format_secondary_powers_display(powers, template_secondary_powers, force_ascii, use_numeric)
                 output.extend(secondary_power_display)
                 
                 # Add hint for demon characters
@@ -2309,7 +2575,7 @@ class CmdSheet(MuxCommand):
                     if len(right_endowment) > 37:
                         right_endowment = right_endowment[:34] + "..."
                     
-                    left_formatted = left_endowment.ljust(39)
+                    left_formatted = left_endowment.ljust(42)
                     output.append(f"  {left_formatted} {right_endowment}")
             else:
                 output.append("No endowment powers learned yet.")
@@ -2512,7 +2778,7 @@ class CmdSheet(MuxCommand):
                         left_tell = tell_list[i] if i < len(tell_list) else ""
                         right_tell = tell_list[i + 1] if i + 1 < len(tell_list) else ""
                         
-                        left_formatted = left_tell.ljust(39)
+                        left_formatted = left_tell.ljust(42)
                         output.append(f"  {left_formatted} {right_tell}")
                 else:
                     output.append("  No tells manifested yet.")
@@ -2578,7 +2844,7 @@ class CmdSheet(MuxCommand):
                         left_power = psychic_powers[i] if i < len(psychic_powers) else ""
                         right_power = psychic_powers[i + 1] if i + 1 < len(psychic_powers) else ""
                         
-                        left_formatted = left_power.ljust(39)
+                        left_formatted = left_power.ljust(42)
                         output.append(f"{left_formatted} {right_power}")
         
         # Pools section (horizontal layout)
@@ -2590,6 +2856,9 @@ class CmdSheet(MuxCommand):
         
         # Save the compacted track back to ensure consistency
         self._set_health_track(target, health_track)
+        
+        # Calculate health statistics
+        current_health, bashing_count, lethal_count, aggravated_count = self._calculate_health_stats(health_track, health_max)
         
         # Create health boxes
         health_boxes = []
@@ -2616,7 +2885,7 @@ class CmdSheet(MuxCommand):
         if willpower_current is None:
             willpower_current = willpower_max  # Default to full
         
-        willpower_dots = self._format_dots(willpower_current, willpower_max, force_ascii)
+        willpower_dots = self._format_dots(willpower_current, willpower_max, force_ascii, show_max=True)
         
         # Template-specific resource pools
         resource_pools = {
@@ -2638,26 +2907,59 @@ class CmdSheet(MuxCommand):
             if pool_current is None:
                 pool_current = pool_max  # Default to full
             
-            pool_dots = self._format_dots(pool_current, pool_max, force_ascii)
-            pool_display = f"{pool_name} ({pool_current}/{pool_max})"
+            pool_dots = self._format_dots(pool_current, pool_max, force_ascii, show_max=True)
+            # In numeric mode, don't duplicate the max in label (it's shown below)
+            if use_numeric:
+                pool_display = pool_name
+            else:
+                pool_display = f"{pool_name} ({pool_current}/{pool_max})"
         
-        # Create horizontal pools layout
-        health_label = "Health"
-        willpower_label = f"Willpower ({willpower_current}/{willpower_max})"
+        # Create horizontal pools layout with health numeric display
+        # Build health label with current/max and damage breakdown (always shown for health)
+        health_label = f"Health ({current_health}/{health_max}"
+        if bashing_count > 0 or lethal_count > 0 or aggravated_count > 0:
+            damage_parts = []
+            if bashing_count > 0:
+                damage_parts.append(f"{bashing_count}B")
+            if lethal_count > 0:
+                damage_parts.append(f"{lethal_count}L")
+            if aggravated_count > 0:
+                damage_parts.append(f"{aggravated_count}A")
+            health_label += f" - {' '.join(damage_parts)}"
+        health_label += ")"
         
-        if pool_display:
-            # Three pools: Health, Resource Pool, Willpower
-            output.append(f"{health_label:^26}{pool_display:^26}{willpower_label:^26}")
-            health_section = f"{''.join(health_boxes):^26}"
-            pool_section = f"{pool_dots if 'pool_dots' in locals() else '':^26}"
-            willpower_section = f"{willpower_dots:^26}"
-            output.append(f"{health_section}{pool_section}{willpower_section}")
+        # In numeric mode, don't duplicate the max in label (it's shown below)
+        if use_numeric:
+            willpower_label = "Willpower"
         else:
-            # Two pools: Health, Willpower
-            output.append(f"{health_label:^39}{willpower_label:^39}")
-            health_section = f"{''.join(health_boxes):^39}"
-            willpower_section = f"{willpower_dots:^39}"
-            output.append(f"{health_section}{willpower_section}")
+            willpower_label = f"Willpower ({willpower_current}/{willpower_max})"
+        
+        if use_numeric:
+            # Numeric mode: Horizontal layout with numeric values
+            # Health on left with boxes, pools on right
+            if pool_display:
+                # Three items: Health, Resource Pool, Willpower  
+                output.append(f"{health_label:<28}{pool_name}: {pool_current}/{pool_max}")
+                output.append(f"{''.join(health_boxes):<40}Willpower: {willpower_current}/{willpower_max}")
+            else:
+                # Two items: Health, Willpower
+                output.append(f"{health_label:<40}Willpower: {willpower_current}/{willpower_max}")
+                output.append(f"{''.join(health_boxes):<40}")
+        else:
+            # Unicode mode: Side-by-side layout
+            if pool_display:
+                # Three pools: Health, Resource Pool, Willpower
+                output.append(f"{health_label:^26}{pool_display:^26}{willpower_label:^26}")
+                health_section = f"{''.join(health_boxes):^26}"
+                pool_section = f"{pool_dots if 'pool_dots' in locals() else '':^26}"
+                willpower_section = f"{willpower_dots:^26}"
+                output.append(f"{health_section}{pool_section}{willpower_section}")
+            else:
+                # Two pools: Health, Willpower
+                output.append(f"{health_label:^39}{willpower_label:^39}")
+                health_section = f"{''.join(health_boxes):^39}"
+                willpower_section = f"{willpower_dots:^39}"
+                output.append(f"{health_section}{willpower_section}")
 
         # Aspirations (only show if there are any and not in legacy mode)
         if not legacy_mode:
@@ -2674,12 +2976,5 @@ class CmdSheet(MuxCommand):
             output.append(f"Experience Points: |y{legacy_xp}|n")
         
         output.append(f"|y{'='*78}|n")
-        
-        # Add encoding info to bottom if ASCII mode is being used
-        if not supports_utf8 or force_ascii:
-            if force_ascii:
-                output.append("|g(ASCII mode active - use +sheet without /ascii for Unicode)|n")
-            else:
-                output.append("|y(ASCII mode due to encoding - see note above for UTF-8)|n")
         
         return output 

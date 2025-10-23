@@ -23,7 +23,7 @@ from world.utils.health_utils import calculate_wound_penalty
 from .objects import ObjectParent
 
 
-class Character(ObjectParent, DefaultCharacter):
+class Character(DefaultCharacter, ObjectParent):
     """
     The Character class represents a player character in the game.
     """

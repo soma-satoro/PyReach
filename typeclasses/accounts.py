@@ -23,6 +23,76 @@ several more options for customizing the Guest account system.
 """
 
 from evennia.accounts.accounts import DefaultAccount, DefaultGuest
+from evennia.accounts.models import AccountDB
+from evennia.utils import logger
+
+
+# Monkey-patch AccountDB to add missing methods that Evennia's shutdown expects
+# This fixes AttributeError issues when server tries to shutdown/reload
+# These patches are applied at module import time to ensure they're always available
+
+def _accountdb_unpuppet_all(self):
+    """
+    Disconnect all puppets. Called by server before reset/shutdown.
+    This is a compatibility patch for AccountDB instances.
+    """
+    try:
+        # Get the typeclass wrapper and call its method if it exists
+        if hasattr(self, 'typeclass'):
+            typeclass = self.typeclass
+            if hasattr(typeclass, 'unpuppet_all') and callable(typeclass.unpuppet_all):
+                return typeclass.unpuppet_all()
+            # Fallback: manually unpuppet
+            if hasattr(typeclass, 'sessions') and hasattr(typeclass, 'unpuppet_object'):
+                sessions = typeclass.sessions.all()
+                if sessions:
+                    typeclass.unpuppet_object(sessions)
+    except Exception as e:
+        logger.log_err(f"Error in AccountDB.unpuppet_all() for account {self.id}: {e}")
+
+
+def _accountdb_at_server_shutdown(self):
+    """
+    Called just before server shutdown.
+    This is a compatibility patch for AccountDB instances.
+    """
+    try:
+        # Call unpuppet_all if available
+        if hasattr(self, 'unpuppet_all'):
+            self.unpuppet_all()
+        # Also try the typeclass version
+        elif hasattr(self, 'typeclass'):
+            typeclass = self.typeclass
+            if hasattr(typeclass, 'at_server_shutdown') and callable(typeclass.at_server_shutdown):
+                typeclass.at_server_shutdown()
+    except Exception as e:
+        logger.log_err(f"Error in AccountDB.at_server_shutdown() for account {self.id}: {e}")
+
+
+def _accountdb_at_server_reload(self):
+    """
+    Called when server reloads.
+    This is a compatibility patch for AccountDB instances.
+    """
+    try:
+        # Get the typeclass wrapper and call its method if it exists
+        if hasattr(self, 'typeclass'):
+            typeclass = self.typeclass
+            if hasattr(typeclass, 'at_server_reload') and callable(typeclass.at_server_reload):
+                return typeclass.at_server_reload()
+    except Exception as e:
+        logger.log_err(f"Error in AccountDB.at_server_reload() for account {self.id}: {e}")
+
+
+# Apply the patches if they don't already exist
+if not hasattr(AccountDB, 'unpuppet_all'):
+    AccountDB.unpuppet_all = _accountdb_unpuppet_all
+
+if not hasattr(AccountDB, 'at_server_shutdown'):
+    AccountDB.at_server_shutdown = _accountdb_at_server_shutdown
+
+if not hasattr(AccountDB, 'at_server_reload'):
+    AccountDB.at_server_reload = _accountdb_at_server_reload
 
 
 class Account(DefaultAccount):
@@ -136,7 +206,47 @@ class Account(DefaultAccount):
 
     """
 
-    pass
+    def unpuppet_all(self):
+        """
+        Disconnect all puppets. This is called by server before a
+        reset/shutdown.
+        
+        This method ensures compatibility during server shutdown by
+        safely unpuppeting all connected sessions.
+        """
+        try:
+            # Get all sessions and unpuppet them
+            if hasattr(self, 'sessions'):
+                sessions = self.sessions.all()
+                if sessions:
+                    self.unpuppet_object(sessions)
+        except Exception as e:
+            # Log but don't raise - we want shutdown to continue
+            from evennia.utils import logger
+            logger.log_err(f"Error during unpuppet_all for account {self.id}: {e}")
+    
+    def at_server_shutdown(self):
+        """
+        Called just before the server shuts down.
+        
+        This hook ensures proper cleanup before shutdown.
+        """
+        try:
+            # Make sure all puppets are disconnected
+            self.unpuppet_all()
+        except Exception as e:
+            # Log but don't raise - we want shutdown to continue
+            from evennia.utils import logger
+            logger.log_err(f"Error during at_server_shutdown for account {self.id}: {e}")
+    
+    def at_server_reload(self):
+        """
+        Called when the server reloads.
+        
+        This hook is called on all connected accounts when the server reloads.
+        """
+        # Default behavior is to do nothing, but this ensures the method exists
+        pass
 
 
 class Guest(DefaultGuest):
@@ -145,4 +255,44 @@ class Guest(DefaultGuest):
     characters are deleted after disconnection.
     """
 
-    pass
+    def unpuppet_all(self):
+        """
+        Disconnect all puppets. This is called by server before a
+        reset/shutdown.
+        
+        This method ensures compatibility during server shutdown by
+        safely unpuppeting all connected sessions.
+        """
+        try:
+            # Get all sessions and unpuppet them
+            if hasattr(self, 'sessions'):
+                sessions = self.sessions.all()
+                if sessions:
+                    self.unpuppet_object(sessions)
+        except Exception as e:
+            # Log but don't raise - we want shutdown to continue
+            from evennia.utils import logger
+            logger.log_err(f"Error during unpuppet_all for guest account {self.id}: {e}")
+    
+    def at_server_shutdown(self):
+        """
+        Called just before the server shuts down.
+        
+        This hook ensures proper cleanup before shutdown.
+        """
+        try:
+            # Make sure all puppets are disconnected
+            self.unpuppet_all()
+        except Exception as e:
+            # Log but don't raise - we want shutdown to continue
+            from evennia.utils import logger
+            logger.log_err(f"Error during at_server_shutdown for guest account {self.id}: {e}")
+    
+    def at_server_reload(self):
+        """
+        Called when the server reloads.
+        
+        This hook is called on all connected accounts when the server reloads.
+        """
+        # Default behavior is to do nothing, but this ensures the method exists
+        pass

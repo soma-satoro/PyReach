@@ -1,0 +1,211 @@
+{% extends "wiki/base.html" %}
+{% load static %}
+
+{% block title %}Wiki Home{% endblock %}
+
+{% block content %}
+<div class="container">
+    <!-- Hero Section -->
+    <section class="wiki-hero">
+        <h1><i class="fas fa-book-dead"></i> Welcome to the {{ game_name }} Wiki</h1>
+        <p class="lead text-center" style="font-family: var(--font-serif); font-size: 1.3rem; color: var(--color-text-secondary); max-width: 800px; margin: 2rem auto;">
+            Explore the dark and intricate world of {{ game_name }}. Discover lore, factions, rules, and the secrets that lurk in the shadows.
+        </p>
+        
+        <!-- Search Bar -->
+        <div class="wiki-search" style="max-width: 600px; margin: 2rem auto;">
+            <form action="{% url 'wiki:search' %}" method="get">
+                <div class="search-wrapper" style="position: relative;">
+                    <input type="text" name="query" class="form-control wiki-search-input" 
+                           placeholder="Search the wiki..." 
+                           style="padding-left: 3rem; font-size: 1.1rem; height: 60px;">
+                    <button type="submit" class="btn btn-primary" 
+                            style="position: absolute; right: 5px; top: 5px; height: 50px;">
+                        <i class="fas fa-search"></i> Search
+                    </button>
+                    <i class="fas fa-search" style="position: absolute; left: 1.2rem; top: 50%; transform: translateY(-50%); color: var(--color-text-muted); font-size: 1.2rem;"></i>
+                </div>
+            </form>
+        </div>
+    </section>
+
+    <!-- Featured Pages -->
+    {% if featured_pages %}
+    <section class="wiki-section" style="margin-top: 3rem;">
+        <div class="section-header" style="margin-bottom: 2rem;">
+            <h2><i class="fas fa-star"></i> Featured Content</h2>
+            <p class="text-muted">Essential reading for understanding our world</p>
+        </div>
+        
+        <div class="grid grid-2">
+            {% for page in featured_pages %}
+            <div class="card">
+                <div class="card-header">
+                    <h3 class="card-title">
+                        <a href="{% url 'wiki:page' page.slug %}">{{ page.title }}</a>
+                    </h3>
+                    {% if page.category %}
+                    <span class="badge badge-primary">
+                        <i class="{{ page.category.icon|default:'fa-folder' }}"></i>
+                        {{ page.category.name }}
+                    </span>
+                    {% endif %}
+                </div>
+                <div class="card-body">
+                    <p>{{ page.summary|truncatewords:30 }}</p>
+                </div>
+                <div class="card-footer">
+                    <span>
+                        <i class="fas fa-eye"></i> {{ page.view_count }} views
+                    </span>
+                    <a href="{% url 'wiki:page' page.slug %}" class="btn btn-sm btn-secondary">
+                        Read More <i class="fas fa-arrow-right"></i>
+                    </a>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+    </section>
+    {% endif %}
+
+    <!-- Categories -->
+    <section class="wiki-section" style="margin-top: 3rem;">
+        <div class="section-header" style="margin-bottom: 2rem;">
+            <h2><i class="fas fa-th-large"></i> Browse by Category</h2>
+            <p class="text-muted">Organized collections of lore and information</p>
+        </div>
+        
+        <div class="grid grid-3">
+            {% for category in categories %}
+            <a href="{% url 'wiki:category' category.slug %}" class="card" style="text-decoration: none;">
+                <div class="category-card" style="text-align: center;">
+                    <div class="category-icon" style="font-size: 3rem; color: var(--color-accent-purple); margin-bottom: 1rem;">
+                        <i class="fas {{ category.icon|default:'fa-folder' }}"></i>
+                    </div>
+                    <h3 class="card-title">{{ category.name }}</h3>
+                    <p class="text-muted">{{ category.description|default:"Explore this category" }}</p>
+                    <div class="mt-2">
+                        <span class="badge badge-gold">
+                            {{ category.pages.count }} page{{ category.pages.count|pluralize }}
+                        </span>
+                        {% if category.subcategories.count %}
+                        <span class="badge badge-purple">
+                            {{ category.subcategories.count }} subcategor{{ category.subcategories.count|pluralize:"y,ies" }}
+                        </span>
+                        {% endif %}
+                    </div>
+                </div>
+            </a>
+            {% empty %}
+            <div class="card" style="grid-column: 1 / -1; text-align: center; padding: 3rem;">
+                <i class="fas fa-folder-open" style="font-size: 4rem; color: var(--color-text-muted); margin-bottom: 1rem;"></i>
+                <p class="text-muted">No categories yet. 
+                {% if user.is_staff %}
+                <a href="{% url 'wiki:category_create' %}">Create one</a> to get started!
+                {% endif %}
+                </p>
+            </div>
+            {% endfor %}
+        </div>
+    </section>
+
+    <!-- Recent & Popular -->
+    <div class="grid grid-2" style="margin-top: 3rem;">
+        <!-- Recently Updated -->
+        <section class="wiki-section">
+            <div class="card">
+                <div class="card-header">
+                    <h3 class="card-title"><i class="fas fa-clock"></i> Recently Updated</h3>
+                </div>
+                <div class="card-body">
+                    {% if recent_pages %}
+                    <ul style="list-style: none;">
+                        {% for page in recent_pages %}
+                        <li style="padding: 0.75rem 0; border-bottom: 1px solid var(--color-border);">
+                            <a href="{% url 'wiki:page' page.slug %}" style="display: block;">
+                                <div style="font-weight: 600; margin-bottom: 0.25rem;">{{ page.title }}</div>
+                                <div style="font-size: 0.9rem; color: var(--color-text-muted);">
+                                    <i class="fas fa-calendar"></i> {{ page.updated_at|date:"M d, Y" }}
+                                </div>
+                            </a>
+                        </li>
+                        {% endfor %}
+                    </ul>
+                    {% else %}
+                    <p class="text-center text-muted">No pages yet.</p>
+                    {% endif %}
+                </div>
+            </div>
+        </section>
+
+        <!-- Popular Pages -->
+        <section class="wiki-section">
+            <div class="card">
+                <div class="card-header">
+                    <h3 class="card-title"><i class="fas fa-fire"></i> Popular Pages</h3>
+                </div>
+                <div class="card-body">
+                    {% if popular_pages %}
+                    <ul style="list-style: none;">
+                        {% for page in popular_pages %}
+                        <li style="padding: 0.75rem 0; border-bottom: 1px solid var(--color-border);">
+                            <a href="{% url 'wiki:page' page.slug %}" style="display: block;">
+                                <div style="font-weight: 600; margin-bottom: 0.25rem;">{{ page.title }}</div>
+                                <div style="font-size: 0.9rem; color: var(--color-text-muted);">
+                                    <i class="fas fa-eye"></i> {{ page.view_count }} views
+                                </div>
+                            </a>
+                        </li>
+                        {% endfor %}
+                    </ul>
+                    {% else %}
+                    <p class="text-center text-muted">No pages yet.</p>
+                    {% endif %}
+                </div>
+            </div>
+        </section>
+    </div>
+
+    <!-- Quick Actions -->
+    {% if user.is_staff or perms.wiki.can_edit_wiki %}
+    <section class="wiki-section" style="margin-top: 3rem; text-align: center; padding: 2rem; background: var(--color-bg-secondary); border: 2px dashed var(--color-border); border-radius: var(--radius-lg);">
+        <h3><i class="fas fa-plus-circle"></i> Contribute to the Wiki</h3>
+        <p class="text-muted">Help build our world's lore and information</p>
+        <div class="flex-center gap-2" style="margin-top: 1rem;">
+            <a href="{% url 'wiki:page_create' %}" class="btn btn-primary">
+                <i class="fas fa-file-alt"></i> Create New Page
+            </a>
+            <a href="{% url 'wiki:category_create' %}" class="btn btn-secondary">
+                <i class="fas fa-folder-plus"></i> Add Category
+            </a>
+        </div>
+    </section>
+    {% endif %}
+</div>
+
+<style>
+.wiki-hero {
+    text-align: center;
+    padding: 3rem 0;
+}
+
+.wiki-hero h1 {
+    font-size: 3.5rem;
+    margin-bottom: 1rem;
+}
+
+.lead {
+    font-size: 1.3rem;
+}
+
+.section-header h2 {
+    margin-bottom: 0.5rem;
+}
+
+.category-card:hover .category-icon {
+    transform: scale(1.1);
+    transition: transform 0.3s ease;
+}
+</style>
+{% endblock %}
+
