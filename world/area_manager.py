@@ -8,7 +8,7 @@ Manages game areas and their codes.
 - Area lookup and validation
 """
 
-from evennia import DefaultScript
+from evennia.scripts.scripts import DefaultScript
 
 
 class AreaManager(DefaultScript):

@@ -1,4 +1,5 @@
-from evennia import DefaultObject, evennia
+from evennia.objects.objects import DefaultObject
+import evennia
 from evennia.utils.utils import datetime_format
 from datetime import datetime
 from typeclasses.groups import Group, get_group_by_name, get_character_groups

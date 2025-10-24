@@ -4,7 +4,7 @@ Command set for Legacy Mode commands.
 This module contains all the commands that are specific to Legacy Mode operation.
 """
 
-from evennia import CmdSet
+from evennia.commands.cmdset import CmdSet
 from commands.CmdLegacy import CmdLegacy
 
 class LegacyCmdSet(CmdSet):

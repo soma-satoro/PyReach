@@ -355,7 +355,7 @@ class CmdSubmit(MuxCommand):
 
 
 # Command set to hold the submit command
-from evennia import CmdSet
+from evennia.commands.cmdset import CmdSet
 
 class CharacterSubmitCmdSet(CmdSet):
     """

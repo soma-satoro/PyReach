@@ -4,7 +4,7 @@ Voting and Recommendation Commands
 Commands for the voting and recommendation system that awards experience points.
 """
 
-from evennia import Command
+from evennia.commands.command import Command
 from world.voting import VotingHandler, get_character_by_name
 from datetime import datetime, timedelta
 

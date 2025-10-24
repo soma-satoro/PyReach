@@ -1,4 +1,4 @@
-from evennia import CmdSet
+from evennia.commands.cmdset import CmdSet
 from django.db import models, transaction, connection
 from evennia.utils import create, evtable, logger
 from evennia.comms.models import ChannelDB

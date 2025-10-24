@@ -5,7 +5,7 @@ NPCs are characters controlled by the game or staff, not players.
 They can use the same stat system as player characters and be puppeted.
 """
 
-from evennia import DefaultCharacter
+from evennia.objects.objects import DefaultCharacter
 from evennia.utils import lazy_property
 from world.cofd.stat_dictionary import attribute_dictionary, skill_dictionary
 from .characters import Character

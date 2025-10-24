@@ -2,11 +2,12 @@
 
 
 from evennia import default_cmds
+from evennia.commands.default.muxcommand import MuxCommand
 from evennia import create_object
 from typeclasses.bbs_controller import BBSController
 from typeclasses.groups import Group, get_group_by_name, get_character_groups
 
-class CmdCreateBoard(default_cmds.MuxCommand):
+class CmdCreateBoard(MuxCommand):
     """
     Create a new board.
 
@@ -71,7 +72,7 @@ class CmdCreateBoard(default_cmds.MuxCommand):
         msg += f" with description: {description}"
         self.caller.msg(msg)
 
-class CmdDeleteBoard(default_cmds.MuxCommand):
+class CmdDeleteBoard(MuxCommand):
     """
     Delete a board and all its posts.
 
@@ -101,7 +102,7 @@ class CmdDeleteBoard(default_cmds.MuxCommand):
         controller.delete_board(board_name)
         self.caller.msg(f"Board '{board_name}' and all its posts have been deleted.")
 
-class CmdRevokeAccess(default_cmds.MuxCommand):
+class CmdRevokeAccess(MuxCommand):
     """
     Revoke access to a private board.
 
@@ -136,7 +137,7 @@ class CmdRevokeAccess(default_cmds.MuxCommand):
         controller.revoke_access(board_name, character_name)
         self.caller.msg(f"Access for {character_name} has been revoked from board '{board_name}'.")
 
-class CmdListAccess(default_cmds.MuxCommand):
+class CmdListAccess(MuxCommand):
     """
     List all users who have access to a private board.
 
@@ -199,7 +200,7 @@ class CmdListAccess(default_cmds.MuxCommand):
         
         self.caller.msg("\n".join(output))
 
-class CmdLockBoard(default_cmds.MuxCommand):
+class CmdLockBoard(MuxCommand):
     """
     Lock a board to prevent new posts.
 
@@ -233,7 +234,7 @@ class CmdLockBoard(default_cmds.MuxCommand):
         controller.lock_board(board_name)
         self.caller.msg(f"Board '{board_name}' has been locked. No new posts can be made.")
 
-class CmdPinPost(default_cmds.MuxCommand):
+class CmdPinPost(MuxCommand):
     """
     Pin a post to the top of a board.
 
@@ -280,7 +281,7 @@ class CmdPinPost(default_cmds.MuxCommand):
         self.caller.msg(f"Post {post_number} in board '{board['name']}' has been pinned to the top.")
 
 
-class CmdUnpinPost(default_cmds.MuxCommand):
+class CmdUnpinPost(MuxCommand):
     """
     Unpin a pinned post from the top of a board.
 
@@ -327,7 +328,7 @@ class CmdUnpinPost(default_cmds.MuxCommand):
         self.caller.msg(f"Post {post_number} in board '{board['name']}' has been unpinned.")
 
 
-class CmdEditBoard(default_cmds.MuxCommand):
+class CmdEditBoard(MuxCommand):
     """
     Edit the settings or description of a board.
 
@@ -377,7 +378,7 @@ class CmdEditBoard(default_cmds.MuxCommand):
         controller.save_board(board_name, board)
         self.caller.msg(f"Board '{board_name}' has been updated. {msg}.")
 
-class CmdEditBoardGroups(default_cmds.MuxCommand):
+class CmdEditBoardGroups(MuxCommand):
     """
     Edit the group restrictions of a board.
 
@@ -432,7 +433,7 @@ class CmdEditBoardGroups(default_cmds.MuxCommand):
         controller.save_board(board_name, board)
         self.caller.msg(f"Updated group restrictions for board '{board_name}' to: {', '.join(group_names)}")
 
-class CmdGrantAccess(default_cmds.MuxCommand):
+class CmdGrantAccess(MuxCommand):
     """
     Grant access to a private board.
 
@@ -474,7 +475,7 @@ class CmdGrantAccess(default_cmds.MuxCommand):
         access_type = "read-only" if access_level == "read_only" else "full access"
         self.caller.msg(f"Granted {access_type} to {character_name} for board '{board_name}'.")
 
-class CmdAddGroup(default_cmds.MuxCommand):
+class CmdAddGroup(MuxCommand):
     """
     Add a group restriction to a board.
 
@@ -500,7 +501,7 @@ class CmdAddGroup(default_cmds.MuxCommand):
         result = controller.add_group_to_board(board_name, group_name)
         self.caller.msg(result)
 
-class CmdRemoveGroup(default_cmds.MuxCommand):
+class CmdRemoveGroup(MuxCommand):
     """
     Remove a group restriction from a board.
 
@@ -526,7 +527,7 @@ class CmdRemoveGroup(default_cmds.MuxCommand):
         result = controller.remove_group_from_board(board_name, group_name)
         self.caller.msg(result)
 
-class CmdListGroups(default_cmds.MuxCommand):
+class CmdListGroups(MuxCommand):
     """
     List all groups associated with a board.
 

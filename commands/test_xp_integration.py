@@ -3,7 +3,7 @@ Test command for verifying XP system integration.
 This command will be removed after testing is complete.
 """
 
-from evennia import Command
+from evennia.commands.command import Command
 
 
 class CmdTestXP(Command):

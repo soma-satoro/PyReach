@@ -4,7 +4,7 @@ CommonMux Command Set
 This cmdset includes all CommonMux-specific custom commands.
 """
 
-from evennia import CmdSet
+from evennia.commands.cmdset import CmdSet
 
 from commands.commonmux.CmdAlias import CmdAlias
 from commands.commonmux.CmdAlts import CmdAlts

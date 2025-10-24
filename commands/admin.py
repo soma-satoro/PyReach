@@ -5,7 +5,7 @@ from utils.search_helpers import search_character
 import evennia
 from evennia.server.models import ServerConfig
 from typeclasses.characters import Character
-from evennia import Command
+from evennia.commands.command import Command
 from evennia.utils import search
 from evennia.commands.default.muxcommand import MuxCommand
 from evennia.locks import lockfuncs

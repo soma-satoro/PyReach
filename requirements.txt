@@ -9,6 +9,7 @@ django>=4.1,<5.0
 
 # Networking
 twisted>=23.8.0
+pywin32>=305; sys_platform == 'win32'  # Required for Twisted on Windows
 
 # Database
 psycopg2-binary>=2.9.0  # PostgreSQL (optional, comment out if using SQLite)
@@ -24,6 +25,8 @@ isort>=5.12.0
 # Additional Utilities
 python-dateutil>=2.8.0
 pytz>=2023.3
+ephem>=4.1  # Astronomical calculations for weather system
+requests>=2.31.0  # HTTP library for weather API
 
 # Optional: For advanced features
 # redis>=4.5.0  # For caching and sessions

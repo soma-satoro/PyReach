@@ -8,6 +8,7 @@ from django.utils import timezone
 
 # Evennia Imports
 from evennia import default_cmds
+from evennia.commands.default.muxcommand import MuxCommand
 from evennia import create_object
 from evennia.server.sessionhandler import SESSION_HANDLER
 
@@ -19,7 +20,7 @@ import pytz
 from world.utils.time_utils import TIME_MANAGER
 from utils.search_helpers import search_character
 
-class CmdBBS(default_cmds.MuxCommand):
+class CmdBBS(MuxCommand):
     """
     Access the bulletin board system.
     
@@ -1266,7 +1267,7 @@ class CmdBBS(default_cmds.MuxCommand):
         self.caller.msg(f"You have re-subscribed to '{board['name']}'. It will now appear in your board listings.")
 
 # +bbs/post alias
-class CmdBBPost(default_cmds.MuxCommand):
+class CmdBBPost(MuxCommand):
     """
     Post to the bulletin board system.
     
@@ -1301,7 +1302,7 @@ class CmdBBPost(default_cmds.MuxCommand):
         cmd_bbs.do_post()
 
 # +bbs alias for reading (common MUX command)
-class CmdBBRead(default_cmds.MuxCommand):
+class CmdBBRead(MuxCommand):
     """
     Read a post from the bulletin board system.
     

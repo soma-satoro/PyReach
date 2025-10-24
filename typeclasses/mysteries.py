@@ -5,7 +5,8 @@ This system allows staff to create dynamic mysteries with discoverable clues
 that players can find through roleplay, investigation, and interaction.
 """
 
-from evennia import DefaultObject, DefaultScript
+from evennia.objects.objects import DefaultObject
+from evennia.scripts.scripts import DefaultScript
 from evennia.utils import logger
 from django.utils import timezone
 import random

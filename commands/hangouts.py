@@ -7,13 +7,14 @@ group-specific locations accessible to group members.
 """
 
 from evennia import default_cmds
+from evennia.commands.default.muxcommand import MuxCommand
 from evennia.utils.evtable import EvTable
 import evennia
 from typeclasses.groups import Group
 from utils.search_helpers import search_character
 
 
-class CmdHangouts(default_cmds.MuxCommand):
+class CmdHangouts(MuxCommand):
     """
     List available hangout locations for roleplay.
     
@@ -337,7 +338,7 @@ class CmdHangouts(default_cmds.MuxCommand):
             caller.msg("Failed to return to your previous location. Please contact staff.")
 
 
-class CmdHangoutAdmin(default_cmds.MuxCommand):
+class CmdHangoutAdmin(MuxCommand):
     """
     Set or remove group hangout locations (Staff/Group Leader).
     

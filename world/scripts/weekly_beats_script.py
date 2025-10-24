@@ -5,7 +5,7 @@ This script runs periodically to check if weekly beats should be distributed
 and handles the automated distribution.
 """
 
-from evennia import DefaultScript
+from evennia.scripts.scripts import DefaultScript
 from world.weekly_beats import WeeklyBeatsHandler
 from evennia.utils import logger
 

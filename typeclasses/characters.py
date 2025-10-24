@@ -12,7 +12,7 @@ and so on.
 
 """
 
-from evennia import DefaultCharacter
+from evennia.objects.objects import DefaultCharacter
 from evennia.utils.utils import lazy_property
 from world.conditions import ConditionHandler
 from world.tilts import TiltHandler
@@ -23,7 +23,7 @@ from world.utils.health_utils import calculate_wound_penalty
 from .objects import ObjectParent
 
 
-class Character(DefaultCharacter, ObjectParent):
+class Character(DefaultCharacter):
     """
     The Character class represents a player character in the game.
     """

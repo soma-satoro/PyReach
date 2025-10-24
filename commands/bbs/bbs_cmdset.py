@@ -1,4 +1,4 @@
-from evennia import CmdSet
+from evennia.commands.cmdset import CmdSet
 
 
 from commands.bbs.bbs_admin_commands import CmdResetBBS

@@ -4,10 +4,11 @@ import pytz
 import ephem
 from evennia.utils.ansi import ANSIString
 from evennia import default_cmds
+from evennia.commands.default.muxcommand import MuxCommand
 from world.utils import ansi_utils
 import re
 
-class CmdWeather(default_cmds.MuxCommand):
+class CmdWeather(MuxCommand):
     """
     Get the current time, weather, moon phase, and tide information for San Diego.
     Admins can set a custom weather description for special events.

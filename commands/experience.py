@@ -1,5 +1,5 @@
 import re
-from evennia import Command
+from evennia.commands.command import Command
 from world.cofd.merits.general_merits import merits_dict, all_merits
 
 

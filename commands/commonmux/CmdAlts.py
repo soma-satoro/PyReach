@@ -1,11 +1,12 @@
 from evennia import default_cmds
+from evennia.commands.default.muxcommand import MuxCommand
 from evennia.utils.search import search_object
 from evennia.utils import logger
 import uuid
 from time import time
 from utils.search_helpers import search_character
 
-class CmdAlts(default_cmds.MuxCommand):
+class CmdAlts(MuxCommand):
     """
     Manage character alts.
     

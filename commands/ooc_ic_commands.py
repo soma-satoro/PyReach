@@ -7,13 +7,14 @@ location desynchronization bugs experienced on Dies Irae.
 """
 
 from evennia import default_cmds
+from evennia.commands.default.muxcommand import MuxCommand
 from world.utils.permission_utils import check_staff_permission, format_permission_error
 from utils.search_helpers import search_character
 import evennia
 from evennia.server.models import ServerConfig
 
 
-class CmdOOC(default_cmds.MuxCommand):
+class CmdOOC(MuxCommand):
     """
     Teleport to the designated Out-of-Character room.
     
@@ -83,7 +84,7 @@ class CmdOOC(default_cmds.MuxCommand):
             caller.msg("Failed to move to the OOC room. Please contact staff.")
 
 
-class CmdIC(default_cmds.MuxCommand):
+class CmdIC(MuxCommand):
     """
     Return to in-character areas.
     
@@ -166,7 +167,7 @@ class CmdIC(default_cmds.MuxCommand):
             caller.msg("Failed to move to the IC area. Please contact staff.")
 
 
-class CmdJoin(default_cmds.MuxCommand):
+class CmdJoin(MuxCommand):
     """
     Teleport to a player's location (Staff only).
     

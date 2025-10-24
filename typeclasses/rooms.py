@@ -15,7 +15,7 @@ import time
 from .objects import ObjectParent
 
 
-class Room(DefaultRoom, ObjectParent):
+class Room(DefaultRoom):
     """
     Rooms with custom formatting.
     

@@ -1,10 +1,11 @@
 from evennia import default_cmds
+from evennia.commands.default.muxcommand import MuxCommand
 from evennia.utils import ansi
 from commands.commonmux.CmdPose import PoseBreakMixin
 from utils.text import process_special_characters
 import re
 
-class CmdEmit(PoseBreakMixin, default_cmds.MuxCommand):
+class CmdEmit(PoseBreakMixin, MuxCommand):
     """
     @emit - Send a message to the room without your name attached.
 

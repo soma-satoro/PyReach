@@ -5,7 +5,7 @@ This script runs periodically to refresh resource pools for all characters
 based on their configured refresh periods.
 """
 
-from evennia import DefaultScript
+from evennia.scripts.scripts import DefaultScript
 from evennia import search_object
 from world.equipment_purchasing import PURCHASE_CONFIG
 from datetime import datetime, timedelta

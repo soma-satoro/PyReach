@@ -5,7 +5,8 @@ This module contains the TypeClass definitions for groups, replacing the Django 
 with proper Evennia TypeClasses for better integration and functionality.
 """
 
-from evennia import DefaultObject, create_object, logger
+from evennia.objects.objects import DefaultObject
+from evennia import create_object, logger
 from evennia.comms.models import ChannelDB
 from evennia.utils import create as utils_create
 from django.conf import settings

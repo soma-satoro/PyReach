@@ -16,15 +16,17 @@ class ObjectParent(object):
     This is a mixin that can be used to override *all* entities inheriting at
     some distance from DefaultObject (Objects, Exits, Characters and Rooms).
 
-    Just add any method that exists on `DefaultObject` to this class. If one
-    of the derived classes has itself defined that same hook already, that will
-    take precedence.
+    IMPORTANT: Due to metaclass conflicts with Evennia's TypedObject metaclass,
+    ObjectParent should NOT be used in the inheritance chain. If you need shared
+    functionality across all objects, add methods directly to the DefaultObject
+    subclasses or use Evennia's built-in parent classes.
 
+    This class is kept for reference but should not be used in inheritance.
     """
     pass
 
 
-class Object(DefaultObject, ObjectParent):
+class Object(DefaultObject):
     """
     This is the root Object typeclass, representing all entities that
     have an actual presence in-game. DefaultObjects generally have a

@@ -6,7 +6,7 @@ Players can vote for each other and write recommendations, with time limits and 
 """
 
 from datetime import datetime, timedelta
-from evennia import DefaultObject
+from evennia.objects.objects import DefaultObject
 from evennia.server.models import ServerConfig
 from evennia.utils import logger
 from evennia.utils.utils import make_iter

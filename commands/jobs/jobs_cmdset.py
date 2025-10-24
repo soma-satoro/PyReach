@@ -1,6 +1,6 @@
 # jobsystem_cmdset.py
 
-from evennia import CmdSet
+from evennia.commands.cmdset import CmdSet
 from commands.jobs.jobs_commands import (
     CmdJobs,
 )

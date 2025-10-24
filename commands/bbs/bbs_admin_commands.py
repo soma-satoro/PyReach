@@ -1,10 +1,11 @@
 #commands/bbs/bbs_admin_commands.py
 
 from evennia import default_cmds
+from evennia.commands.default.muxcommand import MuxCommand
 from evennia import create_object
 from typeclasses.bbs_controller import BBSController
 
-class CmdResetBBS(default_cmds.MuxCommand):
+class CmdResetBBS(MuxCommand):
     """
     Reinitialize the BBSController, wiping away all boards and posts.
 

@@ -1,4 +1,5 @@
 from evennia import default_cmds
+from evennia.commands.default.muxcommand import MuxCommand
 import re
 from utils.text import process_special_characters
 
@@ -66,7 +67,7 @@ class PoseBreakMixin:
         # Call the original msg_contents (pose/emit/say)
         super().msg_contents(message, exclude=exclude, from_obj=from_obj, **kwargs)
 
-class CmdPose(PoseBreakMixin, default_cmds.MuxCommand):
+class CmdPose(PoseBreakMixin, MuxCommand):
     """
     Pose an action to the room, with support for mixed content and language tags.
     Usage:

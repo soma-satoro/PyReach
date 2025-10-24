@@ -1,12 +1,13 @@
 from evennia import default_cmds
+from evennia.commands.default.muxcommand import MuxCommand
 from evennia.accounts.accounts import AccountDB
 from evennia.utils.ansi import ANSIString
 from evennia.utils import ansi
-from evennia import Command
+from evennia.commands.command import Command
 from evennia.utils import search
 from world.utils.permission_utils import check_admin_permission, format_permission_error
 
-class CmdStaff(default_cmds.MuxCommand):
+class CmdStaff(MuxCommand):
     """
     List and manage staff members.
 
