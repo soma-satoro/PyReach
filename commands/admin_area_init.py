@@ -21,7 +21,7 @@ class CmdInitAreaManager(MuxCommand):
     
     key = "@init_area_manager"
     locks = "cmd:perm(admin)"
-    help_category = "Admin"
+    help_category = "Admin Commands"
     
     def func(self):
         caller = self.caller

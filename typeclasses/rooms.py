@@ -393,9 +393,10 @@ class Room(DefaultRoom):
 
     def get_display_footer(self, looker, **kwargs):
         """
-        Get the footer with IC Area information.
+        Get the footer with IC/OOC Area information.
         
         Format: ======> IC Area - AREACODE <====
+                ======> OOC Area - AREACODE <=== (if room has 'ooc' tag)
         """
         # Get theme colors
         header_color, text_color, divider_color = self.get_theme_colors()
@@ -403,7 +404,28 @@ class Room(DefaultRoom):
         area_name = self.db.area_name or "Unknown Area"
         area_code = self.db.area_code or "XX00"
         
-        footer_content = f" IC Area - {area_code} "
+        # Check if room has 'ooc' tag (check both Evennia tags and db.tags attribute)
+        is_ooc = False
+        
+        # Check Evennia's tag system
+        if self.tags.get("ooc", category=None):
+            is_ooc = True
+        
+        # Also check db.tags attribute (for legacy/alternative tag storage)
+        # db.tags can be a _SaverList (Evennia's list wrapper) or regular list/string
+        if hasattr(self.db, 'tags') and self.db.tags:
+            try:
+                # Try to check if 'ooc' is in the tags (works for lists, _SaverList, etc.)
+                if 'ooc' in self.db.tags:
+                    is_ooc = True
+            except TypeError:
+                # If 'in' operator fails, check if it's a string
+                if isinstance(self.db.tags, str) and self.db.tags == 'ooc':
+                    is_ooc = True
+        
+        area_type = "OOC Area" if is_ooc else "IC Area"
+        
+        footer_content = f" {area_type} - {area_code} "
         total_width = 80
         equals_per_side = (total_width - len(footer_content) - 4) // 2  # -4 for the arrows
         

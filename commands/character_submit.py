@@ -42,7 +42,7 @@ class CmdSubmit(MuxCommand):
     key = "+submit"
     aliases = ["submit"]
     locks = "cmd:all()"
-    help_category = "Character Sheets and Development"
+    help_category = "Chargen & Character Info"
     
     # Template to category mapping
     TEMPLATE_CATEGORY_MAP = {

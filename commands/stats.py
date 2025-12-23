@@ -224,7 +224,7 @@ class CmdStat(MuxCommand):
     
     key = "+stat"
     aliases = ["+stats"]
-    help_category = "Character Sheets and Development"
+    help_category = "Chargen & Character Info"
     def parse(self):
         """Parse the command arguments."""
         super().parse()  # Initialize switches and other MuxCommand attributes
@@ -2315,7 +2315,7 @@ class CmdRecalc(MuxCommand):
     
     key = "+recalc"
     aliases = ["recalc"]
-    help_category = "Character"
+    help_category = "Chargen & Character Info"
     
     def func(self):
         """Execute the recalculation"""

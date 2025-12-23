@@ -14,19 +14,33 @@ import evennia
 from evennia.server.models import ServerConfig
 
 
-class CmdOOC(MuxCommand):
+class CmdGo(MuxCommand):
     """
-    Teleport to the designated Out-of-Character room.
+    Move between In-Character and Out-of-Character areas.
     
     Usage:
-        +ooc
+        +go/ic  - Return to in-character areas
+        +go/ooc - Move to the out-of-character area
+        
+    Aliases:
+        +ic, +ooc (for backward compatibility)
     
-    This command will teleport you to the staff-designated OOC room
-    and store your current location for later return with +ic.
+    The /ic switch will return you to where you were before using /ooc,
+    or send you to the staff-designated IC starting room if no previous
+    location is stored.
+    
+    The /ooc switch will teleport you to the staff-designated OOC room
+    and store your current location for later return with /ic.
+    
+    Examples:
+        +go/ic
+        +go/ooc
+        +ic
+        +ooc
     """
     
-    key = "+ooc"
-    aliases = ["ooc"]
+    key = "+go"
+    aliases = ["+ic", "+ooc", "ic"]
     locks = "cmd:all()"
     help_category = "OOC/IC Movement"
     
@@ -38,6 +52,33 @@ class CmdOOC(MuxCommand):
         if not caller.has_account:
             caller.msg("Only characters can use this command.")
             return
+        
+        # Determine which switch to use based on the command or switches
+        if not self.switches:
+            # If no switch, check if they used an alias
+            if self.cmdstring in ["+ic", "ic"]:
+                self.go_ic()
+            elif self.cmdstring == "+ooc":
+                self.go_ooc()
+            else:
+                # No switch and main command - show help
+                caller.msg("Usage: +go/ic or +go/ooc")
+                caller.msg("Use +go/ic to return to in-character areas.")
+                caller.msg("Use +go/ooc to move to the out-of-character area.")
+            return
+        
+        switch = self.switches[0].lower()
+        
+        if switch == "ic":
+            self.go_ic()
+        elif switch == "ooc":
+            self.go_ooc()
+        else:
+            caller.msg(f"Invalid switch '{switch}'. Use +go/ic or +go/ooc")
+    
+    def go_ooc(self):
+        """Handle the /ooc switch - move to OOC area"""
+        caller = self.caller
         
         # Get the designated OOC room from server configuration
         ooc_room_dbref = ServerConfig.objects.conf("OOC_ROOM_DBREF")
@@ -53,7 +94,7 @@ class CmdOOC(MuxCommand):
         
         ooc_room = ooc_room[0]  # search_object returns a list
         
-        # Store current location for +ic command
+        # Store current location for +go/ic command
         current_location = caller.location
         if current_location and hasattr(current_location, "id"):
             # Store the location directly as an object reference
@@ -76,39 +117,16 @@ class CmdOOC(MuxCommand):
             move_type="teleport"
         ):
             caller.msg(f"You have moved to the OOC area: {ooc_room.name}")
-            caller.msg("Use +ic to return to your previous location or the IC starting area.")
+            caller.msg("Use +go/ic (or +ic) to return to your previous location or the IC starting area.")
             
             # Force another save after the move to ensure location is synchronized
             caller.save()
         else:
             caller.msg("Failed to move to the OOC room. Please contact staff.")
-
-
-class CmdIC(MuxCommand):
-    """
-    Return to in-character areas.
     
-    Usage:
-        +ic
-    
-    This command will either return you to where you were before using +ooc,
-    or send you to the staff-designated IC starting room if no previous
-    location is stored.
-    """
-    
-    key = "+ic"
-    aliases = ["ic"]
-    locks = "cmd:all()"
-    help_category = "OOC/IC Movement"
-    
-    def func(self):
-        """Execute the command"""
+    def go_ic(self):
+        """Handle the /ic switch - return to IC area"""
         caller = self.caller
-        
-        # Check if caller is a character
-        if not caller.has_account:
-            caller.msg("Only characters can use this command.")
-            return
         
         destination = None
         location_type = "starting"
@@ -185,7 +203,7 @@ class CmdJoin(MuxCommand):
     key = "+join"
     aliases = ["join"]
     locks = "cmd:perm(staff)"
-    help_category = "Staff Movement"
+    help_category = "Roleplaying Tools"
     
     def func(self):
         """Execute the command"""

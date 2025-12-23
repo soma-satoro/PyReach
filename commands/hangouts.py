@@ -24,6 +24,11 @@ class CmdHangouts(MuxCommand):
         +hangouts/groups       - List only group hangout locations
         +hangouts <name>       - Move to a specific hangout location
         +hangouts/return       - Return to your previous location
+        
+    Admin switches (Staff/Group Leaders only):
+        +hangouts/set <group>=<room>    - Set a group's hangout location
+        +hangouts/remove <group>        - Remove a group's hangout location
+        +hangouts/view <group>          - View a group's hangout location
     
     Hangout locations include:
     - Public social spaces (bars, restaurants, cafes, parks, etc.)
@@ -33,12 +38,18 @@ class CmdHangouts(MuxCommand):
     bar, nightclub, restaurant, cafe, theater, church, gathering_hall,
     marketplace, park, etc.
     
-    Group hangout locations are set by staff/group leaders using:
-    +hangout/set <group>=<room>
+    Examples:
+        +hangouts
+        +hangouts The Dragon's Lair
+        +hangouts/return
+        +hangouts/set Ordo Dracul=The Dragon's Lair
+        +hangouts/set 1=#123
+        +hangouts/remove Ordo Dracul
+        +hangouts/view 1
     """
     
     key = "+hangouts"
-    aliases = ["hangout", "hangouts"]
+    aliases = ["+hangout", "hangouts", "hangout"]
     locks = "cmd:all()"
     help_category = "OOC/IC Movement"
     
@@ -60,6 +71,17 @@ class CmdHangouts(MuxCommand):
         # Check if caller is a character
         if not caller.has_account:
             caller.msg("Only characters can use this command.")
+            return
+        
+        # Handle admin switches
+        if "set" in self.switches:
+            self.set_hangout()
+            return
+        elif "remove" in self.switches:
+            self.remove_hangout()
+            return
+        elif "view" in self.switches:
+            self.view_hangout()
             return
         
         # Handle /return switch
@@ -336,56 +358,13 @@ class CmdHangouts(MuxCommand):
             caller.save()
         else:
             caller.msg("Failed to return to your previous location. Please contact staff.")
-
-
-class CmdHangoutAdmin(MuxCommand):
-    """
-    Set or remove group hangout locations (Staff/Group Leader).
-    
-    Usage:
-        +hangout/set <group>=<room>     - Set a group's hangout location
-        +hangout/remove <group>         - Remove a group's hangout location
-        +hangout/view <group>           - View a group's hangout location
-    
-    Examples:
-        +hangout/set Ordo Dracul=The Dragon's Lair
-        +hangout/set 1=#123
-        +hangout/remove Ordo Dracul
-        +hangout/view 1
-    
-    Only staff members and group leaders can set hangout locations for groups.
-    """
-    
-    key = "+hangout"
-    locks = "cmd:all()"
-    help_category = "Group Management"
-    
-    def func(self):
-        """Execute the command"""
-        caller = self.caller
-        
-        # Only allow /set, /remove, or /view switches
-        if not any(switch in ["set", "remove", "view"] for switch in self.switches):
-            return  # Let the other command handle it
-        
-        # Check if caller is a character
-        if not caller.has_account:
-            caller.msg("Only characters can use this command.")
-            return
-        
-        if "set" in self.switches:
-            self.set_hangout()
-        elif "remove" in self.switches:
-            self.remove_hangout()
-        elif "view" in self.switches:
-            self.view_hangout()
     
     def set_hangout(self):
         """Set a group's hangout location."""
         caller = self.caller
         
         if not self.args or "=" not in self.args:
-            caller.msg("Usage: +hangout/set <group>=<room>")
+            caller.msg("Usage: +hangouts/set <group>=<room>")
             return
         
         group_id, room_name = [part.strip() for part in self.args.split("=", 1)]
@@ -420,7 +399,7 @@ class CmdHangoutAdmin(MuxCommand):
         caller = self.caller
         
         if not self.args:
-            caller.msg("Usage: +hangout/remove <group>")
+            caller.msg("Usage: +hangouts/remove <group>")
             return
         
         # Find the group
@@ -452,7 +431,7 @@ class CmdHangoutAdmin(MuxCommand):
         caller = self.caller
         
         if not self.args:
-            caller.msg("Usage: +hangout/view <group>")
+            caller.msg("Usage: +hangouts/view <group>")
             return
         
         # Find the group
@@ -544,4 +523,3 @@ class CmdHangoutAdmin(MuxCommand):
             return True
         
         return False
-

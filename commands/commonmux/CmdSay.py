@@ -18,7 +18,7 @@ class CmdSay(PoseBreakMixin, MuxCommand):
     key = "say"
     aliases = ['"', "'"]
     locks = "cmd:all()"
-    help_category = "RP Commands"
+    help_category = "Roleplaying Tools"
     arg_regex = r""
 
     def func(self):

@@ -24,7 +24,7 @@ class CmdCharacter(MuxCommand):
     """
     key = "+char"
     aliases = ["+character"]
-    help_category = "Character"
+    help_category = "Chargen & Character Info"
     
     def func(self):
         """Execute the command"""

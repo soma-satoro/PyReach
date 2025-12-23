@@ -17,7 +17,7 @@ class CmdResetBBS(MuxCommand):
     """
     key = "+bbs/reset"
     locks = "cmd:perm(Admin)"
-    help_category = "Event & Bulletin Board"
+    help_category = "Utility Commands"
 
     def func(self):
         # Confirm the user's intention

@@ -35,7 +35,7 @@ class CmdHealth(MuxCommand):
     
     key = "+health"
     aliases = ["health", "damage"]
-    help_category = "Character"
+    help_category = "Chargen & Character Info"
     
     def _get_health_display(self, caller, force_ascii=False):
         """Get a visual representation of current health with wound penalty"""

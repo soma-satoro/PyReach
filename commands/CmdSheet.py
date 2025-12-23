@@ -40,7 +40,7 @@ class CmdSheet(MuxCommand):
     
     key = "+sheet"
     aliases = ["sheet"]
-    help_category = "Character Sheets and Development"
+    help_category = "Chargen & Character Info"
     
     def _get_dots_style(self, force_ascii=False, force_unicode=False):
         """

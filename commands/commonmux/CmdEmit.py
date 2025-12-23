@@ -28,7 +28,7 @@ class CmdEmit(PoseBreakMixin, MuxCommand):
     key = "@emit"
     aliases = ["\\\\"]
     locks = "cmd:all()"
-    help_category = "RP Commands"
+    help_category = "Roleplaying Tools"
 
     def func(self):
         """Execute the @emit command"""

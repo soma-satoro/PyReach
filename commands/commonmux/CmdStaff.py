@@ -42,7 +42,7 @@ class CmdStaff(MuxCommand):
     key = "+staff"
     aliases = ["staff"]
     locks = "cmd:all()"
-    help_category = "Game Info"
+    help_category = "Roleplaying Tools"
 
     def func(self):
         if not self.args and not self.switches:

@@ -48,7 +48,7 @@ class CmdFinger(MuxCommand):
     key = "+finger"
     aliases = ["finger"]
     locks = "cmd:all()"
-    help_category = "Character"
+    help_category = "Chargen & Character Info"
     
     # Valid finger attributes
     VALID_ATTRIBUTES = [

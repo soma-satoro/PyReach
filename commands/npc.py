@@ -41,7 +41,7 @@ class CmdNPC(MuxCommand):
     
     key = "+npc"
     aliases = []
-    help_category = "Storytelling Commands"
+    help_category = "Roleplaying Tools"
     
     def func(self):
         """Execute the command"""

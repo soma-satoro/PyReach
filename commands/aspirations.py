@@ -16,7 +16,7 @@ class CmdAspiration(MuxCommand):
     """
     key = "+aspiration"
     aliases = ["+asp"]
-    help_category = "Character"
+    help_category = "Chargen & Character Info"
     
     def func(self):
         """Execute the command"""

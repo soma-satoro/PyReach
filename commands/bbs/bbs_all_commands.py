@@ -112,7 +112,7 @@ class CmdBBS(MuxCommand):
     key = "+bbs"
     aliases = ["bbs", "@bbs", "bb", "+bb"]
     locks = "cmd:all()"
-    help_category = "Event & Bulletin Board"
+    help_category = "Utility Commands"
 
     def check_admin_access(self):
         """Check if the caller has admin access."""
@@ -1284,7 +1284,7 @@ class CmdBBPost(MuxCommand):
     key = "+bbpost"
     aliases = ["bbpost"]
     locks = "cmd:all()"
-    help_category = "Event & Bulletin Board"
+    help_category = "Utility Commands"
     
     def func(self):
         """Execute the command."""
@@ -1326,7 +1326,7 @@ class CmdBBRead(MuxCommand):
     key = "+bbread"
     aliases = ["bbread"]
     locks = "cmd:all()"
-    help_category = "Event & Bulletin Board"
+    help_category = "Utility Commands"
     
     def func(self):
         """Execute the command."""

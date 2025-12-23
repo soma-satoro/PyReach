@@ -73,7 +73,7 @@ class CmdGroups(MuxCommand):
     key = "+group"
     aliases = ["+groups"]
     locks = "cmd:all()"
-    help_category = "Social and Communications"
+    help_category = "Group Management"
     
     def parse(self):
         """Parse the command arguments."""
@@ -1196,7 +1196,7 @@ class CmdRoster(MuxCommand):
     
     key = "+roster"
     locks = "cmd:all()"
-    help_category = "Social and Communications"
+    help_category = "Group Management"
     switch_options = ("all",)
     
     def list_available_groups(self):
@@ -1421,7 +1421,7 @@ class CmdGroupMerit(MuxCommand):
     key = "+groupmerit"
     aliases = ["+gmerit"]
     locks = "cmd:all()"
-    help_category = "Social and Communications"
+    help_category = "Group Management"
     
     def func(self):
         """Execute the command."""
@@ -1620,7 +1620,7 @@ class CmdTotem(MuxCommand):
     
     key = "+totem"
     locks = "cmd:all()"
-    help_category = "Social and Communications"
+    help_category = "Group Management"
     
     def func(self):
         """Execute the command."""

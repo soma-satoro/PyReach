@@ -87,7 +87,7 @@ class CmdPose(PoseBreakMixin, MuxCommand):
     aliases = [";", ":"]
     locks = "cmd:all()"
     arg_regex = None
-    help_category = "RP Commands"
+    help_category = "Roleplaying Tools"
 
     def parse(self):
         """

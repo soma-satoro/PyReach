@@ -23,7 +23,7 @@ class CmdLegacy(MuxCommand):
     
     key = "+legacy"
     aliases = ["legacy"]
-    help_category = "Administration"
+    help_category = "Admin Commands"
     locks = "cmd:perm(Admin)"  # Only admins can use this command
     
     def func(self):

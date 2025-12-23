@@ -15,7 +15,7 @@ from evennia.utils import evtable
 
 # Import Changing Breeds data for legacy mode support
 try:
-    from world.cofd.changing_breeds_data import (
+    from world.cofd.powers.changing_breeds_data import (
         get_breed_forms, 
         get_breed_info, 
         list_all_breeds,
@@ -149,7 +149,7 @@ class CmdShift(MuxCommand):
     
     key = "+shift"
     aliases = ["shift"]
-    help_category = "Character Sheets and Development"
+    help_category = "Roleplaying Tools"
     
     def func(self):
         """Execute the shift command"""
@@ -582,7 +582,7 @@ class CmdForm(MuxCommand):
     
     key = "+form"
     aliases = ["form"]
-    help_category = "Character Sheets and Development"
+    help_category = "Chargen & Character Info"
     
     def func(self):
         """Execute the form command"""

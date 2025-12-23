@@ -35,7 +35,7 @@ class CmdAreaManage(MuxCommand):
     
     key = "+area"
     locks = "cmd:perm(builders)"
-    help_category = "Building"
+    help_category = "Building Commands"
     
     def func(self):
         caller = self.caller
@@ -251,7 +251,7 @@ class CmdRoomSetup(MuxCommand):
     
     key = "+room"
     locks = "cmd:perm(builders)"
-    help_category = "Building"
+    help_category = "Building Commands"
     
     def parse(self):
         """
@@ -665,7 +665,7 @@ class CmdPlaces(MuxCommand):
     
     key = "places"
     locks = "cmd:perm(builders)"
-    help_category = "Building"
+    help_category = "Building Commands"
 
     def func(self):
         caller = self.caller
@@ -801,7 +801,7 @@ class CmdRoomInfo(MuxCommand):
     
     key = "roominfo"
     locks = "cmd:perm(builders)"
-    help_category = "Building"
+    help_category = "Building Commands"
     
     def func(self):
         caller = self.caller
@@ -888,7 +888,7 @@ class CmdMap(MuxCommand):
     
     key = "+map"
     locks = "cmd:all()"
-    help_category = "Information"
+    help_category = "Roleplaying Tools"
     
     def func(self):
         caller = self.caller

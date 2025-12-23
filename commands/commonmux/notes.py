@@ -43,7 +43,7 @@ class CmdNote(MuxCommand):
     
     key = "+note"
     aliases = ["+notes"]
-    help_category = "Character"
+    help_category = "Chargen & Character Info"
     locks = "cmd:all()"
     
     def func(self):

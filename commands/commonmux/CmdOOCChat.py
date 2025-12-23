@@ -29,7 +29,7 @@ class CmdOOCChat(MuxCommand):
 
     key = "ooc"
     locks = "cmd:all()"
-    help_category = "Communication"
+    help_category = "Comms"
     arg_regex = r""
 
     def func(self):

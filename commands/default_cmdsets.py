@@ -38,15 +38,15 @@ from .admin import CmdConfigOOCIC
 from .building import (CmdAreaManage, CmdRoomSetup, CmdPlaces, CmdRoomInfo, CmdMap)
 from .admin_area_init import CmdInitAreaManager
 from .mystery_commands import CmdMystery
-from .storyteller_admin import CmdStoryteller, CmdStorytellerWho
+from .storyteller_admin import CmdStoryteller
 from .jobs.jobs_commands import CmdJobs
 from commands.commonmux.commonmux_cmdset import CommonMuxCmdSet
 from .lookup import CmdLookup
 from .voting import CmdVote, CmdRecommend, CmdVoteAdmin
 from .test_xp_integration import CmdTestXP
 from .CmdLegacy import CmdLegacy
-from .ooc_ic_commands import CmdOOC, CmdIC, CmdJoin
-from .hangouts import CmdHangouts, CmdHangoutAdmin
+from .ooc_ic_commands import CmdGo, CmdJoin
+from .hangouts import CmdHangouts
 from .bbs.bbs_cmdset import BBSCmdSet
 from commands.commonmux.CmdPage import CmdPage
 from .shapeshifting import CmdShift, CmdForm
@@ -129,7 +129,6 @@ class CharacterCmdSet(default_cmds.CharacterCmdSet):
         self.add(CmdTemplate())
         self.add(CmdInitAreaManager())
         self.add(CmdStoryteller())
-        self.add(CmdStorytellerWho())
         self.add(CmdConfigOOCIC())
         
         # Building commands (areas, rooms, places, mapping)
@@ -140,13 +139,11 @@ class CharacterCmdSet(default_cmds.CharacterCmdSet):
         self.add(CmdMap())
         
         # OOC/IC Movement commands
-        self.add(CmdOOC())
-        self.add(CmdIC())
+        self.add(CmdGo())
         self.add(CmdJoin())
         
         # Hangout commands
         self.add(CmdHangouts())
-        self.add(CmdHangoutAdmin())
         
         # Custom help command with ANSI stripping to prevent the color codes from breaking the help text
         self.add(CmdHelp())

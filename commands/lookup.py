@@ -79,7 +79,7 @@ class CmdLookup(MuxCommand):
     key = "+lookup"
     aliases = ["+dict", "+dictionary", "+info", "+reference"]
     locks = "cmd:all()"
-    help_category = "Character Creation"
+    help_category = "Chargen & Character Info"
     
     def get_theme_colors(self):
         """Get theme colors from server config or defaults."""

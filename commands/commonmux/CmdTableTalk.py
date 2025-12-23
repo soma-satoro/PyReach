@@ -33,7 +33,7 @@ class CmdTableTalk(PoseBreakMixin, MuxCommand):
     key = "tt"
     aliases = ["tabletalk"]
     locks = "cmd:all()"
-    help_category = "RP Commands"
+    help_category = "Roleplaying Tools"
     arg_regex = r"\s|$"
 
     def func(self):

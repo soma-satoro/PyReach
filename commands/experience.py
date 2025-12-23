@@ -62,7 +62,7 @@ class CmdExperience(Command):
     """
     key = "+xp"
     aliases = ["+experience", "+beat"]
-    help_category = "Character Sheets and Development"
+    help_category = "Chargen & Character Info"
 
     def parse(self):
         """Parse the command line."""

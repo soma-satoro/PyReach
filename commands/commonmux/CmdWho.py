@@ -30,7 +30,7 @@ class CmdWho(COMMAND_DEFAULT_CLASS):
     aliases = ["doing"]
     locks = "cmd:all()"
     account_caller = False  # important for Account commands
-    help_category = "Game Info"
+    help_category = "Roleplaying Tools"
 
     def format_name(self, puppet, account):
         """Helper function to format character names consistently"""
@@ -187,7 +187,7 @@ class CmdCensus(COMMAND_DEFAULT_CLASS):
     key = "+census"
     aliases = ["census"]
     locks = "cmd:all()"
-    help_category = "Game Info"
+    help_category = "Roleplaying Tools"
 
     def format_counts(self, counts, title):
         """Format the counts into a nice table with either 2 or 3 columns based on content."""

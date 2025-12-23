@@ -28,8 +28,8 @@ class CmdEquipment(MuxCommand):
         style - Fighting styles and specializations
     """
     key = "+equipment"
-    aliases = ["+eq", "+gear"]
-    help_category = "Character Sheets and Development"
+    aliases = ["+eq"]
+    help_category = "Gear & Resources"
     
     def parse(self):
         """Parse the command arguments."""
@@ -474,7 +474,7 @@ class CmdBuy(MuxCommand):
     
     key = "+buy"
     aliases = ["+purchase", "+shop"]
-    help_category = "Equipment and Resources"
+    help_category = "Gear & Resources"
     
     def func(self):
         """Execute the command"""
@@ -751,7 +751,7 @@ class CmdBuyConfig(MuxCommand, BuilderMixin):
     
     key = "+buyconfig"
     aliases = ["+purchaseconfig"]
-    help_category = "Admin and Building"
+    help_category = "Gear & Resources"
     
     def func(self):
         """Execute the command"""

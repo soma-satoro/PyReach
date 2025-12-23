@@ -6,7 +6,7 @@ class CmdMigrate(MuxCommand):
     """
     key = "+migrate"
     aliases = ["migrate"]
-    help_category = "Admin"
+    help_category = "Admin Commands"
     
     def func(self):
         """

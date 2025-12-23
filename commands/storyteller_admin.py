@@ -21,7 +21,8 @@ class CmdStoryteller(MuxCommand):
         +storyteller/remove <character> - Remove Storyteller flag
         +storyteller/check [character] - Check if character has Storyteller flag
         +storyteller/info - Show information about Storyteller permissions
-        
+        +storyteller/who - Show who is online and has Storyteller permissions
+
     Storyteller Permissions:
         - Create and manage mysteries
         - Create and control NPCs
@@ -35,6 +36,7 @@ class CmdStoryteller(MuxCommand):
         +storyteller/remove Bob
         +storyteller/check Alice
         +storyteller/list
+        +storyteller/who
     """
     
     key = "+storyteller"
@@ -60,6 +62,8 @@ class CmdStoryteller(MuxCommand):
             self.check_storyteller()
         elif switch == "info":
             self.show_info()
+        elif switch == "who":
+            self.show_storyteller_who()
         else:
             self.caller.msg("Invalid switch. Use +storyteller without arguments for help.")
     
@@ -293,72 +297,93 @@ Once you have the Storyteller flag, you can use:
             output.append("• Various other storytelling tools")
         
         self.caller.msg("\n".join(output))
-
-
-class CmdStorytellerWho(MuxCommand):
-    """
-    Quick command to see who has storytelling permissions online.
-    
-    Usage:
-        +stwho
+    def show_storyteller_who(self):
+        """Show who is online and has Storyteller permissions."""
+        from evennia import SESSION_HANDLER
+        from evennia.utils import utils
+        from world.utils.formatting import header, footer
+        import time
         
-    Shows all online storytellers and staff members.
-    """
-    
-    key = "+stwho"
-    aliases = ["+storytellerwho"]
-    help_category = "Information"
-    locks = "cmd:all()"
-    
-    def func(self):
-        """Execute the command."""
-        from evennia.objects.models import ObjectDB
+        session_list = SESSION_HANDLER.get_sessions()
+        session_list = sorted(session_list, key=lambda o: o.get_puppet().key if o.get_puppet() else o.account.key)
         
         online_storytellers = []
         online_staff = []
         
-        # Check all online sessions
-        from evennia.server.sessionhandler import SESSIONS
-        for session in SESSIONS.get_sessions():
-            if session.character:
-                char = session.character
+        # Collect storytellers and staff from active sessions
+        for session in session_list:
+            if not session.logged_in:
+                continue
+            
+            puppet = session.get_puppet()
+            if not puppet:
+                continue
+            
+            # Check if storyteller or staff
+            is_storyteller = check_storyteller_permission(puppet)
+            is_staff = (puppet.check_permstring("staff") or 
+                       puppet.check_permstring("admin") or 
+                       puppet.check_permstring("builders"))
+            
+            if is_storyteller and not is_staff:
+                online_storytellers.append(session)
+            elif is_staff:
+                online_staff.append(session)
+        
+        # Build the output
+        string = header("Online Storytellers & Staff", width=78) + "\n"
+        
+        if online_storytellers or online_staff:
+            string += "|wName              Role          On       Idle     Room|n\n"
+            string += "|r" + "-" * 78 + "|n\n"
+            
+            # Add storytellers first
+            for session in online_storytellers:
+                puppet = session.get_puppet()
+                delta_cmd = time.time() - session.cmd_last_visible
+                delta_conn = time.time() - session.conn_time
+                location = puppet.location.key if puppet.location else "None"
                 
-                # Check if staff
-                if (char.check_permstring("staff") or 
-                    char.check_permstring("admin") or 
-                    char.check_permstring("builders")):
-                    online_staff.append(char)
-                # Check if storyteller (but not staff)
-                elif check_storyteller_permission(char):
-                    online_storytellers.append(char)
-        
-        output = ["|cOnline Story Staff:|n"]
-        
-        if online_staff:
-            output.append(f"|yStaff ({len(online_staff)}):|n")
-            for char in online_staff:
-                idle_time = char.idle_time
-                if idle_time < 60:
-                    idle_str = f"{int(idle_time)}s"
-                elif idle_time < 3600:
-                    idle_str = f"{int(idle_time/60)}m"
+                string += " %-17s %-13s %-8s %-8s %s\n" % (
+                    utils.crop(puppet.name, width=17),
+                    "|cStoryteller|n",
+                    utils.time_format(delta_conn, 0),
+                    utils.time_format(delta_cmd, 1),
+                    utils.crop(location, width=25)
+                )
+            
+            # Add staff
+            for session in online_staff:
+                puppet = session.get_puppet()
+                delta_cmd = time.time() - session.cmd_last_visible
+                delta_conn = time.time() - session.conn_time
+                location = puppet.location.key if puppet.location else "None"
+                
+                # Determine staff role
+                if puppet.check_permstring("admin"):
+                    role = "|yAdmin|n"
+                elif puppet.check_permstring("builders"):
+                    role = "|gBuilder|n"
                 else:
-                    idle_str = f"{int(idle_time/3600)}h"
-                output.append(f"  {char.name} (idle {idle_str})")
+                    role = "|gStaff|n"
+                
+                string += " %-17s %-13s %-8s %-8s %s\n" % (
+                    utils.crop(puppet.name, width=17),
+                    role,
+                    utils.time_format(delta_conn, 0),
+                    utils.time_format(delta_cmd, 1),
+                    utils.crop(location, width=25)
+                )
+            
+            string += "|r" + "-" * 78 + "|n\n"
+            total = len(online_storytellers) + len(online_staff)
+            string += f"{len(online_storytellers)} storyteller{'s' if len(online_storytellers) != 1 else ''}, "
+            string += f"{len(online_staff)} staff member{'s' if len(online_staff) != 1 else ''} online.\n"
+            string += "|r" + "-" * 78 + "|n\n"
+        else:
+            string += "|r" + "-" * 78 + "|n\n"
+            string += "No storytellers or staff currently online.\n"
+            string += "|r" + "-" * 78 + "|n\n"
         
-        if online_storytellers:
-            output.append(f"|yStorytellers ({len(online_storytellers)}):|n")
-            for char in online_storytellers:
-                idle_time = char.idle_time
-                if idle_time < 60:
-                    idle_str = f"{int(idle_time)}s"
-                elif idle_time < 3600:
-                    idle_str = f"{int(idle_time/60)}m"
-                else:
-                    idle_str = f"{int(idle_time/3600)}h"
-                output.append(f"  {char.name} (idle {idle_str})")
-        
-        if not online_staff and not online_storytellers:
-            output.append("No staff or storytellers are currently online.")
-        
-        self.caller.msg("\n".join(output))
+        string += footer(width=78)
+        self.caller.msg(string)

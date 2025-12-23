@@ -27,7 +27,7 @@ class CmdAlts(MuxCommand):
     key = "+alts"
     aliases = ["alts"]
     locks = "cmd:all()"
-    help_category = "Character"
+    help_category = "Chargen & Character Info"
     
     def func(self):
         """Implement the command functionality."""

@@ -28,7 +28,7 @@ class CmdVote(Command):
     """
     
     key = "+vote"
-    help_category = "Social"
+    help_category = "Roleplaying Tools"
     locks = "cmd:all()"
     
     def func(self):
@@ -99,7 +99,7 @@ class CmdRecommend(Command):
     
     key = "+recc"
     aliases = ["+recommend"]
-    help_category = "Social"
+    help_category = "Roleplaying Tools"
     locks = "cmd:all()"
     
     def parse(self):
@@ -255,7 +255,7 @@ class CmdVoteAdmin(Command):
     """
     
     key = "+voteadmin"
-    help_category = "Admin"
+    help_category = "Admin Commands"
     locks = "cmd:perm(Builder)"
     
     def parse(self):

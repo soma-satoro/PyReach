@@ -515,7 +515,7 @@ class CmdConfigOOCIC(MuxCommand):
     key = "+config"
     aliases = ["config"]
     locks = "cmd:perm(developer)"
-    help_category = "Admin Configuration"
+    help_category = "Admin Commands"
     switch_options = ("ooc", "ic", "clear", "list", "theme")
     
     def func(self):
