@@ -64,17 +64,24 @@ class CmdAspiration(MuxCommand):
         if not hasattr(self.caller.db, 'aspirations') or self.caller.db.aspirations is None:
             self.caller.db.aspirations = []
         
-        # Migrate old format (list of strings) to new format (list of dicts)
-        if self.caller.db.aspirations and isinstance(self.caller.db.aspirations[0], str):
-            old_aspirations = self.caller.db.aspirations
-            self.caller.db.aspirations = []
-            for asp in old_aspirations:
-                if asp:
-                    # Assume old aspirations were short-term
-                    self.caller.db.aspirations.append({
-                        "type": "short-term",
-                        "description": asp
-                    })
+        # Migrate old format (list of strings/None) to new format (list of dicts)
+        if self.caller.db.aspirations and len(self.caller.db.aspirations) > 0:
+            # Check if this is the old format (contains strings or None instead of dicts)
+            if not isinstance(self.caller.db.aspirations[0], dict):
+                old_aspirations = self.caller.db.aspirations
+                self.caller.db.aspirations = []
+                for asp in old_aspirations:
+                    if asp and isinstance(asp, str):
+                        # Assume old aspirations were short-term
+                        self.caller.db.aspirations.append({
+                            "type": "short-term",
+                            "description": asp
+                        })
+                    # Skip None values from old format
+        
+        # Filter out any None values that might have snuck in
+        if self.caller.db.aspirations:
+            self.caller.db.aspirations = [asp for asp in self.caller.db.aspirations if asp is not None]
         
         aspirations = self.caller.db.aspirations
         
@@ -89,9 +96,9 @@ class CmdAspiration(MuxCommand):
         output.append("|y" + "=" * 78 + "|n")
         output.append("")
         
-        # Separate short-term and long-term
-        short_term = [asp for asp in aspirations if asp.get("type") == "short-term"]
-        long_term = [asp for asp in aspirations if asp.get("type") == "long-term"]
+        # Separate short-term and long-term (filter out any None values as safety check)
+        short_term = [asp for asp in aspirations if asp and asp.get("type") == "short-term"]
+        long_term = [asp for asp in aspirations if asp and asp.get("type") == "long-term"]
         
         # Short-term aspirations section
         output.append(self._format_section_header("|wSHORT-TERM ASPIRATIONS|n"))
