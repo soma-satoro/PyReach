@@ -66,20 +66,25 @@ class CmdAspiration(MuxCommand):
         
         # Migrate old format (list of strings/None) to new format (list of dicts)
         if self.caller.db.aspirations and len(self.caller.db.aspirations) > 0:
-            # Check if this is the old format (contains strings or None instead of dicts)
-            if not isinstance(self.caller.db.aspirations[0], dict):
+            # Check if migration is needed (contains non-dict items)
+            needs_migration = any(item is not None and not isinstance(item, dict) for item in self.caller.db.aspirations)
+            
+            if needs_migration:
                 old_aspirations = self.caller.db.aspirations
                 self.caller.db.aspirations = []
                 for asp in old_aspirations:
-                    if asp and isinstance(asp, str):
-                        # Assume old aspirations were short-term
+                    if isinstance(asp, dict):
+                        # Already in new format, keep it
+                        self.caller.db.aspirations.append(asp)
+                    elif asp and isinstance(asp, str):
+                        # Old format string, migrate to new format
                         self.caller.db.aspirations.append({
                             "type": "short-term",
                             "description": asp
                         })
                     # Skip None values from old format
         
-        # Filter out any None values that might have snuck in
+        # Filter out any remaining None values that might have snuck in
         if self.caller.db.aspirations:
             self.caller.db.aspirations = [asp for asp in self.caller.db.aspirations if asp is not None]
         
@@ -163,9 +168,13 @@ class CmdAspiration(MuxCommand):
         elif asp_type == "long":
             asp_type = "long-term"
         
-        # Initialize aspirations if not exists
+        # Initialize aspirations if not exists or is empty/contains only None
         if not hasattr(self.caller.db, 'aspirations') or self.caller.db.aspirations is None:
             self.caller.db.aspirations = []
+        
+        # Clean out any None values from old format
+        if self.caller.db.aspirations:
+            self.caller.db.aspirations = [asp for asp in self.caller.db.aspirations if asp is not None and (isinstance(asp, dict) or isinstance(asp, str))]
         
         # Check if at max (6 aspirations)
         if len(self.caller.db.aspirations) >= 6:
