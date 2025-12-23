@@ -60,33 +60,24 @@ class CmdAspiration(MuxCommand):
     
     def list_aspirations(self):
         """List current aspirations with styled output"""
-        # Initialize aspirations if not exists (migrate from old format)
+        # Initialize aspirations if not exists
         if not hasattr(self.caller.db, 'aspirations') or self.caller.db.aspirations is None:
             self.caller.db.aspirations = []
         
-        # Migrate old format (list of strings/None) to new format (list of dicts)
-        if self.caller.db.aspirations and len(self.caller.db.aspirations) > 0:
-            # Check if migration is needed (contains non-dict items)
-            needs_migration = any(item is not None and not isinstance(item, dict) for item in self.caller.db.aspirations)
-            
-            if needs_migration:
-                old_aspirations = self.caller.db.aspirations
-                self.caller.db.aspirations = []
-                for asp in old_aspirations:
-                    if isinstance(asp, dict):
-                        # Already in new format, keep it
-                        self.caller.db.aspirations.append(asp)
-                    elif asp and isinstance(asp, str):
-                        # Old format string, migrate to new format
-                        self.caller.db.aspirations.append({
-                            "type": "short-term",
-                            "description": asp
-                        })
-                    # Skip None values from old format
-        
-        # Filter out any remaining None values that might have snuck in
         if self.caller.db.aspirations:
-            self.caller.db.aspirations = [asp for asp in self.caller.db.aspirations if asp is not None]
+            valid_aspirations = []
+            for asp in self.caller.db.aspirations:
+                if isinstance(asp, dict) and "type" in asp and "description" in asp:
+                    # Valid new format
+                    valid_aspirations.append(asp)
+                elif isinstance(asp, str) and asp:
+                    # Old format string - convert to new format
+                    valid_aspirations.append({
+                        "type": "short-term",
+                        "description": asp
+                    })
+                # Skip None and invalid entries
+            self.caller.db.aspirations = valid_aspirations
         
         aspirations = self.caller.db.aspirations
         
@@ -168,16 +159,15 @@ class CmdAspiration(MuxCommand):
         elif asp_type == "long":
             asp_type = "long-term"
         
-        # Initialize aspirations if not exists or is empty/contains only None
+        # Initialize aspirations if not exists
         if not hasattr(self.caller.db, 'aspirations') or self.caller.db.aspirations is None:
             self.caller.db.aspirations = []
         
-        # Clean out any None values from old format
-        if self.caller.db.aspirations:
-            self.caller.db.aspirations = [asp for asp in self.caller.db.aspirations if asp is not None and (isinstance(asp, dict) or isinstance(asp, str))]
+        # Count only valid aspirations (dicts with proper structure)
+        valid_count = sum(1 for asp in self.caller.db.aspirations if isinstance(asp, dict) and "type" in asp)
         
         # Check if at max (6 aspirations)
-        if len(self.caller.db.aspirations) >= 6:
+        if valid_count >= 6:
             self.caller.msg("|rYou already have 6 aspirations (the maximum).|n")
             self.caller.msg("Remove or fulfill an aspiration before adding a new one.")
             return
@@ -187,9 +177,15 @@ class CmdAspiration(MuxCommand):
             "type": asp_type,
             "description": description
         }
-        self.caller.db.aspirations.append(new_aspiration)
         
-        number = len(self.caller.db.aspirations)
+        # Important: Create a new list to trigger Evennia's persistence
+        # Modifying a list in place doesn't always save properly
+        aspirations_list = list(self.caller.db.aspirations)
+        aspirations_list.append(new_aspiration)
+        self.caller.db.aspirations = aspirations_list
+        
+        # Count valid aspirations for the message
+        number = sum(1 for asp in self.caller.db.aspirations if isinstance(asp, dict) and "type" in asp)
         type_display = "Short-term" if asp_type == "short-term" else "Long-term"
         self.caller.msg(f"|gAdded {type_display} aspiration #{number}:|n {description}")
     
@@ -212,9 +208,11 @@ class CmdAspiration(MuxCommand):
             self.caller.msg(f"Invalid aspiration number. You have {len(self.caller.db.aspirations)} aspirations.")
             return
         
-        # Update the description
-        old_description = self.caller.db.aspirations[number-1]["description"]
-        self.caller.db.aspirations[number-1]["description"] = new_description
+        # Update the description (create new list to trigger Evennia persistence)
+        aspirations_list = list(self.caller.db.aspirations)
+        old_description = aspirations_list[number-1]["description"]
+        aspirations_list[number-1]["description"] = new_description
+        self.caller.db.aspirations = aspirations_list
         
         asp_type = self.caller.db.aspirations[number-1]["type"]
         type_display = "Short-term" if asp_type == "short-term" else "Long-term"
@@ -240,10 +238,12 @@ class CmdAspiration(MuxCommand):
             self.caller.msg(f"Invalid aspiration number. You have {len(self.caller.db.aspirations)} aspirations.")
             return
         
-        # Remove the aspiration
-        removed_asp = self.caller.db.aspirations.pop(number-1)
-        type_display = "Short-term" if removed_asp["type"] == "short-term" else "Long-term"
+        # Remove the aspiration (create new list to trigger Evennia persistence)
+        aspirations_list = list(self.caller.db.aspirations)
+        removed_asp = aspirations_list.pop(number-1)
+        self.caller.db.aspirations = aspirations_list
         
+        type_display = "Short-term" if removed_asp["type"] == "short-term" else "Long-term"
         self.caller.msg(f"|gRemoved {type_display} aspiration:|n {removed_asp['description']}")
     
     def fulfill_aspiration(self):
@@ -263,8 +263,11 @@ class CmdAspiration(MuxCommand):
             self.caller.msg(f"Invalid aspiration number. You have {len(self.caller.db.aspirations)} aspirations.")
             return
         
-        # Get the aspiration before removing it
-        fulfilled_asp = self.caller.db.aspirations.pop(number-1)
+        # Get the aspiration before removing it (create new list to trigger Evennia persistence)
+        aspirations_list = list(self.caller.db.aspirations)
+        fulfilled_asp = aspirations_list.pop(number-1)
+        self.caller.db.aspirations = aspirations_list
+        
         type_display = "Short-term" if fulfilled_asp["type"] == "short-term" else "Long-term"
         description = fulfilled_asp["description"]
         
