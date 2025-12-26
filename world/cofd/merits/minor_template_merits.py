@@ -773,8 +773,6 @@ immortal_merits = [
 
 # WEREWOLF-LINKED: Hosts (Spirit-Ridden)
 # Template type is set via template_type="Host"
-# CLARIFICATION: Hosts are spirit-possessed mortals, linked to Werewolf (not Demon)
-# Different from Stigmatics (God-Machine marked) or Demon-Blooded
 
 host_merits = [
     # NOTE: Specific merits from Werewolf: The Forsaken 2nd Edition
@@ -1030,7 +1028,7 @@ dreamer_merits = [
         max_value=3,
         description="Spend Memory to extrude a strange organic variation on a chosen device or weapon up to Size 1 (or with three dots, Size 3), or to regenerate its charge or ammunition",
         merit_type="supernatural",
-        prerequisite="template_type:dreamer,the_treatment:1"
+        prerequisite="template_type:dreamer,merit:the_treatment:1"
     ),
     Merit(
         name="Realpolitik",
@@ -1075,7 +1073,7 @@ infected_merits = [
         max_value=1,
         description="Reduce a target's Doors in a social maneuver if they share the same lineage of the Infection",
         merit_type="social",
-        prerequisite="template_type:infected,carrier:1"
+        prerequisite="template_type:infected,merit:carrier:1"
     ),
     Merit(
         name="Bulletman Syndrome",
@@ -1083,7 +1081,7 @@ infected_merits = [
         max_value=5,
         description="Gain 1/1 armor per dot of Stamina. If symptoms are acute or greater, unarmed attacks deal lethal damage at increasing modifiers. Double healing times for lethal and aggravated damage",
         merit_type="physical",
-        prerequisite="template_type:infected,carrier:5"
+        prerequisite="template_type:infected,merit:carrier:5"
     ),
     Merit(
         name="The New Flesh",
@@ -1091,7 +1089,7 @@ infected_merits = [
         max_value=5,
         description="At one dot, halve all healing times. At three, heal one lethal per scene, (Stamina) times a day. At five, aggravated damage heals at the same rate as lethal. Penalise social rolls",
         merit_type="supernatural",
-        prerequisite="template_type:infected,carrier:1"
+        prerequisite="template_type:infected,merit:carrier:1"
     ),
     Merit(
         name="Patient Zero",
@@ -1099,7 +1097,7 @@ infected_merits = [
         max_value=2,
         description="Force the Infection into a short dormancy, effectively becoming a normal human person for a time",
         merit_type="supernatural",
-        prerequisite="template_type:infected,carrier:2"
+        prerequisite="template_type:infected,merit:carrier:2"
     ),
     Merit(
         name="Proud Parent",
@@ -1107,7 +1105,7 @@ infected_merits = [
         max_value=1,
         description="Treat spreading the Infection as fulfilling a Virtue, at the cost of a breaking point if something befalls the new Infected",
         merit_type="social",
-        prerequisite="template_type:infected,carrier:1"
+        prerequisite="template_type:infected,merit:carrier:1"
     ),
     Merit(
         name="Virulent",
@@ -1115,7 +1113,7 @@ infected_merits = [
         max_value=4,
         description="(••) The Bug: Attempt to inflict a target with the moderate Sick Tilt for a scene. (•••) The Virus: Inflict grave Sick Tilt for a scene. (••••) The Pestilence: Inflict Poison Tilt for a scene",
         merit_type="style",
-        prerequisite="template_type:infected,carrier:2"
+        prerequisite="template_type:infected,merit:carrier:2"
     ),
 ]
 
@@ -1137,7 +1135,7 @@ lost_boys_merits = [
         max_value=3,
         description="(•) Improved: Jump with effective (Strength × 2), half falling damage. While Deprived, suffer lethal to jump with additional (Strength × 2). (••) Enhanced: Jump with effective (Strength × 4), take half falling damage as bashing. (•••) Superior: Jump with effective (Strength × 6), ignore falling damage",
         merit_type="style",
-        prerequisite="template_type:lost_boy,the_protocol:1"
+        prerequisite="template_type:lost_boy,merit:the_protocol:1"
     ),
     Merit(
         name="Protocol Fixer",
@@ -1145,7 +1143,7 @@ lost_boys_merits = [
         max_value=5,
         description="(•) 1 dose: Delta Protocol handler provides Serum weekly, or with Status (Lost Boys Network), Lost Boy contact provides counterfeit Serum. (••) 3 doses weekly. (•••) 6 doses weekly. (••••) 10 doses weekly. (•••••) 14 doses weekly",
         merit_type="social",
-        prerequisite="template_type:lost_boy,the_protocol:1"
+        prerequisite="template_type:lost_boy,merit:the_protocol:1"
     ),
     # Augmentation Merits
     Merit(
@@ -1154,7 +1152,7 @@ lost_boys_merits = [
         max_value=5,
         description="Spend Willpower to activate luminous neuromuscular lattice for scene. At scene end, advance withdrawal and convert lethal to aggravated. While active: Ignore physical Tilts, wound penalties, multiple assailant penalties. Stack +1/+1 Armor, +1 Defense, +2 Initiative, +5 Speed. Heal one bashing per turn, keep Defense during one action. Attacks inflict +1 damage or Knocked Down, lethal unarmed. While Deprived: +2/+2 Armor, heal two bashing per turn, attacks inflict both +1 damage and Knocked Down",
         merit_type="supernatural",
-        prerequisite="template_type:lost_boy,the_protocol:5"
+        prerequisite="template_type:lost_boy,merit:the_protocol:5"
     ),
     Merit(
         name="Augmented Resilience",
@@ -1162,7 +1160,7 @@ lost_boys_merits = [
         max_value=3,
         description="Increase your effective Stamina by dots in this Merit. While Deprived, gain 2/1 Armor",
         merit_type="physical",
-        prerequisite="template_type:lost_boy,the_protocol:1"
+        prerequisite="template_type:lost_boy,merit:the_protocol:1"
     ),
     Merit(
         name="Augmented Speed",
@@ -1170,7 +1168,7 @@ lost_boys_merits = [
         max_value=5,
         description="Apply this Merit as a bonus to Initiative and Speed. While Deprived, double the Speed bonus",
         merit_type="physical",
-        prerequisite="template_type:lost_boy,the_protocol:1"
+        prerequisite="template_type:lost_boy,merit:the_protocol:1"
     ),
     Merit(
         name="Cloaking Device",
@@ -1178,7 +1176,7 @@ lost_boys_merits = [
         max_value=3,
         description="While holding your breath, your body refracts light, hiding you from cameras, motion sensors, and thermal detectors. Penalize attempts to spot you by -5. While Deprived, you also may suffer lethal damage to activate the Cloaking Device for three turns once per scene",
         merit_type="supernatural",
-        prerequisite="template_type:lost_boy,the_protocol:3"
+        prerequisite="template_type:lost_boy,merit:the_protocol:3"
     ),
     Merit(
         name="Holdout Storage",
@@ -1186,7 +1184,7 @@ lost_boys_merits = [
         max_value=3,
         description="A cavity in your body can store items up to your Merit rating in Size, which you may withdraw as an instant action. While Deprived, suffer lethal damage to withdraw reflexively",
         merit_type="physical",
-        prerequisite="template_type:lost_boy,the_protocol:1"
+        prerequisite="template_type:lost_boy,merit:the_protocol:1"
     ),
     Merit(
         name="Implanted Interface",
@@ -1194,7 +1192,7 @@ lost_boys_merits = [
         max_value=2,
         description="Your nervous system has an integrated computer with wireless access, providing a +3 equipment bonus. Suffer lethal damage to overclock to a +5 bonus for the scene",
         merit_type="mental",
-        prerequisite="template_type:lost_boy,the_protocol:2"
+        prerequisite="template_type:lost_boy,merit:the_protocol:2"
     ),
     Merit(
         name="Last-Chance",
@@ -1202,7 +1200,7 @@ lost_boys_merits = [
         max_value=5,
         description="Roll Resolve + Composure as an instant action to deploy a traumatic internal weapon, which in turn rolls Stamina + Firearms + 5 as a 3L firearms attack against everyone for 10 meters. Suffer five aggravated damage and roll five dice for additional lethal damage. While Deprived, the attack has a 4L rating and 3 Armor Piercing",
         merit_type="supernatural",
-        prerequisite="template_type:lost_boy,the_protocol:5"
+        prerequisite="template_type:lost_boy,merit:the_protocol:5"
     ),
     Merit(
         name="Pulse Generator",
@@ -1210,7 +1208,7 @@ lost_boys_merits = [
         max_value=5,
         description="Once per scene, your touch can reflexively inflict Stunned and your Merit rating in bashing damage, or against electronics, twice your Merit rating in Structure damage, ignoring Durability. While Deprived, suffer lethal damage to recharge the Generator",
         merit_type="supernatural",
-        prerequisite="template_type:lost_boy,the_protocol:1"
+        prerequisite="template_type:lost_boy,merit:the_protocol:1"
     ),
     Merit(
         name="Strength Augmentation",
@@ -1218,7 +1216,7 @@ lost_boys_merits = [
         max_value=3,
         description="Increase your effective Strength by dots in this Merit. While Deprived, suffer lethal damage to also gain +1 Strength for the scene",
         merit_type="physical",
-        prerequisite="template_type:lost_boy,the_protocol:1"
+        prerequisite="template_type:lost_boy,merit:the_protocol:1"
     ),
     Merit(
         name="Sub-Dermal Armor",
@@ -1226,7 +1224,7 @@ lost_boys_merits = [
         max_value=4,
         description="Stack +1/+1 Armor, or with ••••, +2/+2 Armor. While Deprived, stack an additional +1/+1 Armor",
         merit_type="physical",
-        prerequisite="template_type:lost_boy,the_protocol:1"
+        prerequisite="template_type:lost_boy,merit:the_protocol:1"
     ),
     Merit(
         name="Uncanny Perception",
@@ -1234,7 +1232,7 @@ lost_boys_merits = [
         max_value=3,
         description="Apply this Merit as a bonus to Perception and aimed attacks. While Deprived, double the bonus, but suffer lethal damage and sensory blowout from extreme stimuli",
         merit_type="mental",
-        prerequisite="template_type:lost_boy,the_protocol:1"
+        prerequisite="template_type:lost_boy,merit:the_protocol:1"
     ),
     Merit(
         name="Voice Box",
@@ -1242,7 +1240,7 @@ lost_boys_merits = [
         max_value=1,
         description="Perfectly mimic voices you've studied in person. While Deprived, mimic voices you've heard recorded or in passing",
         merit_type="social",
-        prerequisite="template_type:lost_boy,the_protocol:1"
+        prerequisite="template_type:lost_boy,merit:the_protocol:1"
     ),
 ]
 
@@ -1295,7 +1293,7 @@ plain_merits = [
         max_value=1,
         description="When an assailant damages you, you may inflict an equal number of points of temporary psychological damage. This damage does not injure, kill, or last longer than a scene, but wound penalties inflict Beaten Down, falling unconscious inflicts Guilty or similar Conditions, and 'dying' inflicts a Persistent Condition",
         merit_type="supernatural",
-        prerequisite="template_type:plain,i_m_bleeding_on_you:1"
+        prerequisite="template_type:plain,merit:i_m_bleeding_on_you:1"
     ),
     Merit(
         name="The Push",
@@ -1303,7 +1301,7 @@ plain_merits = [
         max_value=5,
         description="You may protect a third party from violent aggressors by pushing them back, step by step. The aggressors may not attack your charges and must accumulate your Merit rating in successes on Resolve + Composure rolls, one per step, to attack you. On the sixth step without being attacked, you force them to withdraw",
         merit_type="supernatural",
-        prerequisite="template_type:plain"
+        prerequisite="template_type:plain,merit:the_push:1"
     ),
     Merit(
         name="You Are Being Recorded",
@@ -1316,7 +1314,6 @@ plain_merits = [
 ]
 
 # Template type is set via template_type="Psychic"
-# Psychics have access to various psychic powers
 # These are specific merit names that are psychic-focused (from general_merits.py)
 PSYCHIC_MERIT_NAMES = [
     "Aura Reading", "Automatic Writing", "Biokinesis", "Clairvoyance", 
@@ -1351,7 +1348,7 @@ psychic_vampire_merits = [
         max_value=3,
         description="Use psychic vampirism through breath. (•) Kiss: Close proximity. (••) Touch: Arm's length. (•••) Reach: Willpower in meters distance",
         merit_type="style",
-        prerequisite="template_type:psychic_vampire,psychic_vampirism:1"
+        prerequisite="template_type:psychic_vampire,merit:psychic_vampirism:1"
     ),
     Merit(
         name="Euphoric Touch",
@@ -1359,7 +1356,7 @@ psychic_vampire_merits = [
         max_value=3,
         description="Modify psychic vampirism effects. (•) Numbing Touch: Reduce wound penalties. (••) Sensual Touch: Inflict Swooned Condition. (•••) Addicting Touch: Inflict Addicted Condition",
         merit_type="style",
-        prerequisite="template_type:psychic_vampire,psychic_vampirism:1"
+        prerequisite="template_type:psychic_vampire,merit:psychic_vampirism:1"
     ),
     Merit(
         name="Burst of Speed",
@@ -1391,7 +1388,7 @@ psychic_vampire_merits = [
         max_value=1,
         description="When your psychic vampirism fills wound penalties or drains the last Willpower from a subject, you can roll Psychic Vampirism to potentially inflict the Psychic Vampirism ability on them",
         merit_type="supernatural",
-        prerequisite="template_type:psychic_vampire,psychic_vampirism:1"
+        prerequisite="template_type:psychic_vampire,merit:psychic_vampirism:1"
     ),
     Merit(
         name="Psychic Seduction",
@@ -1399,7 +1396,7 @@ psychic_vampire_merits = [
         max_value=1,
         description="Allows you to overwrite a victim's Vice with one of your choice, making recovery more challenging for them",
         merit_type="supernatural",
-        prerequisite="template_type:psychic_vampire,psychic_vampirism:1"
+        prerequisite="template_type:psychic_vampire,merit:psychic_vampirism:1"
     ),
     Merit(
         name="Psychic Transference",
@@ -1407,7 +1404,7 @@ psychic_vampire_merits = [
         max_value=2,
         description="By connecting a victim and a beneficiary, you can transfer the benefits of Ephemera expenditure to another individual",
         merit_type="supernatural",
-        prerequisite="template_type:psychic_vampire,psychic_vampirism:1"
+        prerequisite="template_type:psychic_vampire,merit:psychic_vampirism:1"
     ),
     Merit(
         name="Shapechanging",
@@ -1423,7 +1420,7 @@ psychic_vampire_merits = [
         max_value=2,
         description="Allows your psychic vampirism to affect ghosts or spirits",
         merit_type="supernatural",
-        prerequisite="template_type:psychic_vampire,psychic_vampirism:1"
+        prerequisite="template_type:psychic_vampire,merit:psychic_vampirism:1"
     ),
     Merit(
         name="Unearthly Beauty",
@@ -1476,7 +1473,7 @@ skinthief_merits = [
         max_value=5,
         description="You have a pool of Essence the size of your dots in this Merit, from which you can spend only one point a turn. You can restore Essence by feeding on resonance in skinned form, or meditating and spending three Willpower",
         merit_type="supernatural",
-        prerequisite="template_type:skinthieves,skinthief:3"
+        prerequisite="template_type:skinthieves,merit:skinthief:3"
     ),
     Merit(
         name="Hybrid Form",
@@ -1508,7 +1505,7 @@ skinthief_merits = [
         max_value=1,
         description="You can use a dot of your prey's Influence and one of its Numina or Manifestations. You may take this Merit multiple times for multiple Influence dots and Numina or Manifestations",
         merit_type="supernatural",
-        prerequisite="template_type:skinthieves,skinthief:3"
+        prerequisite="template_type:skinthieves,merit:skinthief:3"
     ),
     Merit(
         name="Strong Instincts",
@@ -1532,7 +1529,7 @@ skinthief_merits = [
         max_value=1,
         description="You can speak human tongues in skinned form",
         merit_type="supernatural",
-        prerequisite="template_type:skinthieves,skinthief:3"
+        prerequisite="template_type:skinthieves,merit:skinthief:3"
     ),
     Merit(
         name="Unshared Flesh",
@@ -1548,7 +1545,7 @@ skinthief_merits = [
 all_minor_template_merits = (
     general_supernatural_merits + ritual_sorcery_merits +
     ghoul_merits + dhampir_merits + wolf_blooded_merits + 
-    proximi_merits + alchemist_merits + fae_touched_merits + 
+    proximi_merits + fae_touched_merits + 
     ghost_merits + immortal_merits + host_merits + 
     demon_blooded_merits + stigmatic_merits + atariya_merits + 
     dreamer_merits + infected_merits + lost_boys_merits + 

@@ -600,6 +600,20 @@ class Character(DefaultCharacter):
             required_value = int(required_value.strip())
         except ValueError:
             return False
+        
+        # Handle generic "skill" prerequisite - check for ANY skill at required level
+        if stat_name == "skill":
+            skills = stats.get("skills", {})
+            for skill_value in skills.values():
+                if skill_value >= required_value:
+                    return True
+            return False
+        
+        # Handle generic "specialty" prerequisite - check for ANY specialty
+        if stat_name == "specialty":
+            specialties = stats.get("specialties", {})
+            total_specialties = sum(len(spec_list) for spec_list in specialties.values())
+            return total_specialties >= required_value
             
         # Check attributes
         current_value = stats.get("attributes", {}).get(stat_name, 1)
