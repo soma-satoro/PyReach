@@ -115,6 +115,15 @@ try:
 except ImportError:
     MORTAL_PLUS_SPELL_ACCESS = []
 
+# Get Wolf-Blooded Tells (detailed list)
+try:
+    from .mortalplus_abilities import ALL_TELLS as DETAILED_TELLS
+except ImportError:
+    DETAILED_TELLS = []
+
+# Combine old generic categories with new detailed tells for validation
+ALL_WOLF_BLOODED_TELLS = WOLF_BLOODED_TELLS + DETAILED_TELLS
+
 # Mortal+ template definition (2nd Edition)
 MORTAL_PLUS_TEMPLATE = {
     "name": "mortal_plus",
@@ -122,7 +131,7 @@ MORTAL_PLUS_TEMPLATE = {
     "description": ("Mortals with supernatural abilities - psychics, witches, wolf-blooded, sleepwalkers, ghouls, "
                    "and many other minor supernatural templates from Chronicles of Darkness 2nd Edition. "
                    "See: https://codexofdarkness.com/wiki/Mortals_and_Lesser_Templates"),
-    "bio_fields": ["virtue", "vice", "template_type", "subtype", "game_line", "heritage", "abilities", "organization"],
+    "bio_fields": ["virtue", "vice", "template_type", "subtype", "organization", "profession"],
     "integrity_name": "Integrity",
     "starting_integrity": 7,
     "supernatural_power_stat": None,
@@ -137,7 +146,7 @@ MORTAL_PLUS_TEMPLATE = {
             "description": "Primary mortal+ template type"
         },
         "subtype": {
-            "valid_values": WOLF_BLOODED_TELLS + DEMON_BLOODED_LEVELS,
+            "valid_values": ALL_WOLF_BLOODED_TELLS + DEMON_BLOODED_LEVELS + PROXIMUS_FAMILIES,
             "description": "Specific variant or subtype (optional)"
         },
         "game_line": {

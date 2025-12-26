@@ -17,8 +17,13 @@ class CmdVote(Command):
         +vote <character>
         
     This command allows you to vote for another player, awarding them experience
-    points in the form of beats. You can only vote for each player once per week
-    (or whatever time limit staff has set).
+    points in the form of beats. You can only vote for each player once per week.
+    
+    Rate Limits:
+        - One vote per player per week
+        - If you try to vote for the same player again, you'll see a countdown
+          showing exactly when you can vote for them again
+        - You can vote for different players without restriction
     
     Each vote awards half a beat by default. Players need 5 beats to gain 1 XP.
     
@@ -60,6 +65,21 @@ class CmdVote(Command):
         if not target_character:
             self.caller.msg(f"Character '{target_name}' not found.")
             return
+        
+        # Check rate limit (once per player per week)
+        from world.rate_limiter import check_per_target_rate_limit, record_action
+        from world.xp_logger import get_xp_logger
+        
+        can_vote, limit_message = check_per_target_rate_limit(
+            self.caller,
+            'vote',
+            target_character.name,
+            period_days=7
+        )
+        
+        if not can_vote:
+            self.caller.msg(f"|rCannot vote:|n {limit_message}")
+            return
             
         # Initialize voting handler
         voting_handler = VotingHandler(self.caller)
@@ -68,6 +88,13 @@ class CmdVote(Command):
         success, message = voting_handler.vote_for(target_character)
         
         if success:
+            # Record the action for rate limiting
+            record_action(self.caller, 'vote', target_name=target_character.name, details=f"Voted for {target_character.name}")
+            
+            # Log the beat award
+            logger = get_xp_logger(target_character)
+            logger.log_beat(0.5, "Player Vote", details=f"Vote from {self.caller.name}")
+            
             # Notify both players
             self.caller.msg(f"|gYou voted for {target_character.name}!|n {message}")
             target_character.msg(f"|g{self.caller.name} voted for you!|n")
@@ -87,8 +114,14 @@ class CmdRecommend(Command):
     awarding them additional experience points. Recommendations provide more XP
     than simple votes and include text explaining why the player deserves recognition.
     
-    You can only write one recommendation per week (or whatever time limit staff has set).
-    Each recommendation awards 1 beat by default.
+    Rate Limits:
+        - One recommendation per player per month (30 days)
+        - If you try to recommend the same player again, you'll see a countdown
+          showing exactly when you can recommend them again
+        - You can recommend different players without restriction
+    
+    Each recommendation awards 1 beat by default. Recommendations require at least
+    10 characters of text explaining why the player deserves recognition.
     
     Examples:
         +recc Alice=Great roleplay during the investigation scene!
@@ -139,6 +172,9 @@ class CmdRecommend(Command):
             
     def write_recommendation(self):
         """Write a recommendation for a character."""
+        from world.rate_limiter import check_per_target_rate_limit, record_action
+        from world.xp_logger import get_xp_logger
+        
         # Check if trying to recommend self
         if self.target_name.lower() == self.caller.name.lower():
             self.caller.msg("You cannot write a recommendation for yourself!")
@@ -148,6 +184,18 @@ class CmdRecommend(Command):
         target_character = get_character_by_name(self.target_name)
         if not target_character:
             self.caller.msg(f"Character '{self.target_name}' not found.")
+            return
+        
+        # Check rate limit (once per player per month)
+        can_recommend, limit_message = check_per_target_rate_limit(
+            self.caller,
+            'recommend',
+            target_character.name,
+            period_days=30  # 1 month
+        )
+        
+        if not can_recommend:
+            self.caller.msg(f"|rCannot recommend:|n {limit_message}")
             return
             
         # Validate recommendation text
@@ -166,6 +214,13 @@ class CmdRecommend(Command):
         success, message = voting_handler.recommend_for(target_character, self.recommendation_text)
         
         if success:
+            # Record the action for rate limiting
+            record_action(self.caller, 'recommend', target_name=target_character.name, details=self.recommendation_text[:50])
+            
+            # Log the beat award
+            logger = get_xp_logger(target_character)
+            logger.log_beat(1, "Recommendation", details=f"Recommendation from {self.caller.name}")
+            
             # Notify both players
             self.caller.msg(f"|gYou wrote a recommendation for {target_character.name}!|n {message}")
             target_character.msg(f"|g{self.caller.name} wrote a recommendation for you!|n You received experience.")

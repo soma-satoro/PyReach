@@ -36,8 +36,12 @@ class CmdStat(MuxCommand):
             +stat Unseen Sense:Ghosts=2
             +stat Unseen Sense:Spirits=2
             +stat Unseen Sense:Faeries=2
+            +stat Tell:Piercing Eyes=3
+            +stat Tell:Shape Shifted=3
+            +stat Tell:Second Skin=3
         Each instance costs the full merit value. To remove an instance:
             +stat Unseen Sense:Ghosts=
+            +stat Tell:Piercing Eyes=
         
     Valid stat categories:
         Attributes: strength, dexterity, stamina, presence, manipulation, 
@@ -72,7 +76,12 @@ class CmdStat(MuxCommand):
                    krewe, lineage, refinement, athanor, creator, pilgrimage, 
                    throng, profession, organization, creed, incarnation, 
                    agenda, agency, hunger, family, inheritance, origin, 
-                   clade, divergence, accord, breed, nahual (legacy_changingbreeds)
+                   clade, divergence, accord, breed, nahual (legacy_changingbreeds),
+                   template_type, subtype, organization, profession, favored_regalia (mortal_plus)
+                   
+        Note: Bio field names can use spaces or underscores:
+              +stat template_type=dhampir  OR  +stat template type=dhampir
+              +stat favored_regalia=crown  OR  +stat favored regalia=crown
         Other: integrity, size, beats, experience, template (staff only)
         
         Template-specific integrity names can also be used:
@@ -93,6 +102,10 @@ class CmdStat(MuxCommand):
         +stat legacy=Perfected Adepts (mage-specific, requires matching path or order)
         +stat lineage=Frankenstein (promethean-specific)
         +stat athanor=Basilisk (promethean-specific, requires matching lineage)
+        +stat template_type=dhampir (mortal+ specific)
+        +stat template type=dhampir (same as above - spaces or underscores work)
+        +stat favored_regalia=crown (changeling/fae-touched specific)
+        +stat favored regalia=mirror (same as above - spaces or underscores work)
         
         Specialty Examples:
         +stat specialty/athletics=Running
@@ -338,7 +351,7 @@ class CmdStat(MuxCommand):
             else:
                 # Format: stat=value (self)
                 stat, value = args.split("=", 1)
-                stat = stat.strip().lower()
+                stat = stat.strip().lower().replace(" ", "_")
                 value = value.strip()
                 
                 # Empty value means removal - return special marker
@@ -638,7 +651,8 @@ class CmdStat(MuxCommand):
                      "incarnation", "agenda", "catalyst", "ring", "cover_identity", "agency", "hunger", "family", "inheritance", 
                      "origin", "clade", "divergence", "needle", "thread", "legend", "life",
                      "geist_name", "embrace_date", "legacy", "shadow_name", "cabal", "lodge",
-                     "pack", "deed_name", "throng", "creator", "pilgrimage", "athanor"]:
+                     "pack", "deed_name", "throng", "creator", "pilgrimage", "athanor",
+                     "template_type", "subtype", "game_line", "abilities"]:
             
             # Get character's template
             character_template = target.db.stats.get("other", {}).get("template", "Mortal")

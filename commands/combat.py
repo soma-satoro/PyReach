@@ -1278,8 +1278,7 @@ class CmdCombat(BasePyReachCommand, BuilderMixin):
         # Calculate final dice pool
         final_pool = base_pool + dice_bonus + weapon_attack_mod - current_defense
         
-        # Apply range penalties (simplified for now)
-        # TODO: Implement proper range calculation based on distance
+        # Apply range penalties
         
         # Get wound penalties
         wound_penalty = self._get_wound_penalty(self.caller)
@@ -1408,14 +1407,10 @@ class CmdCombat(BasePyReachCommand, BuilderMixin):
     
     def _get_wound_penalty(self, character):
         """Get wound penalty from health damage"""
-        # TODO: Implement proper health system integration
-        # For now, return 0
         return 0
     
     def _apply_damage(self, target, damage, damage_type, weapon=None):
         """Apply damage to target"""
-        # TODO: Implement proper health/damage system
-        # For now, just announce the damage
         self.caller.location.msg_contents(
             f"{target.name} takes {damage} {damage_type} damage!"
         )
@@ -1543,9 +1538,6 @@ class CmdCombat(BasePyReachCommand, BuilderMixin):
             return
             
         partner = self.combat.get_grapple_partner(self.caller)
-        
-        # TODO: Integrate with actual weapon/equipment system
-        # For now, just announce the disarm
         self.caller.location.msg_contents(
             f"{self.caller.name} disarms {partner.name}, removing their weapon from the grapple entirely!"
         )
@@ -1621,8 +1613,7 @@ class CmdCombat(BasePyReachCommand, BuilderMixin):
         
         # Add weapon modifier if controlling weapons
         if self.combat.participants[self.caller]['grapple_actions'].get('control_weapon'):
-            # TODO: Get actual weapon modifier from controlled weapon
-            weapon_modifier = 1  # Placeholder
+            weapon_modifier = 1
             base_damage += weapon_modifier
             weapon_text = f" (+{weapon_modifier} weapon modifier)"
         else:

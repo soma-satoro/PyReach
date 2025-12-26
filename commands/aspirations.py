@@ -219,6 +219,8 @@ class CmdAspiration(MuxCommand):
     
     def change_aspiration(self):
         """Change an existing aspiration's description"""
+        from world.rate_limiter import check_rate_limit, record_action
+        
         try:
             number, new_description = self.args.split(" ", 1)
             number = int(number)
@@ -232,6 +234,18 @@ class CmdAspiration(MuxCommand):
             self.caller.msg("You don't have any aspirations set yet.")
             return
         
+        # Check rate limit (3 changes per week)
+        can_change, message = check_rate_limit(
+            self.caller,
+            'aspiration_change',
+            max_count=3,
+            period_days=7
+        )
+        
+        if not can_change:
+            self.caller.msg(f"|rCannot change aspiration:|n {message}")
+            return
+        
         if not 1 <= number <= len(self.caller.db.aspirations):
             self.caller.msg(f"Invalid aspiration number. You have {len(self.caller.db.aspirations)} aspirations.")
             return
@@ -239,10 +253,13 @@ class CmdAspiration(MuxCommand):
         # Update the description (create new list to trigger Evennia persistence)
         aspirations_list = list(self.caller.db.aspirations)
         old_description = aspirations_list[number-1]["description"]
+        asp_type = aspirations_list[number-1]["type"]
         aspirations_list[number-1]["description"] = new_description
         self.caller.attributes.add("aspirations", aspirations_list)
         
-        asp_type = self.caller.db.aspirations[number-1]["type"]
+        # Record the action for rate limiting
+        record_action(self.caller, 'aspiration_change', details=f"Changed aspiration {number}")
+        
         type_display = "Short-term" if asp_type == "short-term" else "Long-term"
         
         self.caller.msg(f"|gChanged {type_display} aspiration #{number}:|n")
@@ -276,6 +293,9 @@ class CmdAspiration(MuxCommand):
     
     def fulfill_aspiration(self):
         """Mark an aspiration as fulfilled and gain a beat"""
+        from world.rate_limiter import check_rate_limit, record_action
+        from world.xp_logger import get_xp_logger
+        
         try:
             number = int(self.args)
         except ValueError:
@@ -291,6 +311,18 @@ class CmdAspiration(MuxCommand):
             self.caller.msg(f"Invalid aspiration number. You have {len(self.caller.db.aspirations)} aspirations.")
             return
         
+        # Check rate limit (3 fulfillments per week)
+        can_fulfill, message = check_rate_limit(
+            self.caller,
+            'aspiration_fulfill',
+            max_count=3,
+            period_days=7
+        )
+        
+        if not can_fulfill:
+            self.caller.msg(f"|rCannot fulfill aspiration:|n {message}")
+            return
+        
         # Get the aspiration before removing it (create new list to trigger Evennia persistence)
         aspirations_list = list(self.caller.db.aspirations)
         fulfilled_asp = aspirations_list.pop(number-1)
@@ -303,6 +335,13 @@ class CmdAspiration(MuxCommand):
         if not hasattr(self.caller, 'experience'):
             self.caller.experience = ExperienceHandler(self.caller)
         self.caller.experience.add_beat(1)
+        
+        # Log the beat gain
+        logger = get_xp_logger(self.caller)
+        logger.log_beat(1, "Aspiration Fulfilled", details=description[:50])
+        
+        # Record the action for rate limiting
+        record_action(self.caller, 'aspiration_fulfill', details=f"Fulfilled: {description[:30]}")
         
         self.caller.msg("|y" + "=" * 78 + "|n")
         self.caller.msg("|yASPIRATION FULFILLED!|n".center(78))

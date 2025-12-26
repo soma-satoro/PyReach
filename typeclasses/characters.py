@@ -17,7 +17,10 @@ from evennia.utils.utils import lazy_property
 from world.conditions import ConditionHandler
 from world.tilts import TiltHandler
 from world.experience import ExperienceHandler, EXPERIENCE_COSTS
-from world.cofd.template_registry import template_registry
+from world.cofd.templates import (
+    get_template_definition, get_bio_fields, get_integrity_name, 
+    get_starting_integrity, validate_field, get_template_names
+)
 from world.utils.health_utils import calculate_wound_penalty
 
 from .objects import ObjectParent
@@ -133,7 +136,7 @@ class Character(DefaultCharacter):
         if template is None:
             template = self.db.stats.get("other", {}).get("template", "Mortal")
             
-        return template_registry.get_integrity_name(template)
+        return get_integrity_name(template)
 
     def get_starting_integrity(self, template=None):
         """
@@ -148,7 +151,7 @@ class Character(DefaultCharacter):
         if template is None:
             template = self.db.stats.get("other", {}).get("template", "Mortal")
             
-        return template_registry.get_starting_integrity(template)
+        return get_starting_integrity(template)
 
     def reset_stats_for_template(self, new_template, caller=None):
         """
@@ -163,11 +166,12 @@ class Character(DefaultCharacter):
             str: Success message
         """
         # Check if template is valid using registry
-        if not template_registry.is_valid_template(new_template):
-            return f"Invalid template '{new_template}'. Available templates: {', '.join(template_registry.get_template_names())}"
+        # Check if template exists
+        if not get_template_definition(new_template):
+            return f"Invalid template '{new_template}'. Available templates: {', '.join(get_template_names())}"
         
         # Get template-specific starting integrity
-        starting_integrity = template_registry.get_starting_integrity(new_template)
+        starting_integrity = get_starting_integrity(new_template)
         
         # Completely wipe the stats dictionary but initialize with defaults
         self.db.stats = {
@@ -238,7 +242,7 @@ class Character(DefaultCharacter):
         }
         
         # Add template-specific bio fields
-        template_fields = template_registry.get_bio_fields(str(new_template))
+        template_fields = get_bio_fields(str(new_template))
         for field in template_fields:
             self.db.stats["bio"][field] = "<not set>"
             
@@ -274,7 +278,7 @@ class Character(DefaultCharacter):
                     pass
         
         # Assign template in registry for tracking
-        template_registry.assign_template(self, new_template, caller)
+        # Template assigned - no longer using database tracking
         
         message = f"Completely reset {self.name}'s stats for {new_template} template."
         message += f"\nAll previous stats have been wiped clean."
@@ -296,8 +300,8 @@ class Character(DefaultCharacter):
             tuple: (success, message) - success boolean and message string
         """
         # Check if template is valid using registry
-        if not template_registry.is_valid_template(new_template):
-            available = ', '.join(template_registry.get_template_names())
+        if not get_template_definition(new_template):
+            available = ', '.join(get_template_names())
             return False, f"Invalid template '{new_template}'. Available templates: {available}"
         
         # If reset_stats is True, use the nuclear option
@@ -307,8 +311,8 @@ class Character(DefaultCharacter):
         
         # Get old and new template fields for bio updates
         old_template = self.db.stats.get("other", {}).get("template", "Mortal")
-        old_fields = set(template_registry.get_bio_fields(old_template))
-        new_fields = set(template_registry.get_bio_fields(new_template))
+        old_fields = set(get_bio_fields(old_template))
+        new_fields = set(get_bio_fields(new_template))
         
         # Set the new template
         if "other" not in self.db.stats:
@@ -349,7 +353,7 @@ class Character(DefaultCharacter):
                 self.db.stats["anchors"][field] = "<not set>"
         
         # Assign template in registry for tracking
-        template_registry.assign_template(self, new_template, caller)
+        # Template assigned - no longer using database tracking
         
         # Create success message
         message = f"Set {self.name}'s template to {new_template}."
@@ -360,11 +364,11 @@ class Character(DefaultCharacter):
         return True, message
 
     def get_template_bio_fields(self, template=None):
-        """Get valid bio fields for a specific template using the template registry"""
+        """Get valid bio fields for a specific template"""
         if template is None:
             template = self.db.stats.get("other", {}).get("template", "Mortal")
-            
-        return template_registry.get_bio_fields(template)
+        
+        return get_bio_fields(template)
     
     def calculate_derived_stats(self, caller=None):
         """Calculate derived stats based on attributes"""
@@ -500,7 +504,7 @@ class Character(DefaultCharacter):
     def validate_template_field(self, field, value):
         """Validate template-specific field values using the template registry"""
         template = self.db.stats.get("other", {}).get("template", "Mortal")
-        return template_registry.validate_field(template, field, value)
+        return validate_field(template, field, value)
     
     def cleanup_misplaced_stats(self, caller=None):
         """Clean up stats that were stored with spaces in wrong categories"""

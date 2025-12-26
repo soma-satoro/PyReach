@@ -19,11 +19,95 @@ def register_template(template_dict):
 
 def get_template_definition(name):
     """Get a specific template definition by name."""
-    return _template_definitions.get(name.lower())
+    # Normalize name: lowercase, convert spaces and + to underscores
+    normalized = name.lower().replace(" ", "_")
+    if normalized == "mortal+":
+        normalized = "mortal_plus"
+    return _template_definitions.get(normalized)
 
 def get_all_template_definitions():
     """Get all registered template definitions."""
     return _template_definitions.copy()
+
+def get_bio_fields(template_name):
+    """
+    Get bio fields for a template.
+    
+    Args:
+        template_name (str): Name of the template
+        
+    Returns:
+        list: List of bio field names
+    """
+    # get_template_definition handles all normalization
+    template_def = get_template_definition(template_name)
+    
+    if template_def and "bio_fields" in template_def:
+        return template_def["bio_fields"]
+    return ["virtue", "vice"]
+
+def get_integrity_name(template_name):
+    """
+    Get the integrity stat name for a template.
+    
+    Args:
+        template_name (str): Name of the template
+        
+    Returns:
+        str: Integrity stat name
+    """
+    # get_template_definition handles normalization
+    template_def = get_template_definition(template_name)
+    if template_def and "integrity_name" in template_def:
+        return template_def["integrity_name"]
+    return "Integrity"
+
+def get_starting_integrity(template_name):
+    """
+    Get starting integrity value for a template.
+    
+    Args:
+        template_name (str): Name of the template
+        
+    Returns:
+        int: Starting integrity value
+    """
+    # get_template_definition handles normalization
+    template_def = get_template_definition(template_name)
+    if template_def and "starting_integrity" in template_def:
+        return template_def["starting_integrity"]
+    return 7
+
+def validate_field(template_name, field_name, value):
+    """
+    Validate a field value for a template.
+    
+    Args:
+        template_name (str): Name of the template
+        field_name (str): Name of field to validate
+        value (str): Value to validate
+        
+    Returns:
+        tuple: (is_valid, error_message)
+    """
+    # get_template_definition handles normalization
+    template_def = get_template_definition(template_name)
+    if template_def and "field_validations" in template_def:
+        validations = template_def["field_validations"]
+        if field_name in validations:
+            valid_values = validations[field_name].get("valid_values", [])
+            if valid_values and value.lower() not in [v.lower() for v in valid_values]:
+                return False, f"Invalid {field_name}: {value}. Valid values: {', '.join(valid_values)}"
+    return True, None
+
+def get_template_names():
+    """
+    Get list of all registered template names.
+    
+    Returns:
+        list: List of template names
+    """
+    return list(_template_definitions.keys())
 
 # Import all template modules to auto-register them
 from . import mortal

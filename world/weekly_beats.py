@@ -105,6 +105,11 @@ class WeeklyBeatsHandler:
                     exp_handler = character.experience
                     whole_beats, remaining_fractional = exp_handler.add_fractional_beat(beats_amount)
                     
+                    # Log to XP logger
+                    from world.xp_logger import get_xp_logger
+                    xp_logger = get_xp_logger(character)
+                    xp_logger.log_beat(beats_amount, "Weekly Distribution", details="Automatic weekly beat award")
+                    
                     # Notify character
                     character.msg(f"|gWeekly Beat Distribution!|n You received {beats_amount} beats from the weekly distribution.")
                     

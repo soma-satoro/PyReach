@@ -700,6 +700,13 @@ class CmdLookup(MuxCommand):
             self.show_psychic_powers()
         elif args == "tells" or args == "wolf_blooded":
             self.show_wolf_blooded_tells()
+        elif args.startswith("tells ") or args.startswith("tell "):
+            parts = args.split()
+            if len(parts) > 1:
+                tell_name = " ".join(parts[1:])
+                self.show_tell_details(tell_name)
+            else:
+                self.show_wolf_blooded_tells()
         elif args == "specialties" or args.startswith("specialties"):
             parts = args.split()
             skill = parts[1] if len(parts) > 1 else None
@@ -3781,24 +3788,53 @@ class CmdLookup(MuxCommand):
     
     def show_wolf_blooded_tells(self):
         """Show wolf-blooded tells (2e)."""
+        from world.cofd.templates.mortalplus_abilities import WOLFBLOODED_TELLS
+        
         msg = self.format_header("Wolf-Blooded Tells (2e)")
         msg += "\n\n"
+        msg += "|cTells are inherited supernatural traits from werewolf ancestry:|n\n\n"
         
-        tell_descriptions = {
-            "moon_gift": "Powers that manifest based on moon phase",
-            "pack_awareness": "Sense other Wolf-Blooded and werewolves",
-            "territorial": "Enhanced abilities in claimed territory",
-            "spirit_sight": "Ability to perceive the Shadow Realm",
-            "primal": "Enhanced physical traits and instincts"
-        }
+        for tell_key in sorted(WOLFBLOODED_TELLS.keys()):
+            tell_data = WOLFBLOODED_TELLS[tell_key]
+            name = tell_data['name']
+            # Truncate description for list view
+            desc = tell_data['description']
+            if len(desc) > 80:
+                desc = desc[:77] + "..."
+            
+            msg += f"|y{name:<25}|n\n"
+            msg += f"  {desc}\n"
+            msg += f"  |gDetails:|n +lookup tells {tell_key}\n\n"
         
-        for tell in sorted(LOOKUP_DATA.mortal_plus_data['wolf_blooded_tells']):
-            desc = tell_descriptions.get(tell, "Wolf-Blooded tell")
-            msg += f"|y{tell.replace('_', ' ').title():<20}|n {desc}\n"
+        msg += f"|cTotal:|n {len(WOLFBLOODED_TELLS)} Wolf-Blooded Tells\n"
+        msg += "|cSet as subtype:|n +stat subtype=<tell_name> (e.g., +stat subtype=piercing_eyes)\n"
+        msg += "|cFor tell details:|n +lookup tells <tell_name> (e.g., +lookup tells shape_shifted)\n\n"
+        msg += self.format_footer("Chronicles of Darkness Reference")
         
-        msg += "\n"
-        msg += "|cNote:|n Tells are inherited traits from werewolf ancestry.\n"
-        msg += "Set with: |y+stat tell=<name>|n\n\n"
+        self.caller.msg(msg)
+    
+    def show_tell_details(self, tell_name):
+        """Show detailed information about a specific Wolf-Blooded Tell."""
+        from world.cofd.templates.mortalplus_abilities import get_tell
+        
+        # Normalize tell name
+        tell_key = tell_name.lower().replace(" ", "_")
+        
+        # Get tell data
+        tell_data = get_tell(tell_key)
+        
+        if not tell_data:
+            self.caller.msg(f"Tell '{tell_name}' not found.")
+            self.caller.msg("|cUse:|n +lookup tells - to see all available Wolf-Blooded Tells")
+            return
+        
+        msg = self.format_header(f"{tell_data['name']} - Wolf-Blooded Tell")
+        msg += "\n\n"
+        
+        msg += f"|cDescription:|n\n{tell_data['description']}\n\n"
+        msg += f"|wBoon:|n\n{tell_data['boon']}\n\n"
+        msg += f"|cSource:|n {tell_data['book']}\n"
+        msg += f"|cSet on Character:|n |y+stat subtype={tell_key}|n\n\n"
         msg += self.format_footer("Chronicles of Darkness Reference")
         
         self.caller.msg(msg)

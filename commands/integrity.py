@@ -127,6 +127,12 @@ class CmdIntegrity(MuxCommand):
             if not hasattr(self.caller, 'experience'):
                 self.caller.experience = ExperienceHandler(self.caller)
             self.caller.experience.add_beat(1)
+            
+            # Log the beat gain
+            from world.xp_logger import get_xp_logger
+            logger = get_xp_logger(self.caller)
+            logger.log_beat(1, "Breaking Point", details=f"Risked breaking point, lost {amount} integrity")
+            
             self.caller.msg("|yBeat gained for risking breaking point!|n")
     
     def gain_integrity(self):

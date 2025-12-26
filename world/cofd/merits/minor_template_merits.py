@@ -336,7 +336,7 @@ wolf_blooded_merits = [
         max_value=2,
         description="Grant +3 Durability and +3 Structure when you help craft a fetish",
         merit_type="supernatural",
-        prerequisite="template_type:wolf_blooded"
+        prerequisite="template_type:wolf-blooded"
     ),
     Merit(
         name="Full Moon's Birth",
@@ -344,7 +344,7 @@ wolf_blooded_merits = [
         max_value=2,
         description="Once per scene, you can spend Willpower to lead a coordinated action, granting +3 dice and 8-Again to participants up to your Presence",
         merit_type="social",
-        prerequisite="template_type:wolf_blooded"
+        prerequisite="template_type:wolf-blooded"
     ),
     Merit(
         name="Gibbous Moon's Birth",
@@ -352,7 +352,7 @@ wolf_blooded_merits = [
         max_value=2,
         description="Take 8-Again and perform extended actions twice as fast when rolling a chosen Mental Skill",
         merit_type="mental",
-        prerequisite="template_type:wolf_blooded"
+        prerequisite="template_type:wolf-blooded"
     ),
     Merit(
         name="Half Moon's Birth",
@@ -360,7 +360,7 @@ wolf_blooded_merits = [
         max_value=2,
         description="Take +2 when rolling a breaking point in your territory. Once per session, you can take 8-Again and bonus dice equal to your Safe Place on one roll",
         merit_type="social",
-        prerequisite="template_type:wolf_blooded,safe_place:1"
+        prerequisite="template_type:wolf-blooded,safe_place:1"
     ),
     Merit(
         name="No Moon's Birth",
@@ -368,7 +368,7 @@ wolf_blooded_merits = [
         max_value=2,
         description="When you scout on instructions from a pack leader or parental figure, you leave no scent, cannot be followed home, and your point of origin or allegiance can't be ascertained",
         merit_type="supernatural",
-        prerequisite="template_type:wolf_blooded"
+        prerequisite="template_type:wolf-blooded"
     ),
     # Firstborn Blood Merits (Heritage from specific Firstborn)
     Merit(
@@ -377,7 +377,7 @@ wolf_blooded_merits = [
         max_value=2,
         description="Take 8-Again to craft or wield silver weapons",
         merit_type="physical",
-        prerequisite="template_type:wolf_blooded"
+        prerequisite="template_type:wolf-blooded"
     ),
     Merit(
         name="Hikaon-Ur's Blood",
@@ -385,7 +385,7 @@ wolf_blooded_merits = [
         max_value=2,
         description="Ignore total darkness penalties. When denied a sense, take +2 to compensate with other senses",
         merit_type="physical",
-        prerequisite="template_type:wolf_blooded"
+        prerequisite="template_type:wolf-blooded"
     ),
     Merit(
         name="Kamduis-Ur's Blood",
@@ -393,7 +393,7 @@ wolf_blooded_merits = [
         max_value=2,
         description="Roll Intelligence + Occult to create a mark that can trap a ghost for an hour per success",
         merit_type="supernatural",
-        prerequisite="template_type:wolf_blooded"
+        prerequisite="template_type:wolf-blooded"
     ),
     Merit(
         name="Sagrim-Ur's Blood",
@@ -401,7 +401,7 @@ wolf_blooded_merits = [
         max_value=2,
         description="Take 8-Again and add Safe Place as bonus dice to roll Crafts or Computer to set up security measures",
         merit_type="mental",
-        prerequisite="template_type:wolf_blooded"
+        prerequisite="template_type:wolf-blooded"
     ),
     Merit(
         name="Skolis-Ur's Blood",
@@ -409,7 +409,7 @@ wolf_blooded_merits = [
         max_value=2,
         description="Immunity to Urging, and to being supernaturally forced to appear weak or defeated",
         merit_type="supernatural",
-        prerequisite="template_type:wolf_blooded"
+        prerequisite="template_type:wolf-blooded"
     ),
     # Pack and General Merits
     Merit(
@@ -418,7 +418,7 @@ wolf_blooded_merits = [
         max_value=3,
         description="You're respected as an important member of the pack. You can buy one dot of Totem, or up to five dots with Pack Bond •••",
         merit_type="social",
-        prerequisite="template_type:wolf_blooded"
+        prerequisite="template_type:wolf-blooded"
     ),
     Merit(
         name="Raised by Wolves",
@@ -426,15 +426,15 @@ wolf_blooded_merits = [
         max_value=1,
         description="You grew up among werewolves. Ignore Resistance rolls to withstand the bizarre or grotesque things you see",
         merit_type="mental",
-        prerequisite="template_type:wolf_blooded"
+        prerequisite="template_type:wolf-blooded"
     ),
     Merit(
         name="Tell",
         min_value=3,
         max_value=3,
-        description="You have another Wolf-Blooded Tell - a supernatural ability inherited from werewolf ancestry. Choose an additional Moon Birth or Firstborn Blood merit",
+        description="You have a Wolf-Blooded Tell - a supernatural ability that marks you as touched by the spirit world. Wolf-Blooded inherit these from werewolf ancestry, but any mortal can manifest a Tell through prolonged exposure to werewolves or spiritual transformation. This merit can be taken multiple times with different Tells. Use instance notation: Tell:Piercing Eyes, Tell:Shape Shifted, Tell:Second Skin, etc. Each instance costs 3 dots. See +lookup tells for all available Wolf-Blooded Tells and their effects",
         merit_type="supernatural",
-        prerequisite="template_type:wolf_blooded"
+        prerequisite=""
     ),
 ]
 
@@ -453,16 +453,8 @@ proximi_merits = [
     ),
 ]
 
-# Template type is set via template_type="Alchemist"
-alchemist_merits = [
-    # NOTE: To be added later - skipping for now per user request
-    # Alchemists are mortals who practice Promethean alchemy
-    # Source: Promethean: The Created 2nd Edition
-]
-
 # CHANGELING-LINKED: Fae-Touched
 # Template type is set via template_type="Fae-Touched"
-# These mortals can make and are bound by supernatural pledges
 
 fae_touched_merits = [
     Merit(
@@ -471,7 +463,7 @@ fae_touched_merits = [
         max_value=2,
         description="You can spend Glamour to swap places with your reflection in a mirror",
         merit_type="supernatural",
-        prerequisite="template_type:fae_touched"
+        prerequisite="template_type:fae-touched"
     ),
     Merit(
         name="Dreamer's Gaze",
@@ -479,7 +471,7 @@ fae_touched_merits = [
         max_value=1,
         description="Stare down and contest Presence + Composure vs Resolve + Composure to enter the Bastion of someone you share a pledge with. May inflict Clarity damage",
         merit_type="supernatural",
-        prerequisite="template_type:fae_touched"
+        prerequisite="template_type:fae-touched"
     ),
     Merit(
         name="Favored Promise",
@@ -487,7 +479,7 @@ fae_touched_merits = [
         max_value=3,
         description="Apply as bonus dice to uphold a particular type of promise (Clemency, Debt, Love, Loyalty, Protection, Provision, or Service)",
         merit_type="social",
-        prerequisite="template_type:fae_touched"
+        prerequisite="template_type:fae-touched"
     ),
     Merit(
         name="Find the Oathbreaker",
@@ -495,7 +487,7 @@ fae_touched_merits = [
         max_value=2,
         description="Spend Glamour and roll Wits + Wyrd to track down someone who has violated a pledge",
         merit_type="supernatural",
-        prerequisite="template_type:fae_touched"
+        prerequisite="template_type:fae-touched"
     ),
     Merit(
         name="Keeper of the Bargain",
@@ -503,7 +495,7 @@ fae_touched_merits = [
         max_value=3,
         description="Willpower spent to contest attempts to sway you to break a sealing or oath adds four dice instead of three and reduces the exceptional threshold from five to three",
         merit_type="supernatural",
-        prerequisite="template_type:fae_touched"
+        prerequisite="template_type:fae-touched"
     ),
     Merit(
         name="Promise of Clemency",
@@ -511,7 +503,7 @@ fae_touched_merits = [
         max_value=3,
         description="You swore to forgive a particular wrong or crime. Apply as bonus dice to resist emotional influence based on that wrong",
         merit_type="social",
-        prerequisite="template_type:fae_touched"
+        prerequisite="template_type:fae-touched"
     ),
     Merit(
         name="Promise of Debt",
@@ -519,7 +511,7 @@ fae_touched_merits = [
         max_value=3,
         description="You swore to repay a debt you owed someone. Apply as bonus dice to help settle a debt",
         merit_type="social",
-        prerequisite="template_type:fae_touched"
+        prerequisite="template_type:fae-touched"
     ),
     Merit(
         name="Promise of Love",
@@ -527,7 +519,7 @@ fae_touched_merits = [
         max_value=3,
         description="You swore unending love. Apply as bonus dice to contest attempts to manipulate your feelings about another",
         merit_type="social",
-        prerequisite="template_type:fae_touched"
+        prerequisite="template_type:fae-touched"
     ),
     Merit(
         name="Promise of Loyalty",
@@ -535,7 +527,7 @@ fae_touched_merits = [
         max_value=3,
         description="You swore to stand by another's side. Remove a Door when Social Maneuvering through your relationship or shared history with another",
         merit_type="social",
-        prerequisite="template_type:fae_touched"
+        prerequisite="template_type:fae-touched"
     ),
     Merit(
         name="Promise of Protection",
@@ -543,7 +535,7 @@ fae_touched_merits = [
         max_value=5,
         description="You swore to keep someone safe. When fighting to protect someone, apply as an Initiative bonus, and reduce the Defense penalty from multiple attacks by one",
         merit_type="social",
-        prerequisite="template_type:fae_touched"
+        prerequisite="template_type:fae-touched"
     ),
     Merit(
         name="Promise to Provide",
@@ -551,7 +543,7 @@ fae_touched_merits = [
         max_value=3,
         description="You swore someone would always have a home with you. Spend Glamour when offering your hospitality. A guest who accepts must spend Willpower to betray that hospitality, but recovers Willpower if they don't",
         merit_type="social",
-        prerequisite="template_type:fae_touched"
+        prerequisite="template_type:fae-touched"
     ),
     Merit(
         name="Promise to Serve",
@@ -559,7 +551,7 @@ fae_touched_merits = [
         max_value=3,
         description="You swore a service in someone's stead. Apply as bonus teamwork successes",
         merit_type="social",
-        prerequisite="template_type:fae_touched"
+        prerequisite="template_type:fae-touched"
     ),
     Merit(
         name="Punish the Oathbreaker",
@@ -567,7 +559,7 @@ fae_touched_merits = [
         max_value=2,
         description="Exercise Loopholes to use your Contracts against a found oathbreaker alone",
         merit_type="supernatural",
-        prerequisite="template_type:fae_touched,find_the_oathbreaker:1"
+        prerequisite="template_type:fae-touched,find_the_oathbreaker:1"
     ),
     Merit(
         name="Sense Vows",
@@ -575,7 +567,7 @@ fae_touched_merits = [
         max_value=1,
         description="Spend Glamour to sense whether a character was pledgebound within the current story",
         merit_type="supernatural",
-        prerequisite="template_type:fae_touched"
+        prerequisite="template_type:fae-touched"
     ),
     Merit(
         name="Twice Shy",
@@ -583,13 +575,13 @@ fae_touched_merits = [
         max_value=3,
         description="Can use Dreamer's Gaze on the promise-bound Changeling's fetch",
         merit_type="supernatural",
-        prerequisite="template_type:fae_touched,dreamers_gaze:1"
+        prerequisite="template_type:fae-touched,dreamers_gaze:1"
     ),
 ]
 
 # GEIST-LINKED: Ghosts
 # Template type is set via template_type="Ghost"
-# Ghosts are ephemeral entities - specific merits from Geist 2e
+# specific merits from Geist 2e
 
 ghost_merits = [
     Merit(
@@ -624,7 +616,7 @@ ghost_merits = [
         merit_type="supernatural",
         prerequisite="template_type:ghost"
     ),
-    # Iconography Merits - A ghost can only have ONE of these Corpus-shaping merits
+    # Iconography Merits: A ghost can only have ONE of these
     Merit(
         name="Ajna",
         min_value=1,

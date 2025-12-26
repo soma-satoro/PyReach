@@ -475,13 +475,19 @@ class CmdRoll(MuxCommand):
             exp_handler = self.caller.experience
             exp_handler.add_beat()
             
+            # Log the beat gain
+            from world.xp_logger import get_xp_logger
+            logger = get_xp_logger(self.caller)
+            
             # Format the message based on the source
             if source == "exceptional_success":
                 source_msg = "exceptional success"
                 color = "|g"
+                logger.log_beat(1, "Exceptional Success", details="Automatic from dice roll")
             elif source == "dramatic_failure":
                 source_msg = "dramatic failure"
                 color = "|r"
+                logger.log_beat(1, "Dramatic Failure", details="Automatic from dice roll")
             else:
                 source_msg = source.replace("_", " ")
                 color = "|y"

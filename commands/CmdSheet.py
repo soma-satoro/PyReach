@@ -439,10 +439,7 @@ class CmdSheet(MuxCommand):
         from commands.CmdLegacy import is_legacy_mode
         legacy_mode = is_legacy_mode()
         
-        # Auto-migrate legacy stats if any exist (silent)
-        # Note: Migration functionality has been moved to admin commands
-        # self._migrate_legacy_stats(target)
-        
+
         if not target.db.stats:
             self.caller.msg(f"{target.name} has no character sheet set up yet.")
             self.caller.msg("Use +stat <stat>=<value> to set your stats.")
@@ -487,7 +484,6 @@ class CmdSheet(MuxCommand):
         virtue = bio.get("virtue", "<not set>") if "virtue" in template_fields else None
         vice = bio.get("vice", "<not set>") if "vice" in template_fields else None
         
-        # Create a list of all bio items to display
         bio_items = [
             ("Full Name", full_name),
             ("Template", template),
@@ -503,13 +499,37 @@ class CmdSheet(MuxCommand):
         
         # Add template-specific bio fields
         for field in template_fields:
-            if field not in ["virtue", "vice"]:  # virtue/vice already added above if valid
+            if field not in ["virtue", "vice", "game_line"]:  # virtue/vice already added, game_line is internal only
+                # Skip abilities field for Mortal+ (those are merits)
+                if field == "abilities":
+                    continue
+                
                 field_value = bio.get(field, "<not set>")
-                # Special case for cover_identity to display as "Cover ID"
+                
+                # Special display labels for certain fields
                 if field == "cover_identity":
                     field_label = "Cover ID"
+                elif field == "template_type":
+                    field_label = "Type"
+                    # Format template_type: replace underscores/hyphens with spaces and title case
+                    if field_value != "<not set>":
+                        field_value = field_value.replace("_", " ").replace("-", " ").title()
+                elif field == "subtype":
+                    # Check if Wolf-Blooded to show as "Tell"
+                    mortal_plus_type = bio.get("template_type", "").lower()
+                    if "wolf" in mortal_plus_type:
+                        field_label = "Tell"
+                        # Format Tell name: replace underscores with spaces and title case
+                        if field_value != "<not set>":
+                            field_value = field_value.replace("_", " ").title()
+                    else:
+                        field_label = "Subtype"
+                        # Format subtype: replace underscores with spaces and title case
+                        if field_value != "<not set>":
+                            field_value = field_value.replace("_", " ").title()
                 else:
                     field_label = field.replace("_", " ").title()
+                
                 bio_items.append((field_label, field_value))
         
         # Add current form for Werewolves
@@ -554,7 +574,6 @@ class CmdSheet(MuxCommand):
             for attr in ["intelligence", "wits", "resolve"]:
                 val = attrs.get(attr, 0)
                 dots = self._format_dots(val, 5, force_ascii)
-                # Use dot padding in numeric mode for better readability
                 if use_numeric:
                     attr_name = attr.title()
                     padding = '.' * (20 - len(attr_name))
@@ -567,7 +586,6 @@ class CmdSheet(MuxCommand):
             for attr in ["strength", "dexterity", "stamina"]:
                 val = attrs.get(attr, 0)
                 dots = self._format_dots(val, 5, force_ascii)
-                # Use dot padding in numeric mode for better readability
                 if use_numeric:
                     attr_name = attr.title()
                     padding = '.' * (20 - len(attr_name))
@@ -580,7 +598,6 @@ class CmdSheet(MuxCommand):
             for attr in ["presence", "manipulation", "composure"]:
                 val = attrs.get(attr, 0)
                 dots = self._format_dots(val, 5, force_ascii)
-                # Use dot padding in numeric mode for better readability
                 if use_numeric:
                     attr_name = attr.title()
                     padding = '.' * (20 - len(attr_name))
@@ -613,7 +630,6 @@ class CmdSheet(MuxCommand):
                 val = skills.get(skill, 0)
                 dots = self._format_dots(val, 5, force_ascii)
                 skill_name = skill.replace('_', ' ').title()
-                # Use dot padding in numeric mode for better readability
                 if use_numeric:
                     padding = '.' * (20 - len(skill_name))
                     skill_text = f"{skill_name}{padding}{dots}"
@@ -636,7 +652,6 @@ class CmdSheet(MuxCommand):
                 val = skills.get(skill, 0)
                 dots = self._format_dots(val, 5, force_ascii)
                 skill_name = skill.replace('_', ' ').title()
-                # Use dot padding in numeric mode for better readability
                 if use_numeric:
                     padding = '.' * (20 - len(skill_name))
                     skill_text = f"{skill_name}{padding}{dots}"
@@ -659,7 +674,6 @@ class CmdSheet(MuxCommand):
                 val = skills.get(skill, 0)
                 dots = self._format_dots(val, 5, force_ascii)
                 skill_name = skill.replace('_', ' ').title()
-                # Use dot padding in numeric mode for better readability
                 if use_numeric:
                     padding = '.' * (20 - len(skill_name))
                     skill_text = f"{skill_name}{padding}{dots}"
@@ -674,7 +688,6 @@ class CmdSheet(MuxCommand):
                 else:
                     social_specialties.append("")
             
-            # Display skills in clean columns (no specialties inline)
             max_rows = max(len(mental_display), len(physical_display), len(social_display))
             for i in range(max_rows):
                 row = ""
@@ -711,7 +724,6 @@ class CmdSheet(MuxCommand):
         other = target.db.stats.get("other", {})
         template = other.get("template", "Mortal").lower().replace(" ", "_")
         
-        # Create merits list
         merit_list = []
         if merits:
             for merit_name, merit_data in sorted(merits.items()):
@@ -725,7 +737,6 @@ class CmdSheet(MuxCommand):
                 else:
                     display_name = merit_name.replace('_', ' ').title()
                 
-                # Use dot padding in numeric mode for better readability
                 if use_numeric:
                     padding = '.' * (28 - len(display_name))
                     merit_display = f"{display_name}{padding}{dots}"
@@ -733,14 +744,12 @@ class CmdSheet(MuxCommand):
                     merit_display = f"{display_name:<28} {dots}"
                 merit_list.append(merit_display)
         
-        # Create advantages list (including integrity)
-        # Use dot padding in numeric mode for consistency
         if use_numeric:
             advantage_list = [
-                f"Defense................... {advantages.get('defense', 0)}",
-                f"Speed..................... {advantages.get('speed', 0)}",
-                f"Initiative................ {advantages.get('initiative', 0)}",
-                f"Size...................... {other.get('size', 5)}"
+                f"  Defense................... {advantages.get('defense', 0)}",
+                f"  Speed..................... {advantages.get('speed', 0)}",
+                f"  Initiative................ {advantages.get('initiative', 0)}",
+                f"  Size...................... {other.get('size', 5)}"
             ]
         else:
             advantage_list = [
@@ -754,88 +763,85 @@ class CmdSheet(MuxCommand):
         if template != "geist":
             integrity_name = target.get_integrity_name(template)
             if use_numeric:
-                padding = '.' * (21 - len(integrity_name))
-                advantage_list.append(f"{integrity_name}{padding} {other.get('integrity', 7)}")
+                padding = '.' * (26 - len(integrity_name))
+                advantage_list.append(f"  {integrity_name}{padding} {other.get('integrity', 7)}")
             else:
-                advantage_list.append(f"{integrity_name:<15} : {other.get('integrity', 7)}")
+                advantage_list.append(f"  {integrity_name:<21} : {other.get('integrity', 7)}")
         
         # Add template-specific advantages
         if template == "changeling":
             wyrd = advantages.get("wyrd", 0)
             if wyrd > 0:
                 if use_numeric:
-                    advantage_list.append(f"Wyrd...................... {wyrd}")
+                    advantage_list.append(f"  Wyrd...................... {wyrd}")
                 else:
                     advantage_list.append(f"{'Wyrd':<15} : {wyrd}")
         elif template == "werewolf":
             primal_urge = advantages.get("primal_urge", 0)
             if primal_urge > 0:
                 if use_numeric:
-                    advantage_list.append(f"Primal Urge............... {primal_urge}")
+                    advantage_list.append(f"  Primal Urge............... {primal_urge}")
                 else:
                     advantage_list.append(f"{'Primal Urge':<15} : {primal_urge}")
         elif template == "vampire":
             blood_potency = advantages.get("blood_potency", 0)
             if blood_potency > 0:
                 if use_numeric:
-                    advantage_list.append(f"Blood Potency............. {blood_potency}")
+                    advantage_list.append(f"  Blood Potency............. {blood_potency}")
                 else:
                     advantage_list.append(f"{'Blood Potency':<15} : {blood_potency}")
         elif template == "mage":
             gnosis = advantages.get("gnosis", 0)
             if gnosis > 0:
                 if use_numeric:
-                    advantage_list.append(f"Gnosis.................... {gnosis}")
+                    advantage_list.append(f"  Gnosis.................... {gnosis}")
                 else:
                     advantage_list.append(f"{'Gnosis':<15} : {gnosis}")
         elif template == "deviant":
             deviation = advantages.get("deviation", 0)
             if deviation > 0:
                 if use_numeric:
-                    advantage_list.append(f"Deviation................. {deviation}")
+                    advantage_list.append(f"  Deviation................. {deviation}")
                 else:
                     advantage_list.append(f"{'Deviation':<15} : {deviation}")
         elif template == "demon":
             primum = advantages.get("primum", 0)
             if primum > 0:
                 if use_numeric:
-                    advantage_list.append(f"Primum.................... {primum}")
+                    advantage_list.append(f"  Primum.................... {primum}")
                 else:
                     advantage_list.append(f"{'Primum':<15} : {primum}")
         elif template == "promethean":
             azoth = advantages.get("azoth", 0)
             if azoth > 0:
                 if use_numeric:
-                    advantage_list.append(f"Azoth..................... {azoth}")
+                    advantage_list.append(f"  Azoth..................... {azoth}")
                 else:
                     advantage_list.append(f"{'Azoth':<15} : {azoth}")
         elif template == "geist":
             # Geist characters use Synergy instead of integrity
             synergy = advantages.get("synergy", 1)
             if use_numeric:
-                advantage_list.append(f"Synergy................... {synergy}")
+                advantage_list.append(f"  Synergy................... {synergy}")
             else:
                 advantage_list.append(f"{'Synergy':<15} : {synergy}")
         elif template == "legacy_changingbreeds":
             feral_heart = advantages.get("feral_heart", 1)
             if feral_heart > 0:
                 if use_numeric:
-                    advantage_list.append(f"Feral Heart............... {feral_heart}")
+                    advantage_list.append(f"  Feral Heart............... {feral_heart}")
                 else:
                     advantage_list.append(f"{'Feral Heart':<15} : {feral_heart}")
         
-        # Create section headers using the same format as other sections
         merits_header = f"|g<{'-' * 12} MERITS {'-' * 13}>|n"
         advantages_header = f"|g<{'-' * 10} ADVANTAGES {'-' * 11}>|n"
         output.append(f"{merits_header.ljust(42)} {advantages_header}")
         
-        # Display merits and advantages side by side
         max_rows = max(len(merit_list) if merit_list else 1, len(advantage_list))
         for i in range(max_rows):
             left_item = merit_list[i] if i < len(merit_list) else ""
             right_item = advantage_list[i] if i < len(advantage_list) else ""
             
-            # Handle empty merits case
             if not merit_list and i == 0:
                 left_item = "No merits yet."
             
@@ -848,12 +854,10 @@ class CmdSheet(MuxCommand):
             if current_form != 'hishu':
                 output.append(" " * 42 + " |y▸ Modified by form|n")
         
-        # Changing Breeds: Favors and Aspects sections side by side
         if template == "legacy_changingbreeds":
             favors = target.db.stats.get("favors", {})
             aspects = target.db.stats.get("aspects", {})
             
-            # Create favors list
             favor_list = []
             if favors:
                 for favor_name, favor_data in sorted(favors.items()):
@@ -874,7 +878,6 @@ class CmdSheet(MuxCommand):
                         favor_display = f"{favor_name.replace('_', ' ').title()}"
                     favor_list.append(favor_display)
             
-            # Create aspects list
             aspect_list = []
             if aspects:
                 for aspect_name, aspect_data in sorted(aspects.items()):
@@ -895,18 +898,15 @@ class CmdSheet(MuxCommand):
                         aspect_display = f"{aspect_name.replace('_', ' ').title()}"
                     aspect_list.append(aspect_display)
             
-            # Create section headers
             favors_header = f"|g<{'-' * 12} FAVORS {'-' * 13}>|n"
             aspects_header = f"|g<{'-' * 10} ASPECTS {'-' * 11}>|n"
             output.append(f"{favors_header.ljust(42)} {aspects_header}")
             
-            # Display favors and aspects side by side
             max_rows = max(len(favor_list) if favor_list else 1, len(aspect_list) if aspect_list else 1)
             for i in range(max_rows):
                 left_item = favor_list[i] if i < len(favor_list) else ""
                 right_item = aspect_list[i] if i < len(aspect_list) else ""
                 
-                # Handle empty lists
                 if not favor_list and i == 0:
                     left_item = "No favors yet."
                 if not aspect_list and i == 0:
@@ -1547,7 +1547,20 @@ class CmdSheet(MuxCommand):
             if aspirations_list:
                 output.append(self._format_section_header("|wASPIRATIONS|n"))
                 for i, asp in enumerate(aspirations_list, 1):
-                    output.append(f"{i}. {asp}")
+                    # Handle both old format (strings) and new format (dicts)
+                    try:
+                        if "type" in asp and "description" in asp:
+                            # New format dict (works with _SaverDict too)
+                            asp_type = asp.get('type', 'short-term')
+                            description = asp.get('description', str(asp))
+                            type_label = "|c[ST]|n" if asp_type == 'short-term' else "|y[LT]|n"
+                            output.append(f"{i}. {type_label} {description}")
+                        else:
+                            # Old format or string
+                            output.append(f"{i}. {asp}")
+                    except (TypeError, AttributeError):
+                        # Fallback for any unexpected format
+                        output.append(f"{i}. {asp}")
         
         # Legacy Experience (only show in legacy mode)
         if legacy_mode:
@@ -1923,13 +1936,37 @@ class CmdSheet(MuxCommand):
         
         # Add template-specific bio fields
         for field in template_fields:
-            if field not in ["virtue", "vice"]:  # virtue/vice already added above if valid
+            if field not in ["virtue", "vice", "game_line"]:  # virtue/vice already added, game_line is internal only
+                # Skip abilities field for Mortal+ (those are merits)
+                if field == "abilities":
+                    continue
+                
                 field_value = bio.get(field, "<not set>")
-                # Special case for cover_identity to display as "Cover ID"
+                
+                # Special display labels for certain fields
                 if field == "cover_identity":
                     field_label = "Cover ID"
+                elif field == "template_type":
+                    field_label = "Type"
+                    # Format template_type: replace underscores/hyphens with spaces and title case
+                    if field_value != "<not set>":
+                        field_value = field_value.replace("_", " ").replace("-", " ").title()
+                elif field == "subtype":
+                    # Check if Wolf-Blooded to show as "Tell"
+                    mortal_plus_type = bio.get("template_type", "").lower()
+                    if "wolf" in mortal_plus_type:
+                        field_label = "Tell"
+                        # Format Tell name: replace underscores with spaces and title case
+                        if field_value != "<not set>":
+                            field_value = field_value.replace("_", " ").title()
+                    else:
+                        field_label = "Subtype"
+                        # Format subtype: replace underscores with spaces and title case
+                        if field_value != "<not set>":
+                            field_value = field_value.replace("_", " ").title()
                 else:
                     field_label = field.replace("_", " ").title()
+                
                 bio_items.append((field_label, field_value))
         
         # Add current form for Werewolves
@@ -2967,7 +3004,20 @@ class CmdSheet(MuxCommand):
             if aspirations_list:
                 output.append(self._format_section_header("|wASPIRATIONS|n"))
                 for i, asp in enumerate(aspirations_list, 1):
-                    output.append(f"{i}. {asp}")
+                    # Handle both old format (strings) and new format (dicts)
+                    try:
+                        if "type" in asp and "description" in asp:
+                            # New format dict (works with _SaverDict too)
+                            asp_type = asp.get('type', 'short-term')
+                            description = asp.get('description', str(asp))
+                            type_label = "|c[ST]|n" if asp_type == 'short-term' else "|y[LT]|n"
+                            output.append(f"{i}. {type_label} {description}")
+                        else:
+                            # Old format or string
+                            output.append(f"{i}. {asp}")
+                    except (TypeError, AttributeError):
+                        # Fallback for any unexpected format
+                        output.append(f"{i}. {asp}")
         
         # Legacy Experience (only show in legacy mode)
         if legacy_mode:
