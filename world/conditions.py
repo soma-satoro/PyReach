@@ -9,13 +9,15 @@ class Condition:
     A class representing a condition that can be applied to characters.
     """
     def __init__(self, name, description, duration=None, is_persistent=False, 
-                 effects=None, resolution_method=None):
+                 effects=None, resolution_method=None, possible_sources=None, beat=None):
         self.name = name
         self.description = description
         self.duration = duration  # None for permanent, timedelta for temporary
         self.is_persistent = is_persistent
         self.effects = effects or {}  # Dictionary of effects this condition applies
         self.resolution_method = resolution_method  # How this condition can be resolved
+        self.possible_sources = possible_sources  # Possible sources of this condition
+        self.beat = beat  # Beat information for this condition
         self.applied_at = datetime.now()
         
     def is_expired(self):
@@ -33,6 +35,8 @@ class Condition:
             'is_persistent': self.is_persistent,
             'effects': self.effects,
             'resolution_method': self.resolution_method,
+            'possible_sources': self.possible_sources,
+            'beat': self.beat,
             'applied_at': self.applied_at.isoformat()
         }
     
@@ -44,8 +48,10 @@ class Condition:
             description=data['description'],
             duration=timedelta(seconds=data['duration']) if data['duration'] else None,
             is_persistent=data['is_persistent'],
-            effects=data['effects'],
-            resolution_method=data['resolution_method']
+            effects=data.get('effects'),
+            resolution_method=data.get('resolution_method'),
+            possible_sources=data.get('possible_sources'),
+            beat=data.get('beat')
         )
         condition.applied_at = datetime.fromisoformat(data['applied_at'])
         return condition
@@ -139,17 +145,15 @@ STANDARD_CONDITIONS = {
     ),
     'bestial': Condition(
         name="Bestial",
-        description="",
-        is_persistent=False
+        description="Your character acts on primal, physical impulses. Frightening things make him run. He meets aggressive threats with violence and anger. Take a –2 die penalty to all rolls to resist frenzy or physical impulse. As well, take a –2 die penalty to Defense due to impulsive action. Any rolls to compel your character to impulsive, aggressive action or escape achieve exceptional success on three successes instead of five. This could apply to Disciplines such as Nightmare, or Dominate under the right circumstances.\n\nThis Condition fades naturally after a number of nights equal to the Blood Potency of the vampire who caused it. In the case of the predatory aura, this is the vampire who won the conflict. In the case of testing for detachment, this is the vampire's own Blood Potency.\n\nAfter resolving Bestial, your character cannot be subject to this Condition again for a full month.",
+        is_persistent=False,
+        possible_sources="A monstrous predatory aura conflict, facing a breaking point.",
+        beat="n/a",
+        resolution_method="Cause damage in someone's last three Health boxes."
     ),
     'blackballed': Condition(
         name="Blackballed",
         description="Your character has been ostracized from a social group.",
-        is_persistent=False
-    ),
-    'blind': Condition(
-        name="Blind",
-        description="Your character cannot see, affecting any sight-based rolls.",
         is_persistent=False
     ),
     'bonded': Condition(
@@ -164,18 +168,19 @@ STANDARD_CONDITIONS = {
     ),
     'competitive': Condition(
         name="Competitive",
-        description="Your character is driven to win at all costs.",
-        is_persistent=False
+        description="Your character must assert dominance and superiority. Either she gives it her all, or she falters. Any time she's in direct competition with another character, she suffers a –2 die penalty on any rolls where she doesn't spend Willpower. This includes contested and extended rolls. As well, any rolls to tempt or coerce her into competition achieve exceptional success on three successes instead of five.\n\nThis Condition fades naturally after a number of nights equal to the Blood Potency of the vampire who caused it. In the case of the predatory aura, this is the vampire who won the conflict. In the case of testing for detachment, this is the vampire's own Blood Potency.\n\nAfter resolving Competitive, your character cannot be subject to this Condition again for a full month.",
+        is_persistent=False,
+        possible_sources="A challenging predatory aura conflict, facing a breaking point.",
+        beat="n/a",
+        resolution_method="Win or lose a competition where someone reaches a breaking point."
     ),
     'confused': Condition(
         name="Confused",
-        description="Your character cannot think straight.",
-        is_persistent=False
-    ),
-    'connected': Condition(
-        name="Connected",
-        description="Your character has made inroads with a group, gaining a bonus on actions related to it.",
-        is_persistent=False
+        description="Your character cannot think straight, either because of some mental power or good old-fashioned cranial trauma. You take a –2 die penalty on all Intelligence and Wits rolls.",
+        is_persistent=False,
+        possible_sources="A blow to the head, dramatic failure when using some Auspex powers.",
+        beat="n/a",
+        resolution_method="Take half an hour to focus and clear your mind. Take any amount of lethal damage."
     ),
     'cowed': Condition(
         name="Cowed",
@@ -199,8 +204,11 @@ STANDARD_CONDITIONS = {
     ),
     'deprived': Condition(
         name="Deprived",
-        description="Your character suffers from an addiction, facing penalties when deprived of it.",
-        is_persistent=False
+        description="Your character suffers from an addiction. She is unable to get her fix, however, leaving her irritable, anxious, and unable to focus. Remove one from her Stamina, Resolve, and Composure dice pools. This does not influence derived traits; it only influences dice pools that use these Attributes.",
+        is_persistent=False,
+        possible_sources="Your character is Addicted but cannot get a fix.",
+        beat="n/a",
+        resolution_method="Your character indulges her addiction."
     ),
     'despondent': Condition(
         name="Despondent",
@@ -214,18 +222,27 @@ STANDARD_CONDITIONS = {
     ),
     'distracted': Condition(
         name="Distracted",
-        description="Your character's attention is divided.",
-        is_persistent=False
+        description="Constant confusion and distractions buffet your character from all sides. She cannot take extended actions, and suffers a –2 die penalty to all rolls involving perception, concentration, and precision.\n\nThis Condition does not grant a Beat when resolved.",
+        is_persistent=False,
+        possible_sources="Being in a swarm.",
+        beat="n/a",
+        resolution_method="Leaving the swarm."
     ),
     'dominated': Condition(
         name="Dominated",
-        description="Your character is under the control of another.",
-        is_persistent=False
+        description="A vampire has given your character a specific command that she cannot go against. You don't have a choice whether or not to follow the command — your will is no longer your own. If your task has a natural end, such as \"Follow that man until he enters an apartment then call me with the address,\" you resolve the Condition once you complete it; otherwise it ends at sunrise. Once you resolve this Condition, you can't quite remember what happened while you were under the vampire's spell.",
+        is_persistent=False,
+        possible_sources="The Dominate Discipline.",
+        beat="n/a",
+        resolution_method="Take more bashing or lethal damage than your Stamina. Experience a breaking point when following the command, and succeed at the related Resolve + Composure roll. Follow the vampire's command."
     ),
     'drained': Condition(
         name="Drained",
-        description="Your character's energy has been sapped.",
-        is_persistent=False
+        description="Your character has been fed from extensively, and suffers from blood loss. He suffers a –2 die penalty to any physical actions, and rolls to stabilize and survive injuries. As well, after any scene where he exerts himself physically, he must make a Stamina roll or fall unconscious for an hour or more. The Drained penalty does not apply to the Stamina roll, but any wound penalties do apply. Taking damage, being fed from, or spending Willpower on a physical roll applies as physical exertion for this Condition.",
+        is_persistent=False,
+        possible_sources="A vampire's feeding.",
+        beat="n/a",
+        resolution_method="All lethal damage healed through normal means."
     ),
     'easy_prey': Condition(
         name="Easy Prey",
@@ -234,8 +251,11 @@ STANDARD_CONDITIONS = {
     ),
     'ecstatic': Condition(
         name="Ecstatic",
-        description="Your character is in a state of overwhelming joy.",
-        is_persistent=False
+        description="Your Beast has been temporarily sated through the use of blood sorcery. For as long as the Beast is quiet, the character may feed as though her Blood Potency were three dots less than her rating (minimum one), and has a +2 die bonus to avoid frenzy.",
+        is_persistent=False,
+        possible_sources="Exceptional success on a Crúac ritual.",
+        beat="n/a",
+        resolution_method="Feeding, sleeping, or resisting a frenzy."
     ),
     'embarrassing_secret': Condition(
         name="Embarrassing Secret",
@@ -279,8 +299,11 @@ STANDARD_CONDITIONS = {
     ),
     'frightened': Condition(
         name="Frightened",
-        description="Your character is frightened and may flee or freeze.",
-        is_persistent=False
+        description="Something's scared you to the point where you lose rational thought. Maybe you've just looked down at a hundred-story drop, or seen a tarantula the size of your fist crawling up your leg. Whatever the case, you need to leave right now. Your only priority is getting the fuck away from the thing that's frightened you — the hell with your stuff, your friends, and your allies. If someone tries to stop you from escaping, you'll fight your way past them. You can't approach the source of your fear or act against it — and if the only way out involves going near the source of your fear, you'll collapse on the ground in terror.\n\nSupernatural creatures prone to loss of control, including vampires, must roll to avoid frenzy. This Condition lasts until the end of the scene; suppressing its effects for a turn costs a point of Willpower.",
+        is_persistent=False,
+        possible_sources="The Nightmare Discipline, coming face to face with a phobia.",
+        beat="n/a",
+        resolution_method="The character escapes from the source of his fear."
     ),
     'futuristic_visionary': Condition(
         name="Futuristic Visionary",
@@ -294,8 +317,11 @@ STANDARD_CONDITIONS = {
     ),
     'guilty': Condition(
         name="Guilty",
-        description="Your character is struck by a deep sense of remorse, facing penalties to attempts to resist Subterfuge, Empathy, or Intimidation rolls.",
-        is_persistent=False
+        description="Your character is experiencing deep-seated feelings of guilt and remorse. This Condition is commonly applied after a successful detachment roll, p. 108. While the character is under the effects of this Condition, he receives a –2 die penalty to any Resolve or Composure rolls to defend against Subterfuge, Empathy, or Intimidation rolls.",
+        is_persistent=False,
+        possible_sources="Encountering a breaking point, some Ghoul Merits.",
+        beat="n/a",
+        resolution_method="The character confesses his crimes and makes restitution for whatever he did."
     ),
     'honorable': Condition(
         name="Honorable",
@@ -304,8 +330,11 @@ STANDARD_CONDITIONS = {
     ),
     'humbled': Condition(
         name="Humbled",
-        description="Your character has been brought low.",
-        is_persistent=False
+        description="Your character has felt the touch of the divine and trembled. She feels unworthy and wretched. For as long as the Condition lasts, she suffers a –2 die penalty to Resolve rolls and may not regain Willpower from her Requiem.",
+        is_persistent=False,
+        possible_sources="Dramatic failure on a Theban Sorcery ritual.",
+        beat="n/a",
+        resolution_method="The character regains Willpower using her Mask."
     ),
     'i_know_someone': Condition(
         name="I Know Someone",
@@ -329,8 +358,11 @@ STANDARD_CONDITIONS = {
     ),
     'inspired': Condition(
         name="Inspired",
-        description="Your character is deeply inspired. He may shed this Condition to gain Willpower and reduce the exceptional success threshold.",
-        is_persistent=False
+        description="Your character is deeply inspired. When your character takes an action pertaining to that inspiration, you may resolve this Condition. An exceptional success on that roll requires only three successes instead of five and you gain a point of Willpower.",
+        is_persistent=False,
+        possible_sources="Exceptional success with Crafts or Expression, the Inspiring Merit, the Auspex Discipline.",
+        beat="n/a",
+        resolution_method="You spend inspiration to spur yourself to greater success, resolving the Condition as described above."
     ),
     'instinctive': Condition(
         name="Instinctive",
@@ -339,8 +371,11 @@ STANDARD_CONDITIONS = {
     ),
     'intoxicated': Condition(
         name="Intoxicated",
-        description="Your character is under the influence of drugs or alcohol.",
-        is_persistent=False
+        description="Your character is drunk, drugged, or otherwise dulled to the world around her. While she's probably not hallucinating, her inhibitions and reactions are both lower than they should be. Your character suffers a –2 die penalty to all Dexterity and Wits dice pools. Characters using Social maneuvering against her face two fewer Doors than usual.",
+        is_persistent=False,
+        possible_sources="Heavy drinking or drug use.",
+        beat="n/a",
+        resolution_method="You sleep it off, or face a breaking point."
     ),
     'invisible_predator': Condition(
         name="Invisible Predator",
@@ -349,18 +384,27 @@ STANDARD_CONDITIONS = {
     ),
     'jaded': Condition(
         name="Jaded",
-        description="Your character has seen too much to be easily shocked.",
-        is_persistent=False
+        description="Your character has no interest in the ways of the living. He eschews mortal society and only acts to better himself. Because of this, his Beast takes tighter hold on his actions. Any rolls to resist frenzy suffer his Humanity dots as a cap, and he cannot spend Willpower to hold back frenzy. He may still ride the wave.",
+        is_persistent=False,
+        possible_sources="Detachment failure.",
+        beat="n/a",
+        resolution_method="Meaningful interaction with a Touchstone."
     ),
     'languid': Condition(
         name="Languid",
-        description="Your character is listless and lacking energy.",
-        is_persistent=False
+        description="Your character feels the draw of torpor. His actions grow sluggish each night that passes, until eventually he falls to the sleep of ages. Every night that passes with this Condition, levy a cumulative –1 die penalty on all actions. As well, rising from daysleep requires a point of Vitae for each dot of Blood Potency.",
+        is_persistent=False,
+        possible_sources="Losing a Touchstone.",
+        beat="n/a",
+        resolution_method="Falling to torpor."
     ),
     'lethargic': Condition(
         name="Lethargic",
-        description="Your character is sluggish and slow to act.",
-        is_persistent=False
+        description="Your character is drained and lethargic, feeling the weight of sleeplessness. With this Condition, your character cannot spend Willpower. As well, for every six hours he goes without sleeping, take a cumulative –1 die penalty to all actions. At every six-hour interval, make a Stamina + Resolve roll (with the penalty) to resist falling asleep until the sun next sets.",
+        is_persistent=False,
+        possible_sources="Fighting daysleep.",
+        beat="n/a",
+        resolution_method="Sleeping a full day."
     ),
     'leveraged': Condition(
         name="Leveraged",
@@ -389,8 +433,11 @@ STANDARD_CONDITIONS = {
     ),
     'mesmerized': Condition(
         name="Mesmerized",
-        description="Your character is entranced by something.",
-        is_persistent=False
+        description="Your character's will is subordinate to that of a vampire. You're not obviously hypnotized — you're a bit quiet and reserved compared to normal, but nothing out of the ordinary. When the vampire who inflicted this Condition gives you a command, you cannot resist. If it's something that you wouldn't normally do, you might look like you've been hypnotized or that you're sleepwalking, but otherwise you look and act normally. If you resolve this Condition, gain a +3 die bonus to resist further attempts to Mesmerize you in the same scene; you also can't quite remember what happened while you were under the vampire's spell. This Condition fades naturally after a scene, which does not count as resolving the Condition.",
+        is_persistent=False,
+        possible_sources="The Dominate Discipline.",
+        beat="n/a",
+        resolution_method="Take any amount of bashing or lethal damage. Experience a breaking point as part of a vampire's command."
     ),
     'monstrous_servant': Condition(
         name="Monstrous Servant",
@@ -400,11 +447,6 @@ STANDARD_CONDITIONS = {
     'moon_taint': Condition(
         name="Moon Taint",
         description="Your character as been infected with the warping taint of Luna.",
-        is_persistent=False
-    ),
-    'mute': Condition(
-        name="Mute",
-        description="Your character cannot speak and must communicate in some other manner.",
         is_persistent=False
     ),
     'mystified': Condition(
@@ -419,8 +461,11 @@ STANDARD_CONDITIONS = {
     ),
     'obsession': Condition(
         name="Obsession",
-        description="Your character is obsessed with a subject, facing a penalty on actions unrelated to it.",
-        is_persistent=False
+        description="Something's on your character's mind and she just can't shake it. She gains the 9-again quality on all rolls related to pursuing her obsession. On rolls that are unrelated to her obsession, she loses the 10-again quality. Obsession can be a temporary quality per Storyteller approval.",
+        is_persistent=False,
+        possible_sources="The Acute Senses Merit.",
+        beat="Character fails to fulfill an obligation due to pursuing her obsession.",
+        resolution_method="The character sheds or purges her fixation."
     ),
     'outlaw': Condition(
         name="Outlaw",
@@ -454,8 +499,11 @@ STANDARD_CONDITIONS = {
     ),
     'raptured': Condition(
         name="Raptured",
-        description="Your character has been taken up into a higher state of being.",
-        is_persistent=False
+        description="Your character is filled with the glory of God's admonishment, the grace of her damnation. She finds an unsettling harmony with her Beast, due to the fire of Longinus's words. She does not need to use Willpower to ride the wave, and can ride the wave on three successes instead of five.",
+        is_persistent=False,
+        possible_sources="The Anointed Merit.",
+        beat="n/a",
+        resolution_method="Falling to frenzy or riding the wave."
     ),
     'reception': Condition(
         name="Reception",
@@ -469,13 +517,19 @@ STANDARD_CONDITIONS = {
     ),
     'sated': Condition(
         name="Sated",
-        description="Your character's hunger has been satisfied.",
-        is_persistent=False
+        description="Your character gave her Beast an outlet that stopped it from driving her to frenzy. Until she resolves this Condition, she has a +1 die modifier to rolls to resist Frenzy.",
+        is_persistent=False,
+        possible_sources="The Animalism Discipline.",
+        beat="n/a",
+        resolution_method="Frenzy, or resist significant provocation to frenzy (a situation with a modifier of –3 or more to resist)."
     ),
     'scarred': Condition(
         name="Scarred",
-        description="Your character bears physical or emotional scars.",
-        is_persistent=False
+        description="Your character was subject to a violent bite from Kindred fangs. He's disturbed, angry, paranoid, and prone to lashing out. With this Condition, take a –2 die penalty to any rolls to resist fear, such as with the Nightmare Discipline or the Intimidation Skill. As well, any creature exhibiting a predatory aura attempting to frighten or intimidate your character receives a +2 die bonus.",
+        is_persistent=False,
+        possible_sources="A violent bite from a vampire.",
+        beat="n/a",
+        resolution_method="Lash out physically, causing three or more levels of lethal damage to someone."
     ),
     'shadow_paranoia': Condition(
         name="Shadow Paranoia",
@@ -484,8 +538,11 @@ STANDARD_CONDITIONS = {
     ),
     'shaken': Condition(
         name="Shaken",
-        description="Your character has been frightened by something. Shed the Condition by choosing, before making a roll, to fail it.",
-        is_persistent=False
+        description="Something has severely frightened your character. Any time your character is taking an action where that fear might hinder her, you may opt to fail the roll and resolve this Condition.",
+        is_persistent=False,
+        possible_sources="Facing a breaking point, the Auspex Discipline.",
+        beat="n/a",
+        resolution_method="The character gives into her fear and fails a roll as described above."
     ),
     'shadowlashed': Condition(
         name="Shadowlashed",
@@ -494,18 +551,27 @@ STANDARD_CONDITIONS = {
     ),
     'spooked': Condition(
         name="Spooked",
-        description="Your character has become frightened and fascinated by something supernatural. Shed the condition when this fear and fascination causes him to hinder the group in some way.",
-        is_persistent=False
+        description="Your character has seen something supernatural — not overt enough to terrify her, but unmistakably otherworldly. How your character responds to this is up to you, but it captivates her and dominates her focus.",
+        is_persistent=False,
+        possible_sources="The Unseen Sense Merit, the Wet Dream Devotion.",
+        beat="n/a",
+        resolution_method="This Condition is resolved when your character's fear and fascination causes her to do something that hinders the group or complicates things (she goes off alone to investigate a strange noise, stays up all night researching, runs away instead of holding her ground, etc.)."
     ),
     'steadfast': Condition(
         name="Steadfast",
-        description="Your character is resolved. Shed the Condition to treat a failed roll as though it were a single success, or to turn a chance die into a regular die.",
-        is_persistent=False
+        description="Your character is confident and resolved. When you've failed a roll, you may choose to resolve this Condition to instead treat the action as if you'd rolled a single success. If the roll is a chance die, you may choose to resolve this Condition and roll a single regular die instead.",
+        is_persistent=False,
+        possible_sources="Encountering a breaking point.",
+        beat="n/a",
+        resolution_method="Your character's confidence carries him through and the worst is avoided; the Condition is resolved as described above."
     ),
     'stumbled': Condition(
         name="Stumbled",
-        description="Your character has hit a complication during an extended action.",
-        is_persistent=False
+        description="Your character has hit a complication while attempting a blood sorcery ritual. Each successive roll in the extended action is at a –3 die penalty.\n\nThis Condition does not grant a Beat when resolved.",
+        is_persistent=False,
+        possible_sources="Dramatic failure on a blood sorcery ritual.",
+        beat="n/a",
+        resolution_method="The ritual ends."
     ),
     'surrounded': Condition(
         name="Surrounded",
@@ -524,8 +590,11 @@ STANDARD_CONDITIONS = {
     ),
     'swooning': Condition(
         name="Swooning",
-        description="Your character harbors affections for another, suffering a penalty to actions that would harm the object of affection. Said individual gains a bonus on Social rolls and Maneuvering against the character.",
-        is_persistent=False
+        description="Your character is attracted to someone and is vulnerable where they are concerned. He may have the proverbial \"butterflies in his stomach\" or just be constantly aware of the object of his affection. A character may have multiple instances of this Condition, reflecting affection for multiple characters. He suffers a –2 die penalty to any rolls that would adversely affect the specified character, who also gains +2 die bonus on any Social rolls against him. If the specified character is attempting Social maneuvering on the Swooning character, the impression level is considered one higher (maximum of perfect; see p. 174).",
+        is_persistent=False,
+        possible_sources="Be on the receiving end of an exceptional success of a Persuasion or Subterfuge roll, dramatic failure on using the Majesty Discipline, fed on non-violently by a vampire, have another character help you fulfill your Vice (if mortal).",
+        beat="n/a",
+        resolution_method="Your character does something for his love interest that puts him in danger, or he opts to fail a roll to resist a Social action by the specified character."
     ),
     'symbolic_focus': Condition(
         name="Symbolic Focus",
@@ -534,18 +603,27 @@ STANDARD_CONDITIONS = {
     ),
     'tainted': Condition(
         name="Tainted",
-        description="Your character has been corrupted by something.",
-        is_persistent=False
+        description="Your character committed diablerie, and now retains traces of her victim's soul. Once per chapter, the victim can come back to haunt your character and try to force her destruction. This brief burst penalizes any one dice pool by the victim's Blood Potency dots, or adds to a dice pool opposing your character. This takes the form of subtle manifestations, or whispers that urge and distract. Your character may have multiple instances of this Condition, reflecting different victims.",
+        is_persistent=False,
+        possible_sources="Diablerie.",
+        beat="n/a",
+        resolution_method="A number of months pass equal to the victim's Blood Potency score. Every level of aggravated damage your character takes reduces this time by one month."
     ),
     'tasked': Condition(
         name="Tasked",
-        description="Your character has been given a specific mission.",
-        is_persistent=False
+        description="Your character's clan, covenant, or family tasked her with a duty, and the responsibility carries weight. Take the 8-again quality on all rolls relating to the task. Any rolls not pertaining to the task lose the 10-again quality.",
+        is_persistent=False,
+        possible_sources="Dynasty Membership Merit.",
+        beat="n/a",
+        resolution_method="Complete the task; fail the task."
     ),
     'tempted': Condition(
         name="Tempted",
-        description="Your character is being tempted by something.",
-        is_persistent=False
+        description="Your character came close to losing control. Her Beast came at her, and she refused the call. Now, the Beast remains close to the surface. She gets a –1 die penalty to any rolls to resist frenzy. Until she sheds this Condition, each time she resists frenzy, the penalty increases by one. For example, after three successful resistances, note this Condition as \"Tempted –3\" on your character sheet.",
+        is_persistent=False,
+        possible_sources="Successfully resisted frenzy.",
+        beat="n/a",
+        resolution_method="Kill. Fall to frenzy. Have a meaningful connection with a Touchstone."
     ),
     'unware': Condition(
         name="Unware",
@@ -559,8 +637,11 @@ STANDARD_CONDITIONS = {
     ),
     'wanton': Condition(
         name="Wanton",
-        description="Your character is unrestrained in their desires.",
-        is_persistent=False
+        description="Your character wants, for the sake of wanting. He's distracted with temptations of excess and indulgence. Any Composure or Resolve rolls to resist temptation suffer a –2 die penalty. As well, the character that brought forth this Condition achieves exceptional success on three successes instead of five when making any rolls to tempt your character. This could apply to Majesty rolls as well as mundane social rolls.\n\nThis Condition fades naturally after a number of nights equal to the Blood Potency of the vampire who caused it. In the case of the predatory aura, this is the vampire who won the conflict. In the case of testing for detachment, this is the vampire's own Blood Potency.\n\nAfter resolving Wanton, your character cannot be subject to this Condition again for a full month.",
+        is_persistent=False,
+        possible_sources="A seductive predatory aura conflict, facing a breaking point.",
+        beat="n/a",
+        resolution_method="Indulge in something that constitutes a breaking point."
     ),
     'wise': Condition(
         name="Wise",
@@ -574,167 +655,199 @@ STANDARD_CONDITIONS = {
     ),
     
     # Persistent Conditions
-    'addicted_persistent': Condition(
+    'addicted': Condition(
         name="Addicted (Persistent)",
-        description="Your character is addicted to a substance or behavior.",
-        is_persistent=True
+        description="Your character is addicted to something, whether drugs, gambling or other destructive behaviors. Some addictions are more dangerous than others, but the nature of addiction is that it slowly takes over your life, impeding functionality. If you are addicted, you need to indulge your addiction regularly to keep it under control. A specific addiction should be chosen upon taking this Condition; characters can take this Condition multiple times for different addictions. Being unable to feed your addiction can result in the Deprived Condition.",
+        is_persistent=True,
+        possible_sources="Alcoholism, substance abuse, Vitae Addiction.",
+        beat="Your character chooses to get a fix rather than fulfill an obligation.",
+        resolution_method="Regain a dot of Integrity, lose another dot of Integrity, or achieve an exceptional success on a breaking point."
     ),
-    'amnesia_persistent': Condition(
+    'amnesia': Condition(
         name="Amnesia (Persistent)",
-        description="Your character is missing a portion of her memory.",
-        is_persistent=True
+        description="Your character is missing a portion of her memory. An entire period of her life is just gone. This causes massive difficulties with friends and loved ones.",
+        is_persistent=True,
+        possible_sources="Physical or psychological trauma, the Dominate Discipline.",
+        beat="Something problematic arises, such as a forgotten arrest warrant or old enemy.",
+        resolution_method="You regain your memory and learn the truth. Depending on the circumstances, this may constitute a breaking point at a level determined by the Storyteller."
     ),
-    'awestruck_persistent': Condition(
+    'awestruck': Condition(
         name="Awestruck (Persistent)",
         description="Your character sees before her a glorious and terrifying figure, and something in her brain kicks her to kneel and grovel.",
         is_persistent=True
     ),
-    'betrayed_persistent': Condition(
+    'betrayed': Condition(
         name="Betrayed (Persistent)",
         description="Your character has been betrayed by someone they trusted.",
         is_persistent=True
     ),
-    'blind_persistent': Condition(
+    'blind': Condition(
         name="Blind (Persistent)",
         description="Your character cannot see, affecting any sight-based rolls.",
         is_persistent=True
     ),
-    'blown_persistent': Condition(
+    'blown': Condition(
         name="Blown (Persistent)",
         description="Your character's cover has been compromised.",
         is_persistent=True
     ),
-    'broken_persistent': Condition(
+    'broken': Condition(
         name="Broken (Persistent)",
-        description="Your character has been gravely affected by some trauma and now faces penalties to Social rolls, rolls requiring Resolve, and resistance to any Intimidation rolls.",
-        is_persistent=True
+        description="Whatever you did or saw, something inside you snapped. You can barely muster up the will to do your job anymore, and anything more emotionally intense than a raised voice makes you flinch and back down. Apply a –2 die penalty to all Social rolls and rolls involving Resolve, and a –5 die penalty to all use of the Intimidation Skill.",
+        is_persistent=True,
+        possible_sources="Tremendous psychological trauma, the Nightmare Discipline, some Ghoul Merits.",
+        beat="You back down from a confrontation or fail a roll due to this Condition.",
+        resolution_method="Regain a dot of Integrity, lose another dot of Integrity, or achieve an exceptional success on a breaking point."
     ),
-    'charmed_persistent': Condition(
+    'charmed': Condition(
         name="Charmed (Persistent)",
-        description="Your character is under a lasting magical charm.",
-        is_persistent=True
+        description="You've been charmed by a vampire's supernatural force of personality. You don't want to believe that anything he says is a lie, and you can't read his true intentions. The vampire adds his Majesty dots to Manipulation rolls against you, and any Wits + Empathy or Subterfuge rolls you make to detect his lies or uncover his true motives suffer a penalty equal to his Majesty dots. Using supernatural means to detect his lies become a Clash of Wills.\n\nYou want to do things for the vampire, to make him happy. If he asks, you'll do favors for him like he was one of your best friends — giving him a place to crash, lending him your car keys, or revealing secrets that you really shouldn't. You don't feel tricked or ripped off unless you resolve the Condition. It expires normally (without resolving) after one hour per dot of the vampire's Blood Potency.",
+        is_persistent=True,
+        possible_sources="The Majesty Discipline.",
+        beat="You divulge a secret or perform a favor for the vampire.",
+        resolution_method="The vampire attempts to seriously harm you or someone close to you, you make a significant financial or physical sacrifice for him."
     ),
-    'connected_persistent': Condition(
+    'connected': Condition(
         name="Connected (Persistent)",
         description="Your character has made inroads with a group, gaining a bonus on actions related to it.",
         is_persistent=True
     ),
-    'crippled_persistent': Condition(
+    'crippled': Condition(
         name="Crippled (Persistent)",
         description="Your character either cannot or has difficulty walking. His Speed trait is limited and he requires a wheelchair to travel.",
         is_persistent=True
     ),
-    'delusional_persistent': Condition(
+    'delusional': Condition(
         name="Delusional (Persistent)",
-        description="Your character suffers from persistent delusions.",
-        is_persistent=True
+        description="You believe something that isn't actually true — maybe you think that someone is poisoning your food, that a doppelganger has replaced your daughter, or that something lives in the shadows of your apartment. You don't actually hallucinate images that reinforce your delusion; you may believe that you're covered in spiders, but just looking at yourself is enough to clarify matters. Germs, on the other hand.…\n\nYou can't truly repress your belief, but spending a point of Willpower lets you come up with an explanation (albeit one that sounds psychotic when you explain it to someone else) as to why your delusion does not apply to a specific situation.",
+        is_persistent=True,
+        possible_sources="The Nightmare Discipline.",
+        beat="You adhere to your paranoid belief despite evidence to the contrary.",
+        resolution_method="You completely disprove your delusion, or destroy the vampire who is the source of your paranoia."
     ),
-    'dependent_persistent': Condition(
+    'dependent': Condition(
         name="Dependent (Persistent)",
-        description="Your character is dependent on something or someone.",
-        is_persistent=True
+        description="Your character has become obsessed with a mortal. This obsession is for both attention and for blood. She suffers all the effects of a second-stage blood bond (see p. 100) as if she were bound to the mortal.",
+        is_persistent=True,
+        possible_sources="Daeva clan bane.",
+        beat="Your character suffers loss because she avoided responsibility for her obsession.",
+        resolution_method="Death of the mortal."
     ),
-    'deprived_persistent': Condition(
-        name="Deprived (Persistent)",
-        description="Your character suffers from an addiction, facing penalties when deprived of it.",
-        is_persistent=True
-    ),
-    'disabled_persistent': Condition(
+    'disabled': Condition(
         name="Disabled (Persistent)",
         description="Your character has a permanent disability.",
         is_persistent=True
     ),
-    'enervated_persistent': Condition(
+    'enervated': Condition(
         name="Enervated (Persistent)",
-        description="Your character is permanently weakened.",
-        is_persistent=True
+        description="The character is in the second stage of soul loss. Her instinctive efforts to shore up her Willpower by giving into her urges have failed, her Integrity has gone and her Willpower is now fading. In addition to the effects of Soulless, she can no longer regain Willpower through her Virtue, only her Vice. Indulging herself brings diminishing returns — whenever she does so, her permanent Willpower drops by one dot before she regains Willpower points to the new maximum.",
+        is_persistent=True,
+        possible_sources="Soul loss.",
+        beat="Lose a dot of permanent Willpower.",
+        resolution_method="The character regains her soul."
     ),
-    'enslaved_persistent': Condition(
+    'enslaved': Condition(
         name="Enslaved (Persistent)",
-        description="Your character is permanently bound to serve another.",
-        is_persistent=True
+        description="You're totally in thrall to the vampire who inflicted this Condition. You can no longer tell when her instructions end and commands issued by Dominate begin. She tells you to do something and you do it. She tells you what you remember, and you remember it. This Condition counts as the Mesmerized Condition for the purpose of the Dominate Discipline. She doesn't have to look at you to issue a command as long as you can hear her voice. You do not apply your Resolve as a penalty to the vampire's dice pool for Entombed Command and Possession.",
+        is_persistent=True,
+        possible_sources="The Dominate Discipline.",
+        beat="You're made to do something that you wouldn't normally do.",
+        resolution_method="Kill the vampire who controls you. Undo her mental control by supernatural means."
     ),
-    'enthralled_persistent': Condition(
+    'enthralled': Condition(
         name="Enthralled (Persistent)",
-        description="Your character is permanently under the influence of another.",
-        is_persistent=True
+        description="You're fanatically loyal to a vampire, willing to go to any length for him. You'll happily take actions that threaten your own life — ramming a speeding truck head-on, jumping in front of a gun-wielding psycho, or handing over your spouse and children for the vampire to play with. The compulsion lasts for one night for each dot of the vampire's Blood Potency.\n\nYou need to spend a point of Willpower just to take an action that goes against your master's commands. Doing so is an immediate breaking point at Humanity 1. If you fail, you chicken out at the last minute; only if you succeed can you do something that the vampire doesn't want you to do.",
+        is_persistent=True,
+        possible_sources="The Majesty Discipline.",
+        beat="You put yourself in harm's way to protect the vampire.",
+        resolution_method="You take serious harm (more lethal damage than your Stamina) when protecting the vampire, or you succeed at a breaking point roll related to the Condition."
     ),
-    'false_memories_persistent': Condition(
+    'false_memories': Condition(
         name="False Memories (Persistent)",
-        description="Your character has false memories implanted in their mind.",
-        is_persistent=True
+        description="The way you remember things doesn't match up with how they happened. You might remember a son who didn't exist, your alcoholic father abusing you despite being raised an orphan, or never getting married. You believe your memories to be true no matter what; even conclusive proof has a hard time getting through to you. Being faced with proof that your memory is fake is a breaking point for you at a level set by the Storyteller.",
+        is_persistent=True,
+        possible_sources="The Dominate Discipline.",
+        beat="Your character trusts someone or takes a risky action based on his faked memories alone.",
+        resolution_method="Face proof that your memory is false and succeed at the breaking point."
     ),
-    'fugue_persistent': Condition(
+    'fugue': Condition(
         name="Fugue (Persistent)",
-        description="Your character has broken from trauma such that he faces blackouts and lost time during which he attempts to flee the triggering situation.",
-        is_persistent=True
+        description="Something terrible happened. Rather than deal with it or let it break you, your mind shuts it out. You are prone to blackouts and lost time. Whenever circumstances become too similar to the situation that led to the character gaining this Condition, the player rolls Resolve + Composure. If you fail the roll, the Storyteller controls your character for the next scene; your character, left to his own devices, will seek to avoid the conflict and get away from the area.",
+        is_persistent=True,
+        possible_sources="Psychological trauma, encountering a breaking point, some Ghoul Merits.",
+        beat="You enter a fugue state as described above.",
+        resolution_method="Regain a dot of Integrity, lose another dot of Integrity, or achieve an exceptional success on a breaking point."
     ),
-    'hunted_persistent': Condition(
+    'hunted': Condition(
         name="Hunted (Persistent)",
         description="Your character is being pursued by something dangerous.",
         is_persistent=True
     ),
-    'hunting_nature_human_persistent': Condition(
+    'hunting_nature_human': Condition(
         name="Hunting Nature: Human (Persistent)",
         description="The pack values preparation and practice over blind instinct.",
         is_persistent=True
     ),
-    'hunting_nature_werewolf_persistent': Condition(
+    'hunting_nature_werewolf': Condition(
         name="Hunting Nature: Werewolf (Persistent)",
         description="The pack has incorporated the strengths of both wolf and human into its hunting.",
         is_persistent=True
     ),
-    'hunting_nature_wolf_persistent': Condition(
+    'hunting_nature_wolf': Condition(
         name="Hunting Nature: Wolf (Persistent)",
         description="The pack values instinct over reason, the thrill of the chase, and the freedom of acting without the constant need for thought.",
         is_persistent=True
     ),
-    'lured_persistent': Condition(
+    'lured': Condition(
         name="Lured (Persistent)",
         description="Your character has been lured into an action; she is absolutely convinced she saw or heard something over there that she needs to check out, or has seen something she wants to investigate, becoming completely focused on it.",
         is_persistent=True
     ),
-    'madness_persistent': Condition(
+    'madness': Condition(
         name="Madness (Persistent)",
         description="Your character has been jarred loose from reality by way of some supernatural experience. He occasionally faces a penalty to Social or Mental rolls.",
         is_persistent=True
     ),
-    'mute_persistent': Condition(
+    'mute': Condition(
         name="Mute (Persistent)",
         description="Your character cannot speak and must communicate in some other manner.",
         is_persistent=True
     ),
-    'obsession_persistent': Condition(
-        name="Obsession (Persistent)",
-        description="Your character is permanently obsessed with something.",
-        is_persistent=True
-    ),
-    'radiation_poisoning_persistent': Condition(
+    'radiation_poisoning': Condition(
         name="Radiation Poisoning (Persistent)",
         description="Your character has been exposed to atomic radiation and suffers radiation poisoning. Symptoms can include nausea and vomiting, anemia, red and blistering skin, dizziness, and seizures.",
         is_persistent=True
     ),
-    'siskur_dah_persistent': Condition(
+    'siskur_dah': Condition(
         name="Siskur-Dah (Persistent)",
         description="Your character is on the Siskur-Dah, the Sacred Hunt. She gains a specific benefit depending on the ritemaster's tribe.",
         is_persistent=True
     ),
-    'soulless_persistent': Condition(
+    'soulless': Condition(
         name="Soulless (Persistent)",
-        description="Your character has been stripped of a soul. He cannot regain Willpower through rest, and the use of Vice and Virtue are reversed; additionally, regaining Willpower via the Vice is a breaking point at -5 until reaching Integrity 1. He cannot use abjuration, warding, or binding, and becomes more susceptible to possession.",
-        is_persistent=True
+        description="The character is in the first stage of soul loss. Without a soul, she can't attempt abjuration, warding, or binding (see The World of Darkness Rulebook or The God-Machine Chronicle). She is also more susceptible to possession — any dice pools to resist being taken over by another entity are at a –2 die penalty. The effects on Integrity and Willpower, though, are more severe. For as long as she has this Condition, she does not regain Willpower through surrender or rest, and her use of Virtue and Vice is reversed — she may regain one Willpower point per scene by fulfilling her Virtue without having to risk herself, and regains full Willpower once per chapter by fulfilling her Vice in a way that poses a threat to herself. Regaining Willpower through Vice, though, is now a breaking point with a –5 die penalty unless the character has reached Integrity 1. For a vampire, it is a breaking point at Humanity 2.",
+        is_persistent=True,
+        possible_sources="Soul loss.",
+        beat="The character loses Integrity because she indulged her Vice.",
+        resolution_method="The character regains her soul."
     ),
-    'subservient_persistent': Condition(
+    'subservient': Condition(
         name="Subservient (Persistent)",
-        description="Your character is permanently subservient to another.",
-        is_persistent=True
+        description="A vampire has pressed down on your will, and you find it hard to resist doing what she wants even when she doesn't use her supernatural powers of command. She can give you commands as though you were Mesmerized even when you do not have that Condition. You can spend a Willpower point to resist her commands, but she can just Mesmerize you and order you that way. She still needs to use Dominate to alter your memory.\n\nThis Condition fades naturally after a week unless the vampire applies it to you again during that time.",
+        is_persistent=True,
+        possible_sources="The Dominate Discipline.",
+        beat="The vampire makes you do something that you wouldn't normally do.",
+        resolution_method="Take more lethal damage than you have Stamina when following the vampire's command. Experience a breaking point when following the command and succeed at the roll."
     ),
-    'thrall_persistent': Condition(
+    'thrall': Condition(
         name="Thrall (Persistent)",
-        description="Your character is permanently under the control of another.",
-        is_persistent=True
+        description="The character has fully succumbed to the effects of soullessness. She may not spend Willpower points for any reason, may not use her Defense in combat, may not spend Experiences, and suffers all the effects of the Broken Condition (p. 301) as well. The player should only continue playing a character with this Condition if there's a chance of regaining the soul.",
+        is_persistent=True,
+        possible_sources="Soul loss.",
+        beat="The character is victimized as a result of her Condition.",
+        resolution_method="The character regains her soul."
     ),
-    'uncalled_persistent': Condition(
+    'uncalled': Condition(
         name="Uncalled (Persistent)",
         description="Your character has not been called to their true purpose.",
         is_persistent=True

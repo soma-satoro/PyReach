@@ -168,15 +168,29 @@ class CmdCondition(MuxCommand):
         condition = STANDARD_CONDITIONS[condition_name]
         output = [
             f"Condition: {condition.name}",
-            f"Description: {condition.description}",
-            f"Type: {'Persistent' if condition.is_persistent else 'Temporary'}"
+            f"Type: {'Persistent' if condition.is_persistent else 'Temporary'}",
+            "",
+            f"Description: {condition.description}"
         ]
         
-        if condition.duration:
-            output.append(f"Duration: {condition.duration}")
+        if condition.possible_sources:
+            output.append("")
+            output.append(f"Possible Sources: {condition.possible_sources}")
+        
+        if condition.beat:
+            output.append("")
+            output.append(f"Beat: {condition.beat}")
+        
         if condition.resolution_method:
+            output.append("")
             output.append(f"Resolution: {condition.resolution_method}")
+        
+        if condition.duration:
+            output.append("")
+            output.append(f"Duration: {condition.duration}")
+        
         if condition.effects:
+            output.append("")
             output.append("Effects:")
             for effect, value in condition.effects.items():
                 output.append(f"  {effect}: {value}")

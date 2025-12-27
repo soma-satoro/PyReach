@@ -191,6 +191,8 @@ class Character(DefaultCharacter):
             },
             "skills": {
                 # Mental skills
+                "academics": 0,
+                "computer": 0,
                 "crafts": 0,
                 "investigation": 0,
                 "medicine": 0,
@@ -214,7 +216,7 @@ class Character(DefaultCharacter):
                 "persuasion": 0,
                 "socialize": 0,
                 "streetwise": 0,
-                    "subterfuge": 0
+                "subterfuge": 0
                 },
             "advantages": {
                 # Calculate derived stats from default attributes
@@ -371,9 +373,10 @@ class Character(DefaultCharacter):
         return get_bio_fields(template)
     
     def calculate_derived_stats(self, caller=None):
-        """Calculate derived stats based on attributes"""
+        """Calculate derived stats based on attributes and merits"""
         attrs = self.db.stats.get("attributes", {})
         skills = self.db.stats.get("skills", {})
+        merits = self.db.stats.get("merits", {})
         other = self.db.stats.get("other", {})
         
         # Initialize advantages if needed
@@ -382,10 +385,20 @@ class Character(DefaultCharacter):
         
         updated_stats = []
         
-        # Health = Size + Stamina
+        # Determine Size (affected by Small-Framed merit)
+        size = other.get("size", 5)  # Default size is 5
+        if "small-framed" in merits or "small_framed" in merits:
+            size = 4
+        
+        # Health = Size + Stamina + merit bonuses
         if "stamina" in attrs:
-            size = other.get("size", 5)  # Default size is 5
-            self.db.stats["advantages"]["health"] = size + attrs["stamina"]
+            health = size + attrs["stamina"]
+            
+            # Giant: +1 Health
+            if "giant" in merits:
+                health += 1
+            
+            self.db.stats["advantages"]["health"] = health
             updated_stats.append("health")
         
         # Willpower = Resolve + Composure  
@@ -393,19 +406,59 @@ class Character(DefaultCharacter):
             self.db.stats["advantages"]["willpower"] = attrs["resolve"] + attrs["composure"]
             updated_stats.append("willpower")
         
-        # Speed = Strength + Dexterity + 5
+        # Speed = Strength + Dexterity + 5 + merit bonuses
         if "strength" in attrs and "dexterity" in attrs:
-            self.db.stats["advantages"]["speed"] = attrs["strength"] + attrs["dexterity"] + 5
+            speed = attrs["strength"] + attrs["dexterity"] + 5
+            
+            # Fleet of Foot: +1 Speed per dot
+            fleet_merit = merits.get("fleet_of_foot", {})
+            if fleet_merit and "dots" in fleet_merit:
+                speed += fleet_merit["dots"]
+            
+            self.db.stats["advantages"]["speed"] = speed
             updated_stats.append("speed")
         
-        # Defense = Lower of Wits or Dexterity 
+        # Defense = Lower of Wits or Dexterity + Athletics (base)
         if "wits" in attrs and "dexterity" in attrs:
-            self.db.stats["advantages"]["defense"] = min(attrs["wits"], attrs["dexterity"])
+            defense = min(attrs["wits"], attrs["dexterity"])
+            
+            # Add Athletics skill to Defense
+            athletics = skills.get("athletics", 0)
+            defense += athletics
+            
+            # Defensive Combat: Use Brawl or Weaponry instead of Athletics if merit is taken
+            # Check for Defensive Combat (Brawl)
+            dc_brawl = merits.get("defensive_combat:brawl", {})
+            if dc_brawl and "dots" in dc_brawl:
+                brawl = skills.get("brawl", 0)
+                # Replace athletics with brawl if brawl is higher
+                if brawl > athletics:
+                    defense = min(attrs["wits"], attrs["dexterity"]) + brawl
+            
+            # Check for Defensive Combat (Weaponry)
+            dc_weaponry = merits.get("defensive_combat:weaponry", {})
+            if dc_weaponry and "dots" in dc_weaponry:
+                weaponry = skills.get("weaponry", 0)
+                # Replace with weaponry if weaponry is higher than current defense calculation
+                current_skill = athletics
+                if "defensive_combat:brawl" in merits:
+                    current_skill = max(athletics, skills.get("brawl", 0))
+                if weaponry > current_skill:
+                    defense = min(attrs["wits"], attrs["dexterity"]) + weaponry
+            
+            self.db.stats["advantages"]["defense"] = defense
             updated_stats.append("defense")
         
-        # Initiative = Dexterity + Composure
+        # Initiative = Dexterity + Composure + merit bonuses
         if "dexterity" in attrs and "composure" in attrs:
-            self.db.stats["advantages"]["initiative"] = attrs["dexterity"] + attrs["composure"]
+            initiative = attrs["dexterity"] + attrs["composure"]
+            
+            # Fast Reflexes: +1 Initiative per dot
+            fast_reflexes = merits.get("fast_reflexes", {})
+            if fast_reflexes and "dots" in fast_reflexes:
+                initiative += fast_reflexes["dots"]
+            
+            self.db.stats["advantages"]["initiative"] = initiative
             updated_stats.append("initiative")
         
         # Send message to caller if provided
@@ -547,9 +600,9 @@ class Character(DefaultCharacter):
         if not prerequisite_string:
             return True
             
-        # Parse prerequisite string
+        # Parse prerequisite string respecting brackets
         # Format: "attribute:value", "skill:value", "[option1,option2]", "[req1 and req2]"
-        prereqs = prerequisite_string.split(",")
+        prereqs = self._parse_prerequisites(prerequisite_string)
         
         for prereq in prereqs:
             prereq = prereq.strip()
@@ -569,6 +622,33 @@ class Character(DefaultCharacter):
                     return False
                     
         return True
+    
+    def _parse_prerequisites(self, prereq_string):
+        """Parse prerequisite string, respecting bracket groups."""
+        prereqs = []
+        current = ""
+        bracket_depth = 0
+        
+        for char in prereq_string:
+            if char == '[':
+                bracket_depth += 1
+                current += char
+            elif char == ']':
+                bracket_depth -= 1
+                current += char
+            elif char == ',' and bracket_depth == 0:
+                # Only split on commas outside of brackets
+                if current.strip():
+                    prereqs.append(current.strip())
+                current = ""
+            else:
+                current += char
+        
+        # Add the last prerequisite
+        if current.strip():
+            prereqs.append(current.strip())
+        
+        return prereqs
         
     def check_single_merit_prerequisite(self, prereq):
         """Check a single merit prerequisite requirement."""

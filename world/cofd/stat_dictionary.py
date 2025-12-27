@@ -199,4 +199,6 @@ anchor_dictionary = {
     "mask": Anchor(name="mask", min_value=0, max_value=10, temp_value=0, description=""),
     "dirge": Anchor(name="dirge", min_value=0, max_value=10, temp_value=0, description=""),
     "bloom": Anchor(name="bloom", min_value=0, max_value=10, temp_value=0, description=""),
+    "elpis": Anchor(name="elpis", min_value=0, max_value=10, temp_value=0, description=""),
+    "torment": Anchor(name="torment", min_value=0, max_value=10, temp_value=0, description=""),
 }

@@ -293,6 +293,10 @@ class CmdSheet(MuxCommand):
                     display_name = power_name[6:]   # Remove 'embed:'
                 elif power_name.startswith('exploit:'):
                     display_name = power_name[8:]   # Remove 'exploit:'
+                elif power_name.startswith('bestowment:'):
+                    display_name = power_name[11:]  # Remove 'bestowment:'
+                elif power_name.startswith('alembic:'):
+                    display_name = power_name[8:]   # Remove 'alembic:'
                 
                 # Format display with or without dots
                 if dots:
@@ -356,6 +360,10 @@ class CmdSheet(MuxCommand):
                     display_name = power_name[6:]   # Remove 'embed:'
                 elif power_name.startswith('exploit:'):
                     display_name = power_name[8:]   # Remove 'exploit:'
+                elif power_name.startswith('bestowment:'):
+                    display_name = power_name[11:]  # Remove 'bestowment:'
+                elif power_name.startswith('alembic:'):
+                    display_name = power_name[8:]   # Remove 'alembic:'
                 
                 # Format display with or without dots
                 if display_marker:
@@ -738,10 +746,10 @@ class CmdSheet(MuxCommand):
                     display_name = merit_name.replace('_', ' ').title()
                 
                 if use_numeric:
-                    padding = '.' * (28 - len(display_name))
+                    padding = '.' * (30 - len(display_name))
                     merit_display = f"{display_name}{padding}{dots}"
                 else:
-                    merit_display = f"{display_name:<28} {dots}"
+                    merit_display = f"{display_name:<30} {dots}"
                 merit_list.append(merit_display)
         
         if use_numeric:
@@ -1518,9 +1526,10 @@ class CmdSheet(MuxCommand):
             # Numeric mode: Horizontal layout with numeric values
             # Health on left with boxes, pools on right
             if pool_display:
-                # Three items: Health, Resource Pool, Willpower  
-                output.append(f"{health_label:<28}{pool_name}: {pool_current}/{pool_max}")
-                output.append(f"{''.join(health_boxes):<40}Willpower: {willpower_current}/{willpower_max}")
+                # Three items: Health, Resource Pool, Willpower on same line
+                pool_text = f"{pool_name}: {pool_current}/{pool_max}"
+                output.append(f"{health_label:<28}{pool_text:<28}Willpower: {willpower_current}/{willpower_max}")
+                output.append(f"{''.join(health_boxes)}")
             else:
                 # Two items: Health, Willpower
                 output.append(f"{health_label:<40}Willpower: {willpower_current}/{willpower_max}")
@@ -1920,6 +1929,10 @@ class CmdSheet(MuxCommand):
         virtue = bio.get("virtue", "<not set>") if "virtue" in template_fields else None
         vice = bio.get("vice", "<not set>") if "vice" in template_fields else None
         
+        # Get elpis/torment for Prometheans
+        elpis = bio.get("elpis", "<not set>") if "elpis" in template_fields else None
+        torment = bio.get("torment", "<not set>") if "torment" in template_fields else None
+        
         # Create a list of all bio items to display
         bio_items = [
             ("Full Name", full_name),
@@ -1934,9 +1947,15 @@ class CmdSheet(MuxCommand):
         if vice is not None:
             bio_items.append(("Vice", vice))
         
+        # Add elpis/torment if they're valid for this template (Prometheans)
+        if elpis is not None:
+            bio_items.append(("Elpis", elpis))
+        if torment is not None:
+            bio_items.append(("Torment", torment))
+        
         # Add template-specific bio fields
         for field in template_fields:
-            if field not in ["virtue", "vice", "game_line"]:  # virtue/vice already added, game_line is internal only
+            if field not in ["virtue", "vice", "elpis", "torment", "game_line"]:  # anchors already added, game_line is internal only
                 # Skip abilities field for Mortal+ (those are merits)
                 if field == "abilities":
                     continue
@@ -2975,9 +2994,10 @@ class CmdSheet(MuxCommand):
             # Numeric mode: Horizontal layout with numeric values
             # Health on left with boxes, pools on right
             if pool_display:
-                # Three items: Health, Resource Pool, Willpower  
-                output.append(f"{health_label:<28}{pool_name}: {pool_current}/{pool_max}")
-                output.append(f"{''.join(health_boxes):<40}Willpower: {willpower_current}/{willpower_max}")
+                # Three items: Health, Resource Pool, Willpower on same line
+                pool_text = f"{pool_name}: {pool_current}/{pool_max}"
+                output.append(f"{health_label:<28}{pool_text:<32}Willpower: {willpower_current}/{willpower_max}")
+                output.append(f"{''.join(health_boxes)}")
             else:
                 # Two items: Health, Willpower
                 output.append(f"{health_label:<40}Willpower: {willpower_current}/{willpower_max}")

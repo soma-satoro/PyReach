@@ -119,6 +119,8 @@ def calculate_wound_penalty(character):
     - If damage reaches the second-to-last health box: -2 penalty  
     - If damage reaches the last health box: -3 penalty
     
+    Iron Stamina merit reduces wound penalties by 1 per dot.
+    
     Args:
         character: The character object to calculate wound penalties for
         
@@ -126,6 +128,7 @@ def calculate_wound_penalty(character):
         int: The wound penalty (0, -1, -2, or -3)
     """
     advantages = character.db.stats.get("advantages", {})
+    merits = character.db.stats.get("merits", {})
     health_max = advantages.get("health", 7)
     health_track = get_health_track(character)
     
@@ -136,7 +139,7 @@ def calculate_wound_penalty(character):
     if total_damage == 0:
         return 0
     
-    # Calculate penalty based on how much damage has been taken
+    # Calculate base penalty based on how much damage has been taken
     # If damage reaches the third-to-last box or beyond: penalty applies
     # For a health track of size N:
     # - Third-to-last box is at position N-3 (0-indexed: N-3)
@@ -145,13 +148,24 @@ def calculate_wound_penalty(character):
     
     # Since damage fills from left to right, we check if damage has reached these positions
     if total_damage >= health_max:  # Last box filled (incapacitated)
-        return -3
+        base_penalty = -3
     elif total_damage >= health_max - 1:  # Second-to-last box filled
-        return -2
+        base_penalty = -2
     elif total_damage >= health_max - 2:  # Third-to-last box filled
-        return -1
+        base_penalty = -1
     else:
-        return 0
+        base_penalty = 0
+    
+    # Apply Iron Stamina merit reduction
+    iron_stamina = merits.get("iron_stamina", {})
+    if iron_stamina and "dots" in iron_stamina:
+        # Iron Stamina reduces penalty by 1 per dot (makes it less negative)
+        base_penalty += iron_stamina["dots"]
+        # Penalty cannot be positive
+        if base_penalty > 0:
+            base_penalty = 0
+    
+    return base_penalty
 
 def get_health_display_with_penalty(character, force_ascii=False):
     """Get a visual representation of current health with wound penalty indicator"""

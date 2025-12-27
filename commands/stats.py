@@ -70,6 +70,8 @@ class CmdStat(MuxCommand):
                 Use +stat exploit=<name> to learn Exploits (advanced techniques)
                 Use +stat first_key=<embed_name> to designate your First Key (must be an Embed you know)
         Bio: fullname, birthdate, concept, virtue, vice
+        Anchors: virtue, vice (mortal/most templates), elpis, torment (promethean),
+                 mask, dirge (changeling), thread, root (geist), bloom (beast)
         Template Bio: path, order, legacy, shadow_name, cabal, mask, dirge, 
                    clan, covenant, bone, blood, auspice, tribe, lodge, pack, 
                    deed_name, seeming, court, kith, burden, archetype, 
@@ -96,6 +98,8 @@ class CmdStat(MuxCommand):
         +stat concept=Detective
         +stat virtue=Justice
         +stat vice=Wrath
+        +stat elpis=Courage (promethean-specific)
+        +stat torment=Alienated (promethean-specific)
         +stat template=Vampire (staff only)
         +stat clan=Gangrel (vampire-specific)
         +stat path=Obrimos (mage-specific)
@@ -146,6 +150,8 @@ class CmdStat(MuxCommand):
         +stat animalism=3 (vampire discipline - rated 1-5)
         +stat discipline_power=mesmerize (vampire discipline power)
         +stat devotion=quicken_sight (vampire devotion)
+        +stat devotion=quicken_sight= (remove devotion - trailing =)
+        +stat/remove devotion:quicken_sight (remove devotion - alternative syntax)
         +stat coil=conquer_the_red_fear (Coil of the Dragon)
         +stat scale=flesh_graft_treatment (Scale of the Dragon)
         +stat theban=apple_of_eden (Theban Sorcery miracle)
@@ -354,25 +360,47 @@ class CmdStat(MuxCommand):
                 stat = stat.strip().lower().replace(" ", "_")
                 value = value.strip()
                 
-                # Empty value means removal - return special marker
-                if value == "":
-                    # Convert spaces to underscores in stat names
-                    stat = stat.replace(" ", "_")
-                    return None, stat, None  # None value signals removal
-                
-                # Check for semantic power syntax: key=beasts, ceremony=pass_on, contract=hostile_takeover, alembic=purification, endowment=hellfire, spell=create_locus, gift=shadow_gaze, adaptation=stubborn_resolve, etc.
+                # Check for semantic power syntax FIRST (before checking empty values)
+                # This handles both setting and removal of semantic powers
                 semantic_prefixes = ["key", "ceremony", "rite", "ritual", "contract", "alembic", "bestowment", "endowment", "spell",
                                    "discipline_power", "devotion", "coil", "scale", "theban", "cruac", "gift", "adaptation",
                                    "embed", "exploit"]
                 if stat in semantic_prefixes:
-                    # this is semantic syntax like key=beasts or cruac=pangs_of_proserpina
+                    # This is semantic syntax like devotion=in_vitae_veritas
                     power_type = stat
+                    
+                    # Check if value ends with = (removal syntax: devotion=in_vitae_veritas=)
+                    # When user types "devotion=in_vitae_veritas=", split("=", 1) gives value="in_vitae_veritas="
+                    is_removal = False
+                    if value.endswith("="):
+                        value = value[:-1].strip()  # Remove trailing =
+                        is_removal = True
+                    
+                    # Handle empty value (removal)
+                    if value == "" or is_removal:
+                        if value == "" and not is_removal:
+                            return None, None, None  # Invalid - need power name for removal
+                        
+                        # Normalize power name for removal
+                        if power_type == "endowment":
+                            power_name = value.lower()  # Keep spaces for endowments
+                        else:
+                            power_name = value.lower().replace(" ", "_").replace("'", "")  # Underscores for others, remove apostrophes
+                        return None, f"{power_type}:{power_name}", None  # None value signals removal
+                    
+                    # Setting semantic power (value is not empty and not removal)
                     # For endowments, keep spaces; for spells and others, convert to underscores
                     if power_type == "endowment":
                         power_name = value.lower()  # Keep spaces for endowments
                     else:
-                        power_name = value.lower().replace(" ", "_")  # Underscores for others
+                        power_name = value.lower().replace(" ", "_").replace("'", "")  # Underscores for others, remove apostrophes
                     return None, f"{power_type}:{power_name}", "known"  # Mark as known for individual abilities
+                
+                # Empty value means removal - return special marker (for non-semantic powers)
+                if value == "":
+                    # Convert spaces to underscores in stat names
+                    stat = stat.replace(" ", "_")
+                    return None, stat, None  # None value signals removal
                 
                 # Convert spaces to underscores in stat names
                 stat = stat.replace(" ", "_")
@@ -826,8 +854,29 @@ class CmdStat(MuxCommand):
                 target.db.stats["bio"][stat] = str(value).title()
                 stat_set = True
         
-        # Check anchors (for backward compatibility)
-        elif stat in ["virtue", "vice"]:
+        # Check anchors (virtue, vice, elpis, torment, mask, dirge, etc.)
+        elif stat in anchor_dictionary:
+            # Get character's template to check if this anchor is valid
+            char_template = target.db.stats.get("other", {}).get("template", "Mortal")
+            
+            # Get template definition to check valid anchors
+            from world.cofd.templates import get_template_definition
+            template_def = get_template_definition(char_template.lower().replace(" ", "_"))
+            
+            # Check if this anchor is valid for the character's template
+            if template_def and "anchors" in template_def:
+                valid_anchors = template_def["anchors"]
+                if stat not in valid_anchors:
+                    self.caller.msg(f"|r{stat.title()} is not a valid anchor for {char_template} characters.|n")
+                    self.caller.msg(f"|wValid anchors for {char_template}:|n {', '.join([a.title() for a in valid_anchors])}")
+                    return
+            else:
+                # Default to virtue/vice for templates without anchor definitions
+                if stat not in ["virtue", "vice"]:
+                    self.caller.msg(f"|r{stat.title()} is not a valid anchor for {char_template} characters.|n")
+                    self.caller.msg(f"|wValid anchors for {char_template}:|n Virtue, Vice")
+                    return
+            
             # Initialize anchors dict if missing
             if "anchors" not in target.db.stats:
                 target.db.stats["anchors"] = {}
@@ -1005,6 +1054,7 @@ class CmdStat(MuxCommand):
             # Clear other character-specific data
             target.db.willpower_current = None
             target.db.aspirations = []
+            target.db.health_damage = {}  # Clear all damage
             target.db.approved = False  # Template changes require re-approval
             
             self.caller.msg(f"Template changed to {value.title()}. All stats have been wiped clean.")
@@ -1526,8 +1576,15 @@ class CmdStat(MuxCommand):
             if stat == "template":
                 # handled by set_template method
                 pass
-            elif stat in ["fullname", "full_name", "birthdate", "concept", "virtue", "vice"]:
-                self.caller.msg(f"Set {target.name}'s {stat} to {value}.")
+            elif stat in ["fullname", "full_name", "birthdate", "concept", "virtue", "vice",
+                         "path", "order", "clan", "covenant", "auspice", "tribe", "seeming", "court", "kith",
+                         "lineage", "refinement", "athanor", "creator", "pilgrimage", "throng",
+                         "mask", "dirge", "burden", "krewe", "incarnation", "agenda", "origin", "clade",
+                         "profession", "organization", "creed", "template_type", "subtype", "elpis", "torment",
+                         "legacy", "shadow_name", "cabal", "lodge", "pack", "deed_name", "embrace_date", "sire",
+                         "bloodline", "family", "inheritance", "divergence", "needle", "thread", "hunger", "agency"]:
+                stat_display = stat.replace('_', ' ').title()
+                self.caller.msg(f"Set {target.name}'s {stat_display} to {value}.")
                 if stat == "concept":
                     self.caller.msg("Remember: Your concept should be a brief description of what your character does.")
                 elif stat == "virtue":
@@ -1544,28 +1601,47 @@ class CmdStat(MuxCommand):
                 skill_display = skill_name.replace('_', ' ').title()
                 self.caller.msg(f"Added '{value}' as a specialty for {target.name}'s {skill_display}.")
             else:
-                # Check if this was a merit (display confirmation message was already sent by set_merit)
-                try:
-                    from world.cofd.merits.general_merits import merits_dict as general_merits_dict
-                    from world.cofd.merits.mage_merits import mage_merits_dict
-                    from world.cofd.merits.vampire_merits import vampire_merits_dict
-                    from world.cofd.merit_utilities import parse_merit_instance
-                    
-                    base_merit_name, instance_name = parse_merit_instance(stat)
-                    
-                    # Check if it's in any merit dictionary
-                    is_merit = (base_merit_name in general_merits_dict or 
-                               base_merit_name in mage_merits_dict or 
-                               base_merit_name in vampire_merits_dict)
-                    
-                    # If it wasn't a merit, give generic confirmation
-                    if not is_merit:
+                # Check if this was already handled as a power (message already sent at line 1543)
+                # Get character's template to check if this is a template power
+                character_template = target.db.stats.get("other", {}).get("template", "Mortal")
+                template_powers = self._get_template_powers(character_template)
+                
+                # Special handling for mage arcana: map "death" to "arcanum_death" for comparison
+                check_stat = stat
+                if character_template.lower() in ["mage", "legacy_mage"]:
+                    if stat == "death" and "arcanum_death" in template_powers:
+                        check_stat = "arcanum_death"
+                
+                # If this is a template power, message was already sent - skip generic message
+                if check_stat in template_powers:
+                    # Message already sent at line 1543, skip generic message
+                    pass
+                else:
+                    # Check if this was a merit (display confirmation message was already sent by set_merit)
+                    try:
+                        from world.cofd.merits.general_merits import merits_dict as general_merits_dict
+                        from world.cofd.merits.mage_merits import mage_merits_dict
+                        from world.cofd.merits.vampire_merits import vampire_merits_dict
+                        from world.cofd.merit_utilities import parse_merit_instance
+                        
+                        base_merit_name, instance_name = parse_merit_instance(stat)
+                        
+                        # Check if it's in any merit dictionary
+                        is_merit = (base_merit_name in general_merits_dict or 
+                                   base_merit_name in mage_merits_dict or 
+                                   base_merit_name in vampire_merits_dict)
+                        
+                        # If it wasn't a merit, give generic confirmation
+                        if not is_merit:
+                            self.caller.msg(f"Set {target.name}'s {stat} to {value}.")
+                    except ImportError:
                         self.caller.msg(f"Set {target.name}'s {stat} to {value}.")
-                except ImportError:
-                    self.caller.msg(f"Set {target.name}'s {stat} to {value}.")
             
-            # Auto-calculate derived stats if setting attributes
-            if stat in ["strength", "dexterity", "stamina", "composure", "resolve", "wits", "size"]:
+            # Auto-calculate derived stats if setting attributes or skills that affect them
+            # Attributes: strength, dexterity, stamina, composure, resolve, wits affect derived stats
+            # Skills: athletics, brawl, weaponry affect Defense
+            if stat in ["strength", "dexterity", "stamina", "composure", "resolve", "wits", "size", 
+                       "athletics", "brawl", "weaponry"]:
                 target.calculate_derived_stats(self.caller)
             
             # Auto-calculate power pools if setting power stats

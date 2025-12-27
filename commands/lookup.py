@@ -60,6 +60,10 @@ class CmdLookup(MuxCommand):
         +lookup conspiracies                 - List all hunter conspiracies
         +lookup conspiracies aegis_kai_doru  - Show Aegis Kai Doru conspiracy details
         +lookup keys beasts                  - Show Key of Beasts details
+        +lookup elpides                      - List all Promethean Elpides
+        +lookup elpis courage                - Show Courage Elpis details
+        +lookup torments                     - List all Promethean Torments
+        +lookup torment alienated            - Show Alienated Torment details
         +lookup lineages frankenstein        - Show Frankenstein lineage details
         +lookup guilds mesen-nebu            - Show Mesen-Nebu guild details
         +lookup incarnations destroyer       - Show Destroyer incarnation details
@@ -512,6 +516,22 @@ class CmdLookup(MuxCommand):
                 self.show_transmutation_details(transmutation_name)
             else:
                 self.show_transmutations()
+        elif args.startswith("elpides") or args.startswith("elpis"):
+            parts = args.split()
+            if len(parts) > 1:
+                # It's a specific elpis lookup
+                elpis_name = " ".join(parts[1:])
+                self.show_elpis_details(elpis_name)
+            else:
+                self.show_elpides()
+        elif args.startswith("torments") or args.startswith("torment"):
+            parts = args.split()
+            if len(parts) > 1:
+                # It's a specific torment lookup
+                torment_name = " ".join(parts[1:])
+                self.show_torment_details(torment_name)
+            else:
+                self.show_torments()
         elif args.startswith("alembics"):
             parts = args.split()
             if len(parts) > 1:
@@ -759,7 +779,7 @@ class CmdLookup(MuxCommand):
                 "left_title": "Demon:",
                 "left_items": ["incarnations", "agendas", "embeds", "exploits", "modifications", "technologies", "propulsions", "processes"],
                 "right_title": "Promethean:",
-                "right_items": ["transmutations", "alembics", "bestowments", "lineages", "athanors"]
+                "right_items": ["elpides", "torments", "transmutations", "alembics", "bestowments", "lineages", "athanors"]
             },
             # Row 5: Mummy | Deviant
             {
@@ -1935,12 +1955,12 @@ class CmdLookup(MuxCommand):
             if power_data:
                 matches.append(("discipline_power", power_key, power_data))
         
-        # Check devotions
-        if not category_filter or category_filter == "devotions":
+        # Check devotions (also check when category_filter is "powers" since devotions are powers)
+        if not category_filter or category_filter in ["devotions", "powers"]:
             from world.cofd.powers.vampire_disciplines import ALL_DEVOTIONS
             devotion_key = stat_name.lower().replace(" ", "_")
             if devotion_key in ALL_DEVOTIONS:
-                matches.append(("discipline_power", devotion_key, ALL_DEVOTIONS[devotion_key]))
+                matches.append(("devotion", devotion_key, ALL_DEVOTIONS[devotion_key]))
         
         # Check werewolf gifts
         if not category_filter or category_filter == "gifts":
@@ -1975,9 +1995,9 @@ class CmdLookup(MuxCommand):
         # Check spells
         if not category_filter or category_filter == "spells":
             from world.cofd.powers.mage_spells import get_spell
-        spell_key = stat_name.lower().replace(" ", "_")
-        spell_data = get_spell(spell_key)
-        if spell_data:
+            spell_key = stat_name.lower().replace(" ", "_")
+            spell_data = get_spell(spell_key)
+            if spell_data:
                 matches.append(("spell", spell_key, spell_data))
         
         # Check endowments
@@ -2008,6 +2028,9 @@ class CmdLookup(MuxCommand):
             if stat_type == "ritual":
                 self.show_ritual_power_details(key, data)
             elif stat_type == "discipline_power":
+                self.show_discipline_power_details(key, data)
+            elif stat_type == "devotion":
+                # Devotions can use the same display method as discipline powers
                 self.show_discipline_power_details(key, data)
             elif stat_type == "gift":
                 self.show_gift_details(key, data)
@@ -5065,6 +5088,110 @@ class CmdLookup(MuxCommand):
         msg += f"|cView Variations:|n Use |y+lookup variations|n to see clade-specific powers\n"
         msg += f"|cSet on Character:|n |y+stat clade={clade_key}|n\n\n"
         msg += self.format_footer("Chronicles of Darkness Reference")
+        
+        self.caller.msg(msg)
+    
+    def show_elpides(self):
+        """Show all Promethean Elpides."""
+        msg = self.format_header("Promethean Elpides")
+        msg += "\n\n"
+        
+        elpides_data = LOOKUP_DATA.promethean_data['elpides']
+        
+        msg += "|wElpis|n represents what the Promethean is learning about humanity.\n"
+        msg += "Each Elpis has a |cWitness|n condition (observing the emotion) and an\n"
+        msg += "|cAct|n condition (experiencing the emotion directly).\n\n"
+        
+        # Show all elpides
+        for elpis_key in sorted(elpides_data.keys()):
+            elpis_data = elpides_data[elpis_key]
+            name = elpis_data['name']
+            description = elpis_data['description']
+            
+            # Truncate description if too long
+            if len(description) > 80:
+                description = description[:77] + "..."
+            
+            msg += f"|g{name:<15}|n {description}\n"
+            msg += f"             |gUse:|n +lookup elpis {elpis_key}\n\n"
+        
+        msg += f"|cFor Elpis details:|n +lookup elpis <name> (e.g., +lookup elpis courage)\n"
+        msg += f"|cTo set on character:|n +stat elpis=<name>\n\n"
+        msg += self.format_footer("Promethean: The Created")
+        
+        self.caller.msg(msg)
+    
+    def show_elpis_details(self, elpis_name):
+        """Show detailed information about a specific Elpis."""
+        elpides_data = LOOKUP_DATA.promethean_data['elpides']
+        
+        # Normalize elpis name
+        elpis_key = elpis_name.lower().replace(" ", "_")
+        
+        # Try to find the elpis
+        elpis_data = elpides_data.get(elpis_key)
+        
+        if not elpis_data:
+            self.caller.msg(f"Elpis '{elpis_name}' not found.")
+            self.caller.msg("|cUse:|n +lookup elpides - to see all available Elpides")
+            return
+        
+        msg = f"|w{elpis_data['name']} (Elpis)|n\n\n"
+        msg += f"|cDescription:|n\n{elpis_data['description']}\n\n"
+        msg += f"|cWitness:|n\n{elpis_data['witness']}\n\n"
+        msg += f"|cAct:|n\n{elpis_data['act']}\n\n"
+        msg += f"|gTo set as your Elpis:|n +stat elpis={elpis_data['name']}\n"
+        
+        self.caller.msg(msg)
+    
+    def show_torments(self):
+        """Show all Promethean Torments."""
+        msg = self.format_header("Promethean Torments")
+        msg += "\n\n"
+        
+        torments_data = LOOKUP_DATA.promethean_data['torments']
+        
+        msg += "|wTorment|n represents the dark side of the Promethean's nature.\n"
+        msg += "Each Torment has an |cAct|n condition that triggers the inhuman behavior.\n\n"
+        
+        # Show all torments
+        for torment_key in sorted(torments_data.keys()):
+            torment_data = torments_data[torment_key]
+            name = torment_data['name']
+            description = torment_data['description']
+            
+            # Truncate description if too long
+            if len(description) > 80:
+                description = description[:77] + "..."
+            
+            msg += f"|g{name:<15}|n {description}\n"
+            msg += f"             |gUse:|n +lookup torment {torment_key}\n\n"
+        
+        msg += f"|cFor Torment details:|n +lookup torment <name> (e.g., +lookup torment alienated)\n"
+        msg += f"|cTo set on character:|n +stat torment=<name>\n\n"
+        msg += self.format_footer("Promethean: The Created")
+        
+        self.caller.msg(msg)
+    
+    def show_torment_details(self, torment_name):
+        """Show detailed information about a specific Torment."""
+        torments_data = LOOKUP_DATA.promethean_data['torments']
+        
+        # Normalize torment name
+        torment_key = torment_name.lower().replace(" ", "_")
+        
+        # Try to find the torment
+        torment_data = torments_data.get(torment_key)
+        
+        if not torment_data:
+            self.caller.msg(f"Torment '{torment_name}' not found.")
+            self.caller.msg("|cUse:|n +lookup torments - to see all available Torments")
+            return
+        
+        msg = f"|w{torment_data['name']} (Torment)|n\n\n"
+        msg += f"|cDescription:|n\n{torment_data['description']}\n\n"
+        msg += f"|cAct:|n\n{torment_data['act']}\n\n"
+        msg += f"|gTo set as your Torment:|n +stat torment={torment_data['name']}\n"
         
         self.caller.msg(msg)
 

@@ -73,8 +73,8 @@ def get_valid_semantic_powers(power_type):
         "gift": list(ALL_WEREWOLF_GIFTS.keys()),
         "contract": list(ALL_CHANGELING_CONTRACTS.keys()),
         "spell": list(ALL_MAGE_SPELLS.keys()),
-        "alembic": ALL_ALEMBICS,
-        "bestowment": [b.lower().replace(" ", "_") for b in PROMETHEAN_BESTOWMENTS],
+        "alembic": [a.lower().replace(" ", "_").replace("'", "") for a in ALL_ALEMBICS],
+        "bestowment": [b.lower().replace(" ", "_").replace("'", "") for b in PROMETHEAN_BESTOWMENTS],
         "endowment": ALL_ENDOWMENT_POWERS,
         "embed": ALL_EMBED_NAMES,
         "exploit": ALL_EXPLOIT_NAMES,
@@ -117,6 +117,127 @@ def get_template_requirements(power_type):
     }
     
     return template_requirements.get(power_type, [])
+
+
+def check_devotion_prerequisites(character, devotion_data):
+    """
+    Check if a character meets the prerequisites for a devotion.
+    
+    Args:
+        character: The character object
+        devotion_data (dict): The devotion data dictionary with prerequisites and covenant fields
+        
+    Returns:
+        tuple: (meets_prerequisites (bool), error_message (str or None))
+    """
+    stats = character.db.stats or {}
+    powers = stats.get("powers", {})
+    bio = stats.get("bio", {})
+    
+    # Check covenant requirement if present
+    if "covenant" in devotion_data:
+        required_covenant = devotion_data["covenant"].lower().replace(" ", "_")
+        character_covenant = bio.get("covenant", "").lower().replace(" ", "_")
+        
+        if character_covenant != required_covenant:
+            covenant_display = devotion_data["covenant"].title()
+            character_covenant_display = bio.get("covenant", "None")
+            return False, f"This devotion requires membership in the {covenant_display} covenant. Your covenant is: {character_covenant_display}"
+    
+    # Check bloodline requirement if present
+    if "bloodline" in devotion_data:
+        required_bloodline = devotion_data["bloodline"].lower().replace(" ", "_")
+        character_bloodline = bio.get("bloodline", "").lower().replace(" ", "_")
+        
+        if character_bloodline != required_bloodline:
+            bloodline_display = devotion_data["bloodline"].title()
+            character_bloodline_display = bio.get("bloodline", "None")
+            return False, f"This devotion requires the {bloodline_display} bloodline. Your bloodline is: {character_bloodline_display}"
+    
+    # Check prerequisites
+    prerequisites_str = devotion_data.get("prerequisites", "")
+    if not prerequisites_str:
+        return True, None
+    
+    # Parse prerequisites - handle comma-separated AND requirements, brackets for OR requirements
+    prereqs = _parse_devotion_prerequisites(prerequisites_str)
+    
+    for prereq in prereqs:
+        prereq = prereq.strip()
+        
+        # Handle OR requirements [option1,option2]
+        if prereq.startswith("[") and prereq.endswith("]"):
+            or_options = prereq[1:-1].split(",")
+            or_met = False
+            for option in or_options:
+                if _check_single_devotion_prerequisite(character, option.strip(), powers):
+                    or_met = True
+                    break
+            if not or_met:
+                # Build helpful error message
+                or_list = ", ".join([opt.strip() for opt in or_options])
+                return False, f"You must have one of: {or_list}"
+        else:
+            if not _check_single_devotion_prerequisite(character, prereq, powers):
+                return False, f"You must have: {prereq}"
+    
+    return True, None
+
+
+def _parse_devotion_prerequisites(prereq_string):
+    """
+    Parse prerequisite string, respecting bracket groups for OR requirements.
+    Similar to merit prerequisite parsing.
+    """
+    prereqs = []
+    current = ""
+    bracket_depth = 0
+    
+    for char in prereq_string:
+        if char == '[':
+            bracket_depth += 1
+            current += char
+        elif char == ']':
+            bracket_depth -= 1
+            current += char
+        elif char == ',' and bracket_depth == 0:
+            # Only split on commas outside of brackets
+            if current.strip():
+                prereqs.append(current.strip())
+            current = ""
+        else:
+            current += char
+    
+    # Add the last prerequisite
+    if current.strip():
+        prereqs.append(current.strip())
+    
+    return prereqs
+
+
+def _check_single_devotion_prerequisite(character, prereq, powers):
+    """
+    Check a single devotion prerequisite requirement.
+    Format: discipline:level (e.g., "vigor:5", "majesty:3")
+    """
+    prereq = prereq.strip()
+    
+    # Parse discipline:level
+    if ":" not in prereq:
+        return False
+    
+    discipline_name, required_level = prereq.split(":", 1)
+    discipline_name = discipline_name.strip().lower()
+    
+    try:
+        required_level = int(required_level.strip())
+    except ValueError:
+        return False
+    
+    # Get character's discipline level
+    current_level = powers.get(discipline_name, 0)
+    
+    return current_level >= required_level
 
 
 def handle_semantic_power(character, power_type, power_name, value, caller):
@@ -229,7 +350,14 @@ def handle_semantic_power(character, power_type, power_name, value, caller):
         elif power_type == "devotion":
             if power_name in ALL_DEVOTIONS:
                 power_data = ALL_DEVOTIONS[power_name]
-            display_type = "Devotion"
+                display_type = "Devotion"
+                
+                # Check prerequisites for devotions
+                meets_prereqs, error_msg = check_devotion_prerequisites(character, power_data)
+                if not meets_prereqs:
+                    return False, f"|rCannot learn {power_data.get('name', power_name)}:|n {error_msg}"
+            else:
+                display_type = "Devotion"
         elif power_type == "coil":
             if power_name in ALL_DISCIPLINE_POWERS:
                 power_data = ALL_DISCIPLINE_POWERS[power_name]
@@ -331,8 +459,28 @@ def handle_semantic_power(character, power_type, power_name, value, caller):
         else:
             return True, f"Added {power_name.replace('_', ' ').title()} adaptation to {character.name}."
     
+    elif power_type == "alembic":
+        # Alembics are stored in powers with alembic: prefix as "known"
+        if "powers" not in character.db.stats:
+            character.db.stats["powers"] = {}
+        
+        character.db.stats["powers"][f"alembic:{power_name}"] = "known"
+        power_display_name = power_name.replace('_', ' ').title()
+        
+        return True, f"Set {character.name} to know {power_display_name} (Alembic)."
+    
+    elif power_type == "bestowment":
+        # Bestowments are stored in powers with bestowment: prefix as "known"
+        if "powers" not in character.db.stats:
+            character.db.stats["powers"] = {}
+        
+        character.db.stats["powers"][f"bestowment:{power_name}"] = "known"
+        power_display_name = power_name.replace('_', ' ').title()
+        
+        return True, f"Set {character.name} to know {power_display_name} (Bestowment)."
+    
     else:
-        # Ceremonies, rites, rituals (legacy), contracts, alembics, bestowments go to regular powers as known abilities (stored as 1)
+        # Ceremonies, rites, rituals (legacy), contracts go to regular powers as known abilities (stored as 1)
         if "powers" not in character.db.stats:
             character.db.stats["powers"] = {}
         

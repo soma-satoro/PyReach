@@ -34,6 +34,10 @@ from evennia.contrib.base_systems import color_markups
 
 # This is the name of your game. Make it catchy!
 SERVERNAME = "PyReach"
+# Use the below if you set up a domain with ssl.
+# Best suggestion for this is to use letsencrypt. Just change the domain to your own.
+# The Evennia site has information on this. https://www.evennia.com/docs/latest/Setup/Websocket.html
+WEBSOCKET_CLIENT_URL = "wss://pyreach.com/ws"
 
 # Force 80-character width for help files and formatted output
 CLIENT_DEFAULT_WIDTH = 80

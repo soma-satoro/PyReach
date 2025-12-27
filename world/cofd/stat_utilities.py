@@ -123,11 +123,36 @@ def remove_stat_from_character(character, stat, caller):
             else:
                 del character.db.stats[category][stat]
             
-            # Format display for instanced merits and clean up power prefixes
+            # Recalculate derived stats if merit was removed
+            if category == "merits" and hasattr(character, 'calculate_derived_stats'):
+                character.calculate_derived_stats()
+            
+            # Format display for instanced merits and semantic powers with colons
             display_stat = stat
             if ":" in stat:
                 base_name, instance = stat.split(":", 1)
-                display_stat = f"{base_name.replace('_', ' ').title()} ({instance.replace('_', ' ').title()})"
+                # Check if this is a semantic power (devotion, discipline_power, etc.) or an instanced merit
+                semantic_power_types = ["devotion", "discipline_power", "coil", "scale", "theban", "cruac", "gift", 
+                                       "contract", "spell", "alembic", "bestowment", "endowment", "embed", "exploit",
+                                       "adaptation", "key", "ceremony", "rite"]
+                if base_name in semantic_power_types:
+                    # This is a semantic power like devotion:in_vitae_veritas
+                    # Try to get the actual power name for better display
+                    try:
+                        if base_name == "devotion":
+                            from world.cofd.powers.vampire_disciplines import ALL_DEVOTIONS
+                            if instance in ALL_DEVOTIONS:
+                                display_stat = ALL_DEVOTIONS[instance].get('name', instance.replace('_', ' ').title())
+                            else:
+                                display_stat = f"{base_name.replace('_', ' ').title()}: {instance.replace('_', ' ').title()}"
+                        else:
+                            # Generic semantic power format
+                            display_stat = f"{base_name.replace('_', ' ').title()}: {instance.replace('_', ' ').title()}"
+                    except ImportError:
+                        display_stat = f"{base_name.replace('_', ' ').title()}: {instance.replace('_', ' ').title()}"
+                else:
+                    # This is an instanced merit
+                    display_stat = f"{base_name.replace('_', ' ').title()} ({instance.replace('_', ' ').title()})"
             else:
                 # Clean up power prefixes for better display
                 if stat.startswith('discipline_'):

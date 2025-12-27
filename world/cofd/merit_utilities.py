@@ -95,6 +95,10 @@ def set_merit(character, merit_key, merit_obj, dots, caller):
     if not character.db.approved and not is_npc:
         message += "\n(Merit set during character generation - after approval, use +xp/buy to purchase merits)"
     
+    # Recalculate derived stats in case merit affects them
+    if hasattr(character, 'calculate_derived_stats'):
+        character.calculate_derived_stats()
+    
     return True, message
 
 

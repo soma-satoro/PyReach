@@ -67,6 +67,7 @@ from world.cofd.powers.promethean_powers import (
     PROMETHEAN_BESTOWMENTS, PROMETHEAN_LINEAGES
 )
 from world.cofd.templates.legacy_promethean import ATHANORS_BY_LINEAGE
+from world.cofd.promethean_anchors import ELPIDES, TORMENTS, ALL_ELPIDES, ALL_TORMENTS
 from world.cofd.powers.hunter_endowments import ADVANCED_ARMORY, ANIMAL_CONTROL_KIT, BENEDICTION, CASTIGATION, DREAMSCAPE, ELIXIR, ENKOIMESIS, GOETIC_GOSPEL, HORROR_WITHIN, INFUSION, INK, INSPIRATION, LIVES_REMEMBERED, PERISPIRITISM, RELIC, RITES_DU_CHEVAL, RITES_OF_DENIAL, SEITOKUTEN, TELEINFORMATICS, THAUMATECHNOLOGY, XENOTECHNOLOGY
 from world.cofd.templates.hunter import HUNTER_CONSPIRACIES, HUNTER_COMPACTS, HUNTER_TACTICS, HUNTER_ENDOWMENTS
 from world.cofd.powers.hunter_tactics import get_all_tactics, MENTAL_TACTICS, PHYSICAL_TACTICS, SOCIAL_TACTICS
@@ -283,7 +284,11 @@ class LookupData:
             'alembics': PROMETHEAN_ALEMBICS,
             'bestowments': PROMETHEAN_BESTOWMENTS,
             'lineages': PROMETHEAN_LINEAGES,
-            'athanors': ATHANORS_BY_LINEAGE
+            'athanors': ATHANORS_BY_LINEAGE,
+            'elpides': ELPIDES,
+            'torments': TORMENTS,
+            'elpis_names': ALL_ELPIDES,
+            'torment_names': ALL_TORMENTS
         }
         
         # Hunter data - need to build the endowments dict from imported modules
