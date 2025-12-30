@@ -54,3 +54,6 @@ nosetests.xml
 
 # VSCode config
 .vscode
+world/cofd/migrations/0001_initial.py
+TEMPLATE_SYSTEM_FIX.md
+TEMPLATE_SYSTEM_QUICK_FIX.md

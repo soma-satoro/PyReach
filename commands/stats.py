@@ -680,7 +680,7 @@ class CmdStat(MuxCommand):
                      "origin", "clade", "divergence", "needle", "thread", "legend", "life",
                      "geist_name", "embrace_date", "legacy", "shadow_name", "cabal", "lodge",
                      "pack", "deed_name", "throng", "creator", "pilgrimage", "athanor",
-                     "template_type", "subtype", "game_line", "abilities"]:
+                     "template_type", "subtype", "game_line", "abilities", "guild", "decree", "judge", "cult", "tomb"]:
             
             # Get character's template
             character_template = target.db.stats.get("other", {}).get("template", "Mortal")
@@ -850,8 +850,27 @@ class CmdStat(MuxCommand):
                 # Initialize bio dict if missing
                 if "bio" not in target.db.stats:
                     target.db.stats["bio"] = {}
-                # Store in bio category
-                target.db.stats["bio"][stat] = str(value).title()
+                
+                # For fields with valid_values, normalize to match the valid value format
+                # This ensures consistency (e.g., "Maa-Kep" becomes "maa-kep" to match valid_values)
+                from world.cofd.templates import get_template_definition
+                template_def = get_template_definition(character_template.lower().replace(" ", "_"))
+                stored_value = str(value)
+                
+                if template_def and "field_validations" in template_def:
+                    field_validations = template_def["field_validations"]
+                    if stat in field_validations:
+                        valid_values = field_validations[stat].get("valid_values", [])
+                        if valid_values:
+                            # Find matching valid value (case-insensitive)
+                            value_lower = stored_value.lower()
+                            for valid_val in valid_values:
+                                if valid_val.lower() == value_lower:
+                                    stored_value = valid_val  # Use the exact valid value format
+                                    break
+                
+                # Store in bio category (use stored_value which may be normalized)
+                target.db.stats["bio"][stat] = stored_value
                 stat_set = True
         
         # Check anchors (virtue, vice, elpis, torment, mask, dirge, etc.)
@@ -1187,7 +1206,7 @@ class CmdStat(MuxCommand):
             skill_name = stat[10:]  # Remove "specialty/" prefix
             
             # Validate that this is a valid skill
-            valid_skills = ["crafts", "investigation", "medicine", "occult", "politics", "science",
+            valid_skills = ["academics", "computer", "crafts", "investigation", "medicine", "occult", "politics", "science",
                            "athletics", "brawl", "drive", "firearms", "larceny", "stealth", 
                            "survival", "weaponry", "animal_ken", "empathy", "expression", 
                            "intimidation", "persuasion", "socialize", "streetwise", "subterfuge"]
@@ -1230,6 +1249,29 @@ class CmdStat(MuxCommand):
             # Add the specialty
             target.db.stats["specialties"][skill_name].append(value.strip().title())
             stat_set = True
+        
+        # Check for Mummy affinities and utterances BEFORE merit check
+        # These are semantic powers but don't use a prefix, so we need to detect them early
+        if not stat_set and force_category is None:
+            character_template = target.db.stats.get("other", {}).get("template", "Mortal")
+            if character_template.lower() == "mummy":
+                # Check if this is a known affinity or utterance
+                try:
+                    from world.cofd.powers.mummy_powers import ALL_AFFINITY_NAMES, ALL_UTTERANCE_NAMES
+                    stat_normalized = stat.lower().replace(" ", "_")
+                    
+                    if stat_normalized in ALL_AFFINITY_NAMES:
+                        # This is an affinity - route to semantic power handler
+                        success = self._handle_semantic_power(target, "affinity", stat_normalized, value)
+                        if success:
+                            stat_set = True
+                    elif stat_normalized in ALL_UTTERANCE_NAMES:
+                        # This is an utterance - route to semantic power handler
+                        success = self._handle_semantic_power(target, "utterance", stat_normalized, value)
+                        if success:
+                            stat_set = True
+                except ImportError:
+                    pass  # Mummy powers not available, continue to normal handling
         
         # Check merits (allow setting for unapproved characters, redirect approved to XP system)
         # Also handle instanced merits with colon syntax (e.g., unseen_sense:ghosts)

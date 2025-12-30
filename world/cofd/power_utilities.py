@@ -16,6 +16,7 @@ from world.cofd.powers.werewolf_gifts import ALL_WEREWOLF_GIFTS
 from world.cofd.powers.changeling_contracts import ALL_CHANGELING_CONTRACTS
 from world.cofd.powers.demon_powers import ALL_EMBEDS, DEMON_EXPLOITS, ALL_EMBED_NAMES, ALL_EXPLOIT_NAMES
 from world.cofd.powers.deviant_data import DEVIANT_ADAPTATIONS
+from world.cofd.powers.mummy_powers import ALL_AFFINITY_NAMES, ALL_UTTERANCE_NAMES
 
 
 def get_valid_semantic_powers(power_type):
@@ -78,7 +79,9 @@ def get_valid_semantic_powers(power_type):
         "endowment": ALL_ENDOWMENT_POWERS,
         "embed": ALL_EMBED_NAMES,
         "exploit": ALL_EXPLOIT_NAMES,
-        "adaptation": list(DEVIANT_ADAPTATIONS.keys())
+        "adaptation": list(DEVIANT_ADAPTATIONS.keys()),
+        "affinity": list(ALL_AFFINITY_NAMES),
+        "utterance": list(ALL_UTTERANCE_NAMES)
     }
     
     return valid_powers.get(power_type, [])
@@ -113,7 +116,9 @@ def get_template_requirements(power_type):
         "endowment": ["hunter"],
         "embed": ["demon"],
         "exploit": ["demon"],
-        "adaptation": ["deviant"]
+        "adaptation": ["deviant"],
+        "affinity": ["mummy"],
+        "utterance": ["mummy"]
     }
     
     return template_requirements.get(power_type, [])
@@ -262,7 +267,7 @@ def handle_semantic_power(character, power_type, power_name, value, caller):
     
     # Validate power type
     if not valid_powers:
-        return False, f"Invalid power type: {power_type}\nValid types: key, ceremony, rite, ritual, contract, spell, alembic, bestowment, endowment, discipline_power, devotion, coil, scale, theban, cruac, embed, exploit, adaptation"
+        return False, f"Invalid power type: {power_type}\nValid types: key, ceremony, rite, ritual, contract, spell, alembic, bestowment, endowment, discipline_power, devotion, coil, scale, theban, cruac, embed, exploit, adaptation, affinity, utterance"
     
     # Validate power name
     if power_name not in valid_powers:
@@ -478,6 +483,42 @@ def handle_semantic_power(character, power_type, power_name, value, caller):
         power_display_name = power_name.replace('_', ' ').title()
         
         return True, f"Set {character.name} to know {power_display_name} (Bestowment)."
+    
+    elif power_type == "affinity":
+        # Affinities are stored in powers directly as "known"
+        if "powers" not in character.db.stats:
+            character.db.stats["powers"] = {}
+        
+        character.db.stats["powers"][power_name] = "known"
+        
+        # Get affinity data to show more info
+        from world.cofd.powers.mummy_powers import MUMMY_AFFINITIES
+        affinity_data = MUMMY_AFFINITIES.get(power_name)
+        if affinity_data:
+            pillar = affinity_data.get('pillar', '')
+            pillar_str = f" ({pillar})" if pillar else ""
+            return True, f"Set {character.name} to know {affinity_data['name']}{pillar_str} (Affinity)."
+        else:
+            power_display_name = power_name.replace('_', ' ').title()
+            return True, f"Set {character.name} to know {power_display_name} (Affinity)."
+    
+    elif power_type == "utterance":
+        # Utterances are stored in powers directly as "known"
+        if "powers" not in character.db.stats:
+            character.db.stats["powers"] = {}
+        
+        character.db.stats["powers"][power_name] = "known"
+        
+        # Get utterance data to show more info
+        from world.cofd.powers.mummy_powers import MUMMY_UTTERANCES
+        utterance_data = MUMMY_UTTERANCES.get(power_name)
+        if utterance_data:
+            tier = utterance_data.get('tier', '')
+            tier_str = f" [{tier}]" if tier else ""
+            return True, f"Set {character.name} to know {utterance_data['name']}{tier_str} (Utterance)."
+        else:
+            power_display_name = power_name.replace('_', ' ').title()
+            return True, f"Set {character.name} to know {power_display_name} (Utterance)."
     
     else:
         # Ceremonies, rites, rituals (legacy), contracts go to regular powers as known abilities (stored as 1)
