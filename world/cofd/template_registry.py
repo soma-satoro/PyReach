@@ -296,10 +296,35 @@ class TemplateRegistry:
             list: List of loaded template dictionaries
         """
         try:
+            # Force reload of templates module to ensure fresh import
+            import sys
+            import importlib
+            
+            # Clear the templates module cache
+            templates_modules_to_clear = [
+                key for key in sys.modules.keys() 
+                if key.startswith('world.cofd.templates')
+            ]
+            for mod_key in templates_modules_to_clear:
+                del sys.modules[mod_key]
+            
+            # Now import fresh
             from world.cofd.templates import get_all_template_definitions
-            return list(get_all_template_definitions().values())
+            templates = get_all_template_definitions()
+            
+            if not templates:
+                logger.log_err("No templates found in get_all_template_definitions() - check template registration")
+            
+            return list(templates.values())
+        except ImportError as e:
+            logger.log_err(f"Import error loading builtin templates: {e}")
+            import traceback
+            logger.log_err(traceback.format_exc())
+            return []
         except Exception as e:
             logger.log_err(f"Error loading builtin templates: {e}")
+            import traceback
+            logger.log_err(traceback.format_exc())
             return []
     
     def install_builtin_templates(self, installer=None, mark_as_system=False):

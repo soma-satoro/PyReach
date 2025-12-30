@@ -16,6 +16,9 @@ def register_template(template_dict):
     name = template_dict.get('name')
     if name:
         _template_definitions[name] = template_dict
+        # Debug logging
+        from evennia.utils import logger
+        logger.log_info(f"Registered template: {name} ({template_dict.get('display_name', 'Unknown')})")
 
 def get_template_definition(name):
     """Get a specific template definition by name."""
@@ -27,6 +30,9 @@ def get_template_definition(name):
 
 def get_all_template_definitions():
     """Get all registered template definitions."""
+    # Debug logging
+    from evennia.utils import logger
+    logger.log_info(f"Template definitions registry contains {len(_template_definitions)} templates: {list(_template_definitions.keys())}")
     return _template_definitions.copy()
 
 def get_bio_fields(template_name):
@@ -110,29 +116,174 @@ def get_template_names():
     return list(_template_definitions.keys())
 
 # Import all template modules to auto-register them
-from . import mortal
-from . import vampire
-from . import mage
-from . import changeling
-from . import werewolf
-from . import geist
-# from . import beast  # Beast template disabled, incomplete
-from . import deviant
-from . import demon
-from . import hunter
-from . import promethean
-from . import mummy
-from . import mortal_plus
+# Use try/except blocks to catch and log import errors without breaking the whole system
+
+try:
+    from . import mortal
+except Exception as e:
+    from evennia.utils import logger
+    logger.log_err(f"Error importing mortal template: {e}")
+    import traceback
+    logger.log_err(traceback.format_exc())
+
+try:
+    from . import vampire
+except Exception as e:
+    from evennia.utils import logger
+    logger.log_err(f"Error importing vampire template: {e}")
+    import traceback
+    logger.log_err(traceback.format_exc())
+
+try:
+    from . import mage
+except Exception as e:
+    from evennia.utils import logger
+    logger.log_err(f"Error importing mage template: {e}")
+    import traceback
+    logger.log_err(traceback.format_exc())
+
+try:
+    from . import changeling
+except Exception as e:
+    from evennia.utils import logger
+    logger.log_err(f"Error importing changeling template: {e}")
+    import traceback
+    logger.log_err(traceback.format_exc())
+
+try:
+    from . import werewolf
+except Exception as e:
+    from evennia.utils import logger
+    logger.log_err(f"Error importing werewolf template: {e}")
+    import traceback
+    logger.log_err(traceback.format_exc())
+
+try:
+    from . import geist
+except Exception as e:
+    from evennia.utils import logger
+    logger.log_err(f"Error importing geist template: {e}")
+    import traceback
+    logger.log_err(traceback.format_exc())
+
+# try:
+#     from . import beast  # Beast template disabled, incomplete
+# except Exception as e:
+#     from evennia.utils import logger
+#     logger.log_err(f"Error importing beast template: {e}")
+
+try:
+    from . import deviant
+except Exception as e:
+    from evennia.utils import logger
+    logger.log_err(f"Error importing deviant template: {e}")
+    import traceback
+    logger.log_err(traceback.format_exc())
+
+try:
+    from . import demon
+except Exception as e:
+    from evennia.utils import logger
+    logger.log_err(f"Error importing demon template: {e}")
+    import traceback
+    logger.log_err(traceback.format_exc())
+
+try:
+    from . import hunter
+except Exception as e:
+    from evennia.utils import logger
+    logger.log_err(f"Error importing hunter template: {e}")
+    import traceback
+    logger.log_err(traceback.format_exc())
+
+try:
+    from . import promethean
+except Exception as e:
+    from evennia.utils import logger
+    logger.log_err(f"Error importing promethean template: {e}")
+    import traceback
+    logger.log_err(traceback.format_exc())
+
+try:
+    from . import mummy
+except Exception as e:
+    from evennia.utils import logger
+    logger.log_err(f"Error importing mummy template: {e}")
+    import traceback
+    logger.log_err(traceback.format_exc())
+
+try:
+    from . import mortal_plus
+except Exception as e:
+    from evennia.utils import logger
+    logger.log_err(f"Error importing mortal_plus template: {e}")
+    import traceback
+    logger.log_err(traceback.format_exc())
 
 # Import legacy template modules for 1st Edition support
-from . import legacy_vampire
-from . import legacy_mage
-from . import legacy_changeling
-from . import legacy_werewolf
-from . import legacy_geist
-from . import legacy_promethean
-from . import legacy_hunter
-from . import legacy_changingbreeds
+try:
+    from . import legacy_vampire
+except Exception as e:
+    from evennia.utils import logger
+    logger.log_err(f"Error importing legacy_vampire template: {e}")
+    import traceback
+    logger.log_err(traceback.format_exc())
+
+try:
+    from . import legacy_mage
+except Exception as e:
+    from evennia.utils import logger
+    logger.log_err(f"Error importing legacy_mage template: {e}")
+    import traceback
+    logger.log_err(traceback.format_exc())
+
+try:
+    from . import legacy_changeling
+except Exception as e:
+    from evennia.utils import logger
+    logger.log_err(f"Error importing legacy_changeling template: {e}")
+    import traceback
+    logger.log_err(traceback.format_exc())
+
+try:
+    from . import legacy_werewolf
+except Exception as e:
+    from evennia.utils import logger
+    logger.log_err(f"Error importing legacy_werewolf template: {e}")
+    import traceback
+    logger.log_err(traceback.format_exc())
+
+try:
+    from . import legacy_geist
+except Exception as e:
+    from evennia.utils import logger
+    logger.log_err(f"Error importing legacy_geist template: {e}")
+    import traceback
+    logger.log_err(traceback.format_exc())
+
+try:
+    from . import legacy_promethean
+except Exception as e:
+    from evennia.utils import logger
+    logger.log_err(f"Error importing legacy_promethean template: {e}")
+    import traceback
+    logger.log_err(traceback.format_exc())
+
+try:
+    from . import legacy_hunter
+except Exception as e:
+    from evennia.utils import logger
+    logger.log_err(f"Error importing legacy_hunter template: {e}")
+    import traceback
+    logger.log_err(traceback.format_exc())
+
+try:
+    from . import legacy_changingbreeds
+except Exception as e:
+    from evennia.utils import logger
+    logger.log_err(f"Error importing legacy_changingbreeds template: {e}")
+    import traceback
+    logger.log_err(traceback.format_exc())
 
 
 # Template power list utilities

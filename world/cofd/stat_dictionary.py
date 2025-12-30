@@ -201,4 +201,9 @@ anchor_dictionary = {
     "bloom": Anchor(name="bloom", min_value=0, max_value=10, temp_value=0, description=""),
     "elpis": Anchor(name="elpis", min_value=0, max_value=10, temp_value=0, description=""),
     "torment": Anchor(name="torment", min_value=0, max_value=10, temp_value=0, description=""),
+    "bone": Anchor(name="bone", min_value=0, max_value=10, temp_value=0, description=""),
+    "blood": Anchor(name="blood", min_value=0, max_value=10, temp_value=0, description=""),
+    "needle": Anchor(name="needle", min_value=0, max_value=10, temp_value=0, description=""),
+    "conviction": Anchor(name="conviction", min_value=0, max_value=10, temp_value=0, description=""),
+    "loyalty": Anchor(name="loyalty", min_value=0, max_value=10, temp_value=0, description=""),
 }

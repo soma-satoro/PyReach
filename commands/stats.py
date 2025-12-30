@@ -926,7 +926,7 @@ class CmdStat(MuxCommand):
                 # In modern mode, allow all templates except legacy ones
                 valid_templates = [
                     "changeling", "vampire", "werewolf", "mage", "geist", 
-                    "deviant", "demon", "hunter", "promethean", 
+                    "deviant", "demon", "hunter", "promethean", "mummy",
                     "mortal+", "mortal_plus", "mortal"
                 ]
                 

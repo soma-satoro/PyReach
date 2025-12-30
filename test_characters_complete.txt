@@ -1,0 +1,930 @@
+# COMPREHENSIVE TEST CHARACTERS - ALL TEMPLATES
+# Copy and paste each section to create a complete test character
+# Each character has full attributes, skills, merits, powers, and bio fields
+
+================================================================================
+1. CHANGELING TEST CHARACTER - "Luna Starweaver"
+================================================================================
++stat template=changeling
++stat fullname=Luna Starweaver
++stat birthdate=March 15, 1990
++stat concept=Wandering Storyteller
++stat needle=Hope
++stat thread=Despair
++stat seeming=Wizened
++stat court=Spring
++stat kith=Artist
++stat clarity=7
++stat wyrd=2
++stat size=5
+
+# Attributes
++stat intelligence=3
++stat wits=3
++stat resolve=2
++stat strength=2
++stat dexterity=3
++stat stamina=2
++stat presence=3
++stat manipulation=3
++stat composure=2
+
+# Skills
++stat academics=2
++stat computer=1
++stat crafts=3
++stat investigation=2
++stat medicine=1
++stat occult=3
++stat politics=1
++stat science=1
++stat athletics=2
++stat brawl=1
++stat drive=1
++stat firearms=0
++stat larceny=2
++stat stealth=2
++stat survival=2
++stat weaponry=1
++stat animal_ken=1
++stat empathy=3
++stat expression=4
++stat intimidation=1
++stat persuasion=2
++stat socialize=2
++stat streetwise=2
++stat subterfuge=2
+
+# Specialties
++stat specialty/crafts=Storytelling
++stat specialty/expression=Performance
++stat specialty/occult=Hedge Lore
+
+# Merits
++stat resources=2
++stat contacts=2
++stat allies=1
++stat safe_place=2
++stat language=2
++stat language:spanish=1
++stat language:french=1
++stat hollow=3
++stat motley=2
+
+# Contracts (Changeling powers - semantic syntax)
++stat contract=hostile_takeover
++stat contract=mask_of_superiority
++stat contract=cloak_of_night
++stat contract=mirror_contracts
++stat contract=smoke_and_mirrors
++stat contract=the_royal_court
++stat contract=springs_blessing
++stat contract=springs_first_flower
+
+================================================================================
+2. GEIST TEST CHARACTER - "Marcus Blackwood"
+================================================================================
++stat template=geist
++stat fullname=Marcus Blackwood
++stat birthdate=October 31, 1985
++stat concept=Death Investigator
++stat root=Justice
++stat bloom=Wrath
++stat burden=Abiding
++stat geist_name=The Grim Reaper
++stat synergy=7
++stat psyche=2
++stat size=5
+
+# Attributes
++stat intelligence=3
++stat wits=3
++stat resolve=3
++stat strength=2
++stat dexterity=2
++stat stamina=3
++stat presence=2
++stat manipulation=2
++stat composure=3
+
+# Skills
++stat academics=2
++stat computer=2
++stat crafts=1
++stat investigation=4
++stat medicine=2
++stat occult=3
++stat politics=1
++stat science=2
++stat athletics=2
++stat brawl=1
++stat drive=2
++stat firearms=2
++stat larceny=1
++stat stealth=2
++stat survival=1
++stat weaponry=1
++stat animal_ken=1
++stat empathy=2
++stat expression=1
++stat intimidation=2
++stat persuasion=2
++stat socialize=1
++stat streetwise=2
++stat subterfuge=2
+
+# Specialties
++stat specialty/investigation=Crime Scenes
++stat specialty/occult=Ghosts
++stat specialty/firearms=Handguns
+
+# Merits
++stat resources=2
++stat contacts=3
++stat allies=2
++stat professional_training=3
++stat language=1
++stat language:latin=1
++stat krewe=3
+
+# Geist Powers (Haunts - dot rated)
++stat boneyard=2
++stat curse=2
++stat caul=1
++stat shroud=1
+
+# Geist Keys (semantic syntax)
++stat key=beasts
++stat key=stillness
++stat key=cold_wind
+
+# Geist Ceremonies (semantic syntax - keep spaces in names)
++stat ceremony=pass on
++stat ceremony=ghost trap
+
+# Geist Secondary Sheet
++stat/geist concept=The Grim Reaper
++stat/geist remembrance_description=The smell of rain on asphalt and distant sirens
++stat/geist remembrance_trait=investigation
++stat/geist power=4
++stat/geist finesse=3
++stat/geist resistance=4
++stat/geist virtue=determined
++stat/geist vice=vengeful
++stat/geist crisis_trigger=injustice
++stat/geist ban=Must investigate every death
++stat/geist bane=Unmarked graves
++stat/geist innate_key=stillness
+
+================================================================================
+3. PROMETHEAN TEST CHARACTER - "Adam Stone"
+================================================================================
++stat template=promethean
++stat fullname=Adam Stone
++stat birthdate=Unknown
++stat concept=Seeker of Humanity
++stat elpis=Courage
++stat torment=Alienated
++stat humanity=3
++stat azoth=2
++stat size=5
+
+# Attributes
++stat intelligence=2
++stat wits=3
++stat resolve=3
++stat strength=3
++stat dexterity=2
++stat stamina=3
++stat presence=2
++stat manipulation=2
++stat composure=3
+
+# Skills
++stat academics=1
++stat computer=1
++stat crafts=3
++stat investigation=2
++stat medicine=2
++stat occult=2
++stat politics=0
++stat science=2
++stat athletics=2
++stat brawl=2
++stat drive=1
++stat firearms=1
++stat larceny=1
++stat stealth=1
++stat survival=3
++stat weaponry=2
++stat animal_ken=1
++stat empathy=1
++stat expression=1
++stat intimidation=2
++stat persuasion=1
++stat socialize=1
++stat streetwise=2
++stat subterfuge=1
+
+# Specialties
++stat specialty/crafts=Repair
++stat specialty/survival=Urban
++stat specialty/weaponry=Improvised
+
+# Merits
++stat resources=1
++stat contacts=1
++stat safe_place=2
++stat language=1
++stat language:english=1
++stat throng=2
+
+# Promethean Bio Fields
++stat lineage=Frankenstein
++stat refinement=Stannum
++stat athanor=Basilisk
++stat creator=Dr. Victor
++stat pilgrimage=The Wasteland
+
+# Promethean Powers (Alembics and Bestowments - semantic syntax)
++stat alembic=purification
++stat alembic=human_flesh
++stat alembic=basilisk_eye
++stat bestowment=spare_parts
++stat bestowment=titans_strength
+
+================================================================================
+4. VAMPIRE TEST CHARACTER - "Victoria Nightshade"
+================================================================================
++stat template=vampire
++stat fullname=Victoria Nightshade
++stat birthdate=June 20, 1988
++stat concept=Social Manipulator
++stat mask=Pride
++stat dirge=Envy
++stat humanity=7
++stat blood_potency=2
++stat size=5
+
+# Attributes
++stat intelligence=3
++stat wits=2
++stat resolve=3
++stat strength=2
++stat dexterity=3
++stat stamina=2
++stat presence=4
++stat manipulation=4
++stat composure=3
+
+# Skills
++stat academics=2
++stat computer=2
++stat crafts=1
++stat investigation=2
++stat medicine=1
++stat occult=2
++stat politics=3
++stat science=1
++stat athletics=2
++stat brawl=1
++stat drive=2
++stat firearms=1
++stat larceny=1
++stat stealth=2
++stat survival=1
++stat weaponry=1
++stat animal_ken=1
++stat empathy=3
++stat expression=3
++stat intimidation=2
++stat persuasion=4
++stat socialize=4
++stat streetwise=2
++stat subterfuge=3
+
+# Specialties
++stat specialty/politics=City Council
++stat specialty/persuasion=Negotiation
++stat specialty/socialize=High Society
+
+# Merits
++stat resources=3
++stat contacts=3
++stat allies=2
++stat herd=2
++stat haven=3
++stat language=2
++stat language:french=1
++stat language:italian=1
++stat status=2
++stat status:carthian_movement=2
+
+# Vampire Bio Fields
++stat clan=Daeva
++stat covenant=Carthian Movement
++stat blood=The Blood
++stat bone=The Bone
+
+# Vampire Disciplines (dot rated)
++stat majesty=3
++stat auspex=2
++stat celerity=2
+
+# Vampire Discipline Powers (semantic syntax)
++stat discipline_power=mesmerize
++stat discipline_power=beasts_hackles
++stat discipline_power=uncanny_perception
++stat discipline_power=blink
+
+================================================================================
+5. WEREWOLF TEST CHARACTER - "Thorn Ironclaw"
+================================================================================
++stat template=werewolf
++stat fullname=Thorn Ironclaw
++stat birthdate=January 15, 1992
++stat concept=Territory Guardian
++stat bone=Honor
++stat blood=Wrath
++stat harmony=7
++stat primal_urge=2
++stat size=5
+
+# Attributes
++stat intelligence=2
++stat wits=3
++stat resolve=3
++stat strength=4
++stat dexterity=3
++stat stamina=4
++stat presence=2
++stat manipulation=2
++stat composure=3
+
+# Skills
++stat academics=1
++stat computer=1
++stat crafts=2
++stat investigation=2
++stat medicine=1
++stat occult=3
++stat politics=1
++stat science=1
++stat athletics=3
++stat brawl=3
++stat drive=2
++stat firearms=1
++stat larceny=1
++stat stealth=3
++stat survival=4
++stat weaponry=2
++stat animal_ken=3
++stat empathy=2
++stat expression=1
++stat intimidation=3
++stat persuasion=2
++stat socialize=1
++stat streetwise=2
++stat subterfuge=1
+
+# Specialties
++stat specialty/survival=Tracking
++stat specialty/brawl=Grappling
++stat specialty/animal_ken=Wolves
+
+# Merits
++stat resources=1
++stat contacts=2
++stat allies=2
++stat language=1
++stat language:first_tongue=1
++stat pack=3
++stat totem=2
++stat territory=3
+
+# Werewolf Bio Fields
++stat auspice=Cahalith
++stat tribe=Blood Talons
++stat lodge=The Lodge of Garm
++stat pack=Iron Pack
++stat deed_name=Thorn
+
+# Werewolf Gifts (dot rated - these are gift categories)
++stat strength=2
++stat dominance=2
++stat wisdom=1
+
+# Werewolf Individual Gifts (semantic syntax)
++stat gift=killer_instinct
++stat gift=warriors_hide
++stat gift=shadow_gaze
++stat gift=spirit_whispers
+
+# Werewolf Rites (semantic syntax)
++stat rite=sacred_hunt
++stat rite=bottle_spirit
+
+================================================================================
+6. DEVIANT TEST CHARACTER - "Nova Catalyst"
+================================================================================
++stat template=deviant
++stat fullname=Nova Catalyst
++stat birthdate=September 10, 1995
++stat concept=Escaped Test Subject
++stat virtue=Fortitude
++stat vice=Pride
++stat loyalty=7
++stat acclimation=2
++stat size=5
+
+# Attributes
++stat intelligence=3
++stat wits=3
++stat resolve=3
++stat strength=3
++stat dexterity=3
++stat stamina=3
++stat presence=2
++stat manipulation=2
++stat composure=3
+
+# Skills
++stat academics=2
++stat computer=3
++stat crafts=2
++stat investigation=3
++stat medicine=2
++stat occult=2
++stat politics=1
++stat science=3
++stat athletics=2
++stat brawl=2
++stat drive=2
++stat firearms=1
++stat larceny=2
++stat stealth=2
++stat survival=2
++stat weaponry=1
++stat animal_ken=1
++stat empathy=1
++stat expression=1
++stat intimidation=2
++stat persuasion=2
++stat socialize=1
++stat streetwise=2
++stat subterfuge=2
+
+# Specialties
++stat specialty/computer=Hacking
++stat specialty/investigation=Research
++stat specialty/science=Biology
+
+# Merits
++stat resources=1
++stat contacts=2
++stat allies=1
++stat safe_place=2
++stat language=1
++stat language:english=1
++stat conspiracy=2
+
+# Deviant Bio Fields
++stat origin=Autourgic
++stat clade=Coactive
++stat conspiracy=The Loyalists of Thule
++stat touchstone=My Sister
+
+# Deviant Powers (Adaptations - semantic syntax)
++stat adaptation=stubborn_resolve
++stat adaptation=focus
++stat adaptation=enhanced_senses
++stat adaptation=regeneration
+
+================================================================================
+7. HUNTER TEST CHARACTER - "Sarah Cross"
+================================================================================
++stat template=hunter
++stat fullname=Sarah Cross
++stat birthdate=April 5, 1990
++stat concept=Monster Hunter
++stat virtue=Justice
++stat vice=Wrath
++stat integrity=7
++stat size=5
+
+# Attributes
++stat intelligence=2
++stat wits=3
++stat resolve=3
++stat strength=3
++stat dexterity=3
++stat stamina=3
++stat presence=2
++stat manipulation=2
++stat composure=3
+
+# Skills
++stat academics=1
++stat computer=1
++stat crafts=2
++stat investigation=3
++stat medicine=2
++stat occult=3
++stat politics=1
++stat science=1
++stat athletics=3
++stat brawl=2
++stat drive=2
++stat firearms=3
++stat larceny=1
++stat stealth=2
++stat survival=3
++stat weaponry=3
++stat animal_ken=1
++stat empathy=1
++stat expression=1
++stat intimidation=2
++stat persuasion=1
++stat socialize=1
++stat streetwise=2
++stat subterfuge=1
+
+# Specialties
++stat specialty/firearms=Rifles
++stat specialty/weaponry=Swords
++stat specialty/occult=Monsters
+
+# Merits
++stat resources=2
++stat contacts=2
++stat allies=2
++stat safe_place=2
++stat language=1
++stat language:latin=1
++stat professional_training=3
++stat organization=2
+
+# Hunter Bio Fields
++stat organization=Task Force VALKYRIE
++stat profession=Field Agent
+
+# Hunter Endowments (semantic syntax - keep spaces)
++stat endowment=hellfire
++stat endowment=wrathful sword of st michael
++stat endowment=divine armor
+
+# Hunter Tactics (semantic syntax)
++stat tactic=coordinated_assault
++stat tactic=flanking_maneuver
+
+================================================================================
+8. DEMON TEST CHARACTER - "Cipher Protocol"
+================================================================================
++stat template=demon
++stat fullname=Cipher Protocol
++stat birthdate=Unknown
++stat concept=Information Broker
++stat virtue=Faith
++stat vice=Lust
++stat cover=7
++stat primum=2
++stat size=5
+
+# Attributes
++stat intelligence=4
++stat wits=3
++stat resolve=3
++stat strength=2
++stat dexterity=3
++stat stamina=2
++stat presence=2
++stat manipulation=4
++stat composure=3
+
+# Skills
++stat academics=2
++stat computer=4
++stat crafts=1
++stat investigation=3
++stat medicine=1
++stat occult=2
++stat politics=2
++stat science=2
++stat athletics=2
++stat brawl=1
++stat drive=2
++stat firearms=1
++stat larceny=3
++stat stealth=3
++stat survival=1
++stat weaponry=1
++stat animal_ken=1
++stat empathy=2
++stat expression=1
++stat intimidation=1
++stat persuasion=3
++stat socialize=2
++stat streetwise=2
++stat subterfuge=4
+
+# Specialties
++stat specialty/computer=Hacking
++stat specialty/larceny=Lockpicking
++stat specialty/subterfuge=Infiltration
+
+# Merits
++stat resources=2
++stat contacts=3
++stat allies=1
++stat safe_place=2
++stat language=2
++stat language:binary=1
++stat language:code=1
++stat cover_identity=3
++stat agency=2
+
+# Demon Bio Fields
++stat incarnation=Messenger
++stat agenda=Inquisitor
++stat catalyst=Betrayal
++stat cover_identity=Tech Consultant
++stat agency=The Agency
+
+# Demon Embeds (semantic syntax)
++stat embed=authenticate
++stat embed=overclock
++stat embed=teleportation
++stat embed=back_channel
++stat embed=encryption
+
+# Demon Exploits (semantic syntax)
++stat exploit=blowback
++stat exploit=murder_of_crows
+
+# Demon First Key
++stat first_key=authenticate
+
+# Demon Form Stats
++stat/demon concept=Digital Phantom
++stat/demon description=A shifting form of data streams and code
++stat/demon modification=Data_Stream
++stat/demon technology=Network_Infiltration
++stat/demon propulsion=Quantum_Leap
++stat/demon process=Information_Overload
+
+================================================================================
+9. MORTAL+ TEST CHARACTER (PSYCHIC) - "Elena Voss"
+================================================================================
++stat template=mortal_plus
++stat fullname=Elena Voss
++stat birthdate=July 22, 1993
++stat concept=Psychic Investigator
++stat virtue=Hope
++stat vice=Envy
++stat integrity=7
++stat size=5
+
+# Attributes
++stat intelligence=3
++stat wits=3
++stat resolve=3
++stat strength=2
++stat dexterity=2
++stat stamina=2
++stat presence=2
++stat manipulation=3
++stat composure=3
+
+# Skills
++stat academics=2
++stat computer=2
++stat crafts=1
++stat investigation=4
++stat medicine=1
++stat occult=3
++stat politics=1
++stat science=2
++stat athletics=1
++stat brawl=1
++stat drive=1
++stat firearms=1
++stat larceny=1
++stat stealth=1
++stat survival=1
++stat weaponry=0
++stat animal_ken=1
++stat empathy=4
++stat expression=2
++stat intimidation=1
++stat persuasion=2
++stat socialize=2
++stat streetwise=1
++stat subterfuge=2
+
+# Specialties
++stat specialty/investigation=Crime Scenes
++stat specialty/empathy=Emotions
++stat specialty/occult=Psychic Phenomena
+
+# Merits
++stat resources=2
++stat contacts=2
++stat allies=1
++stat safe_place=2
++stat language=1
++stat language:english=1
++stat professional_training=2
++stat organization=1
+
+# Mortal+ Bio Fields
++stat template_type=Psychic
++stat subtype=clairvoyance
++stat profession=Private Investigator
++stat organization=Independent
+
+# Mortal+ Powers (Psychic abilities - semantic syntax)
++stat psychic_power=clairvoyance
++stat psychic_power=psychometry
++stat psychic_power=aura_reading
+
+================================================================================
+10. MAGE TEST CHARACTER - "Dr. Alexander Thorne"
+================================================================================
++stat template=mage
++stat fullname=Dr. Alexander Thorne
++stat birthdate=November 8, 1985
++stat concept=Awakened Scholar
++stat virtue=Wisdom
++stat vice=Pride
++stat wisdom=7
++stat gnosis=2
++stat size=5
+
+# Attributes
++stat intelligence=4
++stat wits=3
++stat resolve=3
++stat strength=2
++stat dexterity=2
++stat stamina=2
++stat presence=2
++stat manipulation=3
++stat composure=3
+
+# Skills
++stat academics=4
++stat computer=2
++stat crafts=1
++stat investigation=3
++stat medicine=2
++stat occult=4
++stat politics=1
++stat science=4
++stat athletics=1
++stat brawl=1
++stat drive=1
++stat firearms=0
++stat larceny=1
++stat stealth=1
++stat survival=1
++stat weaponry=0
++stat animal_ken=1
++stat empathy=2
++stat expression=2
++stat intimidation=1
++stat persuasion=2
++stat socialize=2
++stat streetwise=1
++stat subterfuge=1
+
+# Specialties
++stat specialty/academics=History
++stat specialty/occult=Awakened Magic
++stat specialty/science=Physics
+
+# Merits
++stat resources=2
++stat contacts=2
++stat allies=1
++stat safe_place=2
++stat language=2
++stat language:latin=1
++stat language:greek=1
++stat cabal=2
++stat sanctum=2
+
+# Mage Bio Fields
++stat path=Obrimos
++stat order=Adamantine Arrow
++stat legacy=Perfected Adepts
++stat shadow_name=The Scholar
++stat cabal=The Seekers
+
+# Mage Arcana (dot rated)
++stat forces=3
++stat prime=2
++stat death=1
++stat space=1
+
+# Mage Spells (semantic syntax)
++stat spell=telekinesis
++stat spell=create_locus
++stat spell=invisibility
++stat spell=warding_gesture
++stat spell=forensic_gaze
+
+# Mage Secondary Sheet
++stat/mage immediate_nimbus=A halo of crackling electricity
++stat/mage long_term_nimbus=Electronics malfunction, lights flicker
++stat/mage signature_nimbus=Ozone smell and static charge
++stat/mage dedicated_tool=A copper staff wrapped in wire
++stat/mage obsession=Understand the nature of reality
++stat/mage praxis=telekinesis
++stat/mage praxis=create_locus
+
+================================================================================
+11. MUMMY TEST CHARACTER - "Amun-Ra the Eternal"
+================================================================================
++stat template=mummy
++stat fullname=Amun-Ra the Eternal
++stat birthdate=Ancient Times
++stat concept=Ancient Guardian
++stat virtue=Justice
++stat vice=Pride
++stat memory=5
++stat sekhem=2
++stat size=5
+
+# Attributes
++stat intelligence=3
++stat wits=3
++stat resolve=4
++stat strength=4
++stat dexterity=2
++stat stamina=4
++stat presence=3
++stat manipulation=2
++stat composure=4
+
+# Skills
++stat academics=3
++stat computer=1
++stat crafts=2
++stat investigation=2
++stat medicine=2
++stat occult=4
++stat politics=2
++stat science=1
++stat athletics=3
++stat brawl=3
++stat drive=1
++stat firearms=1
++stat larceny=1
++stat stealth=2
++stat survival=3
++stat weaponry=3
++stat animal_ken=2
++stat empathy=2
++stat expression=2
++stat intimidation=3
++stat persuasion=2
++stat socialize=2
++stat streetwise=1
++stat subterfuge=1
+
+# Specialties
++stat specialty/occult=Ancient Egypt
++stat specialty/weaponry=Spears
++stat specialty/intimidation=Presence
+
+# Merits
++stat resources=2
++stat contacts=2
++stat allies=1
++stat language=3
++stat language:ancient_egyptian=1
++stat language:arabic=1
++stat language:english=1
++stat cult=3
+
+# Mummy Bio Fields
++stat guild=Maa-Kep
++stat decree=Knowledge
++stat judge=Neith
++stat cult=The Followers of Ra
++stat tomb=The Great Pyramid
+
+# Mummy Affinities (semantic syntax)
++stat bestial_majesty=known
++stat divine_countenance=known
++stat eternal_guardian=known
+
+# Mummy Utterances (semantic syntax)
++stat awaken_the_dead_ba_1=known
++stat fury_of_sekhmet_sheut_1=known
++stat blessed_is_the_god_king_ren_1=known
+
+================================================================================
+END OF TEST CHARACTERS
+================================================================================
+

@@ -4,6 +4,7 @@ Provides admin commands for managing character templates using Python dictionari
 """
 
 import os
+import importlib
 from evennia.commands.default.muxcommand import MuxCommand
 from evennia.utils.utils import class_from_module
 from world.cofd.template_registry import template_registry
@@ -32,6 +33,7 @@ class CmdTemplate(MuxCommand):
         /force_reload                  - Force complete reload from database
         /create <template>             - Create a new template interactively
         /usage                         - Show template usage statistics
+        /diagnose                      - Run diagnostic checks on template system
     
     Examples:
         +template/list
@@ -49,6 +51,7 @@ class CmdTemplate(MuxCommand):
         +template/create my_template
         +template/usage
         +template/builtin
+        +template/diagnose
         
     Note: For module installation, you can use just the filename (e.g., 'hunter' for hunter.py)
     or the full Python module path. The command will try common variations automatically.
@@ -113,6 +116,8 @@ class CmdTemplate(MuxCommand):
             self.create_template_interactive(self.args.strip())
         elif switch == "usage":
             self.show_template_usage()
+        elif switch == "diagnose":
+            self.diagnose_template_system()
         else:
             self.caller.msg(f"Unknown switch '{switch}'. Use +template for help.")
     
@@ -447,4 +452,109 @@ class CmdTemplate(MuxCommand):
             percentage = (count / total_characters * 100) if total_characters > 0 else 0
             self.caller.msg(f"  {template_name:<15} {count:>3} characters ({percentage:>5.1f}%)")
         
-        self.caller.msg(f"\nTotal characters with templates: {total_characters}") 
+        self.caller.msg(f"\nTotal characters with templates: {total_characters}")
+    
+    def diagnose_template_system(self):
+        """Run diagnostic checks on the template system."""
+        self.caller.msg("|wTemplate System Diagnostics:|n")
+        self.caller.msg("=" * 60)
+        
+        # Check 1: Registry cache status
+        self.caller.msg("\n|w1. Registry Cache Status:|n")
+        self.caller.msg(f"   Loaded: {template_registry._loaded}")
+        self.caller.msg(f"   Cached templates: {len(template_registry._cache)}")
+        if template_registry._cache:
+            self.caller.msg(f"   Cached names: {', '.join(template_registry._cache.keys())}")
+        
+        # Check 2: Database templates
+        self.caller.msg("\n|w2. Database Templates:|n")
+        try:
+            db_templates = TemplateDefinition.objects.all()
+            self.caller.msg(f"   Total in database: {db_templates.count()}")
+            self.caller.msg(f"   Active: {TemplateDefinition.objects.filter(is_active=True).count()}")
+            self.caller.msg(f"   Inactive: {TemplateDefinition.objects.filter(is_active=False).count()}")
+            if db_templates.exists():
+                for tpl in db_templates[:5]:  # Show first 5
+                    self.caller.msg(f"   - {tpl.name} ({tpl.display_name}) [Active: {tpl.is_active}]")
+                if db_templates.count() > 5:
+                    self.caller.msg(f"   ... and {db_templates.count() - 5} more")
+        except Exception as e:
+            self.caller.msg(f"|r   ERROR: Database tables don't exist!|n")
+            self.caller.msg(f"   {str(e)}")
+            self.caller.msg(f"|y   You need to run: evennia makemigrations world|n")
+            self.caller.msg(f"|y   Then run: evennia migrate|n")
+        
+        # Check 3: Load builtin templates
+        self.caller.msg("\n|w3. Built-in Template Definitions:|n")
+        try:
+            import sys
+            import importlib
+            
+            # Force reload of templates module
+            templates_modules_to_clear = [
+                key for key in sys.modules.keys() 
+                if key.startswith('world.cofd.templates')
+            ]
+            self.caller.msg(f"   Clearing {len(templates_modules_to_clear)} cached template modules")
+            for mod_key in templates_modules_to_clear:
+                del sys.modules[mod_key]
+            
+            # Now import fresh
+            from world.cofd.templates import get_all_template_definitions
+            builtin_templates = get_all_template_definitions()
+            
+            self.caller.msg(f"   Found {len(builtin_templates)} built-in template definitions")
+            if builtin_templates:
+                for name, template_data in builtin_templates.items():
+                    display_name = template_data.get('display_name', 'Unknown')
+                    self.caller.msg(f"   - {name}: {display_name}")
+            else:
+                self.caller.msg(f"|r   WARNING: No built-in templates found!|n")
+                self.caller.msg(f"|y   This means templates are not registering during import.|n")
+        except Exception as e:
+            self.caller.msg(f"|r   ERROR loading built-in templates: {e}|n")
+            import traceback
+            for line in traceback.format_exc().split('\n'):
+                if line.strip():
+                    self.caller.msg(f"     {line}")
+        
+        # Check 4: Template module imports
+        self.caller.msg("\n|w4. Template Module Import Test:|n")
+        template_modules = [
+            'mortal', 'vampire', 'mage', 'changeling', 'werewolf', 'geist',
+            'deviant', 'demon', 'hunter', 'promethean', 'mummy', 'mortal_plus',
+            'legacy_vampire', 'legacy_mage', 'legacy_changeling', 'legacy_werewolf',
+            'legacy_geist', 'legacy_promethean', 'legacy_hunter', 'legacy_changingbreeds'
+        ]
+        
+        import_results = {'success': [], 'failed': []}
+        
+        for module_name in template_modules:
+            try:
+                module = importlib.import_module(f'world.cofd.templates.{module_name}')
+                import_results['success'].append(module_name)
+            except Exception as e:
+                import_results['failed'].append((module_name, str(e)))
+        
+        self.caller.msg(f"   Successfully imported: {len(import_results['success'])}")
+        self.caller.msg(f"   Failed imports: {len(import_results['failed'])}")
+        
+        if import_results['failed']:
+            self.caller.msg("\n   |rFailed imports:|n")
+            for module_name, error in import_results['failed']:
+                self.caller.msg(f"   - {module_name}: {error[:80]}")
+        
+        # Check 5: Recommendations
+        self.caller.msg("\n|w5. Recommendations:|n")
+        if not builtin_templates:
+            self.caller.msg("|r   CRITICAL: Built-in templates not registering!|n")
+            if import_results['failed']:
+                self.caller.msg("|y   - Fix the failed template imports listed above|n")
+            self.caller.msg("|y   - Check evennia.log for detailed error messages|n")
+            self.caller.msg("|y   - Run 'evennia reload' to reload all Python code|n")
+        elif db_templates.count() == 0:
+            self.caller.msg("|y   - No templates in database. Run +template/install builtin|n")
+        elif template_registry._cache and db_templates.count() > 0:
+            self.caller.msg("|g   - Template system appears to be working correctly|n")
+        
+        self.caller.msg("\n" + "=" * 60) 
