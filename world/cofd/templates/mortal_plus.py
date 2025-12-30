@@ -117,7 +117,7 @@ except ImportError:
 
 # Get Wolf-Blooded Tells (detailed list)
 try:
-    from .mortalplus_abilities import ALL_TELLS as DETAILED_TELLS
+    from world.cofd.powers.mortalplus_abilities import ALL_TELLS as DETAILED_TELLS
 except ImportError:
     DETAILED_TELLS = []
 
