@@ -17,7 +17,7 @@ MUMMY_AFFINITIES = {
     "entombed_glory": {
         "name": "Entombed Glory",
         "pillar": "All",
-        "description": "Spend ○ to add defining Pillar to Sekhem while within your tomb for a scene",
+        "description": "Spend o to add defining Pillar to Sekhem while within your tomb for a scene",
         "source": "MtC2e p124"
     },
     "god_king_scepter": {
@@ -37,19 +37,19 @@ MUMMY_AFFINITIES = {
     "bestial_majesty": {
         "name": "Bestial Majesty",
         "pillar": "Ab",
-        "description": "Add Ab to Animal Ken rolls, can spend ○ to issue short command to an animal",
+        "description": "Add Ab to Animal Ken rolls, can spend o to issue short command to an animal",
         "source": "MtC2e p124"
     },
     "blessed_soul": {
         "name": "Blessed Soul",
         "pillar": "Ab",
-        "description": "Spend ○ to make all rolls with a specific Social Skill Blessed Actions for a scene",
+        "description": "Spend o to make all rolls with a specific Social Skill Blessed Actions for a scene",
         "source": "MtC2e p124"
     },
     "crown_of_wadjet": {
         "name": "Crown of Wadjet",
         "pillar": "Ab",
-        "description": "Add Ab to Social rolls and cult Fidelity, can spend ○ when interacting with mortal organizations to grease the wheels",
+        "description": "Add Ab to Social rolls and cult Fidelity, can spend o when interacting with mortal organizations to grease the wheels",
         "source": "MtC2e p124"
     },
     "death_mask": {
@@ -73,7 +73,7 @@ MUMMY_AFFINITIES = {
     "soulsight": {
         "name": "Soulsight",
         "pillar": "Ab",
-        "description": "Add Ab to Empathy, can tell Invested people or those with soul loss. Can spend ○ to identify Virtue, Integrity and Conditions",
+        "description": "Add Ab to Empathy, can tell Invested people or those with soul loss. Can spend o to identify Virtue, Integrity and Conditions",
         "source": "MtC2e p124"
     },
     "the_heart_burns_eternal": {
@@ -93,7 +93,7 @@ MUMMY_AFFINITIES = {
     "auspicious_mastery": {
         "name": "Auspicious Mastery",
         "pillar": "Ba",
-        "description": "Spend ○ to make all rolls with a specific Mental Skill Blessed Actions for a scene",
+        "description": "Spend o to make all rolls with a specific Mental Skill Blessed Actions for a scene",
         "source": "MtC2e p125"
     },
     "beast_companion": {
@@ -129,7 +129,7 @@ MUMMY_AFFINITIES = {
     "swift_as_the_sun": {
         "name": "Swift As The Sun",
         "pillar": "Ba",
-        "description": "Gain Defense against firearms attacks, double speed and can triple instead by spending ○ for a scene. Can spend ○ to make a non-Utterance-non-attack Instant action Reflexive instead",
+        "description": "Gain Defense against firearms attacks, double speed and can triple instead by spending ○ for a scene. Can spend o to make a non-Utterance-non-attack Instant action Reflexive instead",
         "source": "MtC2e p126"
     },
     "thousand_paths_serve_the_pharaoh": {
@@ -149,7 +149,7 @@ MUMMY_AFFINITIES = {
     "anointed_prowess": {
         "name": "Anointed Prowess",
         "pillar": "Ka",
-        "description": "Spend ○ to make all rolls with a specific Physical Skill Blessed Actions for a scene",
+        "description": "Spend o to make all rolls with a specific Physical Skill Blessed Actions for a scene",
         "source": "MtC2e p126"
     },
     "desert_swallows_the_forgotten_temple": {
@@ -161,7 +161,7 @@ MUMMY_AFFINITIES = {
     "dominating_might": {
         "name": "Dominating Might",
         "pillar": "Ka",
-        "description": "Add Ka to Initiative, armor piercing, Durability piercing, Strength for lifting, can spend ○ to inflict Knocked Down on melee hit",
+        "description": "Add Ka to Initiative, armor piercing, Durability piercing, Strength for lifting, can spend o to inflict Knocked Down on melee hit",
         "source": "MtC2e p126"
     },
     "enduring_flesh": {
@@ -197,7 +197,7 @@ MUMMY_AFFINITIES = {
     "towering_perspective": {
         "name": "Towering Perspective",
         "pillar": "Ka",
-        "description": "Add Ka to Intimidation and Politics, can spend ○ to sense highest Contacts, Status and Allies of a target. Can spend ○ to increase Size by 2x Ka for a scene, does not increase Health",
+        "description": "Add Ka to Intimidation and Politics, can spend o to sense highest Contacts, Status and Allies of a target. Can spend o to increase Size by 2x Ka for a scene, does not increase Health",
         "source": "MtC2e p127"
     },
     
@@ -205,7 +205,7 @@ MUMMY_AFFINITIES = {
     "amanuensis": {
         "name": "Amanuensis",
         "pillar": "Ren",
-        "description": "Add Ren to Academics and Expression rolls, can understand and speak any mortal language. May spend ○ to understand magical languages. Can extend benefits to your Cult",
+        "description": "Add Ren to Academics and Expression rolls, can understand and speak any mortal language. May spend o to understand magical languages. Can extend benefits to your Cult",
         "source": "MtC2e p127"
     },
     "blessed_panoply": {
@@ -229,7 +229,7 @@ MUMMY_AFFINITIES = {
     "godsight": {
         "name": "Godsight",
         "pillar": "Ren",
-        "description": "Add Ren to Occult rolls, can tell Sekhem ratings on sight. Can spend ○ to see supernatural beings for a scene and add Ren to Clash to pierce occlusion effects",
+        "description": "Add Ren to Occult rolls, can tell Sekhem ratings on sight. Can spend o to see supernatural beings for a scene and add Ren to Clash to pierce occlusion effects",
         "source": "MtC2e p128"
     },
     "radiant_life_force": {
@@ -253,7 +253,7 @@ MUMMY_AFFINITIES = {
     "verdigris_chains_of_deceit": {
         "name": "Verdigris Chains of Deceit",
         "pillar": "Ren",
-        "description": "Add Ren to subterfuge rolls, follow a trail of gossip to its source and can spend ○ to spread a rumor with no origin",
+        "description": "Add Ren to subterfuge rolls, follow a trail of gossip to its source and can spend o to spread a rumor with no origin",
         "source": "BoLD p58"
     },
     
@@ -261,7 +261,7 @@ MUMMY_AFFINITIES = {
     "ancient_horror_unveiling": {
         "name": "Ancient Horror Unveiling",
         "pillar": "Sheut",
-        "description": "Can penalize Sybaris rolls by Sheut. May spend ○ to show their true Sahu to a single subject and cause Sybaris roll, inflicting Madness or Frightened",
+        "description": "Can penalize Sybaris rolls by Sheut. May spend o to show their true Sahu to a single subject and cause Sybaris roll, inflicting Madness or Frightened",
         "source": "MtC2e p128"
     },
     "beast_soul_fury": {
@@ -273,13 +273,13 @@ MUMMY_AFFINITIES = {
     "by_steps_unseen": {
         "name": "By Steps Unseen",
         "pillar": "Sheut",
-        "description": "Add Sheut to Stealth rolls, may attempt to hide under any circumstance. May spend ○ to teleport to unobserved point within Sheut * 10 yards",
+        "description": "Add Sheut to Stealth rolls, may attempt to hide under any circumstance. May spend o to teleport to unobserved point within Sheut * 10 yards",
         "source": "MtC2e p128"
     },
     "deathsight": {
         "name": "Deathsight",
         "pillar": "Sheut",
-        "description": "Can tell lifespan of subject at a glance. Able to see and interact with beings in Neter-Khertet, apply Sheut as bonus to Defense against them. May spend ○ to detect Vice, Integrity, Sheut or equivalent of subject",
+        "description": "Can tell lifespan of subject at a glance. Able to see and interact with beings in Neter-Khertet, apply Sheut as bonus to Defense against them. May spend o to detect Vice, Integrity, Sheut or equivalent of subject",
         "source": "MtC2e p128"
     },
     "grip_of_death": {
@@ -291,25 +291,25 @@ MUMMY_AFFINITIES = {
     "opener_of_the_way": {
         "name": "Opener of the Way",
         "pillar": "Sheut",
-        "description": "Add Sheut to Larceny and Survival rolls. Can spend ○ to unlock any entrance or portal",
+        "description": "Add Sheut to Larceny and Survival rolls. Can spend o to unlock any entrance or portal",
         "source": "MtC2e p128"
     },
     "scorpion_veins": {
         "name": "Scorpion Veins",
         "pillar": "Sheut",
-        "description": "You and nearby cultist are immune to disease and poison. Can take 1L to coat weapon with venom of Sheut in Toxicity. Can spend ○ to reduce poison Toxicity in a target by Sheut",
+        "description": "You and nearby cultist are immune to disease and poison. Can take 1L to coat weapon with venom of Sheut in Toxicity. Can spend o to reduce poison Toxicity in a target by Sheut",
         "source": "MtC2e p128"
     },
     "unerring_gaze_of_judgment": {
         "name": "Unerring Gaze of Judgment",
         "pillar": "Sheut",
-        "description": "Can always see perfectly and can spend ○ to see the unclean and does not lose defense for making an all out attack against them",
+        "description": "Can always see perfectly and can spend o to see the unclean and does not lose defense for making an all out attack against them",
         "source": "BoLD p59"
     },
     "voice_of_temptation": {
         "name": "Voice of Temptation",
         "pillar": "Sheut",
-        "description": "Add Sheut to Social rolls targeting a subject's Vice, and if successful can spend ○ to open all remaining Doors",
+        "description": "Add Sheut to Social rolls targeting a subject's Vice, and if successful can spend o to open all remaining Doors",
         "source": "MtC2e p129"
     },
     
@@ -332,7 +332,7 @@ MUMMY_AFFINITIES = {
         "name": "Nexus of the Soul",
         "pillar": "Maa-Kep",
         "guild": "Maa-Kep",
-        "description": "Always aware of and can telepathically communicate with Inheritor cultists, may spend ○ to ride their senses",
+        "description": "Always aware of and can telepathically communicate with Inheritor cultists, may spend o to ride their senses",
         "source": "MtC2e p129"
     },
     
@@ -341,7 +341,7 @@ MUMMY_AFFINITIES = {
         "name": "Divine Flesh",
         "pillar": "Mesen-Nebu",
         "guild": "Mesen-Nebu",
-        "description": "Gain stacking Armor 1, may spend ○ to gain additional Armor 1 for a scene and invoking Sybaris on those who see it. Take -2 damage from fire, and none from electricity",
+        "description": "Gain stacking Armor 1, may spend o to gain additional Armor 1 for a scene and invoking Sybaris on those who see it. Take -2 damage from fire, and none from electricity",
         "source": "MtC2e p129"
     },
     "hone_the_soul": {
@@ -364,21 +364,21 @@ MUMMY_AFFINITIES = {
         "name": "Eyes of Justice",
         "pillar": "Sesha-Hebsu",
         "guild": "Sesha-Hebsu",
-        "description": "Gain +2 on perception and Investigation rolls. Can identify vessels with rating on sight. Can spend ○ to identify Lifeless and Endless, as well as if someone has killed ever or within the last day",
+        "description": "Gain +2 on perception and Investigation rolls. Can identify vessels with rating on sight. Can spend o to identify Lifeless and Endless, as well as if someone has killed ever or within the last day",
         "source": "MtC2e p130"
     },
     "master_of_the_written_word": {
         "name": "Master of the Written Word",
         "pillar": "Sesha-Hebsu",
         "guild": "Sesha-Hebsu",
-        "description": "May make your writing invisible until a ritual is enacted. May spend ○ to provide sincere warnings that should be obeyed. Can spend ○ as instant action to copy any text",
+        "description": "May make your writing invisible until a ritual is enacted. May spend o to provide sincere warnings that should be obeyed. Can spend ○ as instant action to copy any text",
         "source": "MtC2e p130"
     },
     "loremasters_guile": {
         "name": "Loremaster's Guile",
         "pillar": "Sesha-Hebsu",
         "guild": "Sesha-Hebsu",
-        "description": "Gain +2 on Academics, Politics and Science rolls. Can identify forgeries, sincere intent and truthfulness of media on sight. May spend ○ to decode any ciphers",
+        "description": "Gain +2 on Academics, Politics and Science rolls. Can identify forgeries, sincere intent and truthfulness of media on sight. May spend o to decode any ciphers",
         "source": "MtC2e p130"
     },
     
@@ -394,7 +394,7 @@ MUMMY_AFFINITIES = {
         "name": "Flesh-Culled Secrets",
         "pillar": "Su-Menent",
         "guild": "Su-Menent",
-        "description": "Can sense and analyze corpses at will and know if their ghost lingers, may spend ○ to exhume them, may spend ○ to learn about their emotions before dying or see them if one of your cultists",
+        "description": "Can sense and analyze corpses at will and know if their ghost lingers, may spend o to exhume them, may spend o to learn about their emotions before dying or see them if one of your cultists",
         "source": "MtC2e p130"
     },
     "blazing_zeal": {
@@ -410,21 +410,21 @@ MUMMY_AFFINITIES = {
         "name": "Model Lifeweb",
         "pillar": "Tef-Aabhi",
         "guild": "Tef-Aabhi",
-        "description": "Gain +2 on Crafts and Expression rolls, detect hidden aspects of a structure. May spend ○ to determine purpose and last bearer of a held item",
+        "description": "Gain +2 on Crafts and Expression rolls, detect hidden aspects of a structure. May spend o to determine purpose and last bearer of a held item",
         "source": "MtC2e p130"
     },
     "guardian_statue": {
         "name": "Guardian Statue",
         "pillar": "Tef-Aabhi",
         "guild": "Tef-Aabhi",
-        "description": "May craft a number of statues equal to defining Pillar at cost of ○ each, next damaging attack against the statue's character destroys statue instead",
+        "description": "May craft a number of statues equal to defining Pillar at cost of o each, next damaging attack against the statue's character destroys statue instead",
         "source": "MtC2e p131"
     },
     "nest_of_dolls": {
         "name": "Nest of Dolls",
         "pillar": "Tef-Aabhi",
         "guild": "Tef-Aabhi",
-        "description": "Gain 8-Again on teamwork with other Arisen, gain Blessed Action for creation of art or structure. May spend ○ to swap position of two of Inheritors or Sadikh once/target/scene",
+        "description": "Gain 8-Again on teamwork with other Arisen, gain Blessed Action for creation of art or structure. May spend o to swap position of two of Inheritors or Sadikh once/target/scene",
         "source": "MtC2e p131"
     },
     
@@ -456,7 +456,7 @@ MUMMY_AFFINITIES = {
         "name": "Butcher Demon Transfiguration",
         "pillar": "Kher-Minu",
         "guild": "Kher-Minu",
-        "description": "Keep defense against firearms, provide cover to those near you, spend ○ for a 3L, +2 initiative claws that inflict arm or leg wrack tilts each time they damage",
+        "description": "Keep defense against firearms, provide cover to those near you, spend o for a 3L, +2 initiative claws that inflict arm or leg wrack tilts each time they damage",
         "source": "BoLD p59"
     },
     
@@ -529,7 +529,7 @@ MUMMY_UTTERANCES = {
     # AWAKEN THE DEAD
     "awaken_the_dead_ba_1": {
         "name": "Awaken the Dead",
-        "tier": "Ba •",
+        "tier": "Ba *",
         "pillar": "Ba",
         "pillar_rating": 1,
         "tags": ["Subtle"],
@@ -538,7 +538,7 @@ MUMMY_UTTERANCES = {
     },
     "awaken_the_dead_sheut_3": {
         "name": "Awaken the Dead",
-        "tier": "Sheut •••",
+        "tier": "Sheut ***",
         "pillar": "Sheut",
         "pillar_rating": 3,
         "tags": ["Curse"],
@@ -547,7 +547,7 @@ MUMMY_UTTERANCES = {
     },
     "awaken_the_dead_ren_5": {
         "name": "Awaken the Dead",
-        "tier": "Ren •••••",
+        "tier": "Ren *****",
         "pillar": "Ren",
         "pillar_rating": 5,
         "tags": ["None"],
@@ -558,7 +558,7 @@ MUMMY_UTTERANCES = {
     # BLESSED IS THE GOD-KING
     "blessed_is_the_god_king_ren_1": {
         "name": "Blessed is the God-King",
-        "tier": "Ren •",
+        "tier": "Ren *",
         "pillar": "Ren",
         "pillar_rating": 1,
         "tags": ["Subtle"],
@@ -567,7 +567,7 @@ MUMMY_UTTERANCES = {
     },
     "blessed_is_the_god_king_ab_3": {
         "name": "Blessed is the God-King",
-        "tier": "Ab •••",
+        "tier": "Ab ***",
         "pillar": "Ab",
         "pillar_rating": 3,
         "tags": ["Subtle"],
@@ -576,7 +576,7 @@ MUMMY_UTTERANCES = {
     },
     "blessed_is_the_god_king_defining_5": {
         "name": "Blessed is the God-King",
-        "tier": "Defining •••••",
+        "tier": "Defining *****",
         "pillar": "Defining",
         "pillar_rating": 5,
         "tags": ["Epic"],
@@ -587,7 +587,7 @@ MUMMY_UTTERANCES = {
     # COLOR FROM VOID
     "color_from_void_sheut_1": {
         "name": "Color From Void",
-        "tier": "Sheut •",
+        "tier": "Sheut *",
         "pillar": "Sheut",
         "pillar_rating": 1,
         "tags": ["Subtle"],
@@ -596,7 +596,7 @@ MUMMY_UTTERANCES = {
     },
     "color_from_void_ab_3": {
         "name": "Color From Void",
-        "tier": "Ab •••",
+        "tier": "Ab ***",
         "pillar": "Ab",
         "pillar_rating": 3,
         "tags": ["None"],
@@ -605,7 +605,7 @@ MUMMY_UTTERANCES = {
     },
     "color_from_void_ren_5": {
         "name": "Color From Void",
-        "tier": "Ren •••••",
+        "tier": "Ren *****",
         "pillar": "Ren",
         "pillar_rating": 5,
         "tags": ["None"],
@@ -616,7 +616,7 @@ MUMMY_UTTERANCES = {
     # DREAMS OF DEAD GODS
     "dreams_of_dead_gods_ba_1": {
         "name": "Dreams of Dead Gods",
-        "tier": "Ba •",
+        "tier": "Ba *",
         "pillar": "Ba",
         "pillar_rating": 1,
         "tags": ["Curse"],
@@ -625,7 +625,7 @@ MUMMY_UTTERANCES = {
     },
     "dreams_of_dead_gods_ka_2": {
         "name": "Dreams of Dead Gods",
-        "tier": "Ka ••",
+        "tier": "Ka **",
         "pillar": "Ka",
         "pillar_rating": 2,
         "tags": ["Curse", "Potency 2"],
@@ -634,7 +634,7 @@ MUMMY_UTTERANCES = {
     },
     "dreams_of_dead_gods_ab_4": {
         "name": "Dreams of Dead Gods",
-        "tier": "Ab ••••",
+        "tier": "Ab ****",
         "pillar": "Ab",
         "pillar_rating": 4,
         "tags": ["Subtle"],
@@ -646,7 +646,7 @@ MUMMY_UTTERANCES = {
     # DUST BENEATH FEET
     "dust_beneath_feet_ba_1": {
         "name": "Dust Beneath Feet",
-        "tier": "Ba •",
+        "tier": "Ba *",
         "pillar": "Ba",
         "pillar_rating": 1,
         "tags": ["None"],
@@ -655,7 +655,7 @@ MUMMY_UTTERANCES = {
     },
     "dust_beneath_feet_ka_3": {
         "name": "Dust Beneath Feet",
-        "tier": "Ka •••",
+        "tier": "Ka ***",
         "pillar": "Ka",
         "pillar_rating": 3,
         "tags": ["Curse"],
@@ -664,7 +664,7 @@ MUMMY_UTTERANCES = {
     },
     "dust_beneath_feet_sheut_5": {
         "name": "Dust Beneath Feet",
-        "tier": "Sheut •••••",
+        "tier": "Sheut *****",
         "pillar": "Sheut",
         "pillar_rating": 5,
         "tags": ["Curse", "Epic"],
@@ -675,7 +675,7 @@ MUMMY_UTTERANCES = {
     # ECHOES OF FADED VOICES
     "echoes_of_faded_voices_sheut_1": {
         "name": "Echoes of Faded Voices",
-        "tier": "Sheut •",
+        "tier": "Sheut *",
         "pillar": "Sheut",
         "pillar_rating": 1,
         "tags": ["Subtle"],
@@ -684,7 +684,7 @@ MUMMY_UTTERANCES = {
     },
     "echoes_of_faded_voices_ren_3": {
         "name": "Echoes of Faded Voices",
-        "tier": "Ren •••",
+        "tier": "Ren ***",
         "pillar": "Ren",
         "pillar_rating": 3,
         "tags": ["Curse"],
@@ -693,7 +693,7 @@ MUMMY_UTTERANCES = {
     },
     "echoes_of_faded_voices_ka_5": {
         "name": "Echoes of Faded Voices",
-        "tier": "Ka •••••",
+        "tier": "Ka *****",
         "pillar": "Ka",
         "pillar_rating": 5,
         "tags": ["Curse", "Epic"],
@@ -704,7 +704,7 @@ MUMMY_UTTERANCES = {
     # FEAST OF ASHES
     "feast_of_ashes_ab_1": {
         "name": "Feast of Ashes",
-        "tier": "Ab •",
+        "tier": "Ab *",
         "pillar": "Ab",
         "pillar_rating": 1,
         "tags": ["None"],
@@ -713,7 +713,7 @@ MUMMY_UTTERANCES = {
     },
     "feast_of_ashes_ka_3": {
         "name": "Feast of Ashes",
-        "tier": "Ka •••",
+        "tier": "Ka ***",
         "pillar": "Ka",
         "pillar_rating": 3,
         "tags": ["Curse", "Epic"],
@@ -722,7 +722,7 @@ MUMMY_UTTERANCES = {
     },
     "feast_of_ashes_sheut_5": {
         "name": "Feast of Ashes",
-        "tier": "Sheut •••••",
+        "tier": "Sheut *****",
         "pillar": "Sheut",
         "pillar_rating": 5,
         "tags": ["Curse", "Epic"],
@@ -733,7 +733,7 @@ MUMMY_UTTERANCES = {
     # FURY OF SEKHMET
     "fury_of_sekhmet_sheut_1": {
         "name": "Fury of Sekhmet",
-        "tier": "Sheut •",
+        "tier": "Sheut *",
         "pillar": "Sheut",
         "pillar_rating": 1,
         "tags": ["None"],
@@ -742,7 +742,7 @@ MUMMY_UTTERANCES = {
     },
     "fury_of_sekhmet_ab_3": {
         "name": "Fury of Sekhmet",
-        "tier": "Ab •••",
+        "tier": "Ab ***",
         "pillar": "Ab",
         "pillar_rating": 3,
         "tags": ["Potency 1"],
@@ -751,7 +751,7 @@ MUMMY_UTTERANCES = {
     },
     "fury_of_sekhmet_defining_5": {
         "name": "Fury of Sekhmet",
-        "tier": "Defining •••••",
+        "tier": "Defining *****",
         "pillar": "Defining",
         "pillar_rating": 5,
         "tags": ["Epic"],
@@ -762,7 +762,7 @@ MUMMY_UTTERANCES = {
     # GIFT OF THE GOLDEN ANKH
     "gift_of_the_golden_ankh_ka_1": {
         "name": "Gift of the Golden Ankh",
-        "tier": "Ka •",
+        "tier": "Ka *",
         "pillar": "Ka",
         "pillar_rating": 1,
         "tags": ["Subtle"],
@@ -771,7 +771,7 @@ MUMMY_UTTERANCES = {
     },
     "gift_of_the_golden_ankh_ba_3": {
         "name": "Gift of the Golden Ankh",
-        "tier": "Ba •••",
+        "tier": "Ba ***",
         "pillar": "Ba",
         "pillar_rating": 3,
         "tags": ["None"],
@@ -780,7 +780,7 @@ MUMMY_UTTERANCES = {
     },
     "gift_of_the_golden_ankh_ab_5": {
         "name": "Gift of the Golden Ankh",
-        "tier": "Ab •••••",
+        "tier": "Ab *****",
         "pillar": "Ab",
         "pillar_rating": 5,
         "tags": ["None"],
@@ -791,7 +791,7 @@ MUMMY_UTTERANCES = {
     # GILDED DOOM
     "gilded_doom_ren_1": {
         "name": "Gilded Doom",
-        "tier": "Ren •",
+        "tier": "Ren *",
         "pillar": "Ren",
         "pillar_rating": 1,
         "tags": ["None"],
@@ -800,7 +800,7 @@ MUMMY_UTTERANCES = {
     },
     "gilded_doom_ab_2": {
         "name": "Gilded Doom",
-        "tier": "Ab ••",
+        "tier": "Ab **",
         "pillar": "Ab",
         "pillar_rating": 2,
         "tags": ["Curse"],
@@ -809,7 +809,7 @@ MUMMY_UTTERANCES = {
     },
     "gilded_doom_sheut_4": {
         "name": "Gilded Doom",
-        "tier": "Sheut ••••",
+        "tier": "Sheut ****",
         "pillar": "Sheut",
         "pillar_rating": 4,
         "tags": ["None"],
@@ -820,7 +820,7 @@ MUMMY_UTTERANCES = {
     # INVOKING TEMPEST'S FURY
     "invoking_tempests_fury_ab_1": {
         "name": "Invoking Tempest's Fury",
-        "tier": "Ab •",
+        "tier": "Ab *",
         "pillar": "Ab",
         "pillar_rating": 1,
         "tags": ["None"],
@@ -829,7 +829,7 @@ MUMMY_UTTERANCES = {
     },
     "invoking_tempests_fury_ka_3": {
         "name": "Invoking Tempest's Fury",
-        "tier": "Ka •••",
+        "tier": "Ka ***",
         "pillar": "Ka",
         "pillar_rating": 3,
         "tags": ["Epic"],
@@ -838,7 +838,7 @@ MUMMY_UTTERANCES = {
     },
     "invoking_tempests_fury_sheut_5": {
         "name": "Invoking Tempest's Fury",
-        "tier": "Sheut •••••",
+        "tier": "Sheut *****",
         "pillar": "Sheut",
         "pillar_rating": 5,
         "tags": ["Curse", "Epic"],
@@ -849,7 +849,7 @@ MUMMY_UTTERANCES = {
     # OBEDIENT IMPLEMENTS
     "obedient_implements_ka_1": {
         "name": "Obedient Implements",
-        "tier": "Ka •",
+        "tier": "Ka *",
         "pillar": "Ka",
         "pillar_rating": 1,
         "tags": ["Curse", "Epic"],
@@ -858,7 +858,7 @@ MUMMY_UTTERANCES = {
     },
     "obedient_implements_ba_3": {
         "name": "Obedient Implements",
-        "tier": "Ba •••",
+        "tier": "Ba ***",
         "pillar": "Ba",
         "pillar_rating": 3,
         "tags": ["Curse", "Epic"],
@@ -867,7 +867,7 @@ MUMMY_UTTERANCES = {
     },
     "obedient_implements_ab_5": {
         "name": "Obedient Implements",
-        "tier": "Ab •••••",
+        "tier": "Ab *****",
         "pillar": "Ab",
         "pillar_rating": 5,
         "tags": ["Curse"],
@@ -878,7 +878,7 @@ MUMMY_UTTERANCES = {
     # PALACE KNOWS ITS PHARAOH
     "palace_knows_its_pharaoh_ka_1": {
         "name": "Palace Knows Its Pharaoh",
-        "tier": "Ka •",
+        "tier": "Ka *",
         "pillar": "Ka",
         "pillar_rating": 1,
         "tags": ["Subtle"],
@@ -887,7 +887,7 @@ MUMMY_UTTERANCES = {
     },
     "palace_knows_its_pharaoh_ren_2": {
         "name": "Palace Knows Its Pharaoh",
-        "tier": "Ren ••",
+        "tier": "Ren **",
         "pillar": "Ren",
         "pillar_rating": 2,
         "tags": ["Curse"],
@@ -896,7 +896,7 @@ MUMMY_UTTERANCES = {
     },
     "palace_knows_its_pharaoh_ba_4": {
         "name": "Palace Knows Its Pharaoh",
-        "tier": "Ba ••••",
+        "tier": "Ba ****",
         "pillar": "Ba",
         "pillar_rating": 4,
         "tags": ["Epic"],
@@ -907,7 +907,7 @@ MUMMY_UTTERANCES = {
     # PAVANE OF ETERNITY
     "pavane_of_eternity_ba_1": {
         "name": "Pavane of Eternity",
-        "tier": "Ba •",
+        "tier": "Ba *",
         "pillar": "Ba",
         "pillar_rating": 1,
         "tags": ["Subtle"],
@@ -916,7 +916,7 @@ MUMMY_UTTERANCES = {
     },
     "pavane_of_eternity_ren_3": {
         "name": "Pavane of Eternity",
-        "tier": "Ren •••",
+        "tier": "Ren ***",
         "pillar": "Ren",
         "pillar_rating": 3,
         "tags": ["Subtle"],
@@ -925,7 +925,7 @@ MUMMY_UTTERANCES = {
     },
     "pavane_of_eternity_ab_5": {
         "name": "Pavane of Eternity",
-        "tier": "Ab •••••",
+        "tier": "Ab *****",
         "pillar": "Ab",
         "pillar_rating": 5,
         "tags": ["Epic"],
@@ -936,7 +936,7 @@ MUMMY_UTTERANCES = {
     # PESTILENT WHISPERS
     "pestilent_whispers_ka_1": {
         "name": "Pestilent Whispers",
-        "tier": "Ka •",
+        "tier": "Ka *",
         "pillar": "Ka",
         "pillar_rating": 1,
         "tags": ["Curse"],
@@ -945,7 +945,7 @@ MUMMY_UTTERANCES = {
     },
     "pestilent_whispers_ba_3": {
         "name": "Pestilent Whispers",
-        "tier": "Ba •••",
+        "tier": "Ba ***",
         "pillar": "Ba",
         "pillar_rating": 3,
         "tags": ["Curse"],
@@ -954,7 +954,7 @@ MUMMY_UTTERANCES = {
     },
     "pestilent_whispers_sheut_5": {
         "name": "Pestilent Whispers",
-        "tier": "Sheut •••••",
+        "tier": "Sheut *****",
         "pillar": "Sheut",
         "pillar_rating": 5,
         "tags": ["Potency 2"],
@@ -965,7 +965,7 @@ MUMMY_UTTERANCES = {
     # POWER OF RE
     "power_of_re_ren_1": {
         "name": "Power of Re",
-        "tier": "Ren •",
+        "tier": "Ren *",
         "pillar": "Ren",
         "pillar_rating": 1,
         "tags": ["None"],
@@ -974,7 +974,7 @@ MUMMY_UTTERANCES = {
     },
     "power_of_re_sheut_2": {
         "name": "Power of Re",
-        "tier": "Sheut ••",
+        "tier": "Sheut **",
         "pillar": "Sheut",
         "pillar_rating": 2,
         "tags": ["None"],
@@ -983,7 +983,7 @@ MUMMY_UTTERANCES = {
     },
     "power_of_re_ab_4": {
         "name": "Power of Re",
-        "tier": "Ab ••••",
+        "tier": "Ab ****",
         "pillar": "Ab",
         "pillar_rating": 4,
         "tags": ["Curse", "Epic"],
@@ -994,7 +994,7 @@ MUMMY_UTTERANCES = {
     # REBUKE THE VIZIER
     "rebuke_the_vizier_ka_1": {
         "name": "Rebuke the Vizier",
-        "tier": "Ka •",
+        "tier": "Ka *",
         "pillar": "Ka",
         "pillar_rating": 1,
         "tags": ["Potency 3"],
@@ -1003,7 +1003,7 @@ MUMMY_UTTERANCES = {
     },
     "rebuke_the_vizier_ba_3": {
         "name": "Rebuke the Vizier",
-        "tier": "Ba •••",
+        "tier": "Ba ***",
         "pillar": "Ba",
         "pillar_rating": 3,
         "tags": ["Potency 3"],
@@ -1012,7 +1012,7 @@ MUMMY_UTTERANCES = {
     },
     "rebuke_the_vizier_ren_5": {
         "name": "Rebuke the Vizier",
-        "tier": "Ren •••••",
+        "tier": "Ren *****",
         "pillar": "Ren",
         "pillar_rating": 5,
         "tags": ["Potency 3"],
@@ -1023,7 +1023,7 @@ MUMMY_UTTERANCES = {
     # REFLECTIONS UPON A BROKEN IMAGE
     "reflections_upon_a_broken_image_ab_1": {
         "name": "Reflections Upon A Broken Image",
-        "tier": "Ab •",
+        "tier": "Ab *",
         "pillar": "Ab",
         "pillar_rating": 1,
         "tags": ["Subtle"],
@@ -1032,7 +1032,7 @@ MUMMY_UTTERANCES = {
     },
     "reflections_upon_a_broken_image_ba_3": {
         "name": "Reflections Upon A Broken Image",
-        "tier": "Ba •••",
+        "tier": "Ba ***",
         "pillar": "Ba",
         "pillar_rating": 3,
         "tags": ["None"],
@@ -1041,7 +1041,7 @@ MUMMY_UTTERANCES = {
     },
     "reflections_upon_a_broken_image_ka_5": {
         "name": "Reflections Upon A Broken Image",
-        "tier": "Ka •••••",
+        "tier": "Ka *****",
         "pillar": "Ka",
         "pillar_rating": 5,
         "tags": ["None"],
@@ -1055,7 +1055,7 @@ MUMMY_UTTERANCES = {
     # SANDS FALLING SWIFTLY
     "sands_falling_swiftly_ab_1": {
         "name": "Sands Falling Swiftly",
-        "tier": "Ab •",
+        "tier": "Ab *",
         "pillar": "Ab",
         "pillar_rating": 1,
         "tags": ["Potency 1"],
@@ -1064,7 +1064,7 @@ MUMMY_UTTERANCES = {
     },
     "sands_falling_swiftly_ren_3": {
         "name": "Sands Falling Swiftly",
-        "tier": "Ren •••",
+        "tier": "Ren ***",
         "pillar": "Ren",
         "pillar_rating": 3,
         "tags": ["None"],
@@ -1073,7 +1073,7 @@ MUMMY_UTTERANCES = {
     },
     "sands_falling_swiftly_ka_5": {
         "name": "Sands Falling Swiftly",
-        "tier": "Ka •••••",
+        "tier": "Ka *****",
         "pillar": "Ka",
         "pillar_rating": 5,
         "tags": ["Epic"],
@@ -1084,7 +1084,7 @@ MUMMY_UTTERANCES = {
     # WATER OF LIFE AND DEATH
     "water_of_life_and_death_ren_1": {
         "name": "Water of Life and Death",
-        "tier": "Ren •",
+        "tier": "Ren *",
         "pillar": "Ren",
         "pillar_rating": 1,
         "tags": ["None"],
@@ -1093,7 +1093,7 @@ MUMMY_UTTERANCES = {
     },
     "water_of_life_and_death_sheut_2": {
         "name": "Water of Life and Death",
-        "tier": "Sheut ••",
+        "tier": "Sheut **",
         "pillar": "Sheut",
         "pillar_rating": 2,
         "tags": ["Curse"],
@@ -1102,7 +1102,7 @@ MUMMY_UTTERANCES = {
     },
     "water_of_life_and_death_ba_4": {
         "name": "Water of Life and Death",
-        "tier": "Ba ••••",
+        "tier": "Ba ****",
         "pillar": "Ba",
         "pillar_rating": 4,
         "tags": ["None"],
@@ -1113,7 +1113,7 @@ MUMMY_UTTERANCES = {
     # WEIGHING THE HEART
     "weighing_the_heart_ren_1": {
         "name": "Weighing the Heart",
-        "tier": "Ren •",
+        "tier": "Ren *",
         "pillar": "Ren",
         "pillar_rating": 1,
         "tags": ["Subtle"],
@@ -1122,7 +1122,7 @@ MUMMY_UTTERANCES = {
     },
     "weighing_the_heart_ab_2": {
         "name": "Weighing the Heart",
-        "tier": "Ab ••",
+        "tier": "Ab **",
         "pillar": "Ab",
         "pillar_rating": 2,
         "tags": ["Curse", "Subtle"],
@@ -1131,7 +1131,7 @@ MUMMY_UTTERANCES = {
     },
     "weighing_the_heart_sheut_4": {
         "name": "Weighing the Heart",
-        "tier": "Sheut ••••",
+        "tier": "Sheut ****",
         "pillar": "Sheut",
         "pillar_rating": 4,
         "tags": ["Subtle"],
@@ -1142,7 +1142,7 @@ MUMMY_UTTERANCES = {
     # WORDS OF DEAD DOMINION
     "words_of_dead_dominion_sheut_1": {
         "name": "Words of Dead Dominion",
-        "tier": "Sheut •",
+        "tier": "Sheut *",
         "pillar": "Sheut",
         "pillar_rating": 1,
         "tags": ["None"],
@@ -1151,7 +1151,7 @@ MUMMY_UTTERANCES = {
     },
     "words_of_dead_dominion_ren_2": {
         "name": "Words of Dead Dominion",
-        "tier": "Ren ••",
+        "tier": "Ren **",
         "pillar": "Ren",
         "pillar_rating": 2,
         "tags": ["None"],
@@ -1160,7 +1160,7 @@ MUMMY_UTTERANCES = {
     },
     "words_of_dead_dominion_ka_4": {
         "name": "Words of Dead Dominion",
-        "tier": "Ka ••••",
+        "tier": "Ka ****",
         "pillar": "Ka",
         "pillar_rating": 4,
         "tags": ["Potency 2"],
@@ -1171,7 +1171,7 @@ MUMMY_UTTERANCES = {
     # WRATHFUL DESERT POWER
     "wrathful_desert_power_ab_1": {
         "name": "Wrathful Desert Power",
-        "tier": "Ab •",
+        "tier": "Ab *",
         "pillar": "Ab",
         "pillar_rating": 1,
         "tags": ["None"],
@@ -1180,7 +1180,7 @@ MUMMY_UTTERANCES = {
     },
     "wrathful_desert_power_ba_2": {
         "name": "Wrathful Desert Power",
-        "tier": "Ba ••",
+        "tier": "Ba **",
         "pillar": "Ba",
         "pillar_rating": 2,
         "tags": ["None"],
@@ -1189,7 +1189,7 @@ MUMMY_UTTERANCES = {
     },
     "wrathful_desert_power_ka_4": {
         "name": "Wrathful Desert Power",
-        "tier": "Ka ••••",
+        "tier": "Ka ****",
         "pillar": "Ka",
         "pillar_rating": 4,
         "tags": ["Curse"],

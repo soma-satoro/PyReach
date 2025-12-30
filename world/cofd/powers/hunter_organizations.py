@@ -15,7 +15,7 @@ ALL_COMPACTS = {
         "description": "A decadent Hellfire Club dedicated to experiencing everything that life (or unlife) has to offer.",
         "status_benefits": {
             1: "Receive the Barfly Merit.",
-            3: "Use local chapterhouse as a Safe Place •• with Home Security, Arsenal, and Escape Hatch.",
+            3: "Use local chapterhouse as a Safe Place ** with Home Security, Arsenal, and Escape Hatch.",
             5: "Receive Contacts among lawyers, vice, arms traffic, and the Abbey."
         },
         "book": "HTV 2e 265 / TF 12"
@@ -65,7 +65,7 @@ ALL_COMPACTS = {
         "book": "TF 20"
     },
     "las_guadanas": {
-        "name": "Las Guadañas",
+        "name": "Las Guadanas",
         "type": "compact",
         "description": "Criminal syndicate Death cult dedicated to eliminating the dead and undead who have cheated the Lady.",
         "status_benefits": {
@@ -126,7 +126,7 @@ ALL_COMPACTS = {
         "status_benefits": {
             1: "Take a free Investigation or Occult specialty.",
             3: "Take 8-Again on Tactic rolls.",
-            5: "Receive the effects of Trained Observer •••."
+            5: "Receive the effects of Trained Observer:3."
         },
         "book": "HTV 2e 26"
     },
@@ -430,7 +430,7 @@ def get_organization_summary(org_name):
     
     summary.append(f"\nStatus Benefits:")
     for level, benefit in sorted(org_data['status_benefits'].items()):
-        dots = "•" * level
+        dots = "*" * level
         summary.append(f"  {dots} - {benefit}")
     
     summary.append(f"\nSource: {org_data['book']}")

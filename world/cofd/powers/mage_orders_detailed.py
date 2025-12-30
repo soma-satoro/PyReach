@@ -38,7 +38,7 @@ CONTEMPORARY_ORDERS = {
     },
     "silver_ladder": {
         "name": "Silver Ladder",
-        "nickname": "Théarchs",
+        "nickname": "Thearchs",
         "creed": "Magic is humanity's birthright",
         "symbolism": "Authority",
         "rote_skills": ["Expression", "Persuasion", "Subterfuge"],

@@ -8,237 +8,52 @@ from utils.search_helpers import search_character
 
 class CmdStat(MuxCommand):
     """
-    Set and manage character statistics.
+    Character generation tool for stat management.
     
     Usage:
         +stat <stat>=<value> - Set a stat on yourself (if not approved)
         +stat <stat>= - Remove a stat from yourself (if not approved)
-        +stat <name>/<stat>=<value> - Set a stat on someone else (staff only)
-        +stat <name>/<stat>= - Remove a stat from someone else (staff only)
         +stat/list [name] - List all stats for yourself or another
         +stat/remove <stat> - Remove a stat from yourself (if not approved)
-        +stat/remove <name>/<stat> - Remove a stat from someone else (staff only)
         +stat/remove specialty/<skill> - Remove all specialties for a skill
-        +stat/approve <name> - Lock a character's stats (staff only)
-        +stat/unapprove <name> - Unlock a character's stats (staff only)
-        +stat/reset <name>=<template> - Reset character to new template (staff only)
+        +stat/remove specialty/<skill>=<specialty name> - Remove a specific specialty
         +stat/geist <stat>=<value> - Set a geist stat (Sin-Eater characters only)
         +stat/mage <stat>=<value> - Set a mage stat (Mage characters only)
         +stat/demon <stat>=<value> - Set a demon form stat (Demon characters only)
-        
-        The /reset switch completely wipes ALL character stats and reinitializes
-        them for the new template. This is a nuclear option for fixing corrupted
-        data. Use with caution as it cannot be undone!
         
         Merit Instances:
         Some merits can be taken multiple times with different specifications.
         Use colon notation to create instances:
             +stat Unseen Sense:Ghosts=2
-            +stat Unseen Sense:Spirits=2
-            +stat Unseen Sense:Faeries=2
-            +stat Tell:Piercing Eyes=3
-            +stat Tell:Shape Shifted=3
-            +stat Tell:Second Skin=3
         Each instance costs the full merit value. To remove an instance:
             +stat Unseen Sense:Ghosts=
-            +stat Tell:Piercing Eyes=
-        
     Valid stat categories:
         Attributes: strength, dexterity, stamina, presence, manipulation, 
                    composure, intelligence, wits, resolve
         Skills: All CoD skills (athletics, brawl, investigation, etc.)
         Specialties: specialty/[skill]=[specialty name] (requires dots in skill)
-        Derived Stats: health, willpower, speed, defense, initiative
-                       (automatically calculated from attributes - staff only)
         Power Stats: blood_potency, gnosis, primal_urge, wyrd, synergy, 
-                    azoth, primum, satiety, deviation, psyche, feral_heart
-        Merits: All Chronicles of Darkness merits (see +xp/list merits)
-        Favors: Innate breed abilities (Legacy Changing Breeds only)
-        Aspects: Supernatural powers (Legacy Changing Breeds only)
+                    azoth, primum, psyche, feral_heart
+        Merits: All Chronicles of Darkness merits (see +lookup merits)
         Powers: Template-specific supernatural abilities
-                - Vampire: disciplines (animalism, auspex), discipline powers (mesmerize, feral_whispers),
-                           devotions (quicken_sight, bend_space), coils (conquer_the_red_fear),
-                           scales (flesh_graft_treatment), theban (apple_of_eden), cruac (pangs_of_proserpina)
-                - Mage: arcana (arcanum_death, fate, forces, etc.)
-                - Werewolf: gifts (shadow_gaze, killer_instinct), rites (sacred_hunt, bottle_spirit)
-                - Changeling: individual contracts (hostile_takeover, cloak_of_night, etc.)
-                - Demon: embeds (authenticate, overclock), exploits (blowback, cloak_of_night)
-                Note: Powers that conflict with attribute/skill names use prefixes
+            discipline, devotion, coil, scale, theban, cruac, arcana, gift, 
+            rite, contract, spell, alembic, bestowment, endowment, embed, exploit
+            adaptation, affinity, utterance
+        Anchors: virtue/vice (mortal/most templates), elpis/torment (promethean),
+                 mask/dirge (vampire), thread/needle (changeling), bloom/root (geist),
+                 bone/blood (werewolf), conviction/loyalty (deviant)
+        Integrity: clarity, wisdom, humanity, harmony, cover, memory, integrity, stability
         
-        Demon Characters:
-                Use +stat embed=<name> to learn Embeds (innate abilities)
-                Use +stat exploit=<name> to learn Exploits (advanced techniques)
-                Use +stat first_key=<embed_name> to designate your First Key (must be an Embed you know)
-        Bio: fullname, birthdate, concept, virtue, vice
-        Anchors: virtue, vice (mortal/most templates), elpis, torment (promethean),
-                 mask, dirge (changeling), thread, root (geist), bloom (beast)
-        Template Bio: path, order, legacy, shadow_name, cabal, mask, dirge, 
-                   clan, covenant, bone, blood, auspice, tribe, lodge, pack, 
-                   deed_name, seeming, court, kith, burden, archetype, 
-                   krewe, lineage, refinement, athanor, creator, pilgrimage, 
-                   throng, profession, organization, creed, incarnation, 
-                   agenda, agency, hunger, family, inheritance, origin, 
-                   clade, divergence, accord, breed, nahual (legacy_changingbreeds),
-                   template_type, subtype, organization, profession, favored_regalia (mortal_plus)
-                   
-        Note: Bio field names can use spaces or underscores:
-              +stat template_type=dhampir  OR  +stat template type=dhampir
-              +stat favored_regalia=crown  OR  +stat favored regalia=crown
-        Other: integrity, size, beats, experience, template (staff only)
+        Semantic Power Setting:
+        The following are semantic powers, which require you to set individual abilities, which
+        would classically be similar to rites or rituals (+stat rite=<rite name>)
+        Keys, Ceremonies, Rites, Contracts, Spells, Alembics, Bestowments,
+        Endowments, Embeds, Exploits, Affinities, Utterances, Adaptations
         
-        Template-specific integrity names can also be used:
-        humanity (vampire), wisdom (mage), pilgrimage (promethean), 
-        clarity (changeling), cover (demon), harmony (werewolf), 
-        synergy (geist), satiety (beast)
-        
-    Examples:
-        +stat strength=3
-        +stat fullname=John Smith
-        +stat birthdate=March 15, 1985
-        +stat concept=Detective
-        +stat virtue=Justice
-        +stat vice=Wrath
-        +stat elpis=Courage (promethean-specific)
-        +stat torment=Alienated (promethean-specific)
-        +stat template=Vampire (staff only)
-        +stat clan=Gangrel (vampire-specific)
-        +stat path=Obrimos (mage-specific)
-        +stat legacy=Perfected Adepts (mage-specific, requires matching path or order)
-        +stat lineage=Frankenstein (promethean-specific)
-        +stat athanor=Basilisk (promethean-specific, requires matching lineage)
-        +stat template_type=dhampir (mortal+ specific)
-        +stat template type=dhampir (same as above - spaces or underscores work)
-        +stat favored_regalia=crown (changeling/fae-touched specific)
-        +stat favored regalia=mirror (same as above - spaces or underscores work)
-        
-        Specialty Examples:
-        +stat specialty/athletics=Running
-        +stat specialty/investigation=Crime Scenes  
-        +stat specialty/brawl=Dirty Fighting
-        
-        Category Prefixes (for ambiguous stats):
-        Some stats conflict between categories (e.g., 'telekinesis' is both a merit and a spell).
-        Use category prefixes to disambiguate:
-        +stat merit/telekinesis=3 (force as merit, not spell)
-        +stat attribute/strength=3 (force as attribute, not werewolf gift)
-        +stat skill/athletics=3 (force as skill)
-        +stat arcana/life=3 (force as mage arcana)
-        +stat bio/life=text (force as deviant bio field)
-        +stat power/strength=2 (force as werewolf gift, not attribute)
-        Without prefix, the system auto-detects based on your template
-        
-        Merit Examples (during character generation):
-        +stat contacts=3
-        +stat fast_reflexes=2
-        +stat resources=2
-        +stat allies=1
-        +stat unseen_sense:ghosts=2
-        +stat unseen_sense:spirits=2
-        
-        Changing Breeds Examples (Legacy Mode):
-        +stat template=Legacy Changing Breeds
-        +stat accord=Den-Warder
-        +stat breed=Rajan (weretiger breed)
-        +stat nahual=Bastet (werecats)
-        +stat pack=The Night Stalkers
-        +stat favor:darksight=1
-        +stat favor:fang_and_claw=3
-        +stat aspect:nine_lives=5
-        +stat aspect:shadow_bond=3
-        
-        Power Examples:
-        +stat animalism=3 (vampire discipline - rated 1-5)
-        +stat discipline_power=mesmerize (vampire discipline power)
-        +stat devotion=quicken_sight (vampire devotion)
-        +stat devotion=quicken_sight= (remove devotion - trailing =)
-        +stat/remove devotion:quicken_sight (remove devotion - alternative syntax)
-        +stat coil=conquer_the_red_fear (Coil of the Dragon)
-        +stat scale=flesh_graft_treatment (Scale of the Dragon)
-        +stat theban=apple_of_eden (Theban Sorcery miracle)
-        +stat cruac=pangs_of_proserpina (Cruac rite)
-        +stat merit/telekinesis=3 (force as merit, not spell)
-        +stat spell=telekinesis (mage spell, not merit)
-        +stat arcanum_death=2 (mage arcanum - prefixed to avoid conflict)
-        +stat death=2 (also works - auto-mapped to arcanum_death for mages)
-        +stat forces=2 (mage arcanum - no conflict)
-        +stat life=3 (mage arcanum - auto-detected based on template)
-        +stat arcana/life=3 (explicit: force as arcana)
-        +stat bio/life=Mortal life (explicit: force as bio field for Deviants)
-        +stat attribute/strength=3 (force as attribute, not werewolf gift)
-        +stat power/strength=2 (force as werewolf gift, not attribute)
-        +stat gift=shadow_gaze (werewolf gift - Ithaeur)
-        +stat gift=killer_instinct (werewolf gift - Rahu)
-        +stat sacred_hunt=1 (werewolf rite - rank 2)
-        +stat hostile_takeover=1 (changeling contract)
-        
-        Geist Examples (Sin-Eater secondary character sheet):
-        +stat/geist concept=The Snow Queen
-        +stat/geist remembrance_description=Crisp winter cold and wedding march music
-        +stat/geist remembrance_trait=intimidation (must be skill or merit ≤3 dots)
-        +stat/geist power=7 (geist attributes: power, finesse, resistance)
-        +stat/geist finesse=3
-        +stat/geist resistance=5
-        +stat/geist virtue=empathetic
-        +stat/geist vice=implacable
-        +stat/geist crisis_trigger=betrayal
-        +stat/geist ban=Fresh pine boughs
-        +stat/geist bane=Yellow roses
-        +stat/geist innate_key=cold wind
-        +stat/geist boneyard=3 (haunts are rated 1-5)
-        
-        Mage Examples (Mage-specific character sheet):
-        +stat/mage immediate_nimbus=A halo of crackling electricity
-        +stat/mage long_term_nimbus=Electronics malfunction, lights flicker
-        +stat/mage signature_nimbus=Ozone smell and static charge
-        +stat/mage dedicated_tool=A copper staff wrapped in wire
-        +stat/mage obsession=Understand the digital realm
-        +stat/mage praxis=telekinesis
-        +stat/mage praxis=create locus
-        
-        Demon Form Examples (Demon-specific demonic form sheet):
-        +stat/demon concept=Clockwork Sentinel
-        +stat/demon description=A towering figure of brass gears and crystal lenses
-        +stat/demon modification=Armored_Plating
-        +stat/demon technology=Electromagnetic_Pulse
-        +stat/demon propulsion=Magnetic_Levitation
-        +stat/demon process=Threat_Assessment_Matrix
-        +stat/demon/remove modification=Armored_Plating
-        
-        Semantic Power Setting (Individual Abilities):
-        Keys (Geist): +stat key=beasts, +stat key=stillness, +stat key=cold_wind
-        Ceremonies (Geist): +stat ceremony=pass_on, +stat ceremony=ghost_trap
-        Rites (Werewolf): +stat rite=sacred_hunt, +stat rite=bottle_spirit
-        Vampire Powers: +stat discipline_power=mesmerize, +stat devotion=quicken_sight,
-                        +stat coil=conquer_the_red_fear, +stat scale=flesh_graft_treatment,
-                        +stat theban=apple_of_eden, +stat cruac=pangs_of_proserpina
-        Werewolf Gifts: +stat gift=shadow_gaze, +stat gift=killer_instinct
-        Contracts (Changeling): +stat contract=hostile_takeover, +stat contract=cloak_of_night
-        Spells (Mage): +stat spell=create locus, +stat spell=telekinesis
-        Alembics (Promethean): +stat alembic=purification, +stat alembic=human_flesh
-        Bestowments (Promethean): +stat bestowment=spare_parts, +stat bestowment=titans_strength
-        Endowments (Hunter): +stat endowment=hellfire, +stat endowment=wrathful sword of st michael
-        Embeds (Demon): +stat embed=authenticate, +stat embed=overclock, +stat embed=teleportation
-        Exploits (Demon): +stat exploit=blowback, +stat exploit=murder_of_crows, +stat exploit=guardian_angel
-        Affinities (Mummy): +stat bestial_majesty=known, +stat divine_countenance=known
-        Utterances (Mummy): +stat awaken_the_dead_ba_1=known, +stat fury_of_sekhmet_sheut_1=known
-        Adaptations (Deviant): +stat adaptation=stubborn_resolve, +stat adaptation=iron_will
-        
-        Remove adaptations with: +stat/remove adaptation stubborn_resolve
+        Mummy utterances are set with +stat <utterance name>=known, so +stat fury_of_sekhmet_sheut_1=known
+        Remove semantic powers with +stat/remove.
 
-        Category Powers (1-5 dots):
-        Haunts (Geist): +stat boneyard=3, +stat curse=2
-        Disciplines (Vampire): +stat animalism=4, +stat auspex=2
-        Arcana (Mage): +stat forces=3, +stat death=1
-        Gifts (Werewolf): +stat strength=2, +stat dominance=3
-        
-        Note: Individual abilities use semantic syntax (known/unknown).
-        Categories use regular numeric ratings (1-5 dots).
-        
-    Note: Merits can be set directly with +stat during character generation.
-    Once approved, merits must be purchased using +xp/buy <merit>=[dots] command.
-    Merits require prerequisite validation. Use +xp/list merits to see available merits.
-    Players can only modify their own stats if they are not approved.
-    Staff can modify any character's stats at any time.
+        All other powers are set with +stat <power name>=<value>, so +stat animalism=4
     """
     
     key = "+stat"
@@ -404,6 +219,15 @@ class CmdStat(MuxCommand):
                 
                 # Convert spaces to underscores in stat names
                 stat = stat.replace(" ", "_")
+                
+                # For certain bio fields, allow spaces in values (convert to underscores internally)
+                # These fields: organization, order, tribe, covenant, alembic, contracts
+                space_allowed_fields = ["organization", "order", "tribe", "covenant", "alembic"]
+                if stat in space_allowed_fields:
+                    # Convert spaces to underscores in the value for storage
+                    value = value.replace(" ", "_")
+                # Note: contracts are handled as semantic powers above, so they already handle spaces
+                
                 return None, stat, value
         else:
             return None, None, None
@@ -680,7 +504,8 @@ class CmdStat(MuxCommand):
                      "origin", "clade", "divergence", "needle", "thread", "legend", "life",
                      "geist_name", "embrace_date", "legacy", "shadow_name", "cabal", "lodge",
                      "pack", "deed_name", "throng", "creator", "pilgrimage", "athanor",
-                     "template_type", "subtype", "game_line", "abilities", "guild", "decree", "judge", "cult", "tomb"]:
+                     "template_type", "subtype", "game_line", "abilities", "guild", "decree", "judge", "cult", "tomb",
+                     "keeper", "entitlement", "bloodline", "conspiracy"]:
             
             # Get character's template
             character_template = target.db.stats.get("other", {}).get("template", "Mortal")
@@ -1791,45 +1616,72 @@ class CmdStat(MuxCommand):
     def remove_stat(self):
         """Remove a stat"""
         if "/" in self.args:
-            # Format: name/stat or name/specialty/skill
+            # Format: specialty/skill, name/stat, or name/specialty/skill
             args_parts = self.args.split("/")
-            if len(args_parts) == 3 and args_parts[1] == "specialty":
+            
+            # Check if this is specialty/skill format (self)
+            if len(args_parts) == 2 and args_parts[0].strip().lower() == "specialty":
+                # Format: specialty/skill or specialty/skill=specific_name
+                target = self.caller
+                # Keep the full stat string including any =value part for specialty removal
+                stat = self.args.strip().lower().replace(" ", "_")
+                
+                # Check if this is a player character that's approved
+                is_npc = hasattr(target, 'db') and target.db.is_npc
+                if not is_npc and target.db.approved:
+                    self.caller.msg("Your character is approved. Only staff can modify your stats.")
+                    return
+            elif len(args_parts) == 3 and args_parts[1].strip().lower() == "specialty":
                 # Format: name/specialty/skill
                 target_name = args_parts[0].strip()
                 stat = f"specialty/{args_parts[2].strip().lower().replace(' ', '_')}"
+                
+                # Check permissions for the target
+                target = self.caller.search(target_name, global_search=True)
+                if not target:
+                    return
+                    
+                is_npc = hasattr(target, 'db') and target.db.is_npc
+                
+                if is_npc:
+                    # For NPCs, check if caller can control them
+                    if not target.can_control(self.caller):
+                        self.caller.msg("You don't have permission to modify that NPC's stats.")
+                        return
+                else:
+                    # For player characters, requires staff
+                    if not self.caller.check_permstring("Builder"):
+                        self.caller.msg("Only staff can remove stats from other player characters.")
+                        return
             else:
                 # Format: name/stat
                 target_name, stat = self.args.split("/", 1)
                 target_name = target_name.strip()
                 # Convert spaces to underscores in stat names
                 stat = stat.strip().lower().replace(" ", "_")
-            
-            # Check permissions for the target
-            target = self.caller.search(target_name, global_search=True)
-            if not target:
-                return
                 
-            is_npc = hasattr(target, 'db') and target.db.is_npc
-            
-            if is_npc:
-                # For NPCs, check if caller can control them
-                if not target.can_control(self.caller):
-                    self.caller.msg("You don't have permission to modify that NPC's stats.")
+                # Check permissions for the target
+                target = self.caller.search(target_name, global_search=True)
+                if not target:
                     return
-            else:
-                # For player characters, requires staff
-                if not self.caller.check_permstring("Builder"):
-                    self.caller.msg("Only staff can remove stats from other player characters.")
-                    return
+                    
+                is_npc = hasattr(target, 'db') and target.db.is_npc
+                
+                if is_npc:
+                    # For NPCs, check if caller can control them
+                    if not target.can_control(self.caller):
+                        self.caller.msg("You don't have permission to modify that NPC's stats.")
+                        return
+                else:
+                    # For player characters, requires staff
+                    if not self.caller.check_permstring("Builder"):
+                        self.caller.msg("Only staff can remove stats from other player characters.")
+                        return
         else:
-            # Format: stat or specialty/skill (self)
+            # Format: stat (self, no slashes)
             target = self.caller
             args = self.args.strip()
-            if args.startswith("specialty/"):
-                stat = args.lower().replace(" ", "_")
-            else:
-                # Convert spaces to underscores in stat names
-                stat = args.lower().replace(" ", "_")
+            stat = args.lower().replace(" ", "_")
             
             # Check if this is a player character that's approved
             is_npc = hasattr(target, 'db') and target.db.is_npc

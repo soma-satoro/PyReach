@@ -55,7 +55,12 @@ def remove_stat_from_character(character, stat, caller):
         return False, f"{character.name} has no stats set."
     
     # Check if removing a specialty
+    # Handle both "specialty/skill" and "specialty:skill" formats
     if stat.startswith("specialty/"):
+        return _remove_specialty(character, stat, caller)
+    elif stat.startswith("specialty:"):
+        # Convert colon format to slash format
+        stat = stat.replace(":", "/")
         return _remove_specialty(character, stat, caller)
     
     # Check if removing an adaptation (format: "adaptation <name>")
@@ -171,27 +176,60 @@ def remove_stat_from_character(character, stat, caller):
 
 def _remove_specialty(character, stat, caller):
     """
-    Remove all specialties for a skill.
+    Remove all specialties for a skill, or a specific specialty if name is provided.
     
     Args:
         character: The character object
-        stat (str): The specialty stat (format: "specialty/skill_name")
+        stat (str): The specialty stat (format: "specialty/skill_name" or "specialty/skill_name=specialty_name")
         caller: The caller object
         
     Returns:
         tuple: (success, message)
     """
-    skill_name = stat[10:]  # Remove "specialty/" prefix
+    # Check if removing a specific specialty or all specialties
+    specialty_to_remove = None
+    if "=" in stat:
+        # Format: specialty/skill_name=specific_specialty
+        stat_part, specialty_to_remove = stat.split("=", 1)
+        skill_name = stat_part[10:]  # Remove "specialty/" prefix
+        specialty_to_remove = specialty_to_remove.strip()
+    else:
+        # Format: specialty/skill_name (remove all)
+        skill_name = stat[10:]  # Remove "specialty/" prefix
+    
     specialties = character.db.stats.get("specialties", {})
     
-    if skill_name in specialties and specialties[skill_name]:
-        # Remove all specialties for this skill
-        del specialties[skill_name]
-        skill_display = skill_name.replace('_', ' ').title()
-        return True, f"Removed all specialties for {character.name}'s {skill_display}."
-    else:
+    if skill_name not in specialties or not specialties[skill_name]:
         skill_display = skill_name.replace('_', ' ').title()
         return False, f"{character.name} has no specialties for {skill_display}."
+    
+    if specialty_to_remove:
+        # Remove a specific specialty (case-insensitive)
+        # Find the actual specialty in the list (preserve original casing)
+        actual_specialty = None
+        for spec in specialties[skill_name]:
+            if spec.lower() == specialty_to_remove.lower():
+                actual_specialty = spec
+                break
+        
+        if actual_specialty:
+            specialties[skill_name].remove(actual_specialty)
+            # Clean up empty list
+            if not specialties[skill_name]:
+                del specialties[skill_name]
+            character.db.stats = character.db.stats  # Trigger persistence
+            skill_display = skill_name.replace('_', ' ').title()
+            return True, f"Removed '{actual_specialty}' specialty from {character.name}'s {skill_display}."
+        else:
+            skill_display = skill_name.replace('_', ' ').title()
+            available = ", ".join([f"'{s}'" for s in specialties[skill_name]])
+            return False, f"{character.name} doesn't have '{specialty_to_remove}' as a specialty for {skill_display}. Available specialties: {available}"
+    else:
+        # Remove all specialties for this skill
+        del specialties[skill_name]
+        character.db.stats = character.db.stats  # Trigger persistence
+        skill_display = skill_name.replace('_', ' ').title()
+        return True, f"Removed all specialties for {character.name}'s {skill_display}."
 
 
 def _remove_adaptation(character, adaptation_name, caller):

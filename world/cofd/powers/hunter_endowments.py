@@ -536,7 +536,7 @@ BENEDICTION = {
         "name": "St. Agathius' Call",
         "endowment_type": "benediction",
         "conspiracy": "Malleus Maleficarum",
-        "description": "Assailants with Morality ≤6 must spend Willpower to strike anyone but you for the scene.",
+        "description": "Assailants with Morality <=6 must spend Willpower to strike anyone but you for the scene.",
         "cost": "1 Willpower",
         "dice_pool": "Presence + Benediction",
         "book": "Slash 161",
@@ -1460,7 +1460,7 @@ RITES_DU_CHEVAL = {
     "clinging leech": {
         "name": "Clinging Leech",
         "endowment_type": "rites_du_cheval",
-        "conspiracy": "Les Mystères",
+        "conspiracy": "Les Mysteres",
         "description": "Sap health from a target for oneself. Grapple and Wits + Larceny Vs Resolve + Stamina, 1(L) for every success.",
         "cost": "1 Willpower",
         "dice_pool": "Wits + Larceny vs Resolve + Stamina",
@@ -1470,7 +1470,7 @@ RITES_DU_CHEVAL = {
     "deny the moon": {
         "name": "Deny the Moon",
         "endowment_type": "rites_du_cheval",
-        "conspiracy": "Les Mystères",
+        "conspiracy": "Les Mysteres",
         "description": "Negate the use of Dominions by werewolves.",
         "cost": None,
         "dice_pool": None,
@@ -1480,7 +1480,7 @@ RITES_DU_CHEVAL = {
     "elemental rebuke": {
         "name": "Elemental Rebuke",
         "endowment_type": "rites_du_cheval",
-        "conspiracy": "Les Mystères",
+        "conspiracy": "Les Mysteres",
         "description": "Attack target with an elemental (fire, water, etc) effect. 1L for every success.",
         "cost": "1 Willpower",
         "dice_pool": "Resolve + Occult + Les Mystères Status vs Resolve + Stamina",
@@ -1490,7 +1490,7 @@ RITES_DU_CHEVAL = {
     "ephemeral disguise": {
         "name": "Ephemeral Disguise",
         "endowment_type": "rites_du_cheval",
-        "conspiracy": "Les Mystères",
+        "conspiracy": "Les Mysteres",
         "description": "Spirit hides the caster with an unremarkable visage. (Mod. to Stealth rolls) Dramatic Failure: Glow in red -5, Success: +3, Exceptional Success: +3 no evidence in security systems or video.",
         "cost": None,
         "dice_pool": None,
@@ -1500,7 +1500,7 @@ RITES_DU_CHEVAL = {
     "the hands of raphael": {
         "name": "The Hands of Raphael",
         "endowment_type": "rites_du_cheval",
-        "conspiracy": "Les Mystères",
+        "conspiracy": "Les Mysteres",
         "description": "Heal sickness, and mend wounds in others.",
         "cost": "1 Willpower + Damage",
         "dice_pool": None,
@@ -1510,7 +1510,7 @@ RITES_DU_CHEVAL = {
     "light as a feather": {
         "name": "Light as a Feather",
         "endowment_type": "rites_du_cheval",
-        "conspiracy": "Les Mystères",
+        "conspiracy": "Les Mysteres",
         "description": "Increase jumping ability, and protection from falling damage. +5 for Jumping rolls, Only 1(B) for falling.",
         "cost": None,
         "dice_pool": None,
@@ -1520,7 +1520,7 @@ RITES_DU_CHEVAL = {
     "skin of the loa": {
         "name": "Skin of the Loa",
         "endowment_type": "rites_du_cheval",
-        "conspiracy": "Les Mystères",
+        "conspiracy": "Les Mysteres",
         "description": "Spirit grants temporary Armor. Dramatic Failure: Def. -2, Success: Melee armor +2, Exceptional Success: Armor +2.",
         "cost": None,
         "dice_pool": None,
@@ -1530,7 +1530,7 @@ RITES_DU_CHEVAL = {
     "spiritual guidance": {
         "name": "Spiritual Guidance",
         "endowment_type": "rites_du_cheval",
-        "conspiracy": "Les Mystères",
+        "conspiracy": "Les Mysteres",
         "description": "Gain expertise in a field and Rote Action.",
         "cost": "1 Willpower",
         "dice_pool": None,
@@ -1540,7 +1540,7 @@ RITES_DU_CHEVAL = {
     "voodo doll": {
         "name": "Voodo Doll",
         "endowment_type": "rites_du_cheval",
-        "conspiracy": "Les Mystères",
+        "conspiracy": "Les Mysteres",
         "description": "Use a small doll to affect a target in positive or negative ways.",
         "cost": "1 Willpower",
         "dice_pool": None,
@@ -1550,7 +1550,7 @@ RITES_DU_CHEVAL = {
     "wearing the barons hat": {
         "name": "Wearing the Baron's Hat",
         "endowment_type": "rites_du_cheval",
-        "conspiracy": "Les Mystères",
+        "conspiracy": "Les Mysteres",
         "description": "Gain amazing combat abilities and temporary health. +3 to Defense, +5 To Initiative and +5 health.",
         "cost": "1 Willpower",
         "dice_pool": None,

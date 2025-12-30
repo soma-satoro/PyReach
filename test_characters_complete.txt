@@ -236,7 +236,7 @@
 +stat contacts=1
 +stat safe_place=2
 +stat language=1
-+stat language:english=1
++stat language:Greek=1
 +stat throng=2
 
 # Promethean Bio Fields
@@ -323,19 +323,20 @@
 # Vampire Bio Fields
 +stat clan=Daeva
 +stat covenant=Carthian Movement
-+stat blood=The Blood
-+stat bone=The Bone
++stat mask=Authoritarian
++stat dirge=Masochist
 
 # Vampire Disciplines (dot rated)
 +stat majesty=3
 +stat auspex=2
 +stat celerity=2
++stat nightmare=1
 
 # Vampire Discipline Powers (semantic syntax)
-+stat discipline_power=mesmerize
-+stat discipline_power=beasts_hackles
-+stat discipline_power=uncanny_perception
-+stat discipline_power=blink
++stat devotion=Blood Scenting
++stat devotion=Cross-Contamination
++stat devotion=Quicken Sight
++stat devotion=Whip-Sharp Tongue
 
 ================================================================================
 5. WEREWOLF TEST CHARACTER - "Thorn Ironclaw"
@@ -734,7 +735,6 @@
 +stat language=1
 +stat language:english=1
 +stat professional_training=2
-+stat organization=1
 
 # Mortal+ Bio Fields
 +stat template_type=Psychic

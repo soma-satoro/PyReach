@@ -73,7 +73,7 @@ ALL_ENTITLEMENTS = {
     "baron_of_the_lesser_ones": {
         "name": "Baron of the Lesser Ones",
         "description": "Diplomat and mediator accepted among hobgoblins.",
-        "prerequisites": "Empathy ••, Intimidation or Persuasion ••, any of Gentrified Bearing, Hob Kin, or Interdisciplinary Specialty (Goblins)",
+        "prerequisites": "Empathy:2, Intimidation or Persuasion:2, any of Gentrified Bearing, Hob Kin, or Interdisciplinary Specialty (Goblins)",
         "curse": "Bonus damage dice to breaking points favoring hobgoblins.",
         "token": "A signet ring which helps to navigate and make deliveries into and through the Hedge.",
         "blessings": [
@@ -86,9 +86,9 @@ ALL_ENTITLEMENTS = {
         "name": "Dauphines of Wayward Children",
         "description": "Three cooperative caretakers for youth without homes.",
         "prerequisites": {
-            "Sophomore": "Presence ••, Persuasion ••, Wyrd •••",
-            "Chaperone": "Manipulation ••, Empathy ••, Wyrd •••",
-            "Dowager": "Composure ••, Intimidation ••, Wyrd •••"
+            "Sophomore": "Presence:2, Persuasion:2, Wyrd:3",
+            "Chaperone": "Manipulation:2, Empathy:2, Wyrd:3",
+            "Dowager": "Composure:2, Intimidation:2, Wyrd:3"
         },
         "curse": "Bonus damage dice to breaking points from losing a ward.",
         "token": "A lily brooch with which to locate wards and children in need. It provides bonuses to the caretaker's role among the three and can allow wards to pierce the Mask.",
@@ -101,7 +101,7 @@ ALL_ENTITLEMENTS = {
     "master_of_keys": {
         "name": "Master of Keys",
         "description": "Inquisitive seeker charged with unlocking the discovery of secrets and revelations.",
-        "prerequisites": "Investigation ••, Empathy ••, any Merit used to uncover secrets",
+        "prerequisites": "Investigation:2, Empathy:2, any Merit used to uncover secrets",
         "curse": "Bonus damage dice to breaking points from holding back a secret.",
         "token": "The key to unlock your final doom still in wait. It tarnishes for a night when exposed to those who would end you, and grants the rote quality to rolls to access things locked away.",
         "blessings": [
@@ -113,19 +113,19 @@ ALL_ENTITLEMENTS = {
     "modiste_of_elfhame": {
         "name": "Modiste of Elfhame",
         "description": "Luxurious tailor and witch that infuses their creations with the magic of the Hedge.",
-        "prerequisites": "Crafts ••, Expression ••, Hollow •+, Hedge Sorcerer",
+        "prerequisites": "Crafts:2, Expression:2, Hollow:1+, Hedge Sorcerer",
         "curse": "Bonus damage dice to breaking points while pursuing materials for garments.",
         "token": "Bone sewing needle that grows in size and can be used as a substitute for hecatombs during Hedge Sorcery.",
         "blessings": [
             "Gain half Wyrd as Workshop (specialties based on garment crafting) which is always stocked with mundane supplies for crafting clothing.",
-            "Garments crafted by the Modiste give wearers the effect of Striking Looks • while worn."
+            "Garments crafted by the Modiste give wearers the effect of Striking Looks:1 while worn."
         ],
         "book": "Hedge 72"
     },
     "thorn_dancer": {
         "name": "Thorn Dancer",
         "description": "Graceful dancer that glides through the Thorns, exploring for their own amusement or leading others.",
-        "prerequisites": "Socialize ••, Athletics •••, Expression ••, any movement based skill specialty",
+        "prerequisites": "Socialize:2, Athletics:3, Expression:2, any movement based skill specialty",
         "curse": "Bonus damage dice to breaking points while not in the Hedge.",
         "token": "Gladiatorial boots/sandals that protect the wearer from extreme environments, falls, and Conditions from the Thorns. Can spend Willpower to extend to others.",
         "blessings": [
@@ -137,7 +137,7 @@ ALL_ENTITLEMENTS = {
     "sibylline_fishers": {
         "name": "Sibylline Fishers",
         "description": "Digital oracles that trawl the BriarNet and beyond for secrets given by the Hedge.",
-        "prerequisites": "Computers •••, Investigation ••, Wyrd •••",
+        "prerequisites": "Computers:3, Investigation:2, Wyrd:3",
         "curse": "Prompts a Clarity attack when their own secrets are revealed, even voluntarily.",
         "token": "A Token computer program that can operate on any internet-capable device that generates prophesies of the past, present, and future.",
         "blessings": [
@@ -149,7 +149,7 @@ ALL_ENTITLEMENTS = {
     "spiderborn_riders": {
         "name": "Spiderborn Riders",
         "description": "Nomadic free spirits that reject all authority, roaming the Hedge freeing others from chains.",
-        "prerequisites": "Resolve •••",
+        "prerequisites": "Resolve:3",
         "curse": "Bonus damage dice to breaking points when refusing to help other people in the Hedge.",
         "token": "Cut-off biker vests with individualized patches, always featuring a spiderweb and lightning bolt. Allows the wearer to know the pledges of another and helps intimidate the servants of the Fae.",
         "blessings": [

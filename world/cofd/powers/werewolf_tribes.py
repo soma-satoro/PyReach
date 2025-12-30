@@ -273,7 +273,7 @@ ALL_LODGES = {
     },
     "lodge_of_muspell": {
         "name": "Lodge of Muspell",
-        "description": "Norse Fire-Touched, pledged to Múspellheim and branded with crude runes",
+        "description": "Norse Fire-Touched, pledged to Muspellheim and branded with crude runes",
         "book": "DE 167"
     },
     "lodge_of_prophecy": {

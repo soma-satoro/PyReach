@@ -97,14 +97,14 @@ REGIONAL_COVENANTS = {
         "book": "VTR 2e 241"
     },
     "kataraomenon": {
-        "name": "Kataraménon",
+        "name": "Kataraomenon",
         "region": "Athens, Greece",
         "description": "Apollonian cultists who have blended their pagan traditions with Greek Orthodox Christianity.",
         "advantage": "Unspecified",
         "book": "VTR 2e 241"
     },
     "ypochtreosi": {
-        "name": "Ypochréosi",
+        "name": "Ypochtreosi",
         "region": "Athens, Greece",
         "description": "Iron-fisted pragmatic modernists who keep the domain stable through festivals, bribes, and skulduggery.",
         "advantage": "Unspecified",

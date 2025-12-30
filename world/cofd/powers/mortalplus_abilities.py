@@ -71,7 +71,7 @@ WOLFBLOODED_TELLS = {
     },
     "evil_eye": {
         "name": "Evil Eye",
-        "description": ("One of the Wolf-Blooded's eyes is different — it may be red, white, or pale blue, but it stands out "
+        "description": ("One of the Wolf-Blooded's eyes is different -- it may be red, white, or pale blue, but it stands out "
                        "as not normal in the character's face. She can try to hide it or conceal it, but that's always awkward "
                        "with eyes."),
         "boon": ("Just like the legends say, the Evil Eye can produce something like a curse if the Wolf-Blooded stares at "
@@ -132,7 +132,7 @@ WOLFBLOODED_TELLS = {
         "name": "Host-Ache",
         "description": ("Sometimes, the Wolf-Blooded just aches. Her head hurts, her stomach throbs, or she experiences cramps. "
                        "Nose bleeds are common, as is spontaneous menstruation. There's nothing random about the aches and pains, "
-                       "though — they are in direct relation to the presence of Hosts. For some reason, the Wolf-Blooded is "
+                       "though -- they are in direct relation to the presence of Hosts. For some reason, the Wolf-Blooded is "
                        "unusually sensitive to the existence of the shartha, and her pain grows increasingly uncomfortable the "
                        "closer she gets to the alien presence."),
         "boon": ("The Wolf-Blooded needs no roll to sense Hosts. If a Host is within 10 miles, the ache begins and may confer "
@@ -293,7 +293,7 @@ WOLFBLOODED_TELLS = {
                        "a few hours. Any naturalist looking at his apartment would think he's housing a pack of wolves, no matter "
                        "how impossible that might be."),
         "boon": ("Aside from causing the Wolf-Blooded to need to learn a great deal about cleaning mud out of carpets, he's "
-                "impossible to track by scent. The wolves — that don't exist — have no consistent smell, but whatever they leave "
+                "impossible to track by scent. The wolves -- that don't exist -- have no consistent smell, but whatever they leave "
                 "behind can baffle the scent of anyone trying to find the Wolf-Blooded specifically."),
         "book": "Signs of the Moon"
     }

@@ -844,25 +844,6 @@ class CmdLookup(MuxCommand):
         msg += "|cExamples:|n\n"
         msg += "  |y+lookup attributes|n - List all attributes\n"
         msg += "  |y+lookup strength|n - View strength details\n"
-        msg += "  |y+lookup orders mysterium|n - View Mysterium order details\n"
-        msg += "  |y+lookup legacies chronologue|n - View Chronologue legacy details\n"
-        msg += "  |y+lookup tribes blood_talons|n - View Blood Talons tribe details\n"
-        msg += "  |y+lookup lodges eaters_of_the_dead|n - View Eaters of the Dead lodge\n"
-        msg += "  |y+lookup kiths|n - List all changeling kiths\n"
-        msg += "  |y+lookup kiths bright_one|n - View Bright One kith details\n"
-        msg += "  |y+lookup tactics|n - List all hunter tactics\n"
-        msg += "  |y+lookup tactics mental|n - List mental tactics\n"
-        msg += "  |y+lookup tactics sweep|n - View Sweep tactic details\n"
-        msg += "  |y+lookup compacts network_zero|n - View Network Zero compact details\n"
-        msg += "  |y+lookup conspiracies aegis_kai_doru|n - View Aegis Kai Doru conspiracy\n"
-        msg += "  |y+lookup embeds|n - List all demon embeds\n"
-        msg += "  |y+lookup embeds authorized|n - View Authorized embed details\n"
-        msg += "  |y+lookup processes|n - List all demon processes\n"
-        msg += "  |y+lookup processes aegis_protocol|n - View Aegis Protocol process\n"
-        msg += "  |y+lookup merits vampire|n - List vampire merits\n"
-        msg += "  |y+lookup merits telekinesis|n - View telekinesis merit (not spell)\n"
-        msg += "  |y+lookup spells telekinesis|n - View telekinesis spell (not merit)\n"
-        msg += "  |y+lookup powers animalism|n - List Animalism discipline powers\n"
         msg += "  |y+lookup/search invisible|n - Find all invisibility-related powers\n\n"
         
         msg += self.format_footer("Use +lookup <category> to explore")
@@ -3811,7 +3792,7 @@ class CmdLookup(MuxCommand):
     
     def show_wolf_blooded_tells(self):
         """Show wolf-blooded tells (2e)."""
-        from world.cofd.templates.mortalplus_abilities import WOLFBLOODED_TELLS
+        from world.cofd.powers.mortalplus_abilities import WOLFBLOODED_TELLS
         
         msg = self.format_header("Wolf-Blooded Tells (2e)")
         msg += "\n\n"
@@ -3831,6 +3812,7 @@ class CmdLookup(MuxCommand):
         
         msg += f"|cTotal:|n {len(WOLFBLOODED_TELLS)} Wolf-Blooded Tells\n"
         msg += "|cSet as subtype:|n +stat subtype=<tell_name> (e.g., +stat subtype=piercing_eyes)\n"
+        msg += "|cSet as merit:|n +stat tell:<tell_name>=3 (e.g., +stat tell:shape_shifted=3)\n"
         msg += "|cFor tell details:|n +lookup tells <tell_name> (e.g., +lookup tells shape_shifted)\n\n"
         msg += self.format_footer("Chronicles of Darkness Reference")
         
@@ -3838,7 +3820,7 @@ class CmdLookup(MuxCommand):
     
     def show_tell_details(self, tell_name):
         """Show detailed information about a specific Wolf-Blooded Tell."""
-        from world.cofd.templates.mortalplus_abilities import get_tell
+        from world.cofd.powers.mortalplus_abilities import get_tell
         
         # Normalize tell name
         tell_key = tell_name.lower().replace(" ", "_")
@@ -3857,7 +3839,8 @@ class CmdLookup(MuxCommand):
         msg += f"|cDescription:|n\n{tell_data['description']}\n\n"
         msg += f"|wBoon:|n\n{tell_data['boon']}\n\n"
         msg += f"|cSource:|n {tell_data['book']}\n"
-        msg += f"|cSet on Character:|n |y+stat subtype={tell_key}|n\n\n"
+        msg += f"|cSet in chargen:|n |y+stat subtype={tell_key}|n\n\n"
+        msg += f"|cSet as merit:|n |y+stat Tell:<tell_name>=3|n (e.g., +stat Tell:shape_shifted=3)\n\n"
         msg += self.format_footer("Chronicles of Darkness Reference")
         
         self.caller.msg(msg)

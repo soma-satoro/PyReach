@@ -117,7 +117,7 @@ UNCOMMON_CLANS = {
     },
     "julii": {
         "name": "Julii",
-        "nickname": "—",
+        "nickname": "--",
         "disciplines": ["Dominate", "Resilience", "Vigor"],
         "bonus_trait": "Composure or Presence",
         "weakness": "Supernatural resistance against Strix and ephemera is capped by Humanity.",
@@ -153,7 +153,7 @@ UNCOMMON_CLANS = {
     },
     "pijavica": {
         "name": "Pijavica",
-        "nickname": "—",
+        "nickname": "--",
         "disciplines": ["Animalism", "Protean", "Resilience"],
         "bonus_trait": "Stamina or Wits",
         "weakness": "Physical Attributes wither with Blood Potency above 7, and Mental and Social Attributes wither below 4.",
@@ -225,7 +225,7 @@ ALL_BLOODLINES = {
         "book": "NH-SB 20"
     },
     "liderc": {
-        "name": "Lidérc",
+        "name": "Liderc",
         "parent_clan": "Daeva",
         "description": "Passionate lovers who drink from the ardor they incite.",
         "disciplines": ["Celerity", "Majesty", "Obfuscate", "Vigor"],

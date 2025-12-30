@@ -74,21 +74,21 @@ HAUNT_BONEYARD = {
     "raise_the_boneyard": {
         "name": "Raise the Boneyard",
         "rank": 1,
-        "cost": "●+",
+        "cost": "*+",
         "description": "Spread Plasm to haunt a Boneyard, which becomes Open to ghosts. Understand the Boneyard's layout and defeat attempts to hide from you in it.",
         "book": "GTS 2e p.102"
     },
     "eyes_in_the_paintings": {
         "name": "Eyes in the Paintings",
         "rank": 2,
-        "cost": "●",
+        "cost": "*",
         "description": "See and sense through places in the Boneyard.",
         "book": "GTS 2e p.102"
     },
     "no_escape": {
         "name": "No Escape",
         "rank": 3,
-        "cost": "—",
+        "cost": "--",
         "description": "Raise larger Boneyards.",
         "book": "GTS 2e p.102",
         "additional": "●/die to penalize attempts to leave the Boneyard by any means."
@@ -96,14 +96,14 @@ HAUNT_BONEYARD = {
     "earthquake_weather": {
         "name": "Earthquake Weather",
         "rank": 4,
-        "cost": "●●●",
+        "cost": "***",
         "description": "Conjure Environmental Tilts within the Boneyard.",
         "book": "GTS 2e p.103"
     },
     "the_new_law": {
         "name": "The New Law",
         "rank": 5,
-        "cost": "●●",
+        "cost": "**",
         "description": "Impose an Old Law upon the Boneyard, penalizing actions to break it.",
         "book": "GTS 2e p.103",
         "additional": "●● to punish violators with the rote quality and as a ghostly bane."
@@ -115,21 +115,21 @@ HAUNT_CAUL = {
     "extrude_the_caul": {
         "name": "Extrude the Caul",
         "rank": 1,
-        "cost": "● to ●●●●●",
+        "cost": "* to *****",
         "description": "Take on a geistly flesh charged by Plasm. Spend a charge to ignore wound penalties, substitute your geist's Attribute for yours, or reduce the exceptional success threshold from five to three on an action making use of your plasmic form.",
         "book": "GTS 2e p.104"
     },
     "cold_flesh": {
         "name": "Cold Flesh",
         "rank": 2,
-        "cost": "●●●",
+        "cost": "***",
         "description": "For each dot of Caul, gain +1/+½ Armor.",
         "book": "GTS 2e p.104"
     },
     "vitiate": {
         "name": "Vitiate",
         "rank": 3,
-        "cost": "—",
+        "cost": "--",
         "description": "Extrude the Caul generates twice the charges.",
         "book": "GTS 2e p.105",
         "additional": "Various Plasm costs for: Swell in Size (+2 Size per Strength dot), Contort into skittering shape (●), Inflict lethal unarmed (●), Grow wings (●●), Explode into swarm (●●●●)"
@@ -137,7 +137,7 @@ HAUNT_CAUL = {
     "disarticulation": {
         "name": "Disarticulation",
         "rank": 4,
-        "cost": "● to ●●●●●",
+        "cost": "* to *****",
         "description": "Disgorge an obedient homunculus with Plasm as Health and twice Plasm as a Physical dice pool.",
         "book": "GTS 2e p.105"
     },
@@ -155,14 +155,14 @@ HAUNT_CURSE = {
     "lay_the_curse": {
         "name": "Lay the Curse",
         "rank": 1,
-        "cost": "● to ●●●●",
+        "cost": "* to ****",
         "description": "Mark a subject with a Plasm-charged curse. Spend a charge to impose a -2 penalty on an action.",
         "book": "GTS 2e p.106"
     },
     "gremlin": {
         "name": "Gremlin",
         "rank": 2,
-        "cost": "●●",
+        "cost": "**",
         "description": "Spend a charge to invert equipment bonuses into penalties, or two charges to cause tools to deal their bonus as damage on use.",
         "book": "GTS 2e p.106",
         "additional": "●● to spend a charge to extinguish all fires set by the subject for a scene."
@@ -170,7 +170,7 @@ HAUNT_CURSE = {
     "malady": {
         "name": "Malady",
         "rank": 3,
-        "cost": "—",
+        "cost": "--",
         "description": "Lay the Curse generates twice the charges.",
         "book": "GTS 2e p.107",
         "additional": "●● to spend a charge to inflict an injurious Personal Tilt for a scene through dangerous misfortune. ●● to spend the Curse to deal three lethal damage through misfortune."
@@ -178,7 +178,7 @@ HAUNT_CURSE = {
     "exhaustion": {
         "name": "Exhaustion",
         "rank": 4,
-        "cost": "●●",
+        "cost": "**",
         "description": "Spend a charge to reduce a Social roll to a chance die.",
         "book": "GTS 2e p.107",
         "additional": "●● to spend a charge to deny Willpower recovery."
@@ -186,7 +186,7 @@ HAUNT_CURSE = {
     "forgotten": {
         "name": "Forgotten",
         "rank": 5,
-        "cost": "●●●",
+        "cost": "***",
         "description": "Spend a charge to force the subject to spend Willpower to be noticed.",
         "book": "GTS 2e p.107",
         "additional": "●●● to spend a charge to block the use of a Social Merit. ●●● to spend a charge to bring the subject in contact with ghostly Twilight."
@@ -198,14 +198,14 @@ HAUNT_DIRGE = {
     "sing_the_dirge": {
         "name": "Sing the Dirge",
         "rank": 1,
-        "cost": "● to ●●●●●",
+        "cost": "* to *****",
         "description": "Sing the wordless Dirge to evoke a feeling or simple response. While you sing, (Plasm) subjects gain a +2 bonus to obey, but must spend Willpower to act in contradiction.",
         "book": "GTS 2e p.108"
     },
     "exaltation": {
         "name": "Exaltation",
         "rank": 2,
-        "cost": "●/Essence",
+        "cost": "*/Essence",
         "description": "Share your Plasm as Essence with ghostly subjects.",
         "book": "GTS 2e p.108",
         "additional": "●● to render a living subject Inspired."
@@ -213,7 +213,7 @@ HAUNT_DIRGE = {
     "communion": {
         "name": "Communion",
         "rank": 3,
-        "cost": "—",
+        "cost": "--",
         "description": "Sing the Dirge to entire areas.",
         "book": "GTS 2e p.108",
         "additional": "●● to give a perfect impression to subjects. You may roll Synergy + Dirge to open their Doors."
@@ -221,7 +221,7 @@ HAUNT_DIRGE = {
     "exaltation_greater": {
         "name": "Exaltation (Greater)",
         "rank": 4,
-        "cost": "●●",
+        "cost": "**",
         "description": "Lift a negative mental Condition from a subject, or suppress a Persistent Condition while you sing.",
         "book": "GTS 2e p.108",
         "additional": "●●● to inflict a negative mental Condition on a subject."
@@ -229,7 +229,7 @@ HAUNT_DIRGE = {
     "visitation": {
         "name": "Visitation",
         "rank": 5,
-        "cost": "●/Rank",
+        "cost": "*/Rank",
         "description": "Impose a Manifestation Condition on a ghostly subject.",
         "book": "GTS 2e p.109"
     }
@@ -240,21 +240,21 @@ HAUNT_MARIONETTE = {
     "string_the_marionette": {
         "name": "String the Marionette",
         "rank": 1,
-        "cost": "● to ●●●",
+        "cost": "* to ***",
         "description": "Cast strings of Plasm upon a subject of (Plasm) Size. You may take the marionette's actions as it could normally move, or swing it about as an improvised throwing weapon.",
         "book": "GTS 2e p.109"
     },
     "swarm": {
         "name": "Swarm",
         "rank": 2,
-        "cost": "●●",
+        "cost": "**",
         "description": "You may simultaneously string a number of marionettes equal to your Haunt rating.",
         "book": "GTS 2e p.110"
     },
     "phantom_strength": {
         "name": "Phantom Strength",
         "rank": 3,
-        "cost": "● to ●●●",
+        "cost": "* to ***",
         "description": "String marionettes of (Marionette + 2 × Plasm) Size.",
         "book": "GTS 2e p.110",
         "additional": "●● to impose a -3 penalty to contest your control."
@@ -262,7 +262,7 @@ HAUNT_MARIONETTE = {
     "servant": {
         "name": "Servant",
         "rank": 4,
-        "cost": "●●",
+        "cost": "**",
         "description": "Sink your strings into a marionette to render it an obedient servant, which will follow orders without direct manipulation.",
         "book": "GTS 2e p.110",
         "additional": "●●●● to extend the Servant Condition for 24 hours."
@@ -270,7 +270,7 @@ HAUNT_MARIONETTE = {
     "traitor_flesh": {
         "name": "Traitor Flesh",
         "rank": 5,
-        "cost": "●●",
+        "cost": "**",
         "description": "Retain control of a marionette through lethal damage or a breaking point.",
         "book": "GTS 2e p.110",
         "additional": "●●● to inflict two lethal damage to a marionette contesting your control."
@@ -282,21 +282,21 @@ HAUNT_MEMORIA = {
     "recall_the_memoria": {
         "name": "Recall the Memoria",
         "rank": 1,
-        "cost": "● to ●●●●●",
+        "cost": "* to *****",
         "description": "Witness a place or Anchor's memories of a particular death. Spend a Plasm charge for 8-Again to investigate the death or put it to rest, or to store memories as soft leverage that opens a Door.",
         "book": "GTS 2e p.112"
     },
     "denouement": {
         "name": "Dénouement",
         "rank": 2,
-        "cost": "● to ●●●●●",
+        "cost": "* to *****",
         "description": "Weave Plasm into a phantasm of the witnessed memories across an area, visible but not tangible to others.",
         "book": "GTS 2e p.112"
     },
     "memory_in_a_bottle": {
         "name": "Memory in a Bottle",
         "rank": 3,
-        "cost": "—",
+        "cost": "--",
         "description": "Recall the Memoria generates twice the charges.",
         "book": "GTS 2e p.112",
         "additional": "●●● to seal the Memoria in a container to be released later, taking the memory with it."
@@ -304,14 +304,14 @@ HAUNT_MEMORIA = {
     "mystery_play": {
         "name": "Mystery Play",
         "rank": 4,
-        "cost": "● to ●●●●●",
+        "cost": "* to *****",
         "description": "Cast Plasm upon witnesses to draft them into roles in the memory.",
         "book": "GTS 2e p.112"
     },
     "break_the_cycle": {
         "name": "Break the Cycle",
         "rank": 5,
-        "cost": "●●",
+        "cost": "**",
         "description": "Actors in a Mystery Play can roll Resolve + Synergy to play out other actions in the memory. At the conclusion of the memory, Actors can resolve a Condition related to the memory, and ghostly Actors can resolve an Anchor and gain Rank 2.",
         "book": "GTS 2e p.113"
     }
@@ -322,21 +322,21 @@ HAUNT_ORACLE = {
     "consult_the_oracle": {
         "name": "Consult the Oracle",
         "rank": 1,
-        "cost": "● to ●●●●",
+        "cost": "* to ****",
         "description": "Release your ghost from your body into the ether. Spend a Plasm charge for your body to answer a question put to it about the touch of death, desires, and the hidden.",
         "book": "GTS 2e p.114"
     },
     "wandering_shade": {
         "name": "Wandering Shade",
         "rank": 2,
-        "cost": "●",
+        "cost": "*",
         "description": "Your ghost wanders farther. You may spend a charge to answer a question about finding threats, the needy, the lost, and crimes against the dead.",
         "book": "GTS 2e p.114"
     },
     "spirit_reading": {
         "name": "Spirit Reading",
         "rank": 3,
-        "cost": "—",
+        "cost": "--",
         "description": "Consult the Oracle generates twice the charges.",
         "book": "GTS 2e p.115",
         "additional": "●● to spend a charge to answer a question about ghostly bans, banes, and attachments to life."
@@ -344,14 +344,14 @@ HAUNT_ORACLE = {
     "descent": {
         "name": "Descent",
         "rank": 4,
-        "cost": "●●●",
+        "cost": "***",
         "description": "Your ghost roams the Underworld. Answer one question about ferrymen, the Old Laws, or Irkalla's Gates.",
         "book": "GTS 2e p.115"
     },
     "nekyia": {
         "name": "Nekyia",
         "rank": 5,
-        "cost": "●●●●",
+        "cost": "****",
         "description": "Answer one question about future betrayal, opportunities, brushes with death, or Underworld trials.",
         "book": "GTS 2e p.115"
     }
@@ -362,21 +362,21 @@ HAUNT_RAGE = {
     "vent_the_rage": {
         "name": "Vent the Rage",
         "rank": 1,
-        "cost": "● to ●●●●",
+        "cost": "* to ****",
         "description": "Channel ghostly assaults for a scene, applying Plasm as a weapon rating and dealing lethal damage to ghosts. Roll the higher of your Brawl or Rage in your unarmed dice pool, ignoring unskilled penalties.",
         "book": "GTS 2e p.116"
     },
     "black_iron_blade": {
         "name": "Black-Iron Blade",
         "rank": 2,
-        "cost": "●●",
+        "cost": "**",
         "description": "Your strike inflicts a disabling or poisonous Personal Tilt.",
         "book": "GTS 2e p.116"
     },
     "maelstrom": {
         "name": "Maelstrom",
         "rank": 3,
-        "cost": "—",
+        "cost": "--",
         "description": "Make unarmed ranged attacks out to 30 yards.",
         "book": "GTS 2e p.117",
         "additional": "●● to unleash an unarmed autofire medium burst."
@@ -384,7 +384,7 @@ HAUNT_RAGE = {
     "shatter": {
         "name": "Shatter",
         "rank": 4,
-        "cost": "●●●",
+        "cost": "***",
         "description": "Deal aggravated damage with an unarmed attack.",
         "book": "GTS 2e p.117",
         "additional": "●● to traumatize a victim who suffers a breaking point from the Rage, inflicting Fugue."
@@ -392,7 +392,7 @@ HAUNT_RAGE = {
     "breaking_the_world": {
         "name": "Breaking the World",
         "rank": 5,
-        "cost": "●●●●",
+        "cost": "****",
         "description": "Lash out with an Environmental Tilt to which you remain immune.",
         "book": "GTS 2e p.117"
     }
@@ -403,14 +403,14 @@ HAUNT_SHROUD = {
     "don_the_shroud": {
         "name": "Don the Shroud",
         "rank": 1,
-        "cost": "● to ●●●●",
+        "cost": "* to ****",
         "description": "Wear your geist as a ghostly apparition. Ignore physiological needs and mundane disabling, and spend a Plasm charge to pass into Twilight for (Shroud) turns.",
         "book": "GTS 2e p.118"
     },
     "vision_of_mist": {
         "name": "Vision of Mist",
         "rank": 2,
-        "cost": "●",
+        "cost": "*",
         "description": "Exude no body heat and pass through motion and laser sensors unnoticed.",
         "book": "GTS 2e p.118",
         "additional": "●● to fly at half Speed."
@@ -418,7 +418,7 @@ HAUNT_SHROUD = {
     "haunting_presence": {
         "name": "Haunting Presence",
         "rank": 3,
-        "cost": "—",
+        "cost": "--",
         "description": "Spend charges to enter Twilight for minutes instead of turns.",
         "book": "GTS 2e p.118",
         "additional": "●●● to choose a Manifestation (Discorporate, Fetter, Image, or Possess) or Numen (Sign or Hallucination) to use while Twilit."
@@ -426,14 +426,14 @@ HAUNT_SHROUD = {
     "harrow": {
         "name": "Harrow",
         "rank": 4,
-        "cost": "●●",
+        "cost": "**",
         "description": "You may spend a charge to pull another person with you into Twilight.",
         "book": "GTS 2e p.119"
     },
     "descent_shroud": {
         "name": "Descent",
         "rank": 5,
-        "cost": "●●●",
+        "cost": "***",
         "description": "You may spend a charge to cross directly into or out of the Upper Reaches, guided by emotional ties. You may spend another charge to pull another person with you into the Underworld.",
         "book": "GTS 2e p.119"
     }
@@ -444,21 +444,21 @@ HAUNT_TOMB = {
     "open_the_tomb": {
         "name": "Open the Tomb",
         "rank": 1,
-        "cost": "● to ●●●●",
+        "cost": "* to ****",
         "description": "Reassemble part of a corpse or destroyed object of (Tomb + Plasm) Size into a completed inanimate replica for (Tomb) days. The replica is also tangible to Twilit ghosts.",
         "book": "GTS 2e p.120"
     },
     "headstone": {
         "name": "Headstone",
         "rank": 2,
-        "cost": "●●",
+        "cost": "**",
         "description": "Open the Tomb using an item depicting or strongly tied to the object or creature.",
         "book": "GTS 2e p.120"
     },
     "empty_graves": {
         "name": "Empty Graves",
         "rank": 3,
-        "cost": "—",
+        "cost": "--",
         "description": "Double the Size capability of Open the Tomb, and extend its duration indefinitely.",
         "book": "GTS 2e p.120",
         "additional": "— to Open the Tomb may produce obedient undead replicas of creatures. ●●● for the replica to become Open to ghosts, and can be Possessed by the ghost of its model."
@@ -466,14 +466,14 @@ HAUNT_TOMB = {
     "stygian_treasures": {
         "name": "Stygian Treasures",
         "rank": 4,
-        "cost": "●●",
+        "cost": "**",
         "description": "The replica's user can either see, hear, or communicate with the dead or the Underworld.",
         "book": "GTS 2e p.120"
     },
     "terra_cotta_soldiers": {
         "name": "Terra Cotta Soldiers",
         "rank": 5,
-        "cost": "● to ●●●●●",
+        "cost": "* to *****",
         "description": "Open the Tomb can reproduce notional objects from representations, producing Merits or services by their rating in Plasm.",
         "book": "GTS 2e p.120"
     }
@@ -484,14 +484,14 @@ HAUNT_VOID = {
     "awaken_the_void": {
         "name": "Awaken the Void",
         "rank": 1,
-        "cost": "● to ●●●●",
+        "cost": "* to ****",
         "description": "Welcome a blinding darkness. Within the darkness, your attacks ignore (Void) Durability and Armor, and the attacks of others ignore half that.",
         "book": "Mem p.24"
     },
     "annihilation_of_form": {
         "name": "Annihilation of Form",
         "rank": 2,
-        "cost": "●●●",
+        "cost": "***",
         "description": "Make ranged attacks within the darkness, dealing lethal damage unarmed.",
         "book": "Mem p.25",
         "additional": "●+ to destroy objects, terrain, or immobilized creatures, paying extra for Size greater than Synergy."
@@ -499,7 +499,7 @@ HAUNT_VOID = {
     "feasting_on_infinity": {
         "name": "Feasting on Infinity",
         "rank": 3,
-        "cost": "—",
+        "cost": "--",
         "description": "Recover Plasm for every 10 points of Health, Corpus, or Structure you devour.",
         "book": "Mem p.25",
         "additional": "●● to remain unblinded by Awakening the Void. ●● to consume material without adverse effects, and deal aggravated damage with a grappling bite."
@@ -507,14 +507,14 @@ HAUNT_VOID = {
     "the_end_of_all_things": {
         "name": "The End of All Things",
         "rank": 4,
-        "cost": "●+",
+        "cost": "*+",
         "description": "Open an annihilatory vacuum from within the darkness, which deals aggravated damage for each turn of contact, and pulls in anything without Size greater than Plasm spent. If that Plasm exceeds your Synergy, the vacuum threatens to persist as long as it can feed.",
         "book": "Mem p.25"
     },
     "the_wrong_way_door": {
         "name": "The Wrong-Way Door",
         "rank": 5,
-        "cost": "●●●●●+",
+        "cost": "*****+",
         "description": "Tear open a wound that directly connects the material realm to the Underworld for a day. Spend Plasm to open larger or more persistent wounds.",
         "book": "Mem p.25"
     }
@@ -525,21 +525,21 @@ HAUNT_WELL = {
     "submerge_the_self": {
         "name": "Submerge the Self",
         "rank": 1,
-        "cost": "●+",
+        "cost": "*+",
         "description": "Your identity runs deep and fluid, allowing you to trade and use Memories like a ghost, treating Plasm as a maximum applicable Memory Skill bonus.",
         "book": "Mem p.27"
     },
     "awash_in_unknown_tides": {
         "name": "Awash in Unknown Tides",
         "rank": 2,
-        "cost": "● to ●●●●●",
+        "cost": "* to *****",
         "description": "Summon a wellspring from one of the Underworld's Rivers, causing an Environmental Tilt or Extreme Environment proportionate to Plasm spent. Rivers may produce other effects at the Storyteller's discretion.",
         "book": "Mem p.27"
     },
     "lightless_depths": {
         "name": "Lightless Depths",
         "rank": 3,
-        "cost": "●●",
+        "cost": "**",
         "description": "Dissolve all memories formed in your presence while the self is submerged, inflicting Amnesia.",
         "book": "Mem p.28",
         "additional": "●●● to steal a Memory with skin to skin contact, but suffer a crisis point."
@@ -547,7 +547,7 @@ HAUNT_WELL = {
     "vortices_of_self_and_memory": {
         "name": "Vortices of Self and Memory",
         "rank": 4,
-        "cost": "●+",
+        "cost": "*+",
         "description": "Fuse two Memories into a new Memory that synthesizes their themes, paying additional Plasm to carry over dots of Memory Skills.",
         "book": "Mem p.28",
         "additional": "●/Resolve to infuse a Memory into a third party, living or dead."

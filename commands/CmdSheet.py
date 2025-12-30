@@ -259,17 +259,31 @@ class CmdSheet(MuxCommand):
             # If mage_spells not found, return empty list
             return []
     
-    def _format_powers_display(self, powers, template_powers, force_ascii, use_numeric=False):
+    def _format_powers_display(self, powers, template_powers, force_ascii, use_numeric=False, template=None):
         """Format the powers section for display."""
         if not template_powers:
             return ["No powers available for this template."]
         
         power_lines = []
         
+        # Import contract lookup for Changeling
+        contract_data = None
+        if template and (template.lower() == "changeling" or template.lower() == "legacy_changeling"):
+            try:
+                from world.cofd.powers.changeling_contracts import get_contract
+                contract_data = get_contract
+            except ImportError:
+                contract_data = None
+        
         # Group powers by category if applicable
         displayed_powers = []
         for power_name in template_powers:
+            # Check for power with and without prefix (e.g., "spinning_wheel" and "contract:spinning_wheel")
             power_value = powers.get(power_name, 0)
+            if power_value == 0:
+                # Try with contract: prefix for Changeling contracts (stored as "contract:spinning_wheel")
+                prefixed_name = f"contract:{power_name}"
+                power_value = powers.get(prefixed_name, 0)
             # Handle both numeric (1-5) and semantic ("known") power values
             if power_value == "known" or (isinstance(power_value, int) and power_value > 0):
                 # For semantic powers (embeds, exploits, etc.), just show the name
@@ -279,6 +293,7 @@ class CmdSheet(MuxCommand):
                     dots = self._format_dots(power_value, 5, force_ascii)
                 # Clean up display name - remove prefixes and format properly
                 display_name = power_name
+                contract_key = power_name  # Store original key for contract lookup
                 if power_name.startswith('discipline_'):
                     display_name = power_name[11:]  # Remove 'discipline_'
                 elif power_name.startswith('arcanum_'):
@@ -287,6 +302,10 @@ class CmdSheet(MuxCommand):
                     display_name = power_name[5:]   # Remove 'gift_'
                 elif power_name.startswith('contract_'):
                     display_name = power_name[9:]   # Remove 'contract_'
+                    contract_key = display_name
+                elif power_name.startswith('contract:'):
+                    display_name = power_name[9:]   # Remove 'contract:' (for stored format)
+                    contract_key = display_name
                 elif power_name.startswith('rite_'):
                     display_name = power_name[5:]   # Remove 'rite_'
                 elif power_name.startswith('embed:'):
@@ -298,6 +317,38 @@ class CmdSheet(MuxCommand):
                 elif power_name.startswith('alembic:'):
                     display_name = power_name[8:]   # Remove 'alembic:'
                 
+                # For Changeling contracts, add category and type information
+                contract_info = ""
+                if contract_data and contract_key:
+                    contract = contract_data(contract_key)
+                    if contract:
+                        contract_type = contract.get('contract_type', '')
+                        # Parse contract_type to extract category and royal/common
+                        if contract_type:
+                            # Handle independent contracts first
+                            if contract_type == 'independent_common':
+                                category = 'independent'
+                                is_royal = False
+                            elif contract_type == 'independent_royal':
+                                category = 'independent'
+                                is_royal = True
+                            # Check if it's royal (contains _royal)
+                            elif '_royal' in contract_type:
+                                is_royal = True
+                                category = contract_type.replace('_royal', '')
+                            else:
+                                # All other contracts without _royal are Common
+                                is_royal = False
+                                category = contract_type
+                            
+                            # Format category name (capitalize first letter)
+                            category_display = category.capitalize()
+                            
+                            # Determine type (Royal or Common)
+                            type_display = "Royal" if is_royal else "Common"
+                            
+                            contract_info = f" ({category_display}, {type_display})"
+                
                 # Format display with or without dots
                 if dots:
                     power_name_display = display_name.replace('_', ' ').title()
@@ -308,7 +359,8 @@ class CmdSheet(MuxCommand):
                     else:
                         power_display = f"{power_name_display:<37} {dots}"
                 else:
-                    power_display = f"{display_name.replace('_', ' ').title()}"
+                    power_name_display = display_name.replace('_', ' ').title()
+                    power_display = f"{power_name_display}{contract_info}"
                 displayed_powers.append(power_display)
         
         if not displayed_powers:
@@ -335,7 +387,12 @@ class CmdSheet(MuxCommand):
         # Group secondary powers by category if applicable
         displayed_powers = []
         for power_name in template_secondary_powers:
+            # Check for power with and without prefix (e.g., "spinning_wheel" and "contract:spinning_wheel")
             power_value = powers.get(power_name, 0)
+            if power_value == 0:
+                # Try with contract: prefix for Changeling contracts (stored as "contract:spinning_wheel")
+                prefixed_name = f"contract:{power_name}"
+                power_value = powers.get(prefixed_name, 0)
             # Handle both numeric (1-5) and semantic ("known") power values
             if power_value == "known" or (isinstance(power_value, int) and power_value > 0):
                 # For secondary powers, show dots if numeric, nothing if "known"
@@ -354,6 +411,8 @@ class CmdSheet(MuxCommand):
                     display_name = power_name[5:]   # Remove 'gift_'
                 elif power_name.startswith('contract_'):
                     display_name = power_name[9:]   # Remove 'contract_'
+                elif power_name.startswith('contract:'):
+                    display_name = power_name[9:]   # Remove 'contract:' (for stored format)
                 elif power_name.startswith('rite_'):
                     display_name = power_name[5:]   # Remove 'rite_'
                 elif power_name.startswith('embed:'):
@@ -512,7 +571,8 @@ class CmdSheet(MuxCommand):
                 if field == "abilities":
                     continue
                 
-                field_value = bio.get(field, "<not set>")
+                # Check bio first, then other as fallback (for existing characters that may have these in other)
+                field_value = bio.get(field, other.get(field, "<not set>"))
                 
                 # Special display labels for certain fields
                 if field == "cover_identity":
@@ -531,12 +591,33 @@ class CmdSheet(MuxCommand):
                         if field_value != "<not set>":
                             field_value = field_value.replace("_", " ").title()
                     else:
+                        # Skip subtype for certain Mortal+ types that have powers based around merits
+                        mortal_plus_no_subtype = ["psychic", "lost boy", "dreamer", "atariya", "infected", "psychic vampire"]
+                        if mortal_plus_type in mortal_plus_no_subtype:
+                            continue  
                         field_label = "Subtype"
                         # Format subtype: replace underscores with spaces and title case
                         if field_value != "<not set>":
                             field_value = field_value.replace("_", " ").title()
                 else:
                     field_label = field.replace("_", " ").title()
+                    
+                    capitalization_fixes = {
+                        "burden": True,  # Geist
+                        "seeming": True, "kith": True, "court": True,  # Changeling
+                        "guild": True, "judge": True, "decree": True,  # Mummy
+                        "incarnation": True, "agenda": True, "catalyst": True,  # Demon
+                        "origin": True, "clade": True, "conspiracy": True,  # Deviant
+                        "auspice": True,  # Werewolf
+                        "clan": True, "bloodline": True,  # Vampire
+                        "lineage": True, "refinement": True  # Promethean
+                    }
+                    # Special handling for keeper and entitlement - use title case (all words capitalized)
+                    if field in ["keeper", "entitlement"] and field_value != "<not set>":
+                        field_value = field_value.replace("_", " ").replace("-", " ").title()
+                    elif field in capitalization_fixes and field_value != "<not set>":
+                        # Convert to sentence case (first letter uppercase, rest lowercase)
+                        field_value = field_value.capitalize()
                 
                 bio_items.append((field_label, field_value))
         
@@ -1063,23 +1144,43 @@ class CmdSheet(MuxCommand):
         
         else:
             # Regular template power display (skip for hunter since endowments are handled separately)
-            if template.lower() != "hunter":
+            # Also skip powers section for certain Mortal+ types that use merits instead
+            # Skip Werewolf primary powers (GIFTS) since they only have individual facets, not rated gifts
+            skip_powers = False
+            if template.lower() == "mortal_plus" or template.lower() == "mortal plus":
+                template_type = bio.get("template_type", "").lower()
+                no_power_types = ["psychic", "lost boy", "dreamer", "atariya", "infected", "psychic vampire"]
+                if template_type in no_power_types:
+                    skip_powers = True
+            elif template.lower() == "werewolf":
+                skip_powers = True  # Werewolves don't have rated gifts, only individual facets
+            
+            if template.lower() != "hunter" and not skip_powers:
                 if powers or template_powers:
                     output.append(self._format_section_header(f"|w{primary_section}|n"))
                     
                     if template_powers:
-                        power_display = self._format_powers_display(powers, template_powers, force_ascii, use_numeric)
+                        power_display = self._format_powers_display(powers, template_powers, force_ascii, use_numeric, template)
                         output.extend(power_display)
                     else:
                         output.append("No primary powers available for this template.")
         
-        # Secondary Powers (rituals, rites, blood sorcery) - skip for Geist and Hunter since handled separately
-        if template.lower() not in ["geist", "hunter"] and (powers or template_secondary_powers):
+        # Secondary Powers (rituals, rites, blood sorcery) - skip for Geist, Hunter, Werewolf, and Vampire since handled separately
+        # Also check if section would be empty before displaying
+        if template.lower() not in ["geist", "hunter", "werewolf", "vampire"] and (powers or template_secondary_powers):
             if template_secondary_powers:  # Only show section if template has secondary powers
-                output.append(self._format_section_header(f"|w{secondary_section}|n"))
+                # Check if there are any secondary powers actually learned
+                has_secondary_powers = False
+                for power_name in template_secondary_powers:
+                    power_value = powers.get(power_name, 0)
+                    if power_value == "known" or (isinstance(power_value, int) and power_value > 0):
+                        has_secondary_powers = True
+                        break
                 
-                secondary_power_display = self._format_secondary_powers_display(powers, template_secondary_powers, force_ascii, use_numeric)
-                output.extend(secondary_power_display)
+                if has_secondary_powers:
+                    output.append(self._format_section_header(f"|w{secondary_section}|n"))
+                    secondary_power_display = self._format_secondary_powers_display(powers, template_secondary_powers, force_ascii, use_numeric)
+                    output.extend(secondary_power_display)
                 
                 # Add hint for demon characters
                 if template.lower() == "demon":
@@ -1167,6 +1268,47 @@ class CmdSheet(MuxCommand):
                     output.append(f"  {left_formatted} {right_endowment}")
             else:
                 output.append("No endowment powers learned yet.")
+            
+            output.append("")
+            
+            # Tactics section
+            output.append(self._format_section_header("|wTACTICS|n"))
+            
+            from world.cofd.powers.hunter_tactics import get_all_tactics
+            
+            all_tactics = get_all_tactics()
+            tactic_list = []
+            
+            # Check for tactics stored directly (without prefix) or with "tactic:" prefix
+            for power_name, value in powers.items():
+                tactic_key = None
+                if power_name.startswith("tactic:"):
+                    tactic_key = power_name[7:]  # Remove "tactic:" prefix
+                elif power_name in all_tactics:
+                    tactic_key = power_name
+                
+                if tactic_key and (value == "known" or (isinstance(value, int) and value > 0)):
+                    tactic_data = all_tactics.get(tactic_key)
+                    if tactic_data:
+                        tactic_type = tactic_data.get('category', 'Unknown').replace('_', ' ').title()
+                        tactic_name = tactic_data.get('name', tactic_key.replace('_', ' ').title())
+                        tactic_display = f"{tactic_name} ({tactic_type})"
+                        tactic_list.append(tactic_display)
+                    else:
+                        tactic_display = f"{tactic_key.replace('_', ' ').title()} (Unknown Tactic)"
+                        tactic_list.append(tactic_display)
+            
+            if tactic_list:
+                # Display tactics in 2 columns
+                sorted_tactics = sorted(tactic_list)
+                for i in range(0, len(sorted_tactics), 2):
+                    left_tactic = sorted_tactics[i] if i < len(sorted_tactics) else ""
+                    right_tactic = sorted_tactics[i + 1] if i + 1 < len(sorted_tactics) else ""
+                    
+                    left_formatted = left_tactic.ljust(42)
+                    output.append(f"  {left_formatted} {right_tactic}")
+            else:
+                output.append("No tactics learned yet.")
             
             output.append("")
         
@@ -1257,13 +1399,24 @@ class CmdSheet(MuxCommand):
                             vamp_powers["Cruac"] = []
                         vamp_powers["Cruac"].append(name)
             
-            # Display each category that has powers
+            # Display each category that has powers in multicolumn format (3 columns, 80 chars)
             for category in ["Discipline Powers", "Devotions", "Coils of the Dragon", 
                            "Scales of the Dragon", "Theban Sorcery", "Cruac"]:
                 if category in vamp_powers and vamp_powers[category]:
                     output.append(self._format_section_header(f"|w{category.upper()}|n"))
-                    for power in sorted(vamp_powers[category]):
-                        output.append(f"  {power}")
+                    sorted_powers = sorted(vamp_powers[category])
+                    # Display in 3 columns (max 26 chars per column to fit in 80 chars)
+                    for i in range(0, len(sorted_powers), 3):
+                        col1 = sorted_powers[i] if i < len(sorted_powers) else ""
+                        col2 = sorted_powers[i + 1] if i + 1 < len(sorted_powers) else ""
+                        col3 = sorted_powers[i + 2] if i + 2 < len(sorted_powers) else ""
+                        
+                        # Format each column (26 chars max, truncate if needed)
+                        col1_formatted = col1[:26].ljust(26) if col1 else ""
+                        col2_formatted = col2[:26].ljust(26) if col2 else ""
+                        col3_formatted = col3[:26] if col3 else ""
+                        
+                        output.append(f"  {col1_formatted} {col2_formatted} {col3_formatted}")
                     output.append("")
         
         # Mummy Affinity and Utterance sections
@@ -1960,7 +2113,8 @@ class CmdSheet(MuxCommand):
                 if field == "abilities":
                     continue
                 
-                field_value = bio.get(field, "<not set>")
+                # Check bio first, then other as fallback (for existing characters that may have these in other)
+                field_value = bio.get(field, other.get(field, "<not set>"))
                 
                 # Special display labels for certain fields
                 if field == "cover_identity":
@@ -1979,12 +2133,34 @@ class CmdSheet(MuxCommand):
                         if field_value != "<not set>":
                             field_value = field_value.replace("_", " ").title()
                     else:
+                        # Skip subtype for certain Mortal+ types that don't use it
+                        mortal_plus_no_subtype = ["psychic", "lost boy", "dreamer", "atariya", "infected", "psychic vampire"]
+                        if mortal_plus_type in mortal_plus_no_subtype:
+                            continue  # Skip this field
                         field_label = "Subtype"
                         # Format subtype: replace underscores with spaces and title case
                         if field_value != "<not set>":
                             field_value = field_value.replace("_", " ").title()
                 else:
                     field_label = field.replace("_", " ").title()
+                    
+                    # Fix capitalization for specific bio fields - use sentence case instead of title case
+                    capitalization_fixes = {
+                        "burden": True,  # Geist
+                        "seeming": True, "kith": True, "court": True,  # Changeling
+                        "guild": True, "judge": True, "decree": True,  # Mummy
+                        "incarnation": True, "agenda": True, "catalyst": True,  # Demon
+                        "origin": True, "clade": True, "conspiracy": True,  # Deviant
+                        "auspice": True,  # Werewolf
+                        "clan": True, "bloodline": True,  # Vampire
+                        "lineage": True, "refinement": True  # Promethean
+                    }
+                    # Special handling for keeper and entitlement - use title case (all words capitalized)
+                    if field in ["keeper", "entitlement"] and field_value != "<not set>":
+                        field_value = field_value.replace("_", " ").replace("-", " ").title()
+                    elif field in capitalization_fixes and field_value != "<not set>":
+                        # Convert to sentence case (first letter uppercase, rest lowercase)
+                        field_value = field_value.capitalize()
                 
                 bio_items.append((field_label, field_value))
         
@@ -2531,23 +2707,43 @@ class CmdSheet(MuxCommand):
         
         else:
             # Regular template power display (skip for hunter since endowments are handled separately)
-            if template.lower() != "hunter":
+            # Also skip powers section for certain Mortal+ types that use merits instead
+            # Skip Werewolf primary powers (GIFTS) since they only have individual facets, not rated gifts
+            skip_powers = False
+            if template.lower() == "mortal_plus" or template.lower() == "mortal plus":
+                template_type = bio.get("template_type", "").lower()
+                no_power_types = ["psychic", "lost boy", "dreamer", "atariya", "infected", "psychic vampire"]
+                if template_type in no_power_types:
+                    skip_powers = True
+            elif template.lower() == "werewolf":
+                skip_powers = True  # Werewolves don't have rated gifts, only individual facets
+            
+            if template.lower() != "hunter" and not skip_powers:
                 if powers or template_powers:
                     output.append(self._format_section_header(f"|w{primary_section}|n"))
                     
                     if template_powers:
-                        power_display = self._format_powers_display(powers, template_powers, force_ascii, use_numeric)
+                        power_display = self._format_powers_display(powers, template_powers, force_ascii, use_numeric, template)
                         output.extend(power_display)
                     else:
                         output.append("No primary powers available for this template.")
         
-        # Secondary Powers (rituals, rites, blood sorcery) - skip for Geist and Hunter since handled separately
-        if template.lower() not in ["geist", "hunter"] and (powers or template_secondary_powers):
+        # Secondary Powers (rituals, rites, blood sorcery) - skip for Geist, Hunter, Werewolf, and Vampire since handled separately
+        # Also check if section would be empty before displaying
+        if template.lower() not in ["geist", "hunter", "werewolf", "vampire"] and (powers or template_secondary_powers):
             if template_secondary_powers:  # Only show section if template has secondary powers
-                output.append(self._format_section_header(f"|w{secondary_section}|n"))
+                # Check if there are any secondary powers actually learned
+                has_secondary_powers = False
+                for power_name in template_secondary_powers:
+                    power_value = powers.get(power_name, 0)
+                    if power_value == "known" or (isinstance(power_value, int) and power_value > 0):
+                        has_secondary_powers = True
+                        break
                 
-                secondary_power_display = self._format_secondary_powers_display(powers, template_secondary_powers, force_ascii, use_numeric)
-                output.extend(secondary_power_display)
+                if has_secondary_powers:
+                    output.append(self._format_section_header(f"|w{secondary_section}|n"))
+                    secondary_power_display = self._format_secondary_powers_display(powers, template_secondary_powers, force_ascii, use_numeric)
+                    output.extend(secondary_power_display)
                 
                 # Add hint for demon characters
                 if template.lower() == "demon":
@@ -2635,6 +2831,47 @@ class CmdSheet(MuxCommand):
                     output.append(f"  {left_formatted} {right_endowment}")
             else:
                 output.append("No endowment powers learned yet.")
+            
+            output.append("")
+            
+            # Tactics section
+            output.append(self._format_section_header("|wTACTICS|n"))
+            
+            from world.cofd.powers.hunter_tactics import get_all_tactics
+            
+            all_tactics = get_all_tactics()
+            tactic_list = []
+            
+            # Check for tactics stored directly (without prefix) or with "tactic:" prefix
+            for power_name, value in powers.items():
+                tactic_key = None
+                if power_name.startswith("tactic:"):
+                    tactic_key = power_name[7:]  # Remove "tactic:" prefix
+                elif power_name in all_tactics:
+                    tactic_key = power_name
+                
+                if tactic_key and (value == "known" or (isinstance(value, int) and value > 0)):
+                    tactic_data = all_tactics.get(tactic_key)
+                    if tactic_data:
+                        tactic_type = tactic_data.get('category', 'Unknown').replace('_', ' ').title()
+                        tactic_name = tactic_data.get('name', tactic_key.replace('_', ' ').title())
+                        tactic_display = f"{tactic_name} ({tactic_type})"
+                        tactic_list.append(tactic_display)
+                    else:
+                        tactic_display = f"{tactic_key.replace('_', ' ').title()} (Unknown Tactic)"
+                        tactic_list.append(tactic_display)
+            
+            if tactic_list:
+                # Display tactics in 2 columns
+                sorted_tactics = sorted(tactic_list)
+                for i in range(0, len(sorted_tactics), 2):
+                    left_tactic = sorted_tactics[i] if i < len(sorted_tactics) else ""
+                    right_tactic = sorted_tactics[i + 1] if i + 1 < len(sorted_tactics) else ""
+                    
+                    left_formatted = left_tactic.ljust(42)
+                    output.append(f"  {left_formatted} {right_tactic}")
+            else:
+                output.append("No tactics learned yet.")
             
             output.append("")
         
@@ -2725,13 +2962,24 @@ class CmdSheet(MuxCommand):
                             vamp_powers["Cruac"] = []
                         vamp_powers["Cruac"].append(name)
             
-            # Display each category that has powers
+            # Display each category that has powers in multicolumn format (3 columns, 80 chars)
             for category in ["Discipline Powers", "Devotions", "Coils of the Dragon", 
                            "Scales of the Dragon", "Theban Sorcery", "Cruac"]:
                 if category in vamp_powers and vamp_powers[category]:
                     output.append(self._format_section_header(f"|w{category.upper()}|n"))
-                    for power in sorted(vamp_powers[category]):
-                        output.append(f"  {power}")
+                    sorted_powers = sorted(vamp_powers[category])
+                    # Display in 3 columns (max 26 chars per column to fit in 80 chars)
+                    for i in range(0, len(sorted_powers), 3):
+                        col1 = sorted_powers[i] if i < len(sorted_powers) else ""
+                        col2 = sorted_powers[i + 1] if i + 1 < len(sorted_powers) else ""
+                        col3 = sorted_powers[i + 2] if i + 2 < len(sorted_powers) else ""
+                        
+                        # Format each column (26 chars max, truncate if needed)
+                        col1_formatted = col1[:26].ljust(26) if col1 else ""
+                        col2_formatted = col2[:26].ljust(26) if col2 else ""
+                        col3_formatted = col3[:26] if col3 else ""
+                        
+                        output.append(f"  {col1_formatted} {col2_formatted} {col3_formatted}")
                     output.append("")
         
         # Mummy Affinity and Utterance sections

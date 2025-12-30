@@ -2168,7 +2168,7 @@ MIND_SPELLS = {
         "practice": "Ruling",
         "primary_factor": "Duration",
         "rote_skills": ["Empathy", "Investigation", "Stealth"],
-        "description": "By Splitting their senses a mage may view whats happening around their Soul Stone 360° or hears the sounds in its vicinity. This doesn't require sympathetic range. Add Forces 2: The mage may project their voice through the stone. +1 Reach: The mage experiences the Stone's surroundings with all their Senses",
+        "description": "By Splitting their senses a mage may view whats happening around their Soul Stone 360 degrees or hears the sounds in its vicinity. This doesn't require sympathetic range. Add Forces 2: The mage may project their voice through the stone. +1 Reach: The mage experiences the Stone's surroundings with all their Senses",
         "source": "SoS 90"
     },
     "telepathy": {

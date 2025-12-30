@@ -30,7 +30,7 @@ DEMON_MODIFICATIONS = {
     "blade_hand": {
         "name": "Blade Hand",
         "appearance": "An integrated transforming body weapon.",
-        "system": "Reflexively summon or dismiss the blade hand. 4L rating weapon, initative penalty -3.",
+        "system": "Reflexively summon or dismiss the blade hand. 4L rating weapon, initiative penalty -3.",
         "source": "DTD 197"
     },
     "claws_and_fangs": {
@@ -180,7 +180,7 @@ DEMON_MODIFICATIONS = {
     "steel_frame": {
         "name": "Steel Frame",
         "appearance": "Steel rivets stick out of the skin, ringing vital areas and joints.",
-        "system": "The Demon's bones cannot be broken unless the source can bend steel (Durability 3, Size 0-2, Structure 3-5). Ignore \"Arm Wrack\", \"Leg Wrack\" tilts and wound penalties. Always have access to brass knuckles due to rivets on the fist (0L, ±0 Initiative).",
+        "system": "The Demon's bones cannot be broken unless the source can bend steel (Durability 3, Size 0-2, Structure 3-5). Ignore \"Arm Wrack\", \"Leg Wrack\" tilts and wound penalties. Always have access to brass knuckles due to rivets on the fist (0L, +/-0 Initiative).",
         "source": "FoH 124"
     },
     "tough_as_stone": {
@@ -265,7 +265,7 @@ DEMON_MODIFICATIONS = {
     "weather_sense": {
         "name": "Weather Sense",
         "appearance": "Head-mounted array of microwave domes.",
-        "system": "Detect current or future weather within (10×Primum) miles.",
+        "system": "Detect current or future weather within (10 x Primum) miles.",
         "source": "DTG 42"
     },
 }

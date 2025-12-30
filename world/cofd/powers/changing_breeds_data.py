@@ -115,7 +115,7 @@ CHANGING_BREEDS = {
         "description": "Lion-shifters with pride and majesty",
         "animal_type": "lion",
         "breed_favors": ["Fang (bite) 3 (L)", "Claw 2 (L)", "Keen Senses (all)", "Size 6"],
-        "breed_bonus": "All Hatara get a free Specialty in a Social Skill. They subtract –1 from dice pools to spot a con job, lie or illusion.",
+        "breed_bonus": "All Hatara get a free Specialty in a Social Skill. They subtract -1 from dice pools to spot a con job, lie or illusion.",
         "forms": {
             "human": {
                 "display_name": "Human",
@@ -1079,7 +1079,7 @@ CHANGING_BREEDS = {
         "description": "Chinese monkey shifters of the Wukong Order",
         "animal_type": "monkey",
         "breed_favors": ["Clamber", "Fang and Claw 1 (L)", "Speed 6"],
-        "breed_bonus": "Members of the Wukong Order can use the Fighting Style: Kung Fu Merit in their beast forms — something no other feral shapechanger can do.",
+        "breed_bonus": "Members of the Wukong Order can use the Fighting Style: Kung Fu Merit in their beast forms -- something no other feral shapechanger can do.",
         "forms": {
             "human": {
                 "display_name": "Human",
@@ -1351,11 +1351,11 @@ CHANGING_BREEDS = {
     },
     
     "carapache": {
-        "display_name": "Carapaché",
+        "display_name": "Carapache",
         "description": "South American spider shifters with jungle cunning",
         "animal_type": "spider",
         "breed_favors": ["Many-Legged (+4 Speed)", "Venomous", "Webbing"],
-        "breed_bonus": "As for most small shapechangers, the Carapaché Primal form has set Health, Size and Speed traits. This gives +2 bonus when hiding from larger creatures. All Carapaché have Survival and Stealth, with free Skill Specialties in Hiding and Jungle Survival.",
+        "breed_bonus": "As for most small shapechangers, the Carapache Primal form has set Health, Size and Speed traits. This gives +2 bonus when hiding from larger creatures. All Carapache have Survival and Stealth, with free Skill Specialties in Hiding and Jungle Survival.",
         "forms": {
             "human": {
                 "display_name": "Human",
@@ -2302,11 +2302,11 @@ CHANGING_BREEDS = {
     },
     
     "melusinae": {
-        "display_name": "Mélusinae",
+        "display_name": "Melusinae",
         "description": "Snake shifters with hypnotic song",
         "animal_type": "snake",
         "breed_favors": ["Alarming Alacrity", "Fang and Claw (bite) 2 (L)", "Hypnotic Allure"],
-        "breed_bonus": "All Mélusinae must buy at least two dots in Expression but receive free Skill Specialty in song. In beast-form, this breed has the Limbless Aspect (worth no points).",
+        "breed_bonus": "All Melusinae must buy at least two dots in Expression but receive free Skill Specialty in song. In beast-form, this breed has the Limbless Aspect (worth no points).",
         "forms": {
             "human": {
                 "display_name": "Human",

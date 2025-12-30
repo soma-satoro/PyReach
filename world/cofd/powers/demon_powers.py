@@ -777,28 +777,28 @@ EMBEDS_BY_INCARNATION = {
 DEMON_EXPLOITS = {
     "addictive_presence": {
         "name": "Addictive Presence",
-        "cost": "●",
+        "cost": "*",
         "pool": "Presence + Socialize + Primum",
         "description": "Render a target Addicted to your presence.",
         "source": "DTD 158"
     },
     "affliction": {
         "name": "Affliction",
-        "cost": "●",
+        "cost": "*",
         "pool": "Strength + Medicine + Primum vs (Stamina or Resolve) + Tolerance",
         "description": "Inflict interesting new physical or mental afflictions.",
         "source": "DTD 159"
     },
     "allies_into_gold": {
         "name": "Allies into Gold",
-        "cost": "●",
+        "cost": "*",
         "pool": "Intelligence + Socialize + Primum",
         "description": "Shift the context of relationships in the form of Social Merits.",
         "source": "DTD 159"
     },
     "animate": {
         "name": "Animate",
-        "cost": "●",
+        "cost": "*",
         "pool": "Presence + Crafts + Primum",
         "description": "Animate an object as a servant for a scene.",
         "source": "DTD 161"
@@ -812,14 +812,14 @@ DEMON_EXPLOITS = {
     },
     "break_the_dam": {
         "name": "Break the Dam",
-        "cost": "●",
+        "cost": "*",
         "pool": "Presence + Science + Primum - Stamina",
         "description": "Bursts a container of liquid, causing Environmental Tilts. Can also target a living being for lethal damage.",
         "source": "FoH 110"
     },
     "break_to_heal": {
         "name": "Break to Heal",
-        "cost": "●",
+        "cost": "*",
         "pool": "Strength + Medicine + Primum",
         "description": "Smash an object and transfer its former integrity to another person in the form of healing.",
         "source": "DTD 162"
@@ -833,14 +833,14 @@ DEMON_EXPLOITS = {
     },
     "decoy": {
         "name": "Decoy",
-        "cost": "●",
+        "cost": "*",
         "pool": "Presence + Stealth + Primum",
         "description": "Independently colocate as a material Cover and a demonic form in astral Twilight.",
         "source": "Iface 123"
     },
     "deep_pockets": {
         "name": "Deep Pockets",
-        "cost": "●",
+        "cost": "*",
         "pool": "Strength + Larceny + Primum",
         "description": "Pull a specific handheld item out of your pocket, even if it wasn't there.",
         "source": "DTD 162"
@@ -854,14 +854,14 @@ DEMON_EXPLOITS = {
     },
     "demon_house": {
         "name": "Demon House",
-        "cost": "●",
+        "cost": "*",
         "pool": "Presence + Stealth + Primum",
         "description": "Merge with a building indefinitely.",
         "source": "DTD 162"
     },
     "devour_infrastructure": {
         "name": "Devour Infrastructure",
-        "cost": "●",
+        "cost": "*",
         "pool": "Strength + Survival + Primum",
         "description": "Break down a small part of infrastructure, siphoning Aether equal to Primum, but suffer regular compromises.",
         "source": "FoH 112"
@@ -882,21 +882,21 @@ DEMON_EXPLOITS = {
     },
     "ephemeral_cover": {
         "name": "Ephemeral Cover",
-        "cost": "●",
+        "cost": "*",
         "pool": "Strength + Occult + Primum - Defense",
         "description": "Tear a ghost or spirit apart as raw materials to create an ephemeral Cover.",
         "source": "DTD 164"
     },
     "everybody_hates_him": {
         "name": "Everybody Hates Him",
-        "cost": "●",
+        "cost": "*",
         "pool": "Intelligence + Intimidation + Primum",
         "description": "Render a person into an automatic scapegoat.",
         "source": "DTD 164"
     },
     "extispicy": {
         "name": "Extispicy",
-        "cost": "●",
+        "cost": "*",
         "pool": "Intelligence + Occult + Primum",
         "description": "Read the future in butchered entrails.",
         "source": "DTD 165"
@@ -910,7 +910,7 @@ DEMON_EXPLOITS = {
     },
     "force_relationship": {
         "name": "Force Relationship",
-        "cost": "●",
+        "cost": "*",
         "pool": "Presence + Empathy + Primum",
         "description": "Fabricate relationships between people.",
         "source": "DTD 165"
@@ -924,7 +924,7 @@ DEMON_EXPLOITS = {
     },
     "frozen_in_time": {
         "name": "Frozen in Time",
-        "cost": "●",
+        "cost": "*",
         "pool": "Intelligence + Science + Primum - Stamina",
         "description": "Lock a target frozen in time.",
         "source": "DTD 166"
@@ -938,7 +938,7 @@ DEMON_EXPLOITS = {
     },
     "hellfire": {
         "name": "Hellfire",
-        "cost": "●",
+        "cost": "*",
         "pool": "Presence + Firearms + Primum",
         "description": "Fire demonic supernatural flame out of a gun.",
         "source": "DTD 167"
@@ -959,7 +959,7 @@ DEMON_EXPLOITS = {
     },
     "inflict_stigmata": {
         "name": "Inflict Stigmata",
-        "cost": "●",
+        "cost": "*",
         "pool": "Presence + Occult + Primum",
         "description": "Transform a human into a stigmatic.",
         "source": "DTD 168"
@@ -973,7 +973,7 @@ DEMON_EXPLOITS = {
     },
     "living_shadow": {
         "name": "Living Shadow",
-        "cost": "●",
+        "cost": "*",
         "pool": "Intelligence + Stealth + Primum",
         "description": "Become a shadow travelling across surfaces and between hosts.",
         "source": "DTD 169"
@@ -987,7 +987,7 @@ DEMON_EXPLOITS = {
     },
     "murder_by_improbability": {
         "name": "Murder by Improbability",
-        "cost": "●",
+        "cost": "*",
         "pool": "Intelligence + Academics + Primum vs Presence + Tolerance",
         "description": "Induce catastrophic bad luck, spontaneously killing an ordinary human or cursing supernatural beings in combat.",
         "source": "DTD 170"
@@ -1001,7 +1001,7 @@ DEMON_EXPLOITS = {
     },
     "open_and_shut_case": {
         "name": "Open-and-Shut Case",
-        "cost": "●",
+        "cost": "*",
         "pool": "Presence + Investigation + Primum",
         "description": "Links a crime to a random scapegoat or a scapegoat to a random crime, temporarily railroading prosecution of the suspect.",
         "source": "FoH 114"
@@ -1015,7 +1015,7 @@ DEMON_EXPLOITS = {
     },
     "possession": {
         "name": "Possession",
-        "cost": "●",
+        "cost": "*",
         "pool": "Intelligence + Persuasion + Primum - Resolve",
         "description": "Possess a human being, occupying and controlling their body.",
         "source": "DTD 171"
@@ -1036,7 +1036,7 @@ DEMON_EXPLOITS = {
     },
     "raze_infrastructure": {
         "name": "Raze Infrastructure",
-        "cost": "●",
+        "cost": "*",
         "pool": "Presence + Streetwise + Primum",
         "description": "Destroy Infrastructure, in a very literal and messy way.",
         "source": "DTD 173"
@@ -1050,14 +1050,14 @@ DEMON_EXPLOITS = {
     },
     "riot": {
         "name": "Riot",
-        "cost": "●",
+        "cost": "*",
         "pool": "Presence + Persuasion + Primum",
         "description": "Cause a spontaneous, aimless riot.",
         "source": "DTD 174"
     },
     "rip_the_gates": {
         "name": "Rip the Gates",
-        "cost": "●",
+        "cost": "*",
         "pool": "Strength + Occult + Primum",
         "description": "Tear open a rift into or out of the Astral Realms, the Hedge, the Shadow or the Underworld.",
         "source": "DTD 174"
@@ -1071,35 +1071,35 @@ DEMON_EXPLOITS = {
     },
     "show_of_power": {
         "name": "Show of Power",
-        "cost": "●",
+        "cost": "*",
         "pool": "Presence + Occult + Primum vs Wits + Tolerance",
         "description": "Mimic a supernatural power that you have observed.",
         "source": "FoH 114"
     },
     "solitary_confinement": {
         "name": "Solitary Confinement",
-        "cost": "●",
+        "cost": "*",
         "pool": "Strength + Occult + Primum - Resolve + Tolerance",
         "description": "Trap someone in a dimensional oubliette of total sensory deprivation.",
         "source": "DTD 176"
     },
     "soul_brand": {
         "name": "Soul Brand",
-        "cost": "●",
+        "cost": "*",
         "pool": "Presence + Expression + Primum - Tolerance",
         "description": "Place a mark on a target's soul, visible through the aura. Those around the target subconsciously intuit they are under protection.",
         "source": "FoH 115"
     },
     "stalking_horse": {
         "name": "Stalking Horse",
-        "cost": "●",
+        "cost": "*",
         "pool": "Presence + Expression + Primum vs Composure + Tolerance",
         "description": "Expose someone to others as exemplary of a trait, regardless of whether they actually exhibit it.",
         "source": "DTD 176"
     },
     "stimulus_response": {
         "name": "Stimulus/Response",
-        "cost": "●",
+        "cost": "*",
         "pool": "Intelligence + Empathy + Primum vs Resolve + Tolerance",
         "description": "Induce a reflexive association between the demon's expenditure of Aether and an action the target has performed.",
         "source": "DTD 176"
@@ -1120,7 +1120,7 @@ DEMON_EXPLOITS = {
     },
     "swarm": {
         "name": "Swarm",
-        "cost": "●",
+        "cost": "*",
         "pool": "Presence + Animal Ken + Primum",
         "description": "Conjure and command a swarm of creepy crawlies.",
         "source": "DTD 177"
@@ -1134,7 +1134,7 @@ DEMON_EXPLOITS = {
     },
     "terrible_avatar": {
         "name": "Terrible Avatar",
-        "cost": "●",
+        "cost": "*",
         "pool": "Strength + Occult + Primum",
         "description": "Split your demonic form off as an independent actor.",
         "source": "FoH 116"
@@ -1176,7 +1176,7 @@ DEMON_EXPLOITS = {
     },
     "the_word": {
         "name": "The Word",
-        "cost": "●",
+        "cost": "*",
         "pool": "Presence + Intimidation + Primum - Resolve",
         "description": "Issue a short, simple command that is obeyed, even if it has nothing to do with voluntary actions.",
         "source": "DTD 179"

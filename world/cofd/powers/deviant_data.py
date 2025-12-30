@@ -220,7 +220,7 @@ VARIATION_AQUATIC = {
     "category": "Universal",
     "magnitude_effects": {
         1: "Breathe underwater and ignore swimming penalties.",
-        2: "Choose Habitat (marine life cooperative, unimpeded by pressure) or Speed (swimming speed becomes Scar Power × 20)",
+        2: "Choose Habitat (marine life cooperative, unimpeded by pressure) or Speed (swimming speed becomes Scar Power x 20)",
         3: "Receive both Magnitude 2 benefits."
     },
     "book": "DTR 113"
@@ -263,8 +263,8 @@ VARIATION_BRACHIATION = {
     "keywords": ["Overt", "Reflexive", "Tiered", "Toggled"],
     "category": "Universal",
     "magnitude_effects": {
-        1: "Choose Bounding (leap up to 2× Scar Power in meters, bonus to resist fall damage) or Wall Crawling (scale sheer vertical surfaces)",
-        2: "Choose Generalist (receive both Magnitude 1 benefits), Leaper (ignore fall damage, leap up to Scar Power × 5 meters, requires Bounding), or Spider (scale inverted surfaces and ceilings, requires Wall Crawling)",
+        1: "Choose Bounding (leap up to 2x Scar Power in meters, bonus to resist fall damage) or Wall Crawling (scale sheer vertical surfaces)",
+        2: "Choose Generalist (receive both Magnitude 1 benefits), Leaper (ignore fall damage, leap up to Scar Power x 5 meters, requires Bounding), or Spider (scale inverted surfaces and ceilings, requires Wall Crawling)",
         3: "Receive all Magnitude 2 benefits."
     },
     "book": "DTR 114"
@@ -303,7 +303,7 @@ VARIATION_ELECTROKINESIS = {
     "keywords": ["Overt", "Directed", "Tiered", "Toggled"],
     "category": "Universal",
     "magnitude_effects": {
-        1: "Choose one per Magnitude dot: Conductivity (electrocute with available charges up to 2× Scar Power damage), Input (interface with smart devices), Output (control device functions), Power (power device on/off), or Research (scan stored data quickly)",
+        1: "Choose one per Magnitude dot: Conductivity (electrocute with available charges up to 2x Scar Power damage), Input (interface with smart devices), Output (control device functions), Power (power device on/off), or Research (scan stored data quickly)",
         2: "Choose two total effects.",
         3: "Choose three total effects.",
         4: "Choose four total effects.",
@@ -319,7 +319,7 @@ VARIATION_ENHANCED_SPEED = {
     "magnitude_effects": {
         1: "Add Scar Power to Initiative. Double Speed.",
         2: "Add half Scar Power to Defense. Ignore Defense penalties from consecutive attacks.",
-        3: "Choose Alacrity (act at any Initiative), Fleetness (multiply Speed by Scar Power × Magnitude), or Guerilla (apply Defense vs firearms, keep half Defense during charges/all-out attacks)",
+        3: "Choose Alacrity (act at any Initiative), Fleetness (multiply Speed by Scar Power x Magnitude), or Guerilla (apply Defense vs firearms, keep half Defense during charges/all-out attacks)",
         4: "Choose a second Magnitude 3 benefit.",
         5: "Receive all Magnitude 3 benefits."
     },
@@ -366,7 +366,7 @@ VARIATION_FLIGHT = {
         1: "Control falls and take no falling damage.",
         2: "Glide at lateral Speed of (Scar Power + 10), descend 3-30m per turn.",
         3: "Ascend Scar Power in meters as instant action.",
-        4: "Choose Grace (hover without descending, ascend reflexively) or Velocity (lateral Speed increases to Scar Power² × 20)",
+        4: "Choose Grace (hover without descending, ascend reflexively) or Velocity (lateral Speed increases to Scar Power^2 x 20)",
         5: "Receive both Magnitude 4 benefits."
     },
     "book": "DTR 119"
@@ -578,7 +578,7 @@ VARIATION_SUPERHUMAN_ATTRIBUTE = {
     "magnitude_effects": {
         1: "Choose an Attribute. Its rating increases to the higher of (Attribute + Magnitude) or (Magnitude + 3), to a maximum of 10, for all purposes except calculating supernatural derived traits or effects.",
         2: "As Magnitude 1.",
-        3: "As Magnitude 1, and receive the corresponding benefit: Intelligence (once per chapter, declare an unanticipated fact), Wits (once per scene, declare notice of a detail), Resolve (resist supernatural mental influence with Clash of Wills), Strength (lift objects up to Scar Power × 5 in Size, pierce half Scar Power in Armor), Dexterity (calculate Defense with higher of Wits/Dexterity, never fall from balance loss), Stamina (resist supernatural transformation with Clash of Wills), Presence (once per chapter, declare presence of a person who might appear), Manipulation (once per chapter, claim non-hostile civilians as temporary Allies/Contacts/Resources/Retainer up to half Scar Power), Composure (when you spend Willpower to enhance a roll and fail, recover the spent Willpower)",
+        3: "As Magnitude 1, and receive the corresponding benefit: Intelligence (once per chapter, declare an unanticipated fact), Wits (once per scene, declare notice of a detail), Resolve (resist supernatural mental influence with Clash of Wills), Strength (lift objects up to Scar Power x 5 in Size, pierce half Scar Power in Armor), Dexterity (calculate Defense with higher of Wits/Dexterity, never fall from balance loss), Stamina (resist supernatural transformation with Clash of Wills), Presence (once per chapter, declare presence of a person who might appear), Manipulation (once per chapter, claim non-hostile civilians as temporary Allies/Contacts/Resources/Retainer up to half Scar Power), Composure (when you spend Willpower to enhance a roll and fail, recover the spent Willpower)",
         4: "As Magnitude 3.",
         5: "As Magnitude 3."
     },
@@ -590,8 +590,8 @@ VARIATION_TELEKINESIS = {
     "keywords": ["Overt", "Directed", "Tiered", "Toggled"],
     "category": "Universal",
     "magnitude_effects": {
-        1: "Hold an object up to your (Magnitude × Scar Power) in Size in place. Against living targets, direct Scar Finesse - Defense as a grappling roll, capable of the Hold, Restrain, and Drop Prone maneuvers.",
-        2: "Move a held object at a Speed up to your (Magnitude × Scar Power), or operate it 'manually' at a distance. Telekinetic grapple maneuvers add Control Weapon, Damage, and Disarm.",
+        1: "Hold an object up to your (Magnitude x Scar Power) in Size in place. Against living targets, direct Scar Finesse - Defense as a grappling roll, capable of the Hold, Restrain, and Drop Prone maneuvers.",
+        2: "Move a held object at a Speed up to your (Magnitude x Scar Power), or operate it 'manually' at a distance. Telekinetic grapple maneuvers add Control Weapon, Damage, and Disarm.",
         3: "Choose Throw (hurl an object or target to deal half Size in lethal damage) or Deflect (roll Scar Finesse to subtract successes from physical attacks)",
         4: "Choose Versatility (receive both Magnitude 3 benefits), Crush/Dismember (requires Throw, inflict Scar Power + Acclimation - Durability damage to held objects), or Force Field (requires Deflect, conjure telekinetic barrier with half Scar Power in Durability)",
         5: "Receive all Magnitude 4 benefits."
@@ -843,7 +843,7 @@ VARIATION_COMPUTER_AIDED_PROCESSING = {
     "keywords": ["Subtle", "Reflexive", "Tiered", "Toggled"],
     "category": "Invasive",
     "magnitude_effects": {
-        1: "Choose one benefit (each usable once per chapter): Biokinesis (gain Scar Power + 1 dots of temporary Physical Merits), Combat Programming (gain Scar Power + 1 dots of temporary Fighting Merits), Data Warehouse (gain Scar Power + 1 dots of temporary Mental Merits), Human Clay (reassign up to Scar Power ÷ 2 + 1 dots between two Physical Attributes), or Mind Hack (reassign up to Scar Power ÷ 2 + 1 dots between two Mental Attributes)",
+        1: "Choose one benefit (each usable once per chapter): Biokinesis (gain Scar Power + 1 dots of temporary Physical Merits), Combat Programming (gain Scar Power + 1 dots of temporary Fighting Merits), Data Warehouse (gain Scar Power + 1 dots of temporary Mental Merits), Human Clay (reassign up to Scar Power / 2 + 1 dots between two Physical Attributes), or Mind Hack (reassign up to Scar Power / 2 + 1 dots between two Mental Attributes)",
         2: "Choose two total benefits.",
         3: "Choose three total benefits.",
         4: "Choose four total benefits.",
@@ -862,7 +862,7 @@ VARIATION_HIDDEN_COMPARTMENTS = {
         3: "Once per story or at the cost of instability, draw a Size 1 item up to Availability 5, which may have supernatural properties."
     },
     "deviations": {
-        "Extra Capacity": {"cost": 1, "effect": "You may draw items of Size up to (Scar Power ÷ 2 + 1)."},
+        "Extra Capacity": {"cost": 1, "effect": "You may draw items of Size up to (Scar Power / 2 + 1)."},
         "Varied Inventory": {"cost": 1, "effect": "Draw items more frequently: per chapter instead of per story, per scene instead of per chapter, and per turn instead of per scene."}
     },
     "book": "DTR 146"
@@ -874,7 +874,7 @@ VARIATION_INTEGRATE_TECHNOLOGY = {
     "category": "Invasive",
     "magnitude_effects": {
         1: "Interface with handled tools to apply 8-Again to them.",
-        2: "Absorb tools up to half your Scar Power in Size to replicate their function bodily. The total Size of all absorbed tools cannot exceed (Scar Power × Magnitude).",
+        2: "Absorb tools up to half your Scar Power in Size to replicate their function bodily. The total Size of all absorbed tools cannot exceed (Scar Power x Magnitude).",
         3: "Absorbed tools suffer no depletion of power, ammunition, or other materials.",
         4: "You may merge into machine your Size or larger, up to Size 30, taking any actions the machine can. Your Health suffers any Structure damage taken."
     },

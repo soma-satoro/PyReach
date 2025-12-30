@@ -18,7 +18,7 @@ CONTRACTS_OF_THE_CROWN = {
     "hostile_takeover": {
         "name": "Hostile Takeover",
         "contract_type": "crown",
-        "cost": "●●",
+        "cost": "2 glamour",
         "dice_pool": "None",
         "loopholes": "One of the owner's possessions",
         "description": "Declare yourself, and up to your Presence in allies beside you, a rightful guest, unharried by protection from intruders.",
@@ -31,7 +31,7 @@ CONTRACTS_OF_THE_CROWN = {
     "mask_of_superiority": {
         "name": "Mask of Superiority",
         "contract_type": "crown",
-        "cost": "●",
+        "cost": "1 glamour",
         "dice_pool": "Presence + Subterfuge + Wyrd",
         "loopholes": "Match the dress code",
         "description": "Apply your Presence as false Status, convincing others you rank in their organization.",
@@ -44,7 +44,7 @@ CONTRACTS_OF_THE_CROWN = {
     "paralyzing_presence": {
         "name": "Paralyzing Presence",
         "contract_type": "crown",
-        "cost": "●●",
+        "cost": "2 glamour",
         "dice_pool": "Presence + Intimidation + Wyrd vs Composure + Tolerance",
         "loopholes": "Touch a lone target",
         "description": "Overwhelm a target with your presence, rendering them Insensate.",
@@ -57,7 +57,7 @@ CONTRACTS_OF_THE_CROWN = {
     "summon_the_loyal_servant": {
         "name": "Summon the Loyal Servant",
         "contract_type": "crown",
-        "cost": "●",
+        "cost": "1 glamour",
         "dice_pool": "None",
         "loopholes": "A favor for the source element",
         "description": "Conjure a loyal servant from the elements for a scene, like a weak Hedge ghost.",
@@ -70,7 +70,7 @@ CONTRACTS_OF_THE_CROWN = {
     "tumult": {
         "name": "Tumult",
         "contract_type": "crown",
-        "cost": "●●",
+        "cost": "2 glamour",
         "dice_pool": "Presence + Empathy + Wyrd - Resolve",
         "loopholes": "Plant folding paper on the subject",
         "description": "Fold a subject's name to read her weaknesses and spend successes on inflicting disorienting Conditions or specifying conditional triggers.",
@@ -87,7 +87,7 @@ ROYAL_CONTRACTS_OF_THE_CROWN = {
     "discreet_summons": {
         "name": "Discreet Summons",
         "contract_type": "crown_royal",
-        "cost": "●/●●",
+        "cost": "1 or 2 glamour",
         "dice_pool": "Manipulation + Persuasion + Wyrd vs Composure + Tolerance",
         "loopholes": "From an enemy's holdings, or for good payment",
         "description": "For one scene, draw out a desired Size 1 object or, with two Glamour, invite a hobgoblin to perform a task.",
@@ -100,7 +100,7 @@ ROYAL_CONTRACTS_OF_THE_CROWN = {
     "masterminds_gambit": {
         "name": "Mastermind's Gambit",
         "contract_type": "crown_royal",
-        "cost": "●●",
+        "cost": "2 glamour",
         "dice_pool": "None",
         "loopholes": "Using 50 year old paper",
         "description": "Dramatically monologue a +5 plan into existence for a session.",
@@ -113,7 +113,7 @@ ROYAL_CONTRACTS_OF_THE_CROWN = {
     "pipes_of_the_beastcaller": {
         "name": "Pipes of the Beastcaller",
         "contract_type": "crown_royal",
-        "cost": "●",
+        "cost": "1 glamour",
         "dice_pool": "Manipulation + Animal Ken + Wyrd vs Resolve + Composure",
         "loopholes": "A fluting dance",
         "description": "Summon and command animals of a given species with a silver flute.",
@@ -126,7 +126,7 @@ ROYAL_CONTRACTS_OF_THE_CROWN = {
     "the_royal_court": {
         "name": "The Royal Court",
         "contract_type": "crown_royal",
-        "cost": "●●●○",
+        "cost": "3 glamour, 1 willpower",
         "dice_pool": "None",
         "loopholes": "A five-minute speech",
         "description": "Forbid violence from breaking out in a mediated gathering.",
@@ -139,7 +139,7 @@ ROYAL_CONTRACTS_OF_THE_CROWN = {
     "spinning_wheel": {
         "name": "Spinning Wheel",
         "contract_type": "crown_royal",
-        "cost": "●●●○",
+        "cost": "3 glamour, 1 willpower",
         "dice_pool": "Intelligence + Occult + Wyrd - Resolve",
         "loopholes": "Prick and draw blood",
         "description": "Destine a subject for a certain circumstance or encounter, applying successes as bonuses to approach that destiny or penalties to avoid it.",
@@ -156,7 +156,7 @@ CONTRACTS_OF_JEWELS = {
     "blessing_of_perfection": {
         "name": "Blessing of Perfection",
         "contract_type": "jewels",
-        "cost": "●●",
+        "cost": "2 glamour",
         "dice_pool": "None",
         "loopholes": "Bury charged payment",
         "description": "Bless and encourage an object or a Computer, Crafts or Medicine task, substituting your Wyrd as the equipment or Skill dice.",
@@ -169,7 +169,7 @@ CONTRACTS_OF_JEWELS = {
     "changing_fortunes": {
         "name": "Changing Fortunes",
         "contract_type": "jewels",
-        "cost": "●●",
+        "cost": "2 glamour",
         "dice_pool": "Wits + Occult + Wyrd - Resolve",
         "loopholes": "Dramatic failure",
         "description": "Whisper tales to curse or bless a subject's next action, by a two-dice modifier or one-success exceptional threshold shift per success. May target a given subject once per session.",
@@ -182,7 +182,7 @@ CONTRACTS_OF_JEWELS = {
     "light_shy": {
         "name": "Light-Shy",
         "contract_type": "jewels",
-        "cost": "●",
+        "cost": "1 glamour",
         "dice_pool": "None",
         "loopholes": "A minute still in darkness",
         "description": "Fade from conscious notice while your actions remain subtle and you inflict no harm or magic.",
@@ -195,7 +195,7 @@ CONTRACTS_OF_JEWELS = {
     "murkblur": {
         "name": "Murkblur",
         "contract_type": "jewels",
-        "cost": "●",
+        "cost": "1 glamour",
         "dice_pool": "Manipulation + Subterfuge + Wyrd vs Wits + Tolerance",
         "loopholes": "Eat an eye",
         "description": "Blind a target with fantastic distractions for a turn.",
@@ -208,7 +208,7 @@ CONTRACTS_OF_JEWELS = {
     "trivial_reworking": {
         "name": "Trivial Reworking",
         "contract_type": "jewels",
-        "cost": "●",
+        "cost": "1 glamour",
         "dice_pool": "None",
         "loopholes": "Touch something similar to your chosen Mask",
         "description": "Mask an object up to Size 3.",
@@ -225,7 +225,7 @@ ROYAL_CONTRACTS_OF_JEWELS = {
     "changeling_hours": {
         "name": "Changeling Hours",
         "contract_type": "jewels_royal",
-        "cost": "●, ●/5 Size",
+        "cost": "1 glamour, + 1 glamour per 5 Size",
         "dice_pool": "None",
         "loopholes": "Name a past owner of the object",
         "description": "Grasp and push an object's time, reversing or accelerating its aging or freezing it in place.",
@@ -238,7 +238,7 @@ ROYAL_CONTRACTS_OF_JEWELS = {
     "dance_of_the_toys": {
         "name": "Dance of the Toys",
         "contract_type": "jewels_royal",
-        "cost": "●●",
+        "cost": "2 glamour",
         "dice_pool": "Manipulation + Crafts + Wyrd",
         "loopholes": "Command the device by name",
         "description": "Operate a mechanical device at will.",
@@ -251,7 +251,7 @@ ROYAL_CONTRACTS_OF_JEWELS = {
     "hidden_reality": {
         "name": "Hidden Reality",
         "contract_type": "jewels_royal",
-        "cost": "●",
+        "cost": "1 glamour",
         "dice_pool": "None",
         "loopholes": "A show of searching and finding the feature",
         "description": "Temporarily realize possible imagined features of your surroundings.",
@@ -264,7 +264,7 @@ ROYAL_CONTRACTS_OF_JEWELS = {
     "stealing_the_solid_reflection": {
         "name": "Stealing the Solid Reflection",
         "contract_type": "jewels_royal",
-        "cost": "●○",
+        "cost": "1 glamour, 1 willpower",
         "dice_pool": "Strength + Larceny + Wyrd",
         "loopholes": "A remark of indebtedness from the owner",
         "description": "Pull an object's mundane reflection out of a reflective surface.",
@@ -277,7 +277,7 @@ ROYAL_CONTRACTS_OF_JEWELS = {
     "tatterdemalions_workshop": {
         "name": "Tatterdemalion's Workshop",
         "contract_type": "jewels_royal",
-        "cost": "●●",
+        "cost": "2 glamour",
         "dice_pool": "None",
         "loopholes": "Glasses and archaic tools",
         "description": "Jury-rig anything up to Size 5 with no tools and only vaguely associated materials, applying half Wyrd (rounded up) as a crafting bonus.",
@@ -294,7 +294,7 @@ CONTRACTS_OF_THE_MIRROR = {
     "glimpse_of_a_distant_mirror": {
         "name": "Glimpse of a Distant Mirror",
         "contract_type": "mirror",
-        "cost": "●",
+        "cost": "1 glamour",
         "dice_pool": "None",
         "loopholes": "Using an enemy's mirror",
         "description": "Use a reflective surface as a window to look out another surface that has reflected your face",
@@ -307,7 +307,7 @@ CONTRACTS_OF_THE_MIRROR = {
     "know_the_competition": {
         "name": "Know the Competition",
         "contract_type": "mirror",
-        "cost": "●",
+        "cost": "1 glamour",
         "dice_pool": "Manipulation + Socialize + Wyrd vs Composure + Tolerance",
         "loopholes": "Challenged by the subject",
         "description": "Play a game to observe a competitor's Anchors and one Aspiration",
@@ -320,7 +320,7 @@ CONTRACTS_OF_THE_MIRROR = {
     "portents_and_visions": {
         "name": "Portents and Visions",
         "contract_type": "mirror",
-        "cost": "●",
+        "cost": "1 glamour",
         "dice_pool": "Manipulation + Occult + Wyrd vs Composure + Tolerance",
         "loopholes": "Tear up their picture",
         "description": "Enter a glossolalic trance to glimpse an important event in the past or present of a visible subject.",
@@ -333,7 +333,7 @@ CONTRACTS_OF_THE_MIRROR = {
     "read_lucidity": {
         "name": "Read Lucidity",
         "contract_type": "mirror",
-        "cost": "●",
+        "cost": "1 glamour",
         "dice_pool": "Manipulation + Empathy + Wyrd vs Composure + Tolerance",
         "loopholes": "Skin contact",
         "description": "Intuit a character's Clarity and any Clarity Conditions.",
@@ -346,7 +346,7 @@ CONTRACTS_OF_THE_MIRROR = {
     "walls_have_ears": {
         "name": "Walls Have Ears",
         "contract_type": "mirror",
-        "cost": "●/secret",
+        "cost": "1 glamour per secret",
         "dice_pool": "None",
         "loopholes": "Mortal witnesses hear your secret",
         "description": "Share secrets with an object to learn how it was constructed and how to repair or destroy it, how to best use it, or what was happening when it was last touched.",
@@ -363,7 +363,7 @@ ROYAL_CONTRACTS_OF_THE_MIRROR = {
     "props_and_scenery": {
         "name": "Props and Scenery",
         "contract_type": "mirror_royal",
-        "cost": "●○",
+        "cost": "1 glamour, 1 willpower",
         "dice_pool": "Manipulation + Persuasion + Wyrd",
         "loopholes": "Within plain sight of others, but no one sees you at the moment.",
         "description": "Copy the form of a present object up to your Size, adding extra bonuses with successes.",
@@ -376,7 +376,7 @@ ROYAL_CONTRACTS_OF_THE_MIRROR = {
     "reflections_of_the_past": {
         "name": "Reflections of the Past",
         "contract_type": "mirror_royal",
-        "cost": "● to ●●●●●",
+        "cost": "1 to 5 glamour",
         "dice_pool": "Intelligence + Occult + Wyrd",
         "loopholes": "Spill blood from lethal damage",
         "description": "Rewind a reflective surface to watch a reflected scene from a specified time, ranging in Glamour cost from a week ago to a decade ago.",
@@ -389,7 +389,7 @@ ROYAL_CONTRACTS_OF_THE_MIRROR = {
     "riddle_kith": {
         "name": "Riddle-Kith",
         "contract_type": "mirror_royal",
-        "cost": "●",
+        "cost": "1 glamour",
         "dice_pool": "Manipulation + Larceny + Wyrd vs Composure + Tolerance",
         "loopholes": "Give a gift to someone of the imitated kith",
         "description": "Remold a changeling's fae mien into that of another kith. Face a breaking point with 3 dice upon an unwilling subject.",
@@ -402,7 +402,7 @@ ROYAL_CONTRACTS_OF_THE_MIRROR = {
     "skinmask": {
         "name": "Skinmask",
         "contract_type": "mirror_royal",
-        "cost": "●●",
+        "cost": "2 glamour",
         "dice_pool": "None",
         "loopholes": "One of the model's possessions",
         "description": "Recite three details about a mortal or Masked being to copy their appearance with your Mask (and your mien if appropriate).",
@@ -415,7 +415,7 @@ ROYAL_CONTRACTS_OF_THE_MIRROR = {
     "unravel_the_tapestry": {
         "name": "Unravel the Tapestry",
         "contract_type": "mirror_royal",
-        "cost": "●●○",
+        "cost": "2 glamour, 1 willpower",
         "dice_pool": "Wits + Occult + Wyrd",
         "loopholes": "A new debt unpaid",
         "description": "Replay the last ten seconds or combat round, with the actions of others unchanged. Once per story, reflexively activate when killed.",
@@ -432,7 +432,7 @@ CONTRACTS_OF_THE_SHIELD = {
     "cloak_of_night": {
         "name": "Cloak of Night",
         "contract_type": "shield",
-        "cost": "●",
+        "cost": "1 glamour",
         "dice_pool": "None",
         "loopholes": "Wear black",
         "description": "While sneaking in dim light without drawing attention actively, add half Wyrd (rounded up) to Stealth rolls. You and up to your Dexterity in allies may take a reflexive Stealth action each turn, and your Stealth actions conceal your allies.",
@@ -445,7 +445,7 @@ CONTRACTS_OF_THE_SHIELD = {
     "fae_cunning": {
         "name": "Fae Cunning",
         "contract_type": "shield",
-        "cost": "●●",
+        "cost": "2 glamour",
         "dice_pool": "None",
         "loopholes": "Challenge to a duel",
         "description": "Retain Defense against Firearms and surprise attacks. Successful Dodges may redirect attacks, automatically succeeding by your Presence.",
@@ -458,7 +458,7 @@ CONTRACTS_OF_THE_SHIELD = {
     "shared_burden": {
         "name": "Shared Burden",
         "contract_type": "shield",
-        "cost": "●●",
+        "cost": "2 glamour",
         "dice_pool": "None",
         "loopholes": "Skin from the assailant",
         "description": "Shed blood on a subject, suffering resistant lethal damage to heal them at a 1:2 point ratio, healing bashing before lethal.",
@@ -471,7 +471,7 @@ CONTRACTS_OF_THE_SHIELD = {
     "thorns_and_brambles": {
         "name": "Thorns and Brambles",
         "contract_type": "shield",
-        "cost": "●●",
+        "cost": "2 glamour",
         "dice_pool": "None",
         "loopholes": "Strew Hedge thorns behind you",
         "description": "Thorns emerge around you, either draining Glamour from those who move quickly through them, forcing a Dexterity + Athletics roll to avoid being Immobilized, or attacking with your Wyrd as a dice pool.",
@@ -484,7 +484,7 @@ CONTRACTS_OF_THE_SHIELD = {
     "trapdoor_spiders_trick": {
         "name": "Trapdoor Spider's Trick",
         "contract_type": "shield",
-        "cost": "●(○)",
+        "cost": "1 glamour, optionally 1 willpower",
         "dice_pool": "None",
         "loopholes": "Lure an enemy through the passage",
         "description": "Cause an open passage to appear sealed for a scene, or with Willpower, until dawn or dusk.",
@@ -501,7 +501,7 @@ ROYAL_CONTRACTS_OF_THE_SHIELD = {
     "fortifying_presence": {
         "name": "Fortifying Presence",
         "contract_type": "shield_royal",
-        "cost": "●●",
+        "cost": "2 glamour",
         "dice_pool": "Presence + Empathy + Wyrd vs Resolve + Tolerance",
         "loopholes": "Profess friendship",
         "description": "Heal two mild Clarity damage, or one severe, through one-on-one interaction with a subject.",
@@ -514,10 +514,10 @@ ROYAL_CONTRACTS_OF_THE_SHIELD = {
     "hedgewall": {
         "name": "Hedgewall",
         "contract_type": "shield_royal",
-        "cost": "●●○",
+        "cost": "2 glamour, 1 willpower",
         "dice_pool": "Intelligence + Survival + Wyrd",
         "loopholes": "Plant a seed from the Hedge",
-        "description": "Surround yourself with a fortress of thorns for (10 × Wyrd) yards, conferring substantial concealment from ranged attacks and inflicting lethal damage when climbed.",
+        "description": "Surround yourself with a fortress of thorns for (10 x Wyrd) yards, conferring substantial concealment from ranged attacks and inflicting lethal damage when climbed.",
         "seeming_benefits": {
             "beast": "Enemies in the fort take -2 to Resolve.",
             "ogre": "Lasts until next sunrise or sunset."
@@ -527,7 +527,7 @@ ROYAL_CONTRACTS_OF_THE_SHIELD = {
     "pure_clarity": {
         "name": "Pure Clarity",
         "contract_type": "shield_royal",
-        "cost": "●●○",
+        "cost": "2 glamour, 1 willpower",
         "dice_pool": "Resolve + Composure + Wyrd",
         "loopholes": "Wear a gauntlet and silk glove",
         "description": "Steel yourself to shrug off one breaking point caused by your actions within a scene.",
@@ -540,7 +540,7 @@ ROYAL_CONTRACTS_OF_THE_SHIELD = {
     "vow_of_no_compromise": {
         "name": "Vow of No Compromise",
         "contract_type": "shield_royal",
-        "cost": "●○",
+        "cost": "1 glamour, 1 willpower",
         "dice_pool": "None",
         "loopholes": "Destroy a symbol of the Gentry",
         "description": "Touch a subject and become Stoic to downgrade a point of aggravated damage.",
@@ -553,7 +553,7 @@ ROYAL_CONTRACTS_OF_THE_SHIELD = {
     "whispers_of_morning": {
         "name": "Whispers of Morning",
         "contract_type": "shield_royal",
-        "cost": "●●",
+        "cost": "2 glamour",
         "dice_pool": "None",
         "loopholes": "Unarmed and unarmored",
         "description": "Become insubstantial like a Hedge ghost.",
@@ -570,7 +570,7 @@ CONTRACTS_OF_THE_STEED = {
     "boon_of_the_scuttling_spider": {
         "name": "Boon of the Scuttling Spider",
         "contract_type": "steed",
-        "cost": "●",
+        "cost": "1 glamour",
         "dice_pool": "None",
         "loopholes": "Swallow a spider",
         "description": "Cross walls, ceilings, and treacherous terrain freely.",
@@ -583,7 +583,7 @@ CONTRACTS_OF_THE_STEED = {
     "dreamsteps": {
         "name": "Dreamsteps",
         "contract_type": "steed",
-        "cost": "●",
+        "cost": "1 glamour",
         "dice_pool": "Intelligence + Empathy + Wyrd vs Fortification",
         "loopholes": "A childhood comfort of yours or your Touchstone's",
         "description": "Touch a sleeper and enter their dream in Dream Form.",
@@ -596,7 +596,7 @@ CONTRACTS_OF_THE_STEED = {
     "nevertread": {
         "name": "Nevertread",
         "contract_type": "steed",
-        "cost": "●",
+        "cost": "1 glamour",
         "dice_pool": "None",
         "loopholes": "Leave a calling card somewhere",
         "description": "Supernaturally conceal your tracks.",
@@ -609,7 +609,7 @@ CONTRACTS_OF_THE_STEED = {
     "pathfinder": {
         "name": "Pathfinder",
         "contract_type": "steed",
-        "cost": "●",
+        "cost": "1 glamour",
         "dice_pool": "None",
         "loopholes": "Prick yourself on the thorns",
         "description": "Dowse your way to a given feature of the Hedge.",
@@ -622,10 +622,10 @@ CONTRACTS_OF_THE_STEED = {
     "seven_league_leap": {
         "name": "Seven-League Leap",
         "contract_type": "steed",
-        "cost": "●",
+        "cost": "1 glamour",
         "dice_pool": "None",
         "loopholes": "Boots newly stolen from an enemy",
-        "description": "Clear (10 × Wyrd) yards with a Strength + Athletics leap.",
+        "description": "Clear (10 x Wyrd) yards with a Strength + Athletics leap.",
         "seeming_benefits": {
             "beast": "+10 Speed for a scene, and in a foot chase, take the Edge.",
             "ogre": "Leap as an unarmed attack at +2, inflicting Knocked Down."
@@ -639,7 +639,7 @@ ROYAL_CONTRACTS_OF_THE_STEED = {
     "chrysalis": {
         "name": "Chrysalis",
         "contract_type": "steed_royal",
-        "cost": "●●",
+        "cost": "2 glamour",
         "dice_pool": "None",
         "loopholes": "Near the chosen animal in its habitat",
         "description": "Transform into one of two Size 1-7 animals chosen when you buy this Contract, able to communicate with fellow such animals.",
@@ -652,7 +652,7 @@ ROYAL_CONTRACTS_OF_THE_STEED = {
     "flickering_hours": {
         "name": "Flickering Hours",
         "contract_type": "steed_royal",
-        "cost": "●(○)",
+        "cost": "1 glamour, optionally 1 willpower",
         "dice_pool": "Wits + Occult + Wyrd vs Resolve + Tolerance",
         "loopholes": "Smash an antique timepiece",
         "description": "Individually half or double the rate of time through the Hedge for yourself, or with Willpower, fellow travellers or pursuers. Until next sunrise or sunset, confer the Edge and the Fleet of Foot Merit with a rating of your Wyrd on quickened beneficiaries. Roll only if contested.",
@@ -665,7 +665,7 @@ ROYAL_CONTRACTS_OF_THE_STEED = {
     "leaping_toward_nightfall": {
         "name": "Leaping Toward Nightfall",
         "contract_type": "steed_royal",
-        "cost": "●●●○",
+        "cost": "3 glamour, 1 willpower",
         "dice_pool": "Intelligence + Occult + Wyrd vs Resolve + Tolerance",
         "loopholes": "A piece of the Hedge",
         "description": "Push a character or object up to Size 10 forward in time with a riddle for a set duration up to your successes in days.",
@@ -678,7 +678,7 @@ ROYAL_CONTRACTS_OF_THE_STEED = {
     "mirror_walk": {
         "name": "Mirror Walk",
         "contract_type": "steed_royal",
-        "cost": "●○",
+        "cost": "1 glamour, 1 willpower",
         "dice_pool": "Wits + Survival + Wyrd",
         "loopholes": "The name of someone reflected on the other side",
         "description": "Reach or travel through reflective surfaces, into one nearby and out one you have touched before.",
@@ -691,7 +691,7 @@ ROYAL_CONTRACTS_OF_THE_STEED = {
     "talon_and_wing": {
         "name": "Talon and Wing",
         "contract_type": "steed_royal",
-        "cost": "●/effect",
+        "cost": "1 glamour per effect",
         "dice_pool": "None",
         "loopholes": "Eat a piece of the chosen animal",
         "description": "Gain the +10 Speed, the +3 perception senses, and/or the upgraded unarmed damage of a chosen animal.",
@@ -708,7 +708,7 @@ CONTRACTS_OF_THE_SWORD = {
     "elemental_weapon": {
         "name": "Elemental Weapon",
         "contract_type": "sword",
-        "cost": "●●",
+        "cost": "2 glamour",
         "dice_pool": "Presence + Survival + Wyrd",
         "loopholes": "Perform a trick with the element",
         "description": "Fashion an archaic weapon from the elements, applying successes to increase weapon rating or range or reduce Initiative penalty.",
@@ -721,7 +721,7 @@ CONTRACTS_OF_THE_SWORD = {
     "might_of_the_terrible_brute": {
         "name": "Might of the Terrible Brute",
         "contract_type": "sword",
-        "cost": "●●",
+        "cost": "2 glamour",
         "dice_pool": "None",
         "loopholes": "Fight multiple opponents at once",
         "description": "Add a grapple maneuver to steal the opponent's Strength, immobilizing them when emptied.",
@@ -734,7 +734,7 @@ CONTRACTS_OF_THE_SWORD = {
     "overpowering_dread": {
         "name": "Overpowering Dread",
         "contract_type": "sword",
-        "cost": "●",
+        "cost": "1 glamour",
         "dice_pool": "Presence + Intimidation + Wyrd vs Composure + Tolerance",
         "loopholes": "In shadow",
         "description": "Frighten a subject into fleeing.",
@@ -747,7 +747,7 @@ CONTRACTS_OF_THE_SWORD = {
     "primal_glory": {
         "name": "Primal Glory",
         "contract_type": "sword",
-        "cost": "●●",
+        "cost": "2 glamour",
         "dice_pool": "None",
         "loopholes": "Ingest the element",
         "description": "Embrace an element as 1/1 Armor that deals lethal damage in close contact. Suffer no damage from the element as it is, and half magical damage from it.",
@@ -760,7 +760,7 @@ CONTRACTS_OF_THE_SWORD = {
     "touch_of_wrath": {
         "name": "Touch of Wrath",
         "contract_type": "sword",
-        "cost": "●",
+        "cost": "1 glamour",
         "dice_pool": "Intelligence + Crafts + Wyrd",
         "loopholes": "Leave a handprint",
         "description": "Cause Structure damage to an object with touch and threats.",
@@ -777,7 +777,7 @@ ROYAL_CONTRACTS_OF_THE_SWORD = {
     "elemental_fury": {
         "name": "Elemental Fury",
         "contract_type": "sword_royal",
-        "cost": "●/Tilt (●/+20 yds)",
+        "cost": "1 glamour per tilt (1 glamour + 20 yards)",
         "dice_pool": "None",
         "loopholes": "Rage and rave",
         "description": "Conjure Environmental Tilts from the elements.",
@@ -790,7 +790,7 @@ ROYAL_CONTRACTS_OF_THE_SWORD = {
     "oathbreakers_punishment": {
         "name": "Oathbreaker's Punishment",
         "contract_type": "sword_royal",
-        "cost": "●●",
+        "cost": "2 glamour",
         "dice_pool": "Wits + Empathy + Wyrd - Composure",
         "loopholes": "Promisesworn to you",
         "description": "Intuit the most serious promise a person has broken without making amends. You may harrow the person within the fortnight with a waking nightmare for each success.",
@@ -803,7 +803,7 @@ ROYAL_CONTRACTS_OF_THE_SWORD = {
     "red_revenge": {
         "name": "Red Revenge",
         "contract_type": "sword_royal",
-        "cost": "●●●",
+        "cost": "3 glamour",
         "dice_pool": "None",
         "loopholes": "Avenging a friend",
         "description": "Go Berserk. Take 3/3 Armor and +3 to Initiative, Intimidation, and Physical dice pools.",
@@ -816,7 +816,7 @@ ROYAL_CONTRACTS_OF_THE_SWORD = {
     "relentless_pursuit": {
         "name": "Relentless Pursuit",
         "contract_type": "sword_royal",
-        "cost": "●●",
+        "cost": "2 glamour",
         "dice_pool": "None",
         "loopholes": "Old running shoes",
         "description": "Name your quarry to intuit their direction, distance, and dimension from you until next sunrise or sunset.",
@@ -829,7 +829,7 @@ ROYAL_CONTRACTS_OF_THE_SWORD = {
     "thief_of_reason": {
         "name": "Thief of Reason",
         "contract_type": "sword_royal",
-        "cost": "●○",
+        "cost": "1 glamour, 1 willpower",
         "dice_pool": "Presence + Subterfuge + Wyrd - Resolve",
         "loopholes": "Victim expresses doubt in their sanity",
         "description": "Roll successes as a Clarity attack, or an attack to temporarily reduce another stability trait. The attack also saps Willpower. Suffer a breaking point at 4 dice.",
@@ -846,7 +846,7 @@ CONTRACTS_OF_CHALICE = {
     "filling_the_cup": {
         "name": "Filling the Cup",
         "contract_type": "chalice",
-        "cost": "●",
+        "cost": "1 glamour",
         "dice_pool": "None",
         "loopholes": "Speak current emotion for all to hear",
         "description": "Identify people feeling powerful emotions within (Wyrd x 40)m radius.",
@@ -859,7 +859,7 @@ CONTRACTS_OF_CHALICE = {
     "frail_as_the_dying_word": {
         "name": "Frail as the Dying Word",
         "contract_type": "chalice",
-        "cost": "●",
+        "cost": "1 glamour",
         "dice_pool": "Manipulation + Occult + Wyrd vs Composure + Tolerance",
         "loopholes": "Caster has experienced the frailty within the same scene",
         "description": "Inflict own minor frailty onto target, or major frailty if target already has it.",
@@ -872,7 +872,7 @@ CONTRACTS_OF_CHALICE = {
     "sleeps_sweet_embrace": {
         "name": "Sleep's Sweet Embrace",
         "contract_type": "chalice",
-        "cost": "●●○",
+        "cost": "2 glamour, 1 willpower",
         "dice_pool": "Manipulation + Expression + Wyrd - Resolve",
         "loopholes": "Make a sleepy drink that target drinks within the scene.",
         "description": "With a touch, the target does not dream for nights/successes. Accelerated Lethal healing, but don't regain Willpower and immune to oneiromancy.",
@@ -885,7 +885,7 @@ CONTRACTS_OF_CHALICE = {
     "curses_cure": {
         "name": "Curse's Cure",
         "contract_type": "chalice",
-        "cost": "●",
+        "cost": "1 glamour",
         "dice_pool": "Intelligence + Medicine + Wyrd",
         "loopholes": "Changeling tastes the toxin they intend to cure.",
         "description": "Drink potion to heal from poison more quickly or survive a deadly poison.",
@@ -898,7 +898,7 @@ CONTRACTS_OF_CHALICE = {
     "dreamers_phalanx": {
         "name": "Dreamer's Phalanx",
         "contract_type": "chalice",
-        "cost": "● + ●/subject beyond 2nd",
+        "cost": "1 glamour + 1 glamour per subject beyond 2nd",
         "dice_pool": "None",
         "loopholes": "All participants are part of the same sworn Oath.",
         "description": "Connect Bastions of all participating dreamers, creating shared Bastion with greater fortifications and 8-again on teamwork oneiromancy.",
@@ -915,7 +915,7 @@ ROYAL_CONTRACTS_OF_CHALICE = {
     "closing_deaths_door": {
         "name": "Closing Death's Door",
         "contract_type": "chalice_royal",
-        "cost": "●●●○",
+        "cost": "3 glamour, 1 willpower",
         "dice_pool": "Manipulation + Empathy + Wyrd",
         "loopholes": "The Changeling tries to revive a Touchstone, or someone they share an oath with.",
         "description": "Revive a corpse that has died within 1 chapter of the scene, gaining Goblin Debt/hours dead.",
@@ -928,7 +928,7 @@ ROYAL_CONTRACTS_OF_CHALICE = {
     "feast_of_plenty": {
         "name": "Feast of Plenty",
         "contract_type": "chalice_royal",
-        "cost": "●●",
+        "cost": "2 glamour",
         "dice_pool": "Presence + Socialize + Wyrd",
         "loopholes": "Greet everyone present by name and welcoming gesture.",
         "description": "Summon a feast that removes physical Conditions or Tilts and replenishes Willpower. Participants gain the Indebted Condition.",
@@ -941,7 +941,7 @@ ROYAL_CONTRACTS_OF_CHALICE = {
     "still_waters_run_deep": {
         "name": "Still Waters Run Deep",
         "contract_type": "chalice_royal",
-        "cost": "●●",
+        "cost": "2 glamour",
         "dice_pool": "Manipulation + Subterfuge + Wyrd - Resolve",
         "loopholes": "Changeling writes a paragraph about their emotions and seals it in a bottle.",
         "description": "Suppress a number of emotional Conditions equal to successes. Target cannot perform Hedgespinning, dreamweaving, incite Bedlam or harvest Glamour while under the effect.",
@@ -954,7 +954,7 @@ ROYAL_CONTRACTS_OF_CHALICE = {
     "poison_the_well": {
         "name": "Poison the Well",
         "contract_type": "chalice_royal",
-        "cost": "●",
+        "cost": "1 glamour",
         "dice_pool": "Manipulation + Expression + Wyrd - Resolve + Tolerance",
         "loopholes": "The Changeling personally influences or sabotages the target Merit.",
         "description": "Remove access to mundane Social Merits for the duration; merits turn against the target as if betrayed. If in the Hedge, can target some fae merits.",
@@ -967,7 +967,7 @@ ROYAL_CONTRACTS_OF_CHALICE = {
     "shared_cup": {
         "name": "Shared Cup",
         "contract_type": "chalice_royal",
-        "cost": "● + ●/subject beyond 2nd",
+        "cost": "1 glamour + 1 glamour per subject beyond 2nd",
         "dice_pool": "Presence + Occult + Wyrd vs Composure + Tolerance",
         "loopholes": "Consume small part of body such as nail clipping from all participants.",
         "description": "Sharing a meal binds participants, lowering exceptional threshold for Hedgespinning and Bedlam, empathically linking them and sharing WP and Glamour refreshes.",
@@ -984,7 +984,7 @@ CONTRACTS_OF_COIN = {
     "book_of_black_and_red": {
         "name": "Book of Black and Red",
         "contract_type": "coin",
-        "cost": "●",
+        "cost": "1 glamour",
         "dice_pool": "Wits + Academics + Wyrd vs Resolve + Tolerance",
         "loopholes": "The target lets the Changeling examine their records in the scene.",
         "description": "Learn 5 most significant debts and sworn obligations of a target, whether mundane or magical. Exploiting knowledge is at +2; target takes the Leveraged Condition.",
@@ -997,7 +997,7 @@ CONTRACTS_OF_COIN = {
     "give_and_take": {
         "name": "Give and Take",
         "contract_type": "coin",
-        "cost": "●/●●",
+        "cost": "1 glamour or 2 glamour",
         "dice_pool": "None",
         "loopholes": "Changeling and target exchange physical gifts they haven't given each other before.",
         "description": "Choose number of points up to half Wyrd from Glamour, Willpower or personal merits. Exchange these with the target.",
@@ -1010,7 +1010,7 @@ CONTRACTS_OF_COIN = {
     "beggar_knight": {
         "name": "Beggar Knight",
         "contract_type": "coin",
-        "cost": "●●",
+        "cost": "2 glamour",
         "dice_pool": "Manipulation + Academics + Wyrd - Composure",
         "loopholes": "The victim benefited from other people's hard work during the scene.",
         "description": "Curse a victim to lose equipment bonuses, resources or teamwork bonuses if these were not personally created by the target.",
@@ -1023,7 +1023,7 @@ CONTRACTS_OF_COIN = {
     "coin_mark": {
         "name": "Coin Mark",
         "contract_type": "coin",
-        "cost": "●",
+        "cost": "1 glamour",
         "dice_pool": "None",
         "loopholes": "Permanently mark object with own name.",
         "description": "Enchant a small object to know its location respective to hers, sensing when it changes hands and learning the identity of the owner. Inflict Avarice by spending additional Glamour.",
@@ -1036,7 +1036,7 @@ CONTRACTS_OF_COIN = {
     "grease_the_wheels": {
         "name": "Grease the Wheels",
         "contract_type": "coin",
-        "cost": "●",
+        "cost": "1 glamour",
         "dice_pool": "Presence + Persuasion + Wyrd",
         "loopholes": "The target accepts a bribe or gift from the changeling.",
         "description": "Interact with member of organisation or bureaucracy to resolve issues with no difficulties and extremely fast, even if not physically possible.",
@@ -1053,7 +1053,7 @@ ROYAL_CONTRACTS_OF_COIN = {
     "blood_debt": {
         "name": "Blood Debt",
         "contract_type": "coin_royal",
-        "cost": "●●",
+        "cost": "2 glamour",
         "dice_pool": "None",
         "loopholes": "The changeling wears jewelry or other accessories that freshly pierce the skin.",
         "description": "Inflict variable points of lethal damage to someone who inflicts L/Agg/Clarity damage.",
@@ -1066,7 +1066,7 @@ ROYAL_CONTRACTS_OF_COIN = {
     "exchange_of_gilded_contracts": {
         "name": "Exchange of Gilded Contracts",
         "contract_type": "coin_royal",
-        "cost": "●●●",
+        "cost": "3 glamour",
         "dice_pool": "None",
         "loopholes": "Wear reasonably convincing masks of each other.",
         "description": "Exchange a common Contract with a consenting target.",
@@ -1079,7 +1079,7 @@ ROYAL_CONTRACTS_OF_COIN = {
     "golden_promise": {
         "name": "Golden Promise",
         "contract_type": "coin_royal",
-        "cost": "●●",
+        "cost": "2 glamour",
         "dice_pool": "Presence + Socialize + Wyrd - Availability",
         "loopholes": "Changeling arrives on the scene with a display of ostentatious wealth.",
         "description": "Reduce Availability of single service by number of successes rolled.",
@@ -1092,7 +1092,7 @@ ROYAL_CONTRACTS_OF_COIN = {
     "grand_revel_of_the_harvest": {
         "name": "Grand Revel of the Harvest",
         "contract_type": "coin_royal",
-        "cost": "●●●○",
+        "cost": "3 glamour, 1 willpower",
         "dice_pool": "None",
         "loopholes": "The Changeling supplies a banquet large enough for everyone and also partakes.",
         "description": "Enhance the senses; anyone engaging in celebration needs only 3 successes on Social rolls for exceptional success, as well as additional Willpower and Clarity gain.",
@@ -1105,7 +1105,7 @@ ROYAL_CONTRACTS_OF_COIN = {
     "thirty_pieces": {
         "name": "Thirty Pieces",
         "contract_type": "coin_royal",
-        "cost": "●●●",
+        "cost": "3 glamour",
         "dice_pool": "Wits + Empathy + Wyrd vs Resolve + Tolerance",
         "loopholes": "Target accepted payment from the changeling to betray their fellows, even if they don't intend to follow through.",
         "description": "Name an action that the target will take that will betray the target's allies, friends or cause; the target will do it and gain the Guilty Condition after.",
@@ -1122,7 +1122,7 @@ CONTRACTS_OF_STARS = {
     "pole_star": {
         "name": "Pole Star",
         "contract_type": "stars",
-        "cost": "●",
+        "cost": "1 glamour",
         "dice_pool": "None",
         "loopholes": "Hold a piece of the target in their hand.",
         "description": "Name a person, place or item; the changeling's body acts like a compass and leads them to it. This only works in the mundane realm.",
@@ -1135,7 +1135,7 @@ CONTRACTS_OF_STARS = {
     "straight_on_til_morning": {
         "name": "Straight On 'Til Morning",
         "contract_type": "stars",
-        "cost": "●",
+        "cost": "1 glamour",
         "dice_pool": "None",
         "loopholes": "Promise to sleep when the task is done and have the statement sealed.",
         "description": "Tireless, suffering no Environmental Tilts, and take 8 again while navigating the Wishing Roads.",
@@ -1148,7 +1148,7 @@ CONTRACTS_OF_STARS = {
     "cynosure": {
         "name": "Cynosure",
         "contract_type": "stars",
-        "cost": "●",
+        "cost": "1 glamour",
         "dice_pool": "Manipulation + Empathy + Wyrd vs Composure + Tolerance",
         "loopholes": "Let an opportunity to one of their own Aspirations slip by.",
         "description": "Discover one of the target's Aspirations; stars guide the changeling to find opportunities that would help the target achieve the Aspiration.",
@@ -1161,7 +1161,7 @@ CONTRACTS_OF_STARS = {
     "shooting_star": {
         "name": "Shooting Star",
         "contract_type": "stars",
-        "cost": "●●",
+        "cost": "2 glamour",
         "dice_pool": "None",
         "loopholes": "Complete own creative work within the same scene.",
         "description": "Target someone who does creative work. They gain 1 Fame and provide more Glamour when used in harvesting.",
@@ -1174,7 +1174,7 @@ CONTRACTS_OF_STARS = {
     "retrograde": {
         "name": "Retrograde",
         "contract_type": "stars",
-        "cost": "●",
+        "cost": "1 glamour",
         "dice_pool": "Presence + Expression + Wyrd vs Resolve + Tolerance",
         "loopholes": "Changeling spins around widdershins while telling the story of misfortune.",
         "description": "Routine matters for the target go wrong in minor misfortunes.",
@@ -1191,7 +1191,7 @@ ROYAL_CONTRACTS_OF_STARS = {
     "frozen_star": {
         "name": "Frozen Star",
         "contract_type": "stars_royal",
-        "cost": "●●",
+        "cost": "2 glamour",
         "dice_pool": "Intelligence + (Empathy or Persuasion) + Wyrd vs Resolve + Tolerance",
         "loopholes": "Changeling is in physical contact with a piece of the target.",
         "description": "Choose a subject (cannot be the Changeling) and a target (can be the Changeling). For the duration of the Contract, the subject must travel to the target to make physical contact and suffers the Shaken Condition.",
@@ -1204,7 +1204,7 @@ ROYAL_CONTRACTS_OF_STARS = {
     "star_light_star_bright": {
         "name": "Star Light, Star Bright",
         "contract_type": "stars_royal",
-        "cost": "●/●●",
+        "cost": "1 glamour or 2 glamour",
         "dice_pool": "None",
         "loopholes": "Coax the target into making a wish",
         "description": "Learn a wish the target has made in the last month; you must fulfill the wish (with some artistic license) or gain Oathbreaker Condition, but fulfilling the wish regains Willpower and a Beat, and you can teleport to the side of someone you have an Enchanted Bargain with (and can spend Glamour to take others along)",
@@ -1217,7 +1217,7 @@ ROYAL_CONTRACTS_OF_STARS = {
     "light_of_ancient_stars": {
         "name": "Light of Ancient Stars",
         "contract_type": "stars_royal",
-        "cost": "●●",
+        "cost": "2 glamour",
         "dice_pool": "None",
         "loopholes": "Sing the names of stars in a constellation currently in the sky.",
         "description": "Ask questions about a past event the Changeling is personally connected to.",
@@ -1230,7 +1230,7 @@ ROYAL_CONTRACTS_OF_STARS = {
     "pinch_of_stardust": {
         "name": "Pinch of Stardust",
         "contract_type": "stars_royal",
-        "cost": "●●●○",
+        "cost": "3 glamour, 1 willpower",
         "dice_pool": "Intelligence + Crafts + Wyrd vs Resolve + Tolerance",
         "loopholes": "Add something of the Changeling to the creature's parts.",
         "description": "Create an entity from scraps and star stuff; it becomes a Touchstone for the target and inflicts the Delusional Condition, causing breaking points in caster and target.",
@@ -1247,7 +1247,7 @@ GOBLIN_CONTRACTS = {
     "blessing_of_forgetfulness": {
         "name": "Blessing of Forgetfulness",
         "contract_type": "goblin",
-        "cost": "●●",
+        "cost": "2 glamour",
         "dice_pool": "Manipulation + Subterfuge + Wyrd vs Composure + Tolerance",
         "loopholes": "Painful events you helped weather",
         "description": "Overwrite the memory of one incident with an innocuous replacement.",
@@ -1257,7 +1257,7 @@ GOBLIN_CONTRACTS = {
     "glib_tongue": {
         "name": "Glib Tongue",
         "contract_type": "goblin",
-        "cost": "●",
+        "cost": "1 glamour",
         "dice_pool": "None",
         "loopholes": "A harmful lie",
         "description": "Tell a lie which mortals always believe. Add your Wyrd as a Subterfuge bonus against supernatural listeners.",
@@ -1267,7 +1267,7 @@ GOBLIN_CONTRACTS = {
     "goblins_eye": {
         "name": "Goblin's Eye",
         "contract_type": "goblin",
-        "cost": "●",
+        "cost": "1 glamour",
         "dice_pool": "None",
         "loopholes": "Mark your eyelids with owl's feather ashes",
         "description": "You may Clash of Wills to pierce magical concealment by kenning, and ask questions about the nature of a kenned supernatural effect.",
@@ -1277,7 +1277,7 @@ GOBLIN_CONTRACTS = {
     "goblins_luck": {
         "name": "Goblin's Luck",
         "contract_type": "goblin",
-        "cost": "●",
+        "cost": "1 glamour",
         "dice_pool": "None",
         "loopholes": "Rivals also benefit",
         "description": "Benefit from lucky circumstances.",
@@ -1287,7 +1287,7 @@ GOBLIN_CONTRACTS = {
     "huntsmans_clarion": {
         "name": "Huntsman's Clarion",
         "contract_type": "goblin",
-        "cost": "●●",
+        "cost": "2 glamour",
         "dice_pool": "Wits + Empathy + Wyrd",
         "loopholes": "Blindfolded",
         "description": "Detect the presence, but not location, of Arcadian forces for a mile per Wyrd, starting in the Hedge.",
@@ -1297,7 +1297,7 @@ GOBLIN_CONTRACTS = {
     "lost_visage": {
         "name": "Lost Visage",
         "contract_type": "goblin",
-        "cost": "●●",
+        "cost": "2 glamour",
         "dice_pool": "None",
         "loopholes": "Leave behind a telltale possession",
         "description": "Erase yourself from memories of a scene. Supernatural memories force a Clash of Wills, and Gentry and Huntsmen are immune.",
@@ -1307,7 +1307,7 @@ GOBLIN_CONTRACTS = {
     "mantle_mask": {
         "name": "Mantle Mask",
         "contract_type": "goblin",
-        "cost": "●",
+        "cost": "1 glamour",
         "dice_pool": "None",
         "loopholes": "Decorate the flesh appropriately",
         "description": "Appear to assume a different Court Mantle, or lack thereof.",
@@ -1317,7 +1317,7 @@ GOBLIN_CONTRACTS = {
     "sight_of_truth_and_lies": {
         "name": "Sight of Truth and Lies",
         "contract_type": "goblin",
-        "cost": "●",
+        "cost": "1 glamour",
         "dice_pool": "None",
         "loopholes": "Business occasion",
         "description": "So long as you tell no lies, identify mundane lies and force a Clash of Wills against supernatural lies.",
@@ -1327,7 +1327,7 @@ GOBLIN_CONTRACTS = {
     "uncanny": {
         "name": "Uncanny",
         "contract_type": "goblin",
-        "cost": "●●",
+        "cost": "2 glamour",
         "dice_pool": "None",
         "loopholes": "Untrained",
         "description": "Take the rote quality on your next nonmagical, unresisted and uncontested rolled action.",
@@ -1337,7 +1337,7 @@ GOBLIN_CONTRACTS = {
     "wayward_guide": {
         "name": "Wayward Guide",
         "contract_type": "goblin",
-        "cost": "●/subject",
+        "cost": "1 glamour per subject",
         "dice_pool": "None",
         "loopholes": "Lose your way too",
         "description": "Alter signs and markers to make mortals lose their way. You may target yourself to force a Clash of Wills against supernatural trackers.",
@@ -1353,7 +1353,7 @@ CONTRACTS_OF_SPRING = {
     "cupids_arrow": {
         "name": "Cupid's Arrow",
         "contract_type": "spring",
-        "cost": "●",
+        "cost": "1 glamour",
         "dice_pool": "Wits + Empathy + Mantle vs Composure + Tolerance",
         "loopholes": "Ivy flower",
         "description": "Learn a subject's most ardent desire, and any associated Conditions or Tilts. You may refocus them around a new desire for a scene.",
@@ -1363,7 +1363,7 @@ CONTRACTS_OF_SPRING = {
     "dreams_of_the_earth": {
         "name": "Dreams of the Earth",
         "contract_type": "spring",
-        "cost": "●●",
+        "cost": "2 glamour",
         "dice_pool": "Presence + Expression + Mantle vs Composure + Tolerance",
         "loopholes": "Sand in their eyes",
         "description": "Lull a subject to sleep, which only lethal damage may interrupt for a minute per success.",
@@ -1373,7 +1373,7 @@ CONTRACTS_OF_SPRING = {
     "gift_of_warm_breath": {
         "name": "Gift of Warm Breath",
         "contract_type": "spring",
-        "cost": "●",
+        "cost": "1 glamour",
         "dice_pool": "None",
         "loopholes": "Feed them with your own cooking",
         "description": "Heal a subject of fatigue and bashing damage.",
@@ -1383,7 +1383,7 @@ CONTRACTS_OF_SPRING = {
     "springs_kiss": {
         "name": "Spring's Kiss",
         "contract_type": "spring",
-        "cost": "●(●)",
+        "cost": "1 glamour, optionally +1 glamour",
         "dice_pool": "None",
         "loopholes": "Yellow rain gear",
         "description": "Inflict Heavy Rain, and for extra Glamour, Flooded.",
@@ -1393,7 +1393,7 @@ CONTRACTS_OF_SPRING = {
     "wyrd_faced_stranger": {
         "name": "Wyrd-Faced Stranger",
         "contract_type": "spring",
-        "cost": "●",
+        "cost": "*",
         "dice_pool": "Presence + Subterfuge + Mantle vs Composure + Tolerance",
         "loopholes": "A token of sentimental value",
         "description": "Appear as whom a subject most wants to see. Add your Mantle as bonus dice to stay in character.",
@@ -1407,7 +1407,7 @@ ROYAL_CONTRACTS_OF_SPRING = {
     "blessing_of_spring": {
         "name": "Blessing of Spring",
         "contract_type": "spring_royal",
-        "cost": "●●(○)",
+        "cost": "2 glamour, optionally +1 glamour",
         "dice_pool": "Intelligence + Medicine + Mantle vs Stamina + Tolerance",
         "loopholes": "Decorative ribbons and a dance",
         "description": "Brew a cordial of spring that causes plants to mature and fruit, heals animals and people of damage and transitory illness and poisons, and cures changelings of one Clarity Condition and point of Clarity damage. Everything returns after a scene.",
@@ -1417,7 +1417,7 @@ ROYAL_CONTRACTS_OF_SPRING = {
     "gift_of_warm_blood": {
         "name": "Gift of Warm Blood",
         "contract_type": "spring_royal",
-        "cost": "●○",
+        "cost": "1 glamour, 1 willpower",
         "dice_pool": "Wits + Medicine + Mantle",
         "loopholes": "Bleed for lethal damage",
         "description": "Downgrade a point of damage on the subject for each success.",
@@ -1427,7 +1427,7 @@ ROYAL_CONTRACTS_OF_SPRING = {
     "pandoras_gift": {
         "name": "Pandora's Gift",
         "contract_type": "spring_royal",
-        "cost": "●●",
+        "cost": "2 glamour",
         "dice_pool": "None",
         "loopholes": "Target just gave you a gift",
         "description": "Initiate a Build Equipment action at double the speed to mold a subject's desires into an object until next sunrise or sunset. Use as a bribe for a +3 Social bonus and a Glamour point.",
@@ -1437,7 +1437,7 @@ ROYAL_CONTRACTS_OF_SPRING = {
     "prince_of_ivy": {
         "name": "Prince of Ivy",
         "contract_type": "spring_royal",
-        "cost": "●●○",
+        "cost": "2 glamour, 1 willpower",
         "dice_pool": "Presence + Expression + Mantle",
         "loopholes": "Bleed while barefoot in soil",
         "description": "Summon strangling vines. Each turn, you may sacrifice your movement, your action, and/or your Defense to establish a new grapple per. The vines roll successes as a dice pool at +3 and contest grapples reflexively.",
@@ -1447,7 +1447,7 @@ ROYAL_CONTRACTS_OF_SPRING = {
     "waking_the_inner_fae": {
         "name": "Waking the Inner Fae",
         "contract_type": "spring_royal",
-        "cost": "●",
+        "cost": "1 glamour",
         "dice_pool": "Manipulation + Expression + Mantle vs Composure + Tolerance",
         "loopholes": "Tell them your secret desires",
         "description": "Inflict Wanton with a counterfeit gift wreath. Once a scene for the remaining story, recover Willpower by enticing your last victim into an action.",
@@ -1461,7 +1461,7 @@ CONTRACTS_OF_SUMMER = {
     "baleful_sense": {
         "name": "Baleful Sense",
         "contract_type": "summer",
-        "cost": "●",
+        "cost": "1 glamour",
         "dice_pool": "Wits + Intimidation + Mantle vs Composure + Tolerance",
         "loopholes": "Goaded into screaming at you",
         "description": "Smell a subject's fiercest anger, and any associated Conditions or Tilts. You may refocus them around a new enmity for a scene.",
@@ -1471,7 +1471,7 @@ CONTRACTS_OF_SUMMER = {
     "child_of_the_hearth": {
         "name": "Child of the Hearth",
         "contract_type": "summer",
-        "cost": "●",
+        "cost": "1 glamour",
         "dice_pool": "None",
         "loopholes": "Blow on an ember or spark",
         "description": "Inflict Extreme Heat or Extreme Cold, and shield yourself from either.",
@@ -1481,7 +1481,7 @@ CONTRACTS_OF_SUMMER = {
     "helios_light": {
         "name": "Helios' Light",
         "contract_type": "summer",
-        "cost": "●",
+        "cost": "1 glamour",
         "dice_pool": "None",
         "loopholes": "Big summer hat",
         "description": "Project blinding sunlight, dealing half its damage as an occult bane.",
@@ -1491,7 +1491,7 @@ CONTRACTS_OF_SUMMER = {
     "high_summers_zeal": {
         "name": "High Summer's Zeal",
         "contract_type": "summer",
-        "cost": "●●",
+        "cost": "2 glamour",
         "dice_pool": "Presence + Persuasion + Mantle vs Composure + Tolerance",
         "loopholes": "Foe drew first blood",
         "description": "Force a foe to spend Willpower or stand and fight, ignoring Beaten Down.",
@@ -1501,7 +1501,7 @@ CONTRACTS_OF_SUMMER = {
     "vigilance_of_ares": {
         "name": "Vigilance of Ares",
         "contract_type": "summer",
-        "cost": "●",
+        "cost": "1 glamour",
         "dice_pool": "None",
         "loopholes": "Martial exercises",
         "description": "Predict ambushes and traps. Add Mantle to Initiative.",
@@ -1515,7 +1515,7 @@ ROYAL_CONTRACTS_OF_SUMMER = {
     "fiery_tongue": {
         "name": "Fiery Tongue",
         "contract_type": "summer_royal",
-        "cost": "●○",
+        "cost": "1 glamour, 1 willpower",
         "dice_pool": "Presence + Intimidation + Mantle - Resolve",
         "loopholes": "Asserting dominance or superiority",
         "description": "Rebuke and insults open two Doors and deal bashing damage, or lethal against the fae.",
@@ -1525,7 +1525,7 @@ ROYAL_CONTRACTS_OF_SUMMER = {
     "flames_of_summer": {
         "name": "Flames of Summer",
         "contract_type": "summer_royal",
-        "cost": "●●",
+        "cost": "2 glamour",
         "dice_pool": "Strength + Survival + Mantle",
         "loopholes": "Eat ice",
         "description": "Ignore wound penalties and unconsciousness from injury, and take +2 as a Physical bonus.",
@@ -1535,7 +1535,7 @@ ROYAL_CONTRACTS_OF_SUMMER = {
     "helios_judgment": {
         "name": "Helios' Judgment",
         "contract_type": "summer_royal",
-        "cost": "●(○)",
+        "cost": "1 glamour, optionally 1 willpower",
         "dice_pool": "Dexterity + Athletics + Mantle",
         "loopholes": "Foe wears gold",
         "description": "Use a ray of sunlight as a returning thrown weapon with Mantle for a weapon rating, Range 10/30/50, and Initiative -2. With Willpower, it deals aggravated damage.",
@@ -1545,7 +1545,7 @@ ROYAL_CONTRACTS_OF_SUMMER = {
     "solstice_revelation": {
         "name": "Solstice Revelation",
         "contract_type": "summer_royal",
-        "cost": "●",
+        "cost": "1 glamour",
         "dice_pool": "None",
         "loopholes": "Light a fired lantern",
         "description": "Illuminate an area to prevent hiding, forcing a Manipulation + Tolerance - Mantle roll to preserve mundane stealth, or a Clash of Wills against supernatural stealth.",
@@ -1555,7 +1555,7 @@ ROYAL_CONTRACTS_OF_SUMMER = {
     "sunburnt_heart": {
         "name": "Sunburnt Heart",
         "contract_type": "summer_royal",
-        "cost": "●●",
+        "cost": "2 glamour",
         "dice_pool": "Manipulation + Persuasion + Mantle vs Composure + Tolerance",
         "loopholes": "Shine light into their eyes",
         "description": "Drive a subject Berserk, and add Mantle as a bonus to redirect their fury.",
@@ -1569,7 +1569,7 @@ CONTRACTS_OF_AUTUMN = {
     "autumns_fury": {
         "name": "Autumn's Fury",
         "contract_type": "autumn",
-        "cost": "●●(●)",
+        "cost": "2 glamour, optionally 1 additional glamour",
         "dice_pool": "None",
         "loopholes": "Level a metal rod at foes",
         "description": "Breathe out the Heavy Rain and Heavy Wind Tilts around you. For extra Glamour, each turn, the storm rolls successes as a +1L attack pool.",
@@ -1579,7 +1579,7 @@ CONTRACTS_OF_AUTUMN = {
     "last_harvest": {
         "name": "Last Harvest",
         "contract_type": "autumn",
-        "cost": "●",
+        "cost": "1 glamour",
         "dice_pool": "None",
         "loopholes": "Your Touchstone",
         "description": "Once per session, take 9-Again to harvest Glamour from a subject, or 8-Again to harvest the Glamour of Autumn.",
@@ -1589,7 +1589,7 @@ CONTRACTS_OF_AUTUMN = {
     "tale_of_the_baba_yaga": {
         "name": "Tale of the Baba Yaga",
         "contract_type": "autumn",
-        "cost": "●",
+        "cost": "1 glamour",
         "dice_pool": "Manipulation + Subterfuge + Mantle vs Composure + Tolerance",
         "loopholes": "A familiar tale",
         "description": "Render the audience of a scary story Shaken.",
@@ -1599,7 +1599,7 @@ CONTRACTS_OF_AUTUMN = {
     "twilights_harbinger": {
         "name": "Twilight's Harbinger",
         "contract_type": "autumn",
-        "cost": "●",
+        "cost": "1 glamour",
         "dice_pool": "None",
         "loopholes": "Item of value to an involved subject",
         "description": "Know by omens when a given circumstance's end is about to come.",
@@ -1609,7 +1609,7 @@ CONTRACTS_OF_AUTUMN = {
     "witches_intuition": {
         "name": "Witches' Intuition",
         "contract_type": "autumn",
-        "cost": "●",
+        "cost": "1 glamour",
         "dice_pool": "Wits + Subterfuge + Mantle vs Composure + Tolerance",
         "loopholes": "Eat part of your target",
         "description": "Taste a target's greatest fear, and any associated Conditions or Tilts. You may refocus them around a new fear for the scene.",
@@ -1623,7 +1623,7 @@ ROYAL_CONTRACTS_OF_AUTUMN = {
     "famines_bulwark": {
         "name": "Famine's Bulwark",
         "contract_type": "autumn_royal",
-        "cost": "●",
+        "cost": "1 glamour",
         "dice_pool": "Wits + Occult + Mantle",
         "loopholes": "Eating recently handraised fruit",
         "description": "Read omens to ask the Storyteller a yes-or-no question per success. With multiple successes, one answer is false.",
@@ -1633,7 +1633,7 @@ ROYAL_CONTRACTS_OF_AUTUMN = {
     "mien_of_the_baba_yaga": {
         "name": "Mien of the Baba Yaga",
         "contract_type": "autumn_royal",
-        "cost": "●●",
+        "cost": "2 glamour",
         "dice_pool": "Presence + Intimidation + Mantle vs Composure + Tolerance",
         "loopholes": "Name their fear",
         "description": "Appear as a subject's greatest fear, driving them to flee and attacking their Clarity if applicable.",
@@ -1643,7 +1643,7 @@ ROYAL_CONTRACTS_OF_AUTUMN = {
     "riding_the_falling_leaves": {
         "name": "Riding the Falling Leaves",
         "contract_type": "autumn_royal",
-        "cost": "●●",
+        "cost": "2 glamour",
         "dice_pool": "Dexterity + Occult + Mantle",
         "loopholes": "Catch a falling leaf",
         "description": "Erupt into leaves flying on the wind. Once per turn, reflexively Dodge a non-saturation attack, and spend Glamour to inflict Spooked on success.",
@@ -1653,7 +1653,7 @@ ROYAL_CONTRACTS_OF_AUTUMN = {
     "sorcerers_rebuke": {
         "name": "Sorcerer's Rebuke",
         "contract_type": "autumn_royal",
-        "cost": "●●",
+        "cost": "2 glamour",
         "dice_pool": "Manipulation + Occult + Mantle",
         "loopholes": "Half a minute of grand warning",
         "description": "Touch a subject to strip them of Glamour or other supernatural energies.",
@@ -1663,7 +1663,7 @@ ROYAL_CONTRACTS_OF_AUTUMN = {
     "tasting_the_harvest": {
         "name": "Tasting the Harvest",
         "contract_type": "autumn_royal",
-        "cost": "●/subject",
+        "cost": "1 glamour per subject",
         "dice_pool": "Presence + Subterfuge + Mantle",
         "loopholes": "Jumpscare them",
         "description": "Eat subjects' fears, immunizing them from natural fear and adding your Mantle to contest supernatural fears. Grant +1 to rally against one such fear.",
@@ -1677,7 +1677,7 @@ CONTRACTS_OF_WINTER = {
     "the_dragon_knows": {
         "name": "The Dragon Knows",
         "contract_type": "winter",
-        "cost": "●",
+        "cost": "1 glamour",
         "dice_pool": "Wits + Empathy + Mantle vs Composure + Tolerance",
         "loopholes": "Look into their eyes",
         "description": "Taste a subject's deepest regret, and any associated Conditions or Tilts. You may refocus them around a new sorrow for a scene.",
@@ -1687,7 +1687,7 @@ CONTRACTS_OF_WINTER = {
     "heart_of_ice": {
         "name": "Heart of Ice",
         "contract_type": "winter",
-        "cost": "●●",
+        "cost": "2 glamour",
         "dice_pool": "None",
         "loopholes": "Barefoot in the cold",
         "description": "Freeze down to the heart, becoming immune to cold and emotional sway.",
@@ -1697,7 +1697,7 @@ CONTRACTS_OF_WINTER = {
     "ice_queens_call": {
         "name": "Ice Queen's Call",
         "contract_type": "winter",
-        "cost": "●",
+        "cost": "1 glamour",
         "dice_pool": "None",
         "loopholes": "Someone shivers",
         "description": "Gather the Blizzard Tilt, to which you are immune.",
@@ -1707,7 +1707,7 @@ CONTRACTS_OF_WINTER = {
     "slipknot_dreams": {
         "name": "Slipknot Dreams",
         "contract_type": "winter",
-        "cost": "●",
+        "cost": "1 glamour",
         "dice_pool": "Manipulation + Empathy + Mantle vs Resolve + Tolerance",
         "loopholes": "Present them with a gift",
         "description": "Take the place of a subject's regretful yearning, rendering them Swooned.",
@@ -1717,7 +1717,7 @@ CONTRACTS_OF_WINTER = {
     "touch_of_winter": {
         "name": "Touch of Winter",
         "contract_type": "winter",
-        "cost": "●",
+        "cost": "1 glamour",
         "dice_pool": "Intelligence + Science + Mantle",
         "loopholes": "Melts a handfull of ice into water",
         "description": "Flash-freeze a body of water by touch.",
@@ -1731,7 +1731,7 @@ ROYAL_CONTRACTS_OF_WINTER = {
     "ermines_winter_coat": {
         "name": "Ermine's Winter Coat",
         "contract_type": "winter_royal",
-        "cost": "●",
+        "cost": "1 glamour",
         "dice_pool": "None",
         "loopholes": "Hidden in a burrow",
         "description": "Blend in, taking +3 to Stealth and penalizing attacks against you by -3. In mundane company, reduce the bonus for fae to pick you out as if at half Wyrd.",
@@ -1741,7 +1741,7 @@ ROYAL_CONTRACTS_OF_WINTER = {
     "fallow_fields": {
         "name": "Fallow Fields",
         "contract_type": "winter_royal",
-        "cost": "●●",
+        "cost": "2 glamour",
         "dice_pool": "Manipulation + Empathy + Mantle vs Resolve + Tolerance",
         "loopholes": "Write their Touchstone's name",
         "description": "Temporarily empty a subject's capacity for love, rendering them Broken and denying the use of their Anchors.",
@@ -1751,7 +1751,7 @@ ROYAL_CONTRACTS_OF_WINTER = {
     "field_of_regret": {
         "name": "Field of Regret",
         "contract_type": "winter_royal",
-        "cost": "●/target, ○",
+        "cost": "1 glamour per target, 1 willpower",
         "dice_pool": "Presence + Empathy + Mantle - Resolve",
         "loopholes": "Melancholy song",
         "description": "Harrow others with lonely hauntings, sapping Willpower and inflicting lethal damage.",
@@ -1761,7 +1761,7 @@ ROYAL_CONTRACTS_OF_WINTER = {
     "mantle_of_frost": {
         "name": "Mantle of Frost",
         "contract_type": "winter_royal",
-        "cost": "●●",
+        "cost": "2 glamour",
         "dice_pool": "None",
         "loopholes": "Dramatically drop your coat",
         "description": "Project an Extreme Cold strong enough to encase subjects in ice, to which you are immune.",
@@ -1771,7 +1771,7 @@ ROYAL_CONTRACTS_OF_WINTER = {
     "winters_curse": {
         "name": "Winter's Curse",
         "contract_type": "winter_royal",
-        "cost": "●●○",
+        "cost": "2 glamour, 1 willpower",
         "dice_pool": "Presence + Survival + Mantle vs Resolve + Tolerance",
         "loopholes": "Swallow an ice cube",
         "description": "Freeze a subject's heart except concerning you, stripping the capacity for teamwork or Willpower and holding breaking points in abeyance.",
@@ -1787,7 +1787,7 @@ COMMON_INDEPENDENT_CONTRACTS = {
     "coming_darkness": {
         "name": "Coming Darkness",
         "contract_type": "independent_common",
-        "cost": "●",
+        "cost": "1 glamour",
         "dice_pool": "None",
         "loopholes": "Extinguish a flame while invoking",
         "description": "Create area of darkness in (Wyrd x 5) meter radius, inflicts Blinded (both Eyes) tilt, may Stun. Invoker is unaffected, but their shadow might come loose.",
@@ -1800,7 +1800,7 @@ COMMON_INDEPENDENT_CONTRACTS = {
     "pomp_and_circumstance": {
         "name": "Pomp and Circumstance",
         "contract_type": "independent_common",
-        "cost": "●/●○",
+        "cost": "1 glamour or 1 glamour and 1 willpower",
         "dice_pool": "None",
         "loopholes": "Lay out a ring of poppies earlier in scene",
         "description": "Uninvited guests cannot enter a warded area unless invited in by someone inside, guests can't be tracked or spied by mundane means; with Willpower, no huntsmen or Gentry can even find the area, even magically.",
@@ -1813,7 +1813,7 @@ COMMON_INDEPENDENT_CONTRACTS = {
     "shadow_puppet": {
         "name": "Shadow Puppet",
         "contract_type": "independent_common",
-        "cost": "●",
+        "cost": "1 glamour",
         "dice_pool": "None",
         "loopholes": "Perform a shadow puppet show for at least 3 people for at least 5 minutes before",
         "description": "Create a shadow Retainer with Merit dots up to half Wyrd which also has small amount of magic.",
@@ -1826,7 +1826,7 @@ COMMON_INDEPENDENT_CONTRACTS = {
     "steal_influence": {
         "name": "Steal Influence",
         "contract_type": "independent_common",
-        "cost": "●/Influence Dot",
+        "cost": "1 glamour per Influence dot",
         "dice_pool": "Wits + Larceny + Wyrd vs Resolve + Wyrd",
         "loopholes": "Target has dealt lethal or agg damage to changeling in the scene",
         "description": "Steal dots of one Influence from a creature with that trait for Contract's duration, up to Glamour spent (only one Influence at a time).",
@@ -1839,7 +1839,7 @@ COMMON_INDEPENDENT_CONTRACTS = {
     "earths_gentle_movements": {
         "name": "Earth's Gentle Movements",
         "contract_type": "independent_common",
-        "cost": "●",
+        "cost": "1 glamour",
         "dice_pool": "Strength + Crafts + Wyrd",
         "loopholes": "Place a pebble under tongue",
         "description": "Permanently reshape an area of earth for each success rolled, can Knock Down those in area.",
@@ -1856,7 +1856,7 @@ ROYAL_INDEPENDENT_CONTRACTS = {
     "dread_companion": {
         "name": "Dread Companion",
         "contract_type": "independent_royal",
-        "cost": "●",
+        "cost": "1 glamour",
         "dice_pool": "Manipulation + Occult + Wyrd vs. Resistance + Wyrd",
         "loopholes": "Get ghost to affirm thread in same scene",
         "description": "Control a Hedge Ghost.",
@@ -1869,7 +1869,7 @@ ROYAL_INDEPENDENT_CONTRACTS = {
     "cracked_mirror": {
         "name": "Cracked Mirror",
         "contract_type": "independent_royal",
-        "cost": "●/●○",
+        "cost": "1 glamour or 1 glamour and 1 willpower",
         "dice_pool": "Attribute + Ability + Wyrd vs Resistance + Tolerance unless Fetch is willing",
         "loopholes": "Put a significant crack in mirror used",
         "description": "Can use a mirror to spy on Fetch; for Willpower, can switch places with Fetch (Contract ends immediately after).",
@@ -1882,7 +1882,7 @@ ROYAL_INDEPENDENT_CONTRACTS = {
     "listen_with_winds_ears": {
         "name": "Listen With Wind's Ears",
         "contract_type": "independent_royal",
-        "cost": "●/●●○",
+        "cost": "1 glamour or 2 glamour and 1 willpower",
         "dice_pool": "None",
         "loopholes": "Introduce self by real name in same scene to stranger",
         "description": "Can sense when name is spoken and eavesdrop on area; for Glamour and Willpower can teleport to that location.",
@@ -1895,7 +1895,7 @@ ROYAL_INDEPENDENT_CONTRACTS = {
     "momentary_respite": {
         "name": "Momentary Respite",
         "contract_type": "independent_royal",
-        "cost": "●/● + ○ per scene extended",
+        "cost": "1 glamour or 1 glamour + 1 willpower per scene extended",
         "dice_pool": "Stamina + Survival + Wyrd",
         "loopholes": "Hug an item representing rest or comfort",
         "description": "Each success grants a warding effect -- can ignore Tilts, poison, wound penalties, or even their last health box from Aggravated damage; Spend Willpower to extend duration.",
@@ -1908,7 +1908,7 @@ ROYAL_INDEPENDENT_CONTRACTS = {
     "earths_impenetrable_walls": {
         "name": "Earth's Impenetrable Walls",
         "contract_type": "independent_royal",
-        "cost": "●●",
+        "cost": "2 glamour",
         "dice_pool": "Strength + Crafts + Wyrd",
         "loopholes": "Successfully defended self or another from attack",
         "description": "Raises a Safe Place fortress from the earth, causing an earthquake, with additional benefits for each success.",
@@ -1927,7 +1927,7 @@ CONTRACTS_OF_THORN = {
     "briars_herald": {
         "name": "Briar's Herald",
         "contract_type": "thorn",
-        "cost": "●",
+        "cost": "1 glamour",
         "dice_pool": "Manipulation + Larceny + Wyrd vs Composure + Tolerance",
         "loopholes": "The Changeling causes a thorn, needle etc to prick the target and draw a drop of blood.",
         "description": "Whenever the target is in the Changeling's presence, they lose 10-again and all failures are dramatic; they know the changeling is at fault.",
@@ -1940,7 +1940,7 @@ CONTRACTS_OF_THORN = {
     "by_the_pricking_of_my_thumbs": {
         "name": "By the Pricking of My Thumbs",
         "contract_type": "thorn",
-        "cost": "●",
+        "cost": "1 glamour",
         "dice_pool": "None",
         "loopholes": "Brews a specific potion and look into it within the scene.",
         "description": "Extend senses into living plants.",
@@ -1953,7 +1953,7 @@ CONTRACTS_OF_THORN = {
     "thistles_rebuke": {
         "name": "Thistle's Rebuke",
         "contract_type": "thorn",
-        "cost": "●",
+        "cost": "1 glamour",
         "dice_pool": "None",
         "loopholes": "Drink an entire glass of water.",
         "description": "Grow thorns and add 2/0 to armor rating. Anyone who touches the Changeling takes 1L; 2L under a grapple. Can fire thorns for 2L.",
@@ -1966,7 +1966,7 @@ CONTRACTS_OF_THORN = {
     "the_gouging_curse": {
         "name": "The Gouging Curse",
         "contract_type": "thorn",
-        "cost": "●",
+        "cost": "1 glamour",
         "dice_pool": "Manipulation + Occult + Wyrd vs Composure + Tolerance",
         "loopholes": "Let the victim choose an action the Changeling cannot take.",
         "description": "Issue a dire warning to forbid the target from taking an action, they are cursed if they do the action.",
@@ -1979,7 +1979,7 @@ CONTRACTS_OF_THORN = {
     "embrace_of_nettles": {
         "name": "Embrace of Nettles",
         "contract_type": "thorn",
-        "cost": "●",
+        "cost": "1 glamour",
         "dice_pool": "None",
         "loopholes": "Leave behind a meaningful personal item the Hedge will consume.",
         "description": "Invoke reflexively when the Hedge shifts: deflect the target of Hedgespinning, defer the successes for later; double-down by adding to both the Hedge and the Changeling's own Hedgespinning rolls.",
@@ -1996,7 +1996,7 @@ ROYAL_CONTRACTS_OF_THORN = {
     "acanthas_fury": {
         "name": "Acantha's Fury",
         "contract_type": "thorn_royal",
-        "cost": "●●○",
+        "cost": "2 glamour, 1 willpower",
         "dice_pool": "Presence + Survival + Wyrd vs Stamina + Tolerance",
         "loopholes": "Hold fresh clipping of the kind of plant the transformation will use.",
         "description": "Point at target, who slowly transforms into a thorny plant over several minutes. Changeling must offer a task; target may agree to a binding promise to complete it to avoid transformation. Invoking this Contract is a breaking point of 4 dice.",
@@ -2009,7 +2009,7 @@ ROYAL_CONTRACTS_OF_THORN = {
     "awaken_portal": {
         "name": "Awaken Portal",
         "contract_type": "thorn_royal",
-        "cost": "●●",
+        "cost": "2 glamour",
         "dice_pool": "None",
         "loopholes": "Take 15 minutes to clean or repair the entrance.",
         "description": "Portal to a Bastion, Hollow or the Hedge gains temporary sentience.",
@@ -2022,7 +2022,7 @@ ROYAL_CONTRACTS_OF_THORN = {
     "crown_of_thorns": {
         "name": "Crown of Thorns",
         "contract_type": "thorn_royal",
-        "cost": "●●",
+        "cost": "2 glamour",
         "dice_pool": "Presence + Occult + Wyrd vs Resolve + Tolerance",
         "loopholes": "Weave a crown of thorns and put it on the target's head.",
         "description": "Deliver message anonymously that forbids the target from performing a specific instant action. If they do so, they suffer the Comatose Condition and 1L.",
@@ -2035,7 +2035,7 @@ ROYAL_CONTRACTS_OF_THORN = {
     "shrikes_larder": {
         "name": "Shrike's Larder",
         "contract_type": "thorn_royal",
-        "cost": "● to ●●●",
+        "cost": "1 to 3 glamour",
         "dice_pool": "None",
         "loopholes": "Impale an effigy representing the target on a thorn.",
         "description": "Create thorns and spines that slow victims and have various effects on Glamour, Initiative or Speed.",
@@ -2048,7 +2048,7 @@ ROYAL_CONTRACTS_OF_THORN = {
     "witchs_brambles": {
         "name": "Witch's Brambles",
         "contract_type": "thorn_royal",
-        "cost": "●●/●●●+○",
+        "cost": "2 to 3 glamour + 1 willpower",
         "dice_pool": "Presence + Occult + Wyrd vs Resolve + Tolerance",
         "loopholes": "Pierce own flesh with pointy object.",
         "description": "Hedgespin in the mortal world.",
