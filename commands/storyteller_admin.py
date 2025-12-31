@@ -16,7 +16,7 @@ class CmdStoryteller(MuxCommand):
     Manage Storyteller flags for players.
     
     Usage:
-        +storyteller/list - List all current storytellers
+        +storyteller - List all current storytellers
         +storyteller/add <character> - Grant Storyteller flag
         +storyteller/remove <character> - Remove Storyteller flag
         +storyteller/check [character] - Check if character has Storyteller flag
@@ -32,10 +32,10 @@ class CmdStoryteller(MuxCommand):
     Only Admin+ can grant or remove Storyteller flags.
     
     Examples:
+        +storyteller
         +storyteller/add Alice
         +storyteller/remove Bob
         +storyteller/check Alice
-        +storyteller/list
         +storyteller/who
     """
     
@@ -47,7 +47,7 @@ class CmdStoryteller(MuxCommand):
     def func(self):
         """Execute the command."""
         if not self.switches:
-            self.show_info()
+            self.list_storytellers()
             return
             
         switch = self.switches[0].lower()
@@ -65,7 +65,7 @@ class CmdStoryteller(MuxCommand):
         elif switch == "who":
             self.show_storyteller_who()
         else:
-            self.caller.msg("Invalid switch. Use +storyteller without arguments for help.")
+            self.caller.msg("Invalid switch. Use +storyteller/info for help.")
     
     def show_info(self):
         """Show information about Storyteller permissions."""
@@ -84,10 +84,11 @@ for creating engaging roleplay experiences.
 • |wBuilding Access|n - Limited building permissions in designated areas
 
 |yCommands Available:|n
-  |w+storyteller/list|n - List all current storytellers
+  |w+storyteller|n - List all current storytellers
   |w+storyteller/add <character>|n - Grant Storyteller flag (Admin only)
   |w+storyteller/remove <character>|n - Remove Storyteller flag (Admin only)
   |w+storyteller/check [character]|n - Check Storyteller status
+  |w+storyteller/who|n - Show who is online with Storyteller permissions
 
 |yFor Storytellers:|n
 Once you have the Storyteller flag, you can use:

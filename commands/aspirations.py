@@ -6,7 +6,9 @@ class CmdAspiration(MuxCommand):
     Manage your character's aspirations.
     
     Usage:
-        +aspiration/list - List your current aspirations
+        +aspiration - List your current aspirations
+        +aspiration <character> - View another character's aspirations (staff only)
+        +aspiration/list - List your current aspirations (same as no switch)
         +aspiration/add <short|long> <description> - Add an aspiration
         +aspiration/change <number> <new description> - Change an existing aspiration
         +aspiration/remove <number> - Remove an aspiration
@@ -20,6 +22,8 @@ class CmdAspiration(MuxCommand):
     Both provide the same number of beats when fulfilled (1 beat).
     
     Examples:
+        +aspiration
+        +aspiration John (staff only)
         +aspiration/add short Learn about the vampire who sired my friend
         +aspiration/add long Become the primogen of my clan
         +aspiration/change 2 Destroy the vampire who sired my friend
@@ -27,7 +31,7 @@ class CmdAspiration(MuxCommand):
         +aspiration/remove 3
     """
     key = "+aspiration"
-    aliases = ["+asp"]
+    aliases = ["+asp", "+aspirations"]
     help_category = "Chargen & Character Info"
     
     def func(self):
@@ -39,8 +43,9 @@ class CmdAspiration(MuxCommand):
             self.caller.msg("Legacy Mode uses only Virtue and Vice for character motivation.")
             return
         
+        # No switches - default to showing aspirations
         if not self.switches:
-            self.caller.msg("Usage: +aspiration/list, +aspiration/add, +aspiration/change, +aspiration/remove, or +aspiration/fulfill")
+            self.list_aspirations()
             return
             
         switch = self.switches[0].lower()
@@ -60,15 +65,29 @@ class CmdAspiration(MuxCommand):
     
     def list_aspirations(self):
         """List current aspirations with styled output"""
+        # Determine target character
+        if not self.args:
+            target = self.caller
+        else:
+            # Check permission if viewing someone else
+            if not self.caller.check_permstring("Admin"):
+                self.caller.msg("|rYou can only view your own aspirations. Staff can view others' aspirations.|n")
+                return
+            
+            from utils.search_helpers import search_character
+            target = search_character(self.caller, self.args)
+            if not target:
+                return
+        
         # Initialize aspirations if not exists
-        if not hasattr(self.caller.db, 'aspirations') or self.caller.db.aspirations is None:
-            self.caller.db.aspirations = []
+        if not hasattr(target.db, 'aspirations') or target.db.aspirations is None:
+            target.db.aspirations = []
         
         # Clean up and validate aspirations (only reassign if we actually filtered something)
-        if self.caller.db.aspirations:
-            original_count = len(self.caller.db.aspirations)
+        if target.db.aspirations:
+            original_count = len(target.db.aspirations)
             valid_aspirations = []
-            for asp in self.caller.db.aspirations:
+            for asp in target.db.aspirations:
                 # Use duck typing instead of isinstance - Evennia uses _SaverDict which isn't a regular dict
                 # Check if it's dict-like by trying to access keys
                 try:
@@ -87,18 +106,22 @@ class CmdAspiration(MuxCommand):
             
             # Only reassign if we actually changed something (to avoid unnecessary writes)
             if len(valid_aspirations) != original_count:
-                self.caller.attributes.add("aspirations", valid_aspirations)
+                target.attributes.add("aspirations", valid_aspirations)
         
-        aspirations = self.caller.db.aspirations
+        aspirations = target.db.aspirations
         
         if not aspirations or len(aspirations) == 0:
-            self.caller.msg("You have no aspirations set.")
+            if target == self.caller:
+                self.caller.msg("You have no aspirations set.")
+            else:
+                self.caller.msg(f"{target.name} has no aspirations set.")
             return
         
         # Build styled output matching +sheet format
         output = []
         output.append("|y" + "=" * 78 + "|n")
-        output.append("|y" + "ASPIRATIONS".center(78) + "|n")
+        title = f"ASPIRATIONS - {target.name}" if target != self.caller else "ASPIRATIONS"
+        output.append("|y" + title.center(78) + "|n")
         output.append("|y" + "=" * 78 + "|n")
         output.append("")
         

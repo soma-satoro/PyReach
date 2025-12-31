@@ -20,16 +20,19 @@ class CmdExperience(MuxCommand):
         +xp/costs                       - Show experience point costs for your template
 
     Valid beat sources:
-        dramatic_failure, exceptional_success, conditions, aspirations,
-        story, scene, session, roleplay, challenge, sacrifice,
-        discovery, relationship, consequence, learning, growth
+        condition, story, challenge, sacrifice, discovery, relationship,
+        consequence, learning, growth
     
     Valid arcane beat sources (Mages only):
         obsession, magical_condition, spell_dramatic_failure, 
         act_of_hubris, legacy_tutoring, supernatural_encounter
         
-    Note: Exceptional successes and dramatic failures from dice rolls 
-    automatically award beats - no need to manually request them.
+    Important Notes:
+        - Manual beat awards via +xp/beat are limited to 5 per day
+        - Using +xp/beat condition requires you to have an active condition
+        - Exceptional successes and dramatic failures from dice rolls 
+          automatically award beats - no need to manually request them
+        - Other beat sources (dice rolls, aspirations, +vote) are unlimited
 
     General XP Costs (All Templates):
         Attributes: 4 XP per dot
@@ -325,11 +328,11 @@ class CmdExperience(MuxCommand):
     def add_beat(self, exp_handler):
         """Add a beat from a valid source."""
         from world.xp_logger import get_xp_logger
+        from datetime import datetime, timezone
         
         valid_sources = [
-            "dramatic_failure", "exceptional_success", "conditions", "aspirations",
-            "story", "scene", "session", "roleplay", "challenge", "sacrifice",
-            "discovery", "relationship", "consequence", "learning", "growth"
+            "condition", "story", "challenge", "sacrifice", "discovery", "relationship",
+            "consequence", "learning", "growth"
         ]
         
         source = self.args.strip().lower().replace(" ", "_")
@@ -340,15 +343,48 @@ class CmdExperience(MuxCommand):
         if source not in valid_sources:
             self.caller.msg(f"Invalid beat source '{source}'. Valid sources: " + ", ".join(valid_sources))
             return
+        
+        # Check daily limit for +xp/beat usage
+        today = datetime.now(timezone.utc).date()
+        beat_usage = self.caller.attributes.get('beat_usage', default={})
+        today_str = today.isoformat()
+        
+        # Clean up old entries (older than today)
+        beat_usage = {date: count for date, count in beat_usage.items() if date == today_str}
+        
+        # Check if daily limit reached
+        daily_count = beat_usage.get(today_str, 0)
+        if daily_count >= 5:
+            self.caller.msg("|rYou have reached the daily limit of 5 manual beat awards.|n")
+            self.caller.msg("Other beat sources (dice rolls, aspirations, +vote) are unlimited.")
+            return
+        
+        # Special validation for 'condition' source - must have an active condition
+        if source == "condition":
+            from world.conditions import ConditionHandler
+            condition_handler = ConditionHandler(self.caller)
+            active_conditions = condition_handler.all()
             
+            if not active_conditions:
+                self.caller.msg("|rYou must have an active condition to claim a beat from this source.|n")
+                self.caller.msg("Use the conditions system to track active conditions on your character.")
+                return
+            
+        # Add the beat
         exp_handler.add_beat()
+        
+        # Update daily usage counter
+        beat_usage[today_str] = daily_count + 1
+        self.caller.attributes.add('beat_usage', beat_usage)
         
         # Log the beat gain
         logger = get_xp_logger(self.caller)
         logger.log_beat(1, source.replace('_', ' ').title(), details="Added via +xp/beat command")
         
+        remaining = 5 - beat_usage[today_str]
         self.caller.msg(f"|gAdded 1 beat from '{source.replace('_', ' ')}'.|n")
         self.caller.msg(f"Current beats: {exp_handler.beats}, Experience: {exp_handler.experience}")
+        self.caller.msg(f"|xDaily manual beat awards remaining: {remaining}/5|n")
     
     def add_arcane_beat(self, exp_handler):
         """Add an arcane beat from a valid source (Mages only)."""
