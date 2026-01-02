@@ -5,7 +5,7 @@ Flexible system that allows staff to configure purchasing rules per game
 
 import time
 from datetime import datetime, timedelta
-from world.equipment_database import WEAPON_DATABASE, ARMOR_DATABASE
+from world.equipment_database import WEAPON_DATABASE, ARMOR_DATABASE, GENERAL_EQUIPMENT_DATABASE
 
 class EquipmentPurchasingConfig:
     """Configuration class for equipment purchasing rules"""
@@ -195,6 +195,16 @@ def get_available_equipment():
             'availability': armor.availability,
             'data': armor
         }
+    
+    # Add general equipment
+    for key, item in GENERAL_EQUIPMENT_DATABASE.items():
+        equipment[key] = {
+            'name': item.name,
+            'type': 'equipment',
+            'category': item.category,
+            'availability': item.availability,
+            'data': item
+        }
         
     return equipment
 
@@ -270,6 +280,20 @@ def purchase_equipment(character, equipment_key):
             "availability": armor.availability,
             "coverage": armor.coverage,
             "notes": armor.notes
+        }
+    elif item['type'] == 'equipment':
+        equip = item['data']
+        character.db.equipment[item['name']] = {
+            "type": "equipment",
+            "category": equip.category,
+            "die_bonus": equip.die_bonus,
+            "durability": equip.durability,
+            "size": equip.size,
+            "structure": equip.structure,
+            "availability": equip.availability,
+            "effect": equip.effect,
+            "skill_bonuses": equip.skill_bonuses,
+            "special_properties": equip.special_properties
         }
     
     return True, f"Purchased {item['name']}! {spend_message}"

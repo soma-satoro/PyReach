@@ -257,3 +257,173 @@ class CmdJoin(MuxCommand):
             caller.msg(f"Failed to join {target.name}.")
 
 
+class CmdSummon(MuxCommand):
+    """
+    Summon a player to your location (Staff only).
+    
+    Usage:
+        +summon <player name>
+        +summon/quiet <player name>
+    
+    Switches:
+        quiet - Don't announce to the player or the room
+    
+    This command allows staff to bring a player to their current location
+    for direct communication, adjudicating rolls, disputes, etc. The player's
+    previous location is stored so they can be returned later with +return.
+    """
+    
+    key = "+summon"
+    aliases = ["summon"]
+    locks = "cmd:perm(staff)"
+    help_category = "Roleplaying Tools"
+    
+    def func(self):
+        """Execute the command"""
+        caller = self.caller
+        args = self.args.strip()
+        
+        # Check staff permissions
+        if not check_staff_permission(caller):
+            caller.msg(format_permission_error("Staff"))
+            return
+        
+        if not args:
+            caller.msg("Usage: +summon <player name>")
+            return
+        
+        # Verify caller has a valid location
+        if not caller.location:
+            caller.msg("You don't appear to be anywhere.")
+            return
+        
+        # Search for the target player
+        target = search_character(caller, args)
+        if not target:
+            return
+        
+        # Don't summon yourself
+        if target == caller:
+            caller.msg("You cannot summon yourself.")
+            return
+        
+        # Store target's current location for +return command
+        target_location = target.location
+        if target_location and hasattr(target_location, "id"):
+            # Store the location directly as an object reference
+            # This avoids serialization issues with dict attributes
+            target.db.pre_summon_location = target_location
+            
+            # Log the movement on the server
+            evennia.logger.log_info(f"Staff Summon: {caller.name} (#{caller.id}) summoned {target.name} (#{target.id}) from {target_location.name} (#{target_location.id}) to {caller.location.name} (#{caller.location.id})")
+        else:
+            caller.msg(f"Warning: Could not store {target.name}'s current location for return.")
+        
+        # Force synchronization before moving to prevent desync
+        target.save()
+        
+        # Move target to caller's location
+        if target.move_to(
+            caller.location,
+            quiet="quiet" in self.switches,
+            emit_to_obj=target,
+            move_type="teleport"
+        ):
+            caller.msg(f"You have summoned {target.name} to your location.")
+            if "quiet" not in self.switches:
+                target.msg(f"You have been summoned by {caller.name}.")
+            else:
+                # Even in quiet mode, notify the player they were summoned
+                target.msg(f"You have been summoned by staff.")
+            
+            # Force another save after the move to ensure location is synchronized
+            target.save()
+        else:
+            caller.msg(f"Failed to summon {target.name}.")
+
+
+class CmdReturn(MuxCommand):
+    """
+    Return a player to their previous location (Staff only).
+    
+    Usage:
+        +return <player name>
+        +return/quiet <player name>
+    
+    Switches:
+        quiet - Don't announce to the player or the room
+    
+    This command returns a player to the location they were in before
+    being summoned with +summon. If no stored location exists, the
+    command will fail.
+    """
+    
+    key = "+return"
+    aliases = ["return"]
+    locks = "cmd:perm(staff)"
+    help_category = "Roleplaying Tools"
+    
+    def func(self):
+        """Execute the command"""
+        caller = self.caller
+        args = self.args.strip()
+        
+        # Check staff permissions
+        if not check_staff_permission(caller):
+            caller.msg(format_permission_error("Staff"))
+            return
+        
+        if not args:
+            caller.msg("Usage: +return <player name>")
+            return
+        
+        # Search for the target player
+        target = search_character(caller, args)
+        if not target:
+            return
+        
+        # Get the stored pre-summon location
+        destination = None
+        if hasattr(target.db, 'pre_summon_location') and target.db.pre_summon_location:
+            stored_location = target.db.pre_summon_location
+            
+            # Verify the stored location still exists and is valid
+            if (hasattr(stored_location, 'id') and 
+                hasattr(stored_location, 'name') and
+                stored_location.access(target, 'view')):
+                destination = stored_location
+        
+        if not destination:
+            caller.msg(f"{target.name} has no stored location to return to. They may not have been summoned.")
+            return
+        
+        # Log the movement on the server
+        current_location = target.location
+        if current_location and hasattr(current_location, "id"):
+            evennia.logger.log_info(f"Staff Return: {caller.name} (#{caller.id}) returned {target.name} (#{target.id}) from {current_location.name} (#{current_location.id}) to {destination.name} (#{destination.id})")
+        
+        # Force synchronization before moving
+        target.save()
+        
+        # Move target back to their previous location
+        if target.move_to(
+            destination,
+            quiet="quiet" in self.switches,
+            emit_to_obj=target,
+            move_type="teleport"
+        ):
+            caller.msg(f"You have returned {target.name} to {destination.name}.")
+            if "quiet" not in self.switches:
+                target.msg(f"You have been returned to your previous location by {caller.name}.")
+            else:
+                target.msg(f"You have been returned to your previous location by staff.")
+            
+            # Clear the stored location since we've used it
+            target.attributes.remove("pre_summon_location")
+            
+            # Force another save after the move to ensure location is synchronized
+            target.save()
+        else:
+            caller.msg(f"Failed to return {target.name}.")
+
+

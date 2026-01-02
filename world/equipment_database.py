@@ -802,3 +802,1230 @@ tag_descriptions = {
     "thrown": "Can be thrown as ranged attack",
     "two-handed": "Requires two hands, can use one-handed at +1 Strength requirement"
 }
+
+# ========================================
+# GENERAL EQUIPMENT DATABASE
+# ========================================
+
+GENERAL_EQUIPMENT_DATABASE = {
+    # ========================================
+    # FIREARM ACCESSORIES
+    # ========================================
+    "bipod": EquipmentData(
+        name="Bipod",
+        category="firearm_accessories",
+        die_bonus=1,
+        durability=2,
+        size=2,
+        structure=4,
+        availability=1,
+        effect="Helps stabilize a weapon when shooting at long range. Reduces penalty for firing at medium or long range by one. Reduces penalties for burst firing at multiple targets by one.",
+        special_properties={"range_penalty_reduction": 1, "burst_penalty_reduction": 1}
+    ),
+    
+    "ear_protection": EquipmentData(
+        name="Ear Protection",
+        category="firearm_accessories",
+        die_bonus=-3,
+        durability=1,
+        size=1,
+        structure=2,
+        availability=1,
+        effect="Protects from being deafened by firearms discharge. Imposes -3 penalty to all sound-related Perception rolls.",
+        skill_bonuses={"perception": -3},
+        special_properties={"perception_type": "sound", "deafening_protection": True}
+    ),
+    
+    "gunsmithing_kit": EquipmentData(
+        name="Gunsmithing Kit",
+        category="firearm_accessories",
+        die_bonus=2,
+        durability=2,
+        size=2,
+        structure=4,
+        availability=2,
+        effect="Provides tools needed to properly maintain, repair, or modify firearms. Requires extended Dexterity + Crafts roll (each roll = 15 minutes). Cleaning/simple repairs need 5 successes, complex repairs need 15 successes.",
+        skill_bonuses={"crafts": 2},
+        special_properties={"firearms_maintenance": True}
+    ),
+    
+    "light_mount": EquipmentData(
+        name="Light Mount",
+        category="firearm_accessories",
+        die_bonus=1,
+        durability=1,
+        size=1,
+        structure=2,
+        availability=1,
+        effect="Flashlight mounted on gun barrel. Subtracts die bonus from darkness penalties or adds to search rolls. Can blind targets but reveals shooter's position.",
+        special_properties={"darkness_reduction": 1, "reveals_position": True}
+    ),
+    
+    "light_mount_advanced": EquipmentData(
+        name="Light Mount (Advanced)",
+        category="firearm_accessories",
+        die_bonus=2,
+        durability=1,
+        size=1,
+        structure=2,
+        availability=2,
+        effect="High-intensity halogen or LED light mount. Subtracts die bonus from darkness penalties or adds to search rolls.",
+        special_properties={"darkness_reduction": 2, "reveals_position": True}
+    ),
+    
+    "reloading_bench": EquipmentData(
+        name="Reloading Bench",
+        category="firearm_accessories",
+        die_bonus=2,
+        durability=2,
+        size=5,
+        structure=6,
+        availability=2,
+        effect="Provides space and supplies to load custom bullets at home: gunpowder, shell casings, bullet press, polisher, etc. Allows secretive ammunition crafting or special bullet types.",
+        skill_bonuses={"crafts": 2},
+        special_properties={"ammunition_crafting": True}
+    ),
+    
+    "sighting_tools": EquipmentData(
+        name="Sighting Tools",
+        category="firearm_accessories",
+        die_bonus=2,
+        durability=1,
+        size=2,
+        structure=3,
+        availability=2,
+        effect="Tools to maintain and realign gun sights. Extended Wits + Firearms action needing 10 successes. Successfully sighting in provides +1 to medium and long-range attacks for uses equal to 2x weapon Damage rating.",
+        skill_bonuses={"firearms": 2},
+        special_properties={"sight_alignment": True, "accuracy_bonus": 1}
+    ),
+    
+    "speedloader": EquipmentData(
+        name="Speedloader",
+        category="firearm_accessories",
+        die_bonus=0,
+        durability=1,
+        size=1,
+        structure=2,
+        availability=1,
+        effect="Allows quick reloading of revolvers and action-fed weapons without sacrificing Defense. Loads ammunition in small carousels or loads proper shotguns/rifles four rounds at a time.",
+        special_properties={"quick_reload": True, "defense_maintained": True}
+    ),
+    
+    "collapsible_stock": EquipmentData(
+        name="Collapsible Stock",
+        category="firearm_accessories",
+        die_bonus=0,
+        durability=2,
+        size=0,
+        structure=3,
+        availability=2,
+        effect="Folding or telescoping stock reduces weapon Size by 1 (minimum 2). Installation requires Dexterity + Crafts roll, 15 minutes per roll, 5 successes needed.",
+        special_properties={"size_reduction": 1, "requires_installation": True}
+    ),
+    
+    "suppressor": EquipmentData(
+        name="Suppressor",
+        category="firearm_accessories",
+        die_bonus=0,
+        durability=3,
+        size=1,
+        structure=4,
+        availability=3,
+        effect="Dampens noise and flash of firing gun. Bystanders within 50m suffer -4 to hearing-based Perception (subsonic ammo) or -2 within 100m (supersonic). Flash suppression inflicts -3 to pinpoint shooter location. Revolvers only get -2 penalty.",
+        special_properties={"sound_dampening": 4, "flash_suppression": 3, "revolver_penalty": 2}
+    ),
+    
+    # ========================================
+    # SIGHTS
+    # ========================================
+    "fiber_optic_sight": EquipmentData(
+        name="Fiber Optic Sight",
+        category="sights",
+        die_bonus=1,
+        durability=1,
+        size=1,
+        structure=2,
+        availability=1,
+        effect="Uses colored lights for precise shots. Gain additional +1 bonus when aiming. Works in any light conditions (red in daytime, green/yellow at night). Applies to firearms and bows.",
+        special_properties={"aiming_bonus": 1, "all_weather": True}
+    ),
+    
+    "laser_sight": EquipmentData(
+        name="Laser Sight",
+        category="sights",
+        die_bonus=1,
+        durability=1,
+        size=1,
+        structure=2,
+        availability=2,
+        effect="Greatly improves accuracy at short and medium ranges (no effect on long range). Visible red dot gives target die bonus to avoid surprise. In fog/dust, entire beam visible granting +1 to avoid surprise.",
+        special_properties={"range_limit": "medium", "surprise_penalty": True}
+    ),
+    
+    "laser_sight_infrared": EquipmentData(
+        name="Laser Sight (Infrared)",
+        category="sights",
+        die_bonus=1,
+        durability=1,
+        size=1,
+        structure=2,
+        availability=3,
+        effect="Infrared beam only visible with night vision. Can benefit from both infrared laser and night vision scope.",
+        special_properties={"infrared": True, "requires_night_vision": True}
+    ),
+    
+    "telescopic_scope": EquipmentData(
+        name="Telescopic Scope",
+        category="sights",
+        die_bonus=0,
+        durability=1,
+        size=2,
+        structure=3,
+        availability=1,
+        effect="Provides magnification over long distances. Ignore penalties for medium range, halve long range penalties.",
+        special_properties={"medium_range_ignore": True, "long_range_halve": True}
+    ),
+    
+    "night_vision_scope": EquipmentData(
+        name="Night Vision Telescopic Sight",
+        category="sights",
+        die_bonus=0,
+        durability=1,
+        size=2,
+        structure=3,
+        availability=3,
+        effect="Uses infrared lenses. Ignore darkness penalties at short and medium range, reduce long range penalty by one (to -3). Auto-shuts down in harsh light, returns 1 turn after exposure ends.",
+        special_properties={"night_vision": True, "light_sensitive": True, "darkness_ignore_short_medium": True}
+    ),
+    
+    "night_vision_scope_advanced": EquipmentData(
+        name="Day/Night Telescopic Sight",
+        category="sights",
+        die_bonus=0,
+        durability=1,
+        size=2,
+        structure=3,
+        availability=4,
+        effect="Advanced scope works normally in both light and darkness. Ignore darkness penalties at short and medium range, reduce long range penalty by one.",
+        special_properties={"day_night": True, "darkness_ignore_short_medium": True}
+    ),
+    
+    "thermal_scope": EquipmentData(
+        name="Thermal Telescopic Sight",
+        category="sights",
+        die_bonus=0,
+        durability=2,
+        size=2,
+        structure=4,
+        availability=5,
+        effect="Shows warm targets in white against cool blue background. Works day and night (some ambient light required). No short/medium range penalties, long range penalty reduced to -1. Doesn't help against undead or entities as warm as environment. At night: negates medium range penalties, halves long range.",
+        special_properties={"thermal": True, "undead_ineffective": True, "day_night": True}
+    ),
+    
+    # ========================================
+    # SURVEILLANCE GEAR
+    # ========================================
+    "binoculars": EquipmentData(
+        name="Binoculars",
+        category="surveillance",
+        die_bonus=0,
+        durability=2,
+        size=1,
+        structure=3,
+        availability=1,
+        effect="Provides magnification over great distances. See clearly up to extreme range. At long range: -1 to sight Perception. At extreme range: -3 to sight Perception.",
+        special_properties={"range_extension": "extreme", "long_range_penalty": -1, "extreme_range_penalty": -3}
+    ),
+    
+    "binoculars_night_vision": EquipmentData(
+        name="Night Vision Binoculars",
+        category="surveillance",
+        die_bonus=0,
+        durability=2,
+        size=1,
+        structure=3,
+        availability=3,
+        effect="Binoculars with night vision. Similar penalties as regular binoculars but negates darkness penalties.",
+        special_properties={"night_vision": True, "range_extension": "extreme"}
+    ),
+    
+    "listening_device": EquipmentData(
+        name="Listening Device (Bug)",
+        category="surveillance",
+        die_bonus=0,
+        durability=1,
+        size=1,
+        structure=2,
+        availability=2,
+        effect="Small audio device (1-2 inches) transmits sounds to listeners/recorders. Planting requires Wits + Larceny. Finding: contested Wits + Investigation vs planter's Wits + Larceny. Range: quarter-mile via radio frequency.",
+        special_properties={"audio_transmission": True, "range_meters": 402, "concealable": True}
+    ),
+    
+    "listening_device_small": EquipmentData(
+        name="Listening Device (Miniature)",
+        category="surveillance",
+        die_bonus=-1,
+        durability=1,
+        size=1,
+        structure=2,
+        availability=3,
+        effect="Smaller bug that's harder to find. -1 penalty to Perception rolls to find it.",
+        special_properties={"audio_transmission": True, "range_meters": 402, "harder_to_find": True}
+    ),
+    
+    "bug_sweeper": EquipmentData(
+        name="Bug Sweeper",
+        category="surveillance",
+        die_bonus=2,
+        durability=1,
+        size=1,
+        structure=2,
+        availability=3,
+        effect="Scans for audio and video recording devices. Looks like small walkie-talkie. Scans radio frequencies and electromagnetic radiation. Adds die bonus to Wits + Investigation to find bugs.",
+        skill_bonuses={"investigation": 2},
+        special_properties={"bug_detection": True}
+    ),
+    
+    "disguised_camera": EquipmentData(
+        name="Disguised Camera",
+        category="surveillance",
+        die_bonus=0,
+        durability=1,
+        size=2,
+        structure=3,
+        availability=2,
+        effect="Hidden cameras in clock radios, stuffed animals, smoke detectors, etc. Records video to internal storage (not transmission). ~2 hours recording time. Finding requires Wits + Investigation with penalty equal to Availability cost.",
+        special_properties={"video_recording": True, "recording_hours": 2, "disguised": True}
+    ),
+    
+    "disguised_camera_small": EquipmentData(
+        name="Disguised Camera (Miniature)",
+        category="surveillance",
+        die_bonus=0,
+        durability=1,
+        size=1,
+        structure=2,
+        availability=3,
+        effect="Smaller hidden camera, harder to find. More expensive models can record longer, higher resolution, or transmit wirelessly.",
+        special_properties={"video_recording": True, "disguised": True, "miniature": True}
+    ),
+    
+    "tracking_device": EquipmentData(
+        name="Tracking Device",
+        category="surveillance",
+        die_bonus=2,
+        durability=1,
+        size=1,
+        structure=2,
+        availability=3,
+        effect="Tiny microchip for tracking via GPS. Can be surgically implanted or installed in devices. Hiding: Wits + Larceny +2. Finding: Wits + Investigation vs concealment roll.",
+        special_properties={"gps_tracking": True, "implantable": True}
+    ),
+    
+    "keystroke_logger": EquipmentData(
+        name="Keystroke Logger",
+        category="surveillance",
+        die_bonus=0,
+        durability=1,
+        size=1,
+        structure=2,
+        availability=1,
+        effect="Flash drive-like device captures keyboard inputs. Plugs between computer and keyboard. Logs passwords, emails, account numbers, everything typed. Installing surreptitiously: Wits + Computer.",
+        skill_bonuses={"computer": 0},
+        special_properties={"keylogging": True, "password_capture": True}
+    ),
+    
+    "reverse_peephole": EquipmentData(
+        name="Reverse Peephole",
+        category="surveillance",
+        die_bonus=0,
+        durability=1,
+        size=1,
+        structure=2,
+        availability=1,
+        effect="Looks like jeweler's loupe, allows looking IN through a peephole. Looking for something specific: Wits + Investigation at -4.",
+        special_properties={"peephole_reversal": True}
+    ),
+    
+    "spyware": EquipmentData(
+        name="Spyware",
+        category="surveillance",
+        die_bonus=2,
+        durability=0,
+        size=0,
+        structure=0,
+        availability=2,
+        effect="Software that tracks/monitors computer usage. Records keystrokes, web history, documents, chat logs. Remote installation requires hacking attempt.",
+        skill_bonuses={"computer": 2},
+        special_properties={"digital": True, "remote_installable": True}
+    ),
+    
+    "wifi_sniffer": EquipmentData(
+        name="Wi-Fi Sniffer",
+        category="surveillance",
+        die_bonus=0,
+        durability=1,
+        size=1,
+        structure=2,
+        availability=1,
+        effect="Small device scans for wireless networks within medium range. Shows signal strength. More discrete than laptops/phones. Doesn't allow network access itself.",
+        special_properties={"network_scanning": True, "range": "medium"}
+    ),
+    
+    "wiretap": EquipmentData(
+        name="Wiretap",
+        category="surveillance",
+        die_bonus=0,
+        durability=1,
+        size=1,
+        structure=2,
+        availability=2,
+        effect="Installed in phone or on phone line. Transmits conversations to third parties. Placing: Intelligence + Larceny, contested by Wits + Investigation if suspected.",
+        special_properties={"phone_monitoring": True}
+    ),
+    
+    # ========================================
+    # SURVIVAL GEAR
+    # ========================================
+    "nbc_suit": EquipmentData(
+        name="NBC Suit",
+        category="survival",
+        die_bonus=5,
+        durability=1,
+        size=5,
+        structure=6,
+        availability=2,
+        effect="Nuclear, Biological, Chemical protection suit. Bulky plastic bodysuit with gas mask and air filtration. +5 to resist NBC agents including radiation. Single point of damage negates protection. After 5 days, bonus diminishes by 1 per day.",
+        special_properties={"nbc_protection": 5, "fragile": True, "degrading": True}
+    ),
+    
+    "potassium_iodide": EquipmentData(
+        name="Bottle of Potassium Iodide",
+        category="survival",
+        die_bonus=1,
+        durability=1,
+        size=1,
+        structure=2,
+        availability=2,
+        effect="Protects against radiation sickness. Two pills a day confer +1 to withstand up to level 3 radiation. Must be taken 4+ hours before exposure.",
+        special_properties={"radiation_protection": 1, "dosage_required": True}
+    ),
+    
+    "survival_kit_basic": EquipmentData(
+        name="Basic Survival Kit",
+        category="survival",
+        die_bonus=1,
+        durability=1,
+        size=2,
+        structure=3,
+        availability=1,
+        effect="Sleeping bag, canteen, flashlight, glowstick, food/water for 1 day. +1 to Survival rolls and Stamina + Resolve vs exposure.",
+        skill_bonuses={"survival": 1},
+        special_properties={"supplies_days": 1}
+    ),
+    
+    "survival_kit_advanced": EquipmentData(
+        name="Advanced Survival Kit",
+        category="survival",
+        die_bonus=2,
+        durability=2,
+        size=2,
+        structure=4,
+        availability=2,
+        effect="Includes basic kit plus compass, tent, solar blanket, heating pads, multi-tool, rope, guide. Food/water for 2 days. +2 to Survival and Stamina + Resolve vs exposure. Negates level 2 environment effects (except radiation).",
+        skill_bonuses={"survival": 2},
+        special_properties={"supplies_days": 2, "environment_negation": 2}
+    ),
+    
+    "survival_kit_superior": EquipmentData(
+        name="Superior Survival Kit",
+        category="survival",
+        die_bonus=3,
+        durability=2,
+        size=3,
+        structure=5,
+        availability=3,
+        effect="Everything from lesser kits plus GPS, water filtration, fishing rod, machete, cables, ponchos, 4-person tent. Food/water for 1 week. +3 to Survival and Stamina + Resolve. Negates level 3 environment (except radiation).",
+        skill_bonuses={"survival": 3},
+        special_properties={"supplies_days": 7, "environment_negation": 3}
+    ),
+    
+    "survival_kit_urban": EquipmentData(
+        name="Urban Survival Kit (Bug-Out Bag)",
+        category="survival",
+        die_bonus=3,
+        durability=2,
+        size=2,
+        structure=4,
+        availability=2,
+        effect="Made for urban emergencies: blackouts, chemical attacks, disasters. Radio, maps, waterproof matches, antibiotics, flashlights, blankets, masks, food/water for 3 days. +3 to Survival/Stamina + Resolve. In wilderness: only +1 bonus.",
+        skill_bonuses={"survival": 3},
+        special_properties={"supplies_days": 3, "urban_specialized": True, "wilderness_penalty": True}
+    ),
+    
+    # ========================================
+    # MENTAL EQUIPMENT (Tools for Mental Skills)
+    # ========================================
+    "automotive_kit": EquipmentData(
+        name="Automotive Kit",
+        category="mental_equipment",
+        die_bonus=1,
+        durability=2,
+        size=2,
+        structure=3,
+        availability=1,
+        effect="Basic automotive tools for simple repairs. Trained characters can repair mundane issues without rolls if time isn't a factor.",
+        skill_bonuses={"crafts": 1},
+        special_properties={"automotive": True}
+    ),
+    
+    "automotive_garage": EquipmentData(
+        name="Automotive Garage",
+        category="mental_equipment",
+        die_bonus=2,
+        durability=0,
+        size=0,
+        structure=0,
+        availability=1,
+        effect="Fully-stocked garage with heavy equipment. Required for complex tasks like engine/transmission replacement. Extended Intelligence + Crafts for major work.",
+        skill_bonuses={"crafts": 2},
+        special_properties={"automotive": True, "heavy_work": True, "location_based": True}
+    ),
+    
+    "cache": EquipmentData(
+        name="Cache",
+        category="mental_equipment",
+        die_bonus=1,
+        durability=2,
+        size=1,
+        structure=5,
+        availability=1,
+        effect="Hidden, defensible place for items (usually weapons). Can never be more than half Size of parent object. Holds two items of its Size and any number of smaller items. Die bonus adds to concealment, subtracts from finding.",
+        special_properties={"concealment": True, "capacity": 2}
+    ),
+    
+    "cache_medium": EquipmentData(
+        name="Cache (Medium)",
+        category="mental_equipment",
+        die_bonus=2,
+        durability=2,
+        size=3,
+        structure=5,
+        availability=2,
+        effect="Larger hidden cache with better concealment. +2 to concealment/-2 to finding.",
+        special_properties={"concealment": True, "capacity": 6}
+    ),
+    
+    "cache_large": EquipmentData(
+        name="Cache (Large)",
+        category="mental_equipment",
+        die_bonus=3,
+        durability=2,
+        size=5,
+        structure=5,
+        availability=3,
+        effect="Large hidden cache with excellent concealment. +3 to concealment/-3 to finding.",
+        special_properties={"concealment": True, "capacity": 10}
+    ),
+    
+    "communications_headset": EquipmentData(
+        name="Communications Headset",
+        category="mental_equipment",
+        die_bonus=2,
+        durability=0,
+        size=1,
+        structure=1,
+        availability=2,
+        effect="Keeps characters in constant contact (~200 feet range). If practiced together: +2 to coordinated efforts (applies only to final roll in teamwork). Unpracticed: +1 and Wits + Composure to participate. Heavy objects (Durability 4+) require Wits + Composure to understand messages (-1 per Durability over 4).",
+        special_properties={"communication": True, "range_feet": 200, "teamwork_bonus": 2}
+    ),
+    
+    "crime_scene_kit": EquipmentData(
+        name="Crime Scene Kit (CSI Kit)",
+        category="mental_equipment",
+        die_bonus=2,
+        durability=2,
+        size=3,
+        structure=2,
+        availability=2,
+        effect="Toolbox with investigative aids: magnifiers, fingerprint dust, cameras, tape, chemicals, sample bags. +2 to Investigation. Allows evidence to be moved and analyzed offsite at leisure.",
+        skill_bonuses={"investigation": 2},
+        special_properties={"forensics": True, "evidence_collection": True}
+    ),
+    
+    "code_kit": EquipmentData(
+        name="Code Kit",
+        category="mental_equipment",
+        die_bonus=5,
+        durability=1,
+        size=2,
+        structure=1,
+        availability=1,
+        effect="Tools for creating and interpreting codes (e.g., book codes). Successfully-designed cipher is difficult to break. Die bonus acts as penalty to crack the code without reference key.",
+        special_properties={"encryption": True, "crack_penalty": 5}
+    ),
+    
+    "cracking_software": EquipmentData(
+        name="Cracking Software",
+        category="mental_equipment",
+        die_bonus=2,
+        durability=0,
+        size=0,
+        structure=0,
+        availability=3,
+        effect="Quality software for forcing passwords, breaching firewalls. Acts as buffer between hacker and security - tracking requires two steps (identify software, then trace source). Security must roll twice, giving hacker chance to withdraw.",
+        skill_bonuses={"computer": 2},
+        special_properties={"hacking": True, "double_trace_required": True}
+    ),
+    
+    "digital_recorder": EquipmentData(
+        name="Digital Recorder",
+        category="mental_equipment",
+        die_bonus=1,
+        durability=1,
+        size=1,
+        structure=2,
+        availability=1,
+        effect="Coin-sized audio recorder. +1 to catch words/sounds and to concealment rolls. Can contest rolls to obscure discussion with Intelligence + Computer.",
+        special_properties={"audio_recording": True, "concealable": True}
+    ),
+    
+    "digital_recorder_advanced": EquipmentData(
+        name="Digital Recorder (Advanced)",
+        category="mental_equipment",
+        die_bonus=2,
+        durability=1,
+        size=1,
+        structure=2,
+        availability=2,
+        effect="Higher-quality recorder with better audio capture. +2 to catch words/sounds and concealment.",
+        special_properties={"audio_recording": True, "concealable": True, "high_quality": True}
+    ),
+    
+    "duct_tape": EquipmentData(
+        name="Duct Tape",
+        category="mental_equipment",
+        die_bonus=1,
+        durability=1,
+        size=1,
+        structure=2,
+        availability=1,
+        effect="Versatile tool for reinforcing, stabilizing, binding, repairing. +1 to Crafts rolls OR adds 1 Durability to almost anything OR as restraint (-3 to break free, must overcome Structure).",
+        skill_bonuses={"crafts": 1},
+        special_properties={"versatile": True, "restraint": True, "durability_bonus": 1}
+    ),
+    
+    "first_aid_kit_basic": EquipmentData(
+        name="First-Aid Kit (Basic)",
+        category="mental_equipment",
+        die_bonus=0,
+        durability=1,
+        size=2,
+        structure=3,
+        availability=1,
+        effect="Necessary supplies to stabilize injuries and stop wounds from worsening. Allows treatment rolls but provides no die bonus.",
+        skill_bonuses={"medicine": 0},
+        special_properties={"medical": True}
+    ),
+    
+    "first_aid_kit_advanced": EquipmentData(
+        name="First-Aid Kit (Advanced)",
+        category="mental_equipment",
+        die_bonus=1,
+        durability=1,
+        size=2,
+        structure=3,
+        availability=2,
+        effect="Superior medical supplies. +1 to treatment rolls.",
+        skill_bonuses={"medicine": 1},
+        special_properties={"medical": True, "superior": True}
+    ),
+    
+    "flashlight": EquipmentData(
+        name="Flashlight",
+        category="mental_equipment",
+        die_bonus=1,
+        durability=2,
+        size=1,
+        structure=3,
+        availability=1,
+        effect="Cuts through darkness. Die bonus subtracts from darkness penalties and adds to search rolls. Can be used as club or to blind targets (Dexterity + Athletics - Defense; contested Stamina, success = 1 turn blind, 2 turns if acute senses).",
+        special_properties={"darkness_reduction": 1, "weapon_improvised": True, "blinding": True}
+    ),
+    
+    "glowstick": EquipmentData(
+        name="Glowstick",
+        category="mental_equipment",
+        die_bonus=2,
+        durability=1,
+        size=1,
+        structure=1,
+        availability=1,
+        effect="Chemical light source (2-12 hours depending on type). Works underwater and in rain. Functions like flashlight but can't blind targets. Can be worn to prevent group members from going missing.",
+        special_properties={"chemical_light": True, "waterproof": True, "wearable": True}
+    ),
+    
+    "gps_tracker": EquipmentData(
+        name="GPS Tracker",
+        category="mental_equipment",
+        die_bonus=3,
+        durability=2,
+        size=2,
+        structure=2,
+        availability=2,
+        effect="GPS-enabled tracking device. Can track movements unless in caves, tunnels, or sewers. Characters can share GPS data or plant on unwitting subjects.",
+        special_properties={"gps_tracking": True, "surface_only": True}
+    ),
+    
+    "keylogging_software": EquipmentData(
+        name="Keylogging Software",
+        category="mental_equipment",
+        die_bonus=2,
+        durability=0,
+        size=0,
+        structure=0,
+        availability=2,
+        effect="Logs keystrokes on a computer to record data or passwords. Usually coupled with transmission software. Challenge is installing it (email scams or thumb drive with physical access). +2 to breach network or find important data.",
+        skill_bonuses={"computer": 2},
+        special_properties={"keylogging": True, "requires_installation": True}
+    ),
+    
+    "luminol": EquipmentData(
+        name="Luminol",
+        category="mental_equipment",
+        die_bonus=2,
+        durability=0,
+        size=1,
+        structure=1,
+        availability=1,
+        effect="Chemical that reacts to metals in blood/bodily fluids causing faint glow (~30 seconds in dark). Aerosol can finds traces even after thorough cleaning. +2 to track by fluid traces or piece together crime scenes.",
+        skill_bonuses={"investigation": 2},
+        special_properties={"forensic": True, "blood_detection": True}
+    ),
+    
+    "multi_tool": EquipmentData(
+        name="Multi-Tool",
+        category="mental_equipment",
+        die_bonus=1,
+        durability=3,
+        size=1,
+        structure=4,
+        availability=1,
+        effect="Portable tool for various tasks: sawing, wire stripping, bottle opening, filing. +1 to numerous Crafts tasks. Allows rolls when proper equipment unavailable. Can be weapon (0 lethal, -1 penalty).",
+        skill_bonuses={"crafts": 1},
+        special_properties={"versatile": True, "improvised_weapon": True}
+    ),
+    
+    "personal_computer_basic": EquipmentData(
+        name="Personal Computer (Basic)",
+        category="mental_equipment",
+        die_bonus=1,
+        durability=2,
+        size=3,
+        structure=2,
+        availability=1,
+        effect="Basic computer for web surfing and simple tasks. +1 to Computer rolls.",
+        skill_bonuses={"computer": 1},
+        special_properties={"computing": True}
+    ),
+    
+    "personal_computer_standard": EquipmentData(
+        name="Personal Computer (Standard)",
+        category="mental_equipment",
+        die_bonus=2,
+        durability=2,
+        size=3,
+        structure=2,
+        availability=2,
+        effect="Standard computer with decent processing power. +2 to Computer rolls.",
+        skill_bonuses={"computer": 2},
+        special_properties={"computing": True}
+    ),
+    
+    "personal_computer_high_end": EquipmentData(
+        name="Personal Computer (High-End)",
+        category="mental_equipment",
+        die_bonus=3,
+        durability=2,
+        size=3,
+        structure=2,
+        availability=3,
+        effect="High-end computer with excellent processing. +3 to Computer rolls.",
+        skill_bonuses={"computer": 3},
+        special_properties={"computing": True, "high_performance": True}
+    ),
+    
+    "personal_computer_professional": EquipmentData(
+        name="Personal Computer (Professional)",
+        category="mental_equipment",
+        die_bonus=4,
+        durability=2,
+        size=3,
+        structure=2,
+        availability=4,
+        effect="Professional-grade workstation. +4 to Computer rolls.",
+        skill_bonuses={"computer": 4},
+        special_properties={"computing": True, "professional": True}
+    ),
+    
+    "smartphone_basic": EquipmentData(
+        name="Smartphone (Basic)",
+        category="mental_equipment",
+        die_bonus=1,
+        durability=2,
+        size=1,
+        structure=1,
+        availability=1,
+        effect="Basic smartphone with calls, texts, emails, photos, agenda, web. With apps becomes multi-tool of electronic age. Can handle GPS, facial recognition, text transcription/translation, directions, etc.",
+        skill_bonuses={"computer": 1},
+        special_properties={"portable_computing": True, "gps_capable": True, "camera": True}
+    ),
+    
+    "smartphone_advanced": EquipmentData(
+        name="Smartphone (Advanced)",
+        category="mental_equipment",
+        die_bonus=2,
+        durability=2,
+        size=1,
+        structure=1,
+        availability=2,
+        effect="High-end smartphone with better processing and features. +2 to relevant Computer rolls.",
+        skill_bonuses={"computer": 2},
+        special_properties={"portable_computing": True, "gps_capable": True, "camera": True, "high_end": True}
+    ),
+    
+    "smartphone_cutting_edge": EquipmentData(
+        name="Smartphone (Cutting Edge)",
+        category="mental_equipment",
+        die_bonus=2,
+        durability=2,
+        size=1,
+        structure=1,
+        availability=3,
+        effect="Latest flagship smartphone with top-tier capabilities. +2 to relevant Computer rolls.",
+        skill_bonuses={"computer": 2},
+        special_properties={"portable_computing": True, "gps_capable": True, "camera": True, "cutting_edge": True}
+    ),
+    
+    "special_effects": EquipmentData(
+        name="Special Effects Equipment",
+        category="mental_equipment",
+        die_bonus=2,
+        durability=2,
+        size=5,
+        structure=3,
+        availability=3,
+        effect="Tricks used by amusement parks and magicians to fool witnesses (e.g., Pepper's Ghost illusion with mirrors/glass). +2 to deception. Witnesses fall for tricks unless suspicious. Can waste time or lead into traps.",
+        skill_bonuses={"subterfuge": 2},
+        special_properties={"illusion": True, "distraction": True}
+    ),
+    
+    "surveillance_equipment": EquipmentData(
+        name="Surveillance Equipment",
+        category="mental_equipment",
+        die_bonus=2,
+        durability=2,
+        size=2,
+        structure=2,
+        availability=3,
+        effect="Motion detectors, cameras, monitors. High-end: infrared, heat sensors, barometric scanners. Detects and tracks who enters/leaves location. Unless actively avoided, presence is noticed and recorded. Avoiding: Dexterity + Stealth vs Intelligence + Computer/Crafts + equipment bonus.",
+        skill_bonuses={"computer": 2},
+        special_properties={"surveillance": True, "motion_detection": True}
+    ),
+    
+    "talcum_powder": EquipmentData(
+        name="Talcum Powder",
+        category="mental_equipment",
+        die_bonus=2,
+        durability=0,
+        size=1,
+        structure=0,
+        availability=1,
+        effect="Shows presence of unseen things and evidence of intrusion. If area dusted: 5 successes on Dexterity + Stealth to enter without trace. Fewer successes obscure details. Can let ghosts/invisible entities communicate.",
+        skill_bonuses={"investigation": 2},
+        special_properties={"invisible_detection": True, "intrusion_detection": True}
+    ),
+    
+    "ultraviolet_ink": EquipmentData(
+        name="Ultraviolet Ink",
+        category="mental_equipment",
+        die_bonus=2,
+        durability=1,
+        size=1,
+        structure=2,
+        availability=1,
+        effect="Invisible ink only visible under UV light. Excellent for relaying secret messages in plain sight or passing information through mundane channels under surveillance.",
+        special_properties={"invisible_writing": True, "uv_required": True}
+    ),
+    
+    # ========================================
+    # PHYSICAL EQUIPMENT
+    # ========================================
+    "battering_ram": EquipmentData(
+        name="Battering Ram",
+        category="physical_equipment",
+        die_bonus=4,
+        durability=3,
+        size=4,
+        structure=8,
+        availability=2,
+        effect="Brings down doors and barricades with focused force. Uses Teamwork action (up to 4 participants). Primary actor adds +4. Ram ignores 2 points of Durability.",
+        special_properties={"teamwork": True, "ignore_durability": 2, "max_participants": 4}
+    ),
+    
+    "bear_trap": EquipmentData(
+        name="Bear Trap",
+        category="physical_equipment",
+        die_bonus=2,
+        durability=3,
+        size=2,
+        structure=5,
+        availability=2,
+        effect="Large metal jaw trap. Causes 3 lethal damage, ignores 2 armor/Durability. Escape: Strength + Stamina at -2 penalty (failure = 1 more lethal). Non-opposable thumbs must rip free. Hiding suffers -2 due to awkward shape/weight.",
+        special_properties={"damage": 3, "armor_piercing": 2, "escape_difficulty": 2}
+    ),
+    
+    "caltrops": EquipmentData(
+        name="Caltrops",
+        category="physical_equipment",
+        die_bonus=2,
+        durability=2,
+        size=2,
+        structure=3,
+        availability=2,
+        effect="Pointed metal pieces (one point always up). Moving through causes 1 lethal, ignores 1 armor/Durability. Safe movement: Dexterity + Athletics at -2, half Speed. Hiding: Wits + Larceny -3.",
+        special_properties={"damage": 1, "armor_piercing": 1, "speed_reduction": 0.5}
+    ),
+    
+    "camouflage_clothing": EquipmentData(
+        name="Camouflage Clothing",
+        category="physical_equipment",
+        die_bonus=2,
+        durability=1,
+        size=2,
+        structure=3,
+        availability=2,
+        effect="Allows wearer to blend with surroundings. Must be catered to environment (woodlands, urban, etc.). +2 to remain unnoticed.",
+        skill_bonuses={"stealth": 2},
+        special_properties={"environment_specific": True}
+    ),
+    
+    "climbing_gear": EquipmentData(
+        name="Climbing Gear",
+        category="physical_equipment",
+        die_bonus=2,
+        durability=3,
+        size=2,
+        structure=2,
+        availability=2,
+        effect="Ropes, pulleys, handles, carabiners, hooks for scaling. +2 to Strength + Athletics for climbing. If properly applied (Wits + Athletics): prevents falling more than 10 feet at a time.",
+        skill_bonuses={"athletics": 2},
+        special_properties={"fall_prevention": True, "max_fall_feet": 10}
+    ),
+    
+    "crowbar": EquipmentData(
+        name="Crowbar",
+        category="physical_equipment",
+        die_bonus=2,
+        durability=3,
+        size=2,
+        structure=4,
+        availability=1,
+        effect="Curved steel for prying. Adds to leverage rolls. When prying open: ignore 2 Durability on locks/barricades. Can be used as weapon.",
+        skill_bonuses={"athletics": 2},
+        special_properties={"leverage": True, "ignore_durability": 2, "improvised_weapon": True}
+    ),
+    
+    "gas_mask": EquipmentData(
+        name="Gas Mask",
+        category="physical_equipment",
+        die_bonus=5,
+        durability=1,
+        size=2,
+        structure=3,
+        availability=2,
+        effect="Filtration device against noxious chemicals. Stand minor toxins indefinitely. Powerful toxins may still require rolls. +5 to resist toxins.",
+        special_properties={"toxin_protection": 5}
+    ),
+    
+    "handcuffs": EquipmentData(
+        name="Handcuffs",
+        category="physical_equipment",
+        die_bonus=2,
+        durability=4,
+        size=1,
+        structure=4,
+        availability=1,
+        effect="Steel restraints. Applying in grapple: Strength + Brawl - opponent's Strength. Breaking: Strength + Stamina -4 (reduces Structure by 1 per success, 1 bashing per attempt). Escaping by dexterity: Dexterity + Athletics -4 (1 bashing on success, 1 lethal on failure). Manual dexterity: -4 penalty from behind, -2 from front. Social: -3 with strangers.",
+        special_properties={"restraint": True, "escape_difficulty": 4}
+    ),
+    
+    "zip_ties": EquipmentData(
+        name="Zip Ties (Heavy-Duty)",
+        category="physical_equipment",
+        die_bonus=0,
+        durability=3,
+        size=1,
+        structure=3,
+        availability=1,
+        effect="Heavy plastic restraints. Slightly less durable than handcuffs but can be much tighter. -5 penalty from behind, -3 from front. Can be cut free.",
+        special_properties={"restraint": True, "escape_difficulty": 5, "cuttable": True}
+    ),
+    
+    "lockpicking_kit": EquipmentData(
+        name="Lockpicking Kit",
+        category="physical_equipment",
+        die_bonus=2,
+        durability=2,
+        size=2,
+        structure=2,
+        availability=2,
+        effect="Picks, tools, rods for manipulating locks. With 1+ Larceny: pick any mechanical lock without roll if time not an issue. If time matters: +2 to Dexterity + Larceny. Only works on mechanical locks.",
+        skill_bonuses={"larceny": 2},
+        special_properties={"lockpicking": True, "mechanical_only": True}
+    ),
+    
+    "lockpicking_kit_portable": EquipmentData(
+        name="Lockpicking Kit (Portable)",
+        category="physical_equipment",
+        die_bonus=1,
+        durability=2,
+        size=1,
+        structure=1,
+        availability=1,
+        effect="Smaller, more concealable lockpick set. +1 bonus. Doesn't allow auto-success (may not have right tools).",
+        skill_bonuses={"larceny": 1},
+        special_properties={"lockpicking": True, "mechanical_only": True, "portable": True}
+    ),
+    
+    "digital_lockpick": EquipmentData(
+        name="Digital Lockpick",
+        category="physical_equipment",
+        die_bonus=2,
+        durability=2,
+        size=2,
+        structure=2,
+        availability=3,
+        effect="For digital locks (typically one type like hotel keycards). Can be Size 1 if crafted as laptop/smartphone extension.",
+        skill_bonuses={"larceny": 2},
+        special_properties={"lockpicking": True, "digital_only": True, "specific_lock_type": True}
+    ),
+    
+    "night_vision_goggles": EquipmentData(
+        name="Night Vision Goggles",
+        category="physical_equipment",
+        die_bonus=2,
+        durability=1,
+        size=2,
+        structure=1,
+        availability=2,
+        effect="Amplifies low-light conditions. No penalties for acting blind. Bright lights temporarily blind wearer.",
+        special_properties={"night_vision": True, "light_sensitive": True}
+    ),
+    
+    "rope": EquipmentData(
+        name="Rope",
+        category="physical_equipment",
+        die_bonus=1,
+        durability=2,
+        size=3,
+        structure=2,
+        availability=1,
+        effect="Simple, efficient utility tool. +1 to relevant Crafts rolls. As binding: Durability (or effective Strength) = user's Crafts score (+ Specialty if applicable). Solid knots can render subjects completely immobile.",
+        skill_bonuses={"crafts": 1},
+        special_properties={"binding": True, "versatile": True}
+    ),
+    
+    "stun_gun_handheld": EquipmentData(
+        name="Stun Gun (Handheld)",
+        category="physical_equipment",
+        die_bonus=0,
+        durability=2,
+        size=1,
+        structure=2,
+        availability=1,
+        effect="Delivers overwhelming electricity. Live leads on handle. ~50 uses per charge. Attack: Dexterity + Weaponry - Defense. Hit: 1 lethal, successes subtract from victim's next pool. Maintain shock: Strength + Weaponry - target's Strength/Defense. Accumulated successes > victim's Size = collapse (neuromuscular incapacitation for 10 - Stamina turns).",
+        special_properties={"nonlethal_option": True, "damage": 1, "incapacitation": True}
+    ),
+    
+    "stun_gun_ranged": EquipmentData(
+        name="Stun Gun (Ranged)",
+        category="physical_equipment",
+        die_bonus=0,
+        durability=2,
+        size=1,
+        structure=2,
+        availability=2,
+        effect="Fires wired darts up to 15 feet. Similar battery life but compressed air cartridge replaced after each shot. Attack: Dexterity + Firearms - Defense. Darts remain in body adding +3 successes per turn automatically. Remove: Strength + Stamina (initial successes as penalty).",
+        special_properties={"nonlethal_option": True, "damage": 1, "incapacitation": True, "range_feet": 15}
+    ),
+    
+    "stun_gun_ranged_high_power": EquipmentData(
+        name="Stun Gun (Ranged, High-Power)",
+        category="physical_equipment",
+        die_bonus=0,
+        durability=2,
+        size=1,
+        structure=2,
+        availability=3,
+        effect="More powerful ranged stun gun with extended range (25 feet) and stronger charge.",
+        special_properties={"nonlethal_option": True, "damage": 1, "incapacitation": True, "range_feet": 25, "enhanced": True}
+    ),
+    
+    # ========================================
+    # SOCIAL EQUIPMENT
+    # ========================================
+    "cash_small": EquipmentData(
+        name="Cash (Small Amount)",
+        category="social_equipment",
+        die_bonus=1,
+        durability=1,
+        size=2,
+        structure=1,
+        availability=1,
+        effect="Wad of cash/briefcase/bank account number. Not reflected in Resources Merit (not regular income). Can be expended for: +1 to social rolls where bribes help, purchase 1 item of equal Availability, or 1 month's income of equivalent Resources rating.",
+        skill_bonuses={"persuasion": 1, "intimidation": 1, "streetwise": 1},
+        special_properties={"bribe": True, "consumable": True}
+    ),
+    
+    "cash_medium": EquipmentData(
+        name="Cash (Medium Amount)",
+        category="social_equipment",
+        die_bonus=2,
+        durability=1,
+        size=2,
+        structure=1,
+        availability=2,
+        effect="Substantial amount of cash for larger bribes and purchases. +2 to social rolls where money helps.",
+        skill_bonuses={"persuasion": 2, "intimidation": 2, "streetwise": 2},
+        special_properties={"bribe": True, "consumable": True}
+    ),
+    
+    "cash_large": EquipmentData(
+        name="Cash (Large Amount)",
+        category="social_equipment",
+        die_bonus=3,
+        durability=1,
+        size=2,
+        structure=1,
+        availability=3,
+        effect="Large sum for significant transactions and influence. +3 to social rolls where money helps.",
+        skill_bonuses={"persuasion": 3, "intimidation": 3, "streetwise": 3},
+        special_properties={"bribe": True, "consumable": True}
+    ),
+    
+    "cash_huge": EquipmentData(
+        name="Cash (Huge Amount)",
+        category="social_equipment",
+        die_bonus=4,
+        durability=1,
+        size=2,
+        structure=1,
+        availability=4,
+        effect="Massive amount of liquid assets. +4 to social rolls where money helps.",
+        skill_bonuses={"persuasion": 4, "intimidation": 4, "streetwise": 4},
+        special_properties={"bribe": True, "consumable": True}
+    ),
+    
+    "cash_fortune": EquipmentData(
+        name="Cash (Fortune)",
+        category="social_equipment",
+        die_bonus=5,
+        durability=1,
+        size=2,
+        structure=1,
+        availability=5,
+        effect="A fortune in liquid assets. +5 to social rolls where money helps.",
+        skill_bonuses={"persuasion": 5, "intimidation": 5, "streetwise": 5},
+        special_properties={"bribe": True, "consumable": True}
+    ),
+    
+    "disguise_basic": EquipmentData(
+        name="Disguise (Basic)",
+        category="social_equipment",
+        die_bonus=1,
+        durability=1,
+        size=3,
+        structure=2,
+        availability=1,
+        effect="Basic disguise to fit in or blend into crowd. Properly costumed: no rolls to blend in. Detect disguise: -1 penalty. +1 to remain hidden. Can emulate first dot of appropriate Social Merit for scene (requires Composure + Subterfuge, contested by Wits + Subterfuge).",
+        skill_bonuses={"subterfuge": 1},
+        special_properties={"disguise": True, "social_merit_emulation": 1}
+    ),
+    
+    "disguise_quality": EquipmentData(
+        name="Disguise (Quality)",
+        category="social_equipment",
+        die_bonus=2,
+        durability=1,
+        size=3,
+        structure=2,
+        availability=2,
+        effect="High-quality disguise with better materials and detail. -2 to detect, +2 to hide.",
+        skill_bonuses={"subterfuge": 2},
+        special_properties={"disguise": True, "social_merit_emulation": 1}
+    ),
+    
+    "disguise_professional": EquipmentData(
+        name="Disguise (Professional)",
+        category="social_equipment",
+        die_bonus=3,
+        durability=1,
+        size=3,
+        structure=2,
+        availability=3,
+        effect="Professional-grade disguise with prosthetics and makeup. -3 to detect, +3 to hide.",
+        skill_bonuses={"subterfuge": 3},
+        special_properties={"disguise": True, "social_merit_emulation": 1, "professional": True}
+    ),
+    
+    "fashion_casual": EquipmentData(
+        name="Fashion (Casual)",
+        category="social_equipment",
+        die_bonus=1,
+        durability=1,
+        size=2,
+        structure=1,
+        availability=1,
+        effect="Fashionable clothing to draw positive attention and fit in. Must be appropriate to setting. If improperly dressed: -1 to all Social rolls. When proper: +1 to Social rolls.",
+        skill_bonuses={"socialize": 1, "persuasion": 1},
+        special_properties={"fashion": True, "context_dependent": True}
+    ),
+    
+    "fashion_designer": EquipmentData(
+        name="Fashion (Designer)",
+        category="social_equipment",
+        die_bonus=2,
+        durability=1,
+        size=2,
+        structure=1,
+        availability=3,
+        effect="Designer clothing that makes strong impression. If proper context: +2 to Social rolls. If improper: -2.",
+        skill_bonuses={"socialize": 2, "persuasion": 2},
+        special_properties={"fashion": True, "context_dependent": True, "designer": True}
+    ),
+    
+    "fashion_haute_couture": EquipmentData(
+        name="Fashion (Haute Couture)",
+        category="social_equipment",
+        die_bonus=3,
+        durability=1,
+        size=2,
+        structure=1,
+        availability=5,
+        effect="Exclusive haute couture commanding attention and respect. If proper context: +3 to Social rolls. If improper: -3.",
+        skill_bonuses={"socialize": 3, "persuasion": 3},
+        special_properties={"fashion": True, "context_dependent": True, "haute_couture": True}
+    ),
+}
+
+# Equipment categories for reference
+EQUIPMENT_CATEGORIES = {
+    "firearm_accessories": "Equipment that enhances firearm functionality",
+    "sights": "Optical and targeting equipment for firearms",
+    "surveillance": "Equipment for monitoring, tracking, and observation",
+    "survival": "Gear for surviving hostile environments",
+    "mental_equipment": "Tools that enhance Mental skills (Intelligence, Wits, Resolve)",
+    "physical_equipment": "Tools that enhance Physical skills (Strength, Dexterity, Stamina)",
+    "social_equipment": "Items that enhance Social skills (Presence, Manipulation, Composure)"
+}
