@@ -188,6 +188,38 @@ class WeaponData:
         return enhance_tags
 
 
+class EquipmentData:
+    """Data class for general equipment (non-weapons/armor)"""
+    
+    def __init__(self, name, category, die_bonus=0, durability=1, size=1, structure=1,
+                 availability=1, effect="", skill_bonuses=None, special_properties=None):
+        self.name = name
+        self.category = category  # Equipment category (firearm_accessories, surveillance, etc.)
+        self.die_bonus = die_bonus  # Bonus dice to relevant rolls
+        self.durability = durability  # How resistant to damage
+        self.size = size  # Physical size
+        self.structure = structure  # Structural integrity
+        self.availability = availability  # Availability rating
+        self.effect = effect  # Description of what it does
+        self.skill_bonuses = skill_bonuses or {}  # Dict of skill bonuses {"crafts": 2, "survival": 1}
+        self.special_properties = special_properties or {}  # Dict of special effects
+    
+    def get_bonus_for_skill(self, skill_name):
+        """Get the bonus this equipment provides for a specific skill"""
+        return self.skill_bonuses.get(skill_name.lower(), 0)
+    
+    def has_property(self, property_name):
+        """Check if equipment has a specific property"""
+        return property_name.lower() in [k.lower() for k in self.special_properties.keys()]
+    
+    def get_property_value(self, property_name):
+        """Get the value of a specific property"""
+        for key, value in self.special_properties.items():
+            if key.lower() == property_name.lower():
+                return value
+        return None
+
+
 class ArmorData:
     """Data class for armor statistics"""
     

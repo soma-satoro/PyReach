@@ -310,7 +310,6 @@ class Room(DefaultRoom):
                     dest_name = exit_obj.destination.get_display_name(looker)
                 
                 directions.append(f"{dest_name} <{matched_abbrev}>")
-                break
                     
         if not directions:
             return ""

@@ -467,6 +467,14 @@ STANDARD_CONDITIONS = {
         beat="Character fails to fulfill an obligation due to pursuing her obsession.",
         resolution_method="The character sheds or purges her fixation."
     ),
+    'oblivious': Condition(
+        name="Oblivious",
+        description="Your character is not paying attention to what's going on around her. Her mind is wandering. She might be daydreaming or just staring off into space, but although she's completely aware of her surroundings she's not processing consciously what's happening in them. All of her Perception rolls are reduced to a chance die until this Condition is resolved.",
+        is_persistent=False,
+        possible_sources="The Acute Senses Merit.",
+        beat="n/a",
+        resolution_method="The character is alerted by a loud noise or is attacked."
+    ),
     'outlaw': Condition(
         name="Outlaw",
         description="Your character has been declared an outlaw by the Thing and banished from society. Perhaps you can't pay a weregild, or refused an honorable challenge to a duel.",
@@ -509,6 +517,14 @@ STANDARD_CONDITIONS = {
         name="Reception",
         description="Your character has opened to the spirit world, as a result of her experience with Lunacy.",
         is_persistent=False
+    ),
+    'reluctant_aggressor': Condition(
+        name="Reluctant Aggressor",
+        description="Your character really doesn't want to hurt her victim, but she's going to anyway. She may be under immense peer pressure, it may be her duty, or perhaps she's coerced into the violence. Whatever the case, although she sees the victim's humanity, she's going to force herself to make him suffer. The character must spend a point of Willpower each turn to attempt an attack. She can defend herself as normal even if she can't (or won't) spend the Willpower.",
+        is_persistent=False,
+        possible_sources="The Peacemaker Merit.",
+        beat="n/a",
+        resolution_method="The character doesn't encounter her victim or his associates for a chapter, or the victim is the aggressor in targeting the character, her friends, or allies. If the Condition fades after a chapter, it does not award a Beat."
     ),
     'resigned': Condition(
         name="Resigned",
