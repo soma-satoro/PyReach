@@ -321,12 +321,12 @@ class Room(DefaultRoom):
         dir_lines = []
         dir_lines.append(f"|{divider_color}----> Directions <" + "-" * 62 + "|n")
         
-        # Display directions in groups of 3 per line
-        for i in range(0, len(directions), 3):
-            line_dirs = directions[i:i+3]
+        # Display directions in groups of 2 per line with extra spacing
+        for i in range(0, len(directions), 2):
+            line_dirs = directions[i:i+2]
             formatted_dirs = []
             for direction in line_dirs:
-                formatted_dirs.append(f"{direction:<30}")
+                formatted_dirs.append(f"{direction:<40}")
             dir_lines.append("".join(formatted_dirs).rstrip())
             
         return "\n" + "\n".join(dir_lines)
