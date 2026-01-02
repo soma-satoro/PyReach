@@ -45,7 +45,7 @@ from .lookup import CmdLookup
 from .voting import CmdVote, CmdRecommend, CmdVoteAdmin
 from .test_xp_integration import CmdTestXP
 from .CmdLegacy import CmdLegacy
-from .ooc_ic_commands import CmdGo, CmdJoin
+from .ooc_ic_commands import CmdGo, CmdJoin, CmdSummon, CmdReturn
 from .hangouts import CmdHangouts
 from .bbs.bbs_cmdset import BBSCmdSet
 from commands.commonmux.CmdPage import CmdPage
@@ -130,6 +130,8 @@ class CharacterCmdSet(default_cmds.CharacterCmdSet):
         self.add(CmdInitAreaManager())
         self.add(CmdStoryteller())
         self.add(CmdConfigOOCIC())
+        self.add(CmdSummon())
+        self.add(CmdReturn())
         
         # Building commands (areas, rooms, places, mapping)
         self.add(CmdAreaManage())
