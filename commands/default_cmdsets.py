@@ -46,6 +46,7 @@ from .voting import CmdVote, CmdRecommend, CmdVoteAdmin
 from .test_xp_integration import CmdTestXP
 from .CmdLegacy import CmdLegacy
 from .ooc_ic_commands import CmdGo, CmdJoin, CmdSummon, CmdReturn
+from .coords import CmdCoords
 from .hangouts import CmdHangouts
 from .bbs.bbs_cmdset import BBSCmdSet
 from commands.commonmux.CmdPage import CmdPage
@@ -143,6 +144,7 @@ class CharacterCmdSet(default_cmds.CharacterCmdSet):
         # OOC/IC Movement commands
         self.add(CmdGo())
         self.add(CmdJoin())
+        self.add(CmdCoords())
         
         # Hangout commands
         self.add(CmdHangouts())

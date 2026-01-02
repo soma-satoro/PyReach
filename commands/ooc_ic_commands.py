@@ -16,11 +16,12 @@ from evennia.server.models import ServerConfig
 
 class CmdGo(MuxCommand):
     """
-    Move between In-Character and Out-of-Character areas.
+    Move between In-Character and Out-of-Character areas, or fast-travel by coordinate.
     
     Usage:
-        +go/ic  - Return to in-character areas
-        +go/ooc - Move to the out-of-character area
+        +go/ic          - Return to in-character areas
+        +go/ooc         - Move to the out-of-character area
+        +go/coord <code> - Fast-travel to a room by its area code
         
     Aliases:
         +ic, +ooc (for backward compatibility)
@@ -32,9 +33,14 @@ class CmdGo(MuxCommand):
     The /ooc switch will teleport you to the staff-designated OOC room
     and store your current location for later return with /ic.
     
+    The /coord switch allows fast-travel to any room by its area_code.
+    For example, +go/coord BV01 will teleport you to the room with
+    area_code "BV01".
+    
     Examples:
         +go/ic
         +go/ooc
+        +go/coord BV01
         +ic
         +ooc
     """
@@ -62,9 +68,10 @@ class CmdGo(MuxCommand):
                 self.go_ooc()
             else:
                 # No switch and main command - show help
-                caller.msg("Usage: +go/ic or +go/ooc")
+                caller.msg("Usage: +go/ic, +go/ooc, or +go/coord <area code>")
                 caller.msg("Use +go/ic to return to in-character areas.")
                 caller.msg("Use +go/ooc to move to the out-of-character area.")
+                caller.msg("Use +go/coord <code> to fast-travel to a room by area code.")
             return
         
         switch = self.switches[0].lower()
@@ -73,8 +80,10 @@ class CmdGo(MuxCommand):
             self.go_ic()
         elif switch == "ooc":
             self.go_ooc()
+        elif switch == "coord":
+            self.go_coord()
         else:
-            caller.msg(f"Invalid switch '{switch}'. Use +go/ic or +go/ooc")
+            caller.msg(f"Invalid switch '{switch}'. Use +go/ic, +go/ooc, or +go/coord")
     
     def go_ooc(self):
         """Handle the /ooc switch - move to OOC area"""
@@ -183,6 +192,74 @@ class CmdGo(MuxCommand):
             caller.save()
         else:
             caller.msg("Failed to move to the IC area. Please contact staff.")
+    
+    def go_coord(self):
+        """Handle the /coord switch - fast-travel to a room by area code"""
+        caller = self.caller
+        
+        # Check if an area code was provided
+        if not self.args.strip():
+            caller.msg("Usage: +go/coord <area code>")
+            caller.msg("Example: +go/coord BV01")
+            return
+        
+        area_code = self.args.strip().upper()
+        
+        # Search for rooms with matching area_code attribute
+        from evennia.utils.search import search_object_attribute
+        
+        matching_rooms = search_object_attribute(
+            key="area_code",
+            value=area_code,
+            category=None
+        )
+        
+        if not matching_rooms:
+            caller.msg(f"No room found with area code '{area_code}'.")
+            caller.msg("Make sure you're using the correct area code format (e.g., BV01, DT03).")
+            return
+        
+        # If multiple rooms found (shouldn't happen but handle it), take the first
+        if len(matching_rooms) > 1:
+            caller.msg(f"Warning: Multiple rooms found with area code '{area_code}'. Using the first one.")
+            evennia.logger.log_warn(f"Multiple rooms with area_code '{area_code}': {[r.name for r in matching_rooms]}")
+        
+        destination = matching_rooms[0]
+        
+        # Verify the destination is accessible
+        if not destination.access(caller, 'view'):
+            caller.msg(f"You don't have permission to travel to that location.")
+            return
+        
+        # Log the movement on the server
+        current_location = caller.location
+        if current_location and hasattr(current_location, "id"):
+            evennia.logger.log_info(
+                f"Coord Travel: {caller.name} (#{caller.id}) traveled from "
+                f"{current_location.name} (#{current_location.id}) to "
+                f"{destination.name} (#{destination.id}) [area_code: {area_code}]"
+            )
+        
+        # Force synchronization before moving
+        caller.save()
+        
+        # Move to destination
+        if caller.move_to(
+            destination,
+            quiet=False,
+            emit_to_obj=caller,
+            move_type="teleport"
+        ):
+            # Get area name if available
+            area_name = destination.db.area_name or "Unknown Area"
+            
+            caller.msg(f"You fast-travel to: {destination.name}")
+            caller.msg(f"Area: {area_name} [{area_code}]")
+            
+            # Force another save after the move to ensure location is synchronized
+            caller.save()
+        else:
+            caller.msg(f"Failed to travel to {destination.name}. Please contact staff.")
 
 
 class CmdJoin(MuxCommand):
