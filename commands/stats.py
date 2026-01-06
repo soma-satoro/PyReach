@@ -10,6 +10,11 @@ class CmdStat(MuxCommand):
     """
     Character generation tool for stat management.
     
+    IMPORTANT: This command can only be used in character generation rooms.
+    The room must be tagged with both 'chargen' and 'ooc' tags.
+    Use +room/tag here=chargen,ooc to set up a chargen room.
+    The +stat/list switch can be used anywhere to view stats.
+    
     Usage:
         +stat <stat>=<value> - Set a stat on yourself (if not approved)
         +stat <stat>= - Remove a stat from yourself (if not approved)
@@ -64,6 +69,24 @@ class CmdStat(MuxCommand):
     key = "+stat"
     aliases = ["+stats"]
     help_category = "Chargen & Character Info"
+    
+    def is_in_chargen_room(self):
+        """
+        Check if the caller is in a character generation room.
+        Returns True if the caller's location has both 'chargen' and 'ooc' tags.
+        """
+        if not self.caller.location:
+            return False
+        
+        # Get room tags
+        room_tags = getattr(self.caller.location.db, 'tags', []) or []
+        
+        # Check if both 'chargen' and 'ooc' tags are present
+        has_chargen = 'chargen' in room_tags
+        has_ooc = 'ooc' in room_tags
+        
+        return has_chargen and has_ooc
+    
     def parse(self):
         """Parse the command arguments."""
         super().parse()  # Initialize switches and other MuxCommand attributes
@@ -73,6 +96,29 @@ class CmdStat(MuxCommand):
     
     def func(self):
         """Execute the command"""
+        # Switches that are exempt from chargen room requirement
+        exempt_switches = ['list']
+        
+        # Check if command requires chargen room
+        # /list is exempt, but all stat modification commands require chargen room
+        current_switch = self.switches[0].lower() if self.switches else None
+        
+        # If not using an exempt switch and not in a chargen room, block the command
+        if current_switch not in exempt_switches:
+            # Also check for the non-switch version (direct stat setting)
+            if not self.switches and "=" in self.args:
+                # This is a direct stat setting command
+                if not self.is_in_chargen_room():
+                    self.caller.msg("The +stat command can only be used in character generation rooms.")
+                    self.caller.msg("These rooms must be tagged with both 'chargen' and 'ooc'.")
+                    return
+            elif self.switches and current_switch not in exempt_switches:
+                # This is a switch-based command that isn't exempt
+                if not self.is_in_chargen_room():
+                    self.caller.msg("The +stat command can only be used in character generation rooms.")
+                    self.caller.msg("These rooms must be tagged with both 'chargen' and 'ooc'.")
+                    return
+        
         if not self.switches:
             # Check if setting or just viewing
             if "=" in self.args:
