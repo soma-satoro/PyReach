@@ -3928,7 +3928,16 @@ class CmdLookup(MuxCommand):
                 elif stat_type == 'discipline':
                     formatted_results.append(f"|wDiscipline:|n {name.title()}")
                 elif stat_type == 'discipline_power':
-                    formatted_results.append(f"|wDiscipline Power:|n {name} ({data['discipline'].title()})")
+                    # Handle different types of discipline powers
+                    if 'type' in data and data['type'] == 'devotion':
+                        # Devotions don't have a 'discipline' key, they have 'type'
+                        covenant = data.get('covenant', data.get('bloodline', 'general')).title()
+                        formatted_results.append(f"|wDevotion:|n {name} ({covenant})")
+                    elif 'discipline' in data:
+                        formatted_results.append(f"|wDiscipline Power:|n {name} ({data['discipline'].title().replace('_', ' ')})")
+                    else:
+                        # Fallback for any other edge cases
+                        formatted_results.append(f"|wDiscipline Power:|n {name}")
                 elif stat_type == 'gift':
                     gift_type = data.get('gift_type', 'gift').replace('_', ' ').title()
                     formatted_results.append(f"|wWerewolf Gift:|n {name} ({gift_type})")

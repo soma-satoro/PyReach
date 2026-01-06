@@ -143,8 +143,33 @@ class Room(DefaultRoom):
     def get_display_desc(self, looker, **kwargs):
         """
         Get the room description with proper formatting.
+        Shows Shadow/Hisil description if looker is in Shadow or peeking.
         """
-        desc = self.db.desc
+        # Check if we should show Shadow description
+        try:
+            from world.reality_systems import is_in_shadow, is_peeking_shadow
+            
+            if is_in_shadow(looker):
+                # Show Hisil description if available
+                hisil_desc = getattr(self.db, 'hisil_desc', None)
+                if hisil_desc:
+                    desc = hisil_desc
+                else:
+                    desc = "(The Shadow reflects the material world here, but no specific description has been set.)"
+            elif is_peeking_shadow(looker):
+                # Show Hisil description when peeking
+                hisil_desc = getattr(self.db, 'hisil_desc', None)
+                if hisil_desc:
+                    desc = f"|c[Peering into the Shadow]|n\n{hisil_desc}"
+                else:
+                    desc = "|c[Peering into the Shadow]|n\n(No specific Shadow description has been set.)"
+            else:
+                # Show normal description
+                desc = self.db.desc
+        except ImportError:
+            # Fallback if reality_systems not available
+            desc = self.db.desc
+            
         if not desc:
             return ""
             
@@ -191,11 +216,34 @@ class Room(DefaultRoom):
     def get_display_characters(self, looker, **kwargs):
         """
         Get the characters section with idle times and shortdesc.
+        Filters characters based on reality state (Shadow/Hisil).
         
         Format: Name                     IdleTime Description
         """
         # Get all characters in the room (including the looker)
-        characters = [obj for obj in self.contents if obj.has_account]
+        all_characters = [obj for obj in self.contents if obj.has_account]
+        
+        # Filter based on reality state
+        try:
+            from world.reality_systems import is_in_shadow, is_peeking_shadow
+            
+            looker_in_shadow = is_in_shadow(looker)
+            looker_peeking = is_peeking_shadow(looker)
+            
+            characters = []
+            for char in all_characters:
+                char_in_shadow = is_in_shadow(char)
+                
+                # Show character if:
+                # 1. Both are in same reality (both in Shadow or both in material)
+                # 2. Looker is peeking and can see Shadow
+                if looker_in_shadow == char_in_shadow:
+                    characters.append(char)
+                elif looker_peeking and char_in_shadow:
+                    characters.append(char)
+        except ImportError:
+            # Fallback if reality_systems not available
+            characters = all_characters
         
         if not characters:
             return ""
@@ -334,6 +382,7 @@ class Room(DefaultRoom):
     def get_display_exits(self, looker, **kwargs):
         """
         Get exits that are NOT cardinal directions.
+        Filters Hedge Gates based on viewer's ability to see them.
         """
         cardinal_directions = {
             'north', 'south', 'east', 'west', 'northeast', 'northwest', 
@@ -345,6 +394,14 @@ class Room(DefaultRoom):
         
         # Get all exits and filter for non-cardinal directions
         for exit_obj in self.exits:
+            # Check if viewer can see this exit (Hedge Gates)
+            try:
+                from world.reality_systems import can_see_hedge_gate
+                if not can_see_hedge_gate(looker, exit_obj):
+                    continue
+            except ImportError:
+                pass  # Show all exits if reality_systems not available
+            
             exit_name = exit_obj.key.lower()
             exit_aliases = [alias.lower() for alias in exit_obj.aliases.all()]
             
@@ -365,6 +422,17 @@ class Room(DefaultRoom):
             if not is_cardinal:
                 # Get the exit display (usually just the key, but could include aliases)
                 exit_display = exit_obj.key
+                
+                # Check if it's a Hedge Gate and color it appropriately
+                try:
+                    from world.reality_systems import is_hedge_gate
+                    if is_hedge_gate(exit_obj):
+                        # Get theme colors for hedge gates
+                        header_color, _, _ = self.get_theme_colors()
+                        exit_display = f"|{header_color}{exit_display}|n"
+                except ImportError:
+                    pass
+                
                 if exit_obj.aliases.all():
                     # Show primary alias in brackets
                     exit_display += f" <{exit_obj.aliases.all()[0]}>"

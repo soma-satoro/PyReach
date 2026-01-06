@@ -9,7 +9,6 @@ from . import register_template
 # Core Chronicles of Darkness 2e mortal+ types (General Character Types)
 CORE_MORTAL_PLUS = [
     "Atariya",           # Spirit-touched with connection to the Shadow
-    "Changing Breeds",   # Minor shapeshifters (not Uratha)
     "Dreamer",           # Those who walk in dreams
     "Infected",          # Carriers of supernatural diseases
     "Lost Boy",          # Children who never grew up
@@ -131,7 +130,7 @@ MORTAL_PLUS_TEMPLATE = {
     "description": ("Mortals with supernatural abilities - psychics, witches, wolf-blooded, sleepwalkers, ghouls, "
                    "and many other minor supernatural templates from Chronicles of Darkness 2nd Edition. "
                    "See: https://codexofdarkness.com/wiki/Mortals_and_Lesser_Templates"),
-    "bio_fields": ["virtue", "vice", "template_type", "subtype", "organization", "profession"],
+    "bio_fields": ["virtue", "vice", "template_type", "subtype", "organization", "profession", "regnant", "promise"],
     "integrity_name": "Integrity",
     "starting_integrity": 7,
     "supernatural_power_stat": None,
@@ -147,11 +146,17 @@ MORTAL_PLUS_TEMPLATE = {
         },
         "subtype": {
             "valid_values": ALL_WOLF_BLOODED_TELLS + DEMON_BLOODED_LEVELS + PROXIMUS_FAMILIES,
-            "description": "Specific variant or subtype (optional)"
+            "description": "Specific variant or subtype (optional - not used for Fae-Touched)"
         },
         "game_line": {
             "valid_values": GAME_LINE_HERITAGE,
             "description": "Associated game line or origin"
+        },
+        "regnant": {
+            "description": "Ghoul's domitor/regnant (text field)"
+        },
+        "promise": {
+            "description": "Fae-Touched's promise or obligation (text field)"
         },
     },
     "version": "2.0",

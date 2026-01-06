@@ -867,5 +867,31 @@ STANDARD_CONDITIONS = {
         name="Uncalled (Persistent)",
         description="Your character has not been called to their true purpose.",
         is_persistent=True
+    ),
+    
+    # Pledge-related Conditions (Changeling: The Lost 2e)
+    'oathbreaker': Condition(
+        name="Oathbreaker (Persistent)",
+        description="You have broken a sworn oath. The Wyrd marks you as unfaithful. Your relationship with those you betrayed is forever defined by your betrayal. You suffer consequences appropriate to the broken oath, and may experience disrupted magic, sickness, Clarity damage, or increased attention from fae creatures. Other changelings can sense your status as an oathbreaker.",
+        is_persistent=True,
+        possible_sources="Breaking a sworn oath.",
+        beat="Your status as an oathbreaker causes significant problems in your interactions with other changelings or supernatural consequences.",
+        resolution_method="Make full recompense to all offended parties, including the Wyrd itself. This typically requires completing a significant task or making a major sacrifice to restore your honor."
+    ),
+    'obliged': Condition(
+        name="Obliged",
+        description="You have sworn a bargain with a mortal being. While this Condition is active, you gain a kind of camouflage against Huntsmen and the True Fae. The Wyrd recognizes you as having a place in the mortal world, making it harder for your enemies to find you. However, you must fulfill your end of the bargain or lose this protection.",
+        is_persistent=False,
+        possible_sources="Swearing a bargain with a mortal.",
+        beat="You go out of your way to fulfill your bargain despite danger or personal cost.",
+        resolution_method="Fulfill the terms of your bargain completely, or break the bargain (losing the protection and potentially gaining the Notoriety Condition)."
+    ),
+    'paranoid': Condition(
+        name="Paranoid",
+        description="You feel watched, hunted. The sensation of being stalked by something terrible gnaws at your mind. You're constantly looking over your shoulder and jumping at shadows. Take a -2 penalty to rolls involving concentration or calm interaction. Any attempt to convince you that you're safe or that the danger has passed requires exceptional success.",
+        is_persistent=False,
+        possible_sources="Attempting to seal a Huntsman's statement (whether successful or not), attracting the attention of the True Fae.",
+        beat="Your paranoia causes you to make a decision that significantly complicates the situation or harms your relationships.",
+        resolution_method="Confront the source of your fear directly, or take significant steps to secure your safety (such as establishing wards, changing locations, or eliminating the threat)."
     )
 } 

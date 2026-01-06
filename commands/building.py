@@ -197,6 +197,8 @@ class CmdRoomSetup(MuxCommand):
       +room/places <target>=on/off
       +room/tag <target>=<tag1>,<tag2>,...  - Set room tags (comma-separated)
       +room/tags <target>                   - View room tags
+      +room/hisil <target>=<description>    - Set Shadow/Hisil description
+      +room/gauntlet <target>=<0-5>         - Set Gauntlet strength rating
       
     Target must be specified:
       - 'here' for current room
@@ -218,6 +220,8 @@ class CmdRoomSetup(MuxCommand):
       +room/places here=on
       +room/tag here=library,research          - Tag room for investigation purposes
       +room/tags here                          - View current room tags
+      +room/hisil here=A twisted reflection...  - Set Shadow description
+      +room/gauntlet here=3                     - Set Gauntlet strength
     
     Common Room Tags:
       Research & Knowledge:
@@ -365,7 +369,7 @@ class CmdRoomSetup(MuxCommand):
             switch = self.switches[0].lower()
             
             # Check if target and value are properly specified (except for /tags which doesn't need value)
-            if switch != "tags" and (not self.target_room or not self.switch_value):
+            if switch not in ["tags"] and (not self.target_room or not self.switch_value):
                 caller.msg(f"Usage: +room/{switch} <target>=<value>")
                 caller.msg("Target must be 'here', a room name, or #dbref")
                 caller.msg(f"Example: +room/{switch} here=<value>")
@@ -521,9 +525,45 @@ class CmdRoomSetup(MuxCommand):
                     caller.msg(f"Room tags set to: {', '.join(tags)} for room {location.name} ({room_info})")
                 else:
                     caller.msg(f"Room tags cleared for room {location.name} ({room_info})")
+            
+            elif switch == "hisil":
+                # Set Hisil/Shadow description
+                hisil_desc = process_special_characters(value)
+                location.db.hisil_desc = hisil_desc
+                room_info = f"#{location.id}" if location != caller.location else "here"
+                caller.msg(f"Hisil description set for room {location.name} ({room_info})")
+                caller.msg(f"Preview:\n{hisil_desc}")
+            
+            elif switch == "gauntlet":
+                # Set Gauntlet rating
+                try:
+                    gauntlet_strength = int(value)
+                except ValueError:
+                    caller.msg("Gauntlet strength must be a number between 0 and 5.")
+                    return
+                
+                if gauntlet_strength < 0 or gauntlet_strength > 5:
+                    caller.msg("Gauntlet strength must be between 0 and 5.")
+                    return
+                
+                location.db.gauntlet_strength = gauntlet_strength
+                
+                # Show the rating with description
+                strength_desc = {
+                    0: "Verge (no Gauntlet)",
+                    1: "Locus (+2 dice)",
+                    2: "Wilderness (0 modifier)",
+                    3: "Small town (-1 dice)",
+                    4: "City suburbs (-2 dice)",
+                    5: "Dense urban (-3 dice)"
+                }
+                
+                room_info = f"#{location.id}" if location != caller.location else "here"
+                caller.msg(f"Gauntlet strength set to {gauntlet_strength} for room {location.name} ({room_info})")
+                caller.msg(f"Description: {strength_desc.get(gauntlet_strength, 'Unknown')}")
                     
             else:
-                caller.msg("Valid switches: /area, /code, /coords, /hierarchy, /places, /tag, /tags")
+                caller.msg("Valid switches: /area, /code, /coords, /hierarchy, /places, /tag, /tags, /hisil, /gauntlet")
         else:
             # Old syntax fallback for backwards compatibility
             if "=" not in self.args:

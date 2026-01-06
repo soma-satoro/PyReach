@@ -52,6 +52,8 @@ from .bbs.bbs_cmdset import BBSCmdSet
 from commands.commonmux.CmdPage import CmdPage
 from .shapeshifting import CmdShift, CmdForm
 from .character_submit import CmdSubmit
+from .reality_commands import CmdMien, CmdMask, CmdReach, CmdLocus, CmdHedge
+from .pledges import CmdPledge
 
 # Custom help command that escapes ANSI codes in help text
 from .help_custom import CmdHelp
@@ -96,6 +98,15 @@ class CharacterCmdSet(default_cmds.CharacterCmdSet):
         # Shapeshifting (Werewolf)
         self.add(CmdShift())
         self.add(CmdForm())
+        
+        # Reality Systems (Changeling, Werewolf, Mage)
+        self.add(CmdMien())
+        self.add(CmdMask())
+        self.add(CmdReach())
+        self.add(CmdLocus())
+        self.add(CmdHedge())
+        self.add(CmdPledge())
+        
         # Voting and recommendations
         self.add(CmdVote())
         self.add(CmdRecommend())

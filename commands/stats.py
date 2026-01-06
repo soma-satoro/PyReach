@@ -21,6 +21,11 @@ class CmdStat(MuxCommand):
         +stat/mage <stat>=<value> - Set a mage stat (Mage characters only)
         +stat/demon <stat>=<value> - Set a demon form stat (Demon characters only)
         
+        Shortcuts:
+        +stat type=<value> - Alias for template_type (Mortal+ characters)
+        +stat clan=<value> - Alias for subtype (Ghoul characters)
+        +stat tell=<value> - Alias for subtype (Wolf-Blooded characters)
+        
         Merit Instances:
         Some merits can be taken multiple times with different specifications.
         Use colon notation to create instances:
@@ -241,6 +246,18 @@ class CmdStat(MuxCommand):
         if not stat:
             self.caller.msg("Usage: +stat <stat>=<value> or +stat <name>/<stat>=<value>")
             return
+        
+        # Alias: "type" -> "template_type" for easier mortal+ type setting
+        if stat == "type":
+            stat = "template_type"
+        
+        # Alias: "clan" -> "subtype" for Ghouls
+        if stat == "clan":
+            stat = "subtype"
+        
+        # Alias: "tell" -> "subtype" for Wolf-Blooded
+        if stat == "tell":
+            stat = "subtype"
         
         # If value is None, this is a removal request
         if value is None:

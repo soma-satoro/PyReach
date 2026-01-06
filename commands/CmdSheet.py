@@ -564,12 +564,24 @@ class CmdSheet(MuxCommand):
         if vice is not None:
             bio_items.append(("Vice", vice))
         
-        # Add template-specific bio fields
+            # Add template-specific bio fields
         for field in template_fields:
             if field not in ["virtue", "vice", "game_line"]:  # virtue/vice already added, game_line is internal only
                 # Skip abilities field for Mortal+ (those are merits)
                 if field == "abilities":
                     continue
+                
+                # Skip regnant for non-Ghouls
+                if field == "regnant":
+                    mortal_plus_type = bio.get("template_type", "").lower()
+                    if mortal_plus_type != "ghoul":
+                        continue
+                
+                # Skip promise for non-Fae-Touched
+                if field == "promise":
+                    mortal_plus_type = bio.get("template_type", "").lower()
+                    if mortal_plus_type not in ["fae-touched", "fae_touched"]:
+                        continue
                 
                 # Check bio first, then other as fallback (for existing characters that may have these in other)
                 field_value = bio.get(field, other.get(field, "<not set>"))
@@ -583,18 +595,25 @@ class CmdSheet(MuxCommand):
                     if field_value != "<not set>":
                         field_value = field_value.replace("_", " ").replace("-", " ").title()
                 elif field == "subtype":
-                    # Check if Wolf-Blooded to show as "Tell"
+                    # Check Mortal+ type to determine label
                     mortal_plus_type = bio.get("template_type", "").lower()
+                    
+                    # Wolf-Blooded: show as "Tell"
                     if "wolf" in mortal_plus_type:
                         field_label = "Tell"
                         # Format Tell name: replace underscores with spaces and title case
                         if field_value != "<not set>":
                             field_value = field_value.replace("_", " ").title()
+                    # Ghoul: show as "Clan"
+                    elif mortal_plus_type == "ghoul":
+                        field_label = "Clan"
+                        # Format clan name: replace underscores with spaces and title case
+                        if field_value != "<not set>":
+                            field_value = field_value.replace("_", " ").title()
+                    # Fae-Touched and certain other types: skip subtype entirely
+                    elif mortal_plus_type in ["fae-touched", "fae_touched", "psychic", "lost boy", "dreamer", "atariya", "infected", "psychic vampire"]:
+                        continue  
                     else:
-                        # Skip subtype for certain Mortal+ types that have powers based around merits
-                        mortal_plus_no_subtype = ["psychic", "lost boy", "dreamer", "atariya", "infected", "psychic vampire"]
-                        if mortal_plus_type in mortal_plus_no_subtype:
-                            continue  
                         field_label = "Subtype"
                         # Format subtype: replace underscores with spaces and title case
                         if field_value != "<not set>":
@@ -2113,6 +2132,18 @@ class CmdSheet(MuxCommand):
                 if field == "abilities":
                     continue
                 
+                # Skip regnant for non-Ghouls
+                if field == "regnant":
+                    mortal_plus_type = bio.get("template_type", "").lower()
+                    if mortal_plus_type != "ghoul":
+                        continue
+                
+                # Skip promise for non-Fae-Touched
+                if field == "promise":
+                    mortal_plus_type = bio.get("template_type", "").lower()
+                    if mortal_plus_type not in ["fae-touched", "fae_touched"]:
+                        continue
+                
                 # Check bio first, then other as fallback (for existing characters that may have these in other)
                 field_value = bio.get(field, other.get(field, "<not set>"))
                 
@@ -2125,18 +2156,25 @@ class CmdSheet(MuxCommand):
                     if field_value != "<not set>":
                         field_value = field_value.replace("_", " ").replace("-", " ").title()
                 elif field == "subtype":
-                    # Check if Wolf-Blooded to show as "Tell"
+                    # Check Mortal+ type to determine label
                     mortal_plus_type = bio.get("template_type", "").lower()
+                    
+                    # Wolf-Blooded: show as "Tell"
                     if "wolf" in mortal_plus_type:
                         field_label = "Tell"
                         # Format Tell name: replace underscores with spaces and title case
                         if field_value != "<not set>":
                             field_value = field_value.replace("_", " ").title()
+                    # Ghoul: show as "Clan"
+                    elif mortal_plus_type == "ghoul":
+                        field_label = "Clan"
+                        # Format clan name: replace underscores with spaces and title case
+                        if field_value != "<not set>":
+                            field_value = field_value.replace("_", " ").title()
+                    # Fae-Touched and certain other types: skip subtype entirely
+                    elif mortal_plus_type in ["fae-touched", "fae_touched", "psychic", "lost boy", "dreamer", "atariya", "infected", "psychic vampire"]:
+                        continue  # Skip this field
                     else:
-                        # Skip subtype for certain Mortal+ types that don't use it
-                        mortal_plus_no_subtype = ["psychic", "lost boy", "dreamer", "atariya", "infected", "psychic vampire"]
-                        if mortal_plus_type in mortal_plus_no_subtype:
-                            continue  # Skip this field
                         field_label = "Subtype"
                         # Format subtype: replace underscores with spaces and title case
                         if field_value != "<not set>":

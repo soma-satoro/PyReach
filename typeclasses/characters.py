@@ -22,6 +22,7 @@ from world.cofd.templates import (
     get_starting_integrity, validate_field, get_template_names
 )
 from world.utils.health_utils import calculate_wound_penalty
+from world.cofd.pledges import PledgeHandler
 
 from .objects import ObjectParent
 
@@ -51,6 +52,13 @@ class Character(DefaultCharacter):
         Returns the experience handler for this character.
         """
         return ExperienceHandler(self)
+    
+    @lazy_property
+    def pledges(self):
+        """
+        Returns the pledge handler for this character.
+        """
+        return PledgeHandler(self)
 
     def at_object_creation(self):
         """
@@ -498,41 +506,72 @@ class Character(DefaultCharacter):
                 advantages["vitae"] = stamina
             else:
                 advantages["vitae"] = pool_lookup.get(blood_potency, 10)
+            # Initialize current pool if not set
+            if self.db.blood_current is None:
+                self.db.blood_current = advantages["vitae"]
             updated_pools.append("vitae")
             
         elif template == "changeling" and "wyrd" in advantages:
             wyrd = advantages["wyrd"]
-            advantages["glamour"] = pool_lookup.get(wyrd, 10)
+            max_glamour = pool_lookup.get(wyrd, 10)
+            advantages["glamour"] = max_glamour
+            # Initialize current pool if not set
+            if self.db.glamour_current is None:
+                self.db.glamour_current = max_glamour
             updated_pools.append("glamour")
             
         elif template == "werewolf" and "primal_urge" in advantages:
             primal_urge = advantages["primal_urge"]
-            advantages["essence"] = pool_lookup.get(primal_urge, 10)
+            max_essence = pool_lookup.get(primal_urge, 10)
+            advantages["essence"] = max_essence
+            # Initialize current pool if not set
+            if self.db.essence_current is None:
+                self.db.essence_current = max_essence
             updated_pools.append("essence")
             
         elif template == "mage" and "gnosis" in advantages:
             gnosis = advantages["gnosis"]
-            advantages["mana"] = pool_lookup.get(gnosis, 10)
+            max_mana = pool_lookup.get(gnosis, 10)
+            advantages["mana"] = max_mana
+            # Initialize current pool if not set
+            if self.db.mana_current is None:
+                self.db.mana_current = max_mana
             updated_pools.append("mana")
             
         elif template == "geist" and "synergy" in advantages:
             synergy = advantages["synergy"]
-            advantages["plasm"] = pool_lookup.get(synergy, 10)
+            max_plasm = pool_lookup.get(synergy, 10)
+            advantages["plasm"] = max_plasm
+            # Initialize current pool if not set
+            if self.db.plasm_current is None:
+                self.db.plasm_current = max_plasm
             updated_pools.append("plasm")
             
         elif template == "promethean" and "azoth" in advantages:
             azoth = advantages["azoth"]
-            advantages["pyros"] = pool_lookup.get(azoth, 10)
+            max_pyros = pool_lookup.get(azoth, 10)
+            advantages["pyros"] = max_pyros
+            # Initialize current pool if not set
+            if self.db.pyros_current is None:
+                self.db.pyros_current = max_pyros
             updated_pools.append("pyros")
             
         elif template == "demon" and "primum" in advantages:
             primum = advantages["primum"]
-            advantages["aether"] = pool_lookup.get(primum, 10)
+            max_aether = pool_lookup.get(primum, 10)
+            advantages["aether"] = max_aether
+            # Initialize current pool if not set
+            if self.db.aether_current is None:
+                self.db.aether_current = max_aether
             updated_pools.append("aether")
             
         elif template == "deviant" and "deviation" in advantages:
             deviation = advantages["deviation"]
-            advantages["instability"] = pool_lookup.get(deviation, 10)
+            max_instability = pool_lookup.get(deviation, 10)
+            advantages["instability"] = max_instability
+            # Initialize current pool if not set
+            if self.db.instability_current is None:
+                self.db.instability_current = max_instability
             updated_pools.append("instability")
         
         # Send message to caller if provided
@@ -866,3 +905,47 @@ class Character(DefaultCharacter):
         # - Track for XP rewards
         # - Scene logging system
         pass
+    
+    def return_appearance(self, looker, **kwargs):
+        """
+        This formats a description for looking at a character.
+        Handles Mask/Mien visibility based on viewer's supernatural nature.
+        
+        Args:
+            looker (Object): Object doing the looking.
+            **kwargs: Arbitrary data for future use.
+        """
+        if not looker:
+            return ""
+        
+        # Get character's normal description
+        desc = self.db.desc or "You see nothing special."
+        
+        # Check for Mien visibility
+        try:
+            from world.reality_systems import (
+                can_see_mien, has_mien, get_mien_description, get_template
+            )
+            
+            # If target has a Mien and viewer can see it, show Mien instead
+            if has_mien(self) and can_see_mien(looker, self):
+                mien_desc = get_mien_description(self)
+                
+                if mien_desc:
+                    # Show Mien description
+                    desc = mien_desc
+                elif get_template(self) == "Changeling":
+                    # Changeling without Mien set - show OOC note
+                    desc += "\n\n|y[OOC: This Changeling has not set their Mien yet. " \
+                           "Please remind them to use +mien to set their fae appearance.]|n"
+        except ImportError:
+            pass  # Fallback to normal description if reality_systems not available
+        
+        # Build the appearance string
+        string = f"|c{self.get_display_name(looker)}|n\n"
+        string += desc
+        
+        # Add any other visible information (equipment, conditions, etc.)
+        # This can be expanded in the future
+        
+        return string
