@@ -54,6 +54,7 @@ from .shapeshifting import CmdShift, CmdForm
 from .character_submit import CmdSubmit
 from .reality_commands import CmdMien, CmdMask, CmdReach, CmdLocus, CmdHedge
 from .pledges import CmdPledge
+from .bio import CmdBio
 
 # Custom help command that escapes ANSI codes in help text
 from .help_custom import CmdHelp
@@ -94,6 +95,7 @@ class CharacterCmdSet(default_cmds.CharacterCmdSet):
         self.add(CmdLookup())
         self.add(CmdLegacy())
         self.add(CmdSubmit())
+        self.add(CmdBio())
         
         # Shapeshifting (Werewolf)
         self.add(CmdShift())

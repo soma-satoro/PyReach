@@ -199,6 +199,7 @@ class CmdRoomSetup(MuxCommand):
       +room/tags <target>                   - View room tags
       +room/hisil <target>=<description>    - Set Shadow/Hisil description
       +room/gauntlet <target>=<0-5>         - Set Gauntlet strength rating
+      +room/chargen <target>=on/off         - Convert room to/from ChargenRoom typeclass
       
     Target must be specified:
       - 'here' for current room
@@ -222,6 +223,7 @@ class CmdRoomSetup(MuxCommand):
       +room/tags here                          - View current room tags
       +room/hisil here=A twisted reflection...  - Set Shadow description
       +room/gauntlet here=3                     - Set Gauntlet strength
+      +room/chargen here=on                     - Convert room to ChargenRoom (shows point tracking)
     
     Common Room Tags:
       Research & Knowledge:
@@ -561,9 +563,54 @@ class CmdRoomSetup(MuxCommand):
                 room_info = f"#{location.id}" if location != caller.location else "here"
                 caller.msg(f"Gauntlet strength set to {gauntlet_strength} for room {location.name} ({room_info})")
                 caller.msg(f"Description: {strength_desc.get(gauntlet_strength, 'Unknown')}")
+            
+            elif switch == "chargen":
+                # Convert room to/from ChargenRoom typeclass
+                from evennia import create_object
+                
+                room_info = f"#{location.id}" if location != caller.location else "here"
+                value_lower = value.lower()
+                
+                if value_lower in ["on", "true", "yes", "1"]:
+                    # Convert to ChargenRoom
+                    if location.typename == "ChargenRoom":
+                        caller.msg(f"Room {location.name} ({room_info}) is already a ChargenRoom.")
+                        return
+                    
+                    # Swap typeclass to ChargenRoom
+                    from typeclasses.rooms import ChargenRoom
+                    old_typeclass = location.typename
+                    location.swap_typeclass("typeclasses.rooms.ChargenRoom", clean_attributes=False)
+                    
+                    # Ensure chargen and ooc tags are set
+                    if not hasattr(location.db, 'tags') or not location.db.tags:
+                        location.db.tags = []
+                    if 'chargen' not in location.db.tags:
+                        location.db.tags.append('chargen')
+                    if 'ooc' not in location.db.tags:
+                        location.db.tags.append('ooc')
+                    
+                    caller.msg(f"Room {location.name} ({room_info}) converted to ChargenRoom.")
+                    caller.msg("This room will now display character generation progress for all characters present.")
+                    caller.msg("Tags 'chargen' and 'ooc' have been automatically applied.")
+                    
+                elif value_lower in ["off", "false", "no", "0"]:
+                    # Convert back to normal Room
+                    if location.typename != "ChargenRoom":
+                        caller.msg(f"Room {location.name} ({room_info}) is not a ChargenRoom.")
+                        return
+                    
+                    # Swap typeclass back to normal Room
+                    from typeclasses.rooms import Room
+                    location.swap_typeclass("typeclasses.rooms.Room", clean_attributes=False)
+                    
+                    caller.msg(f"Room {location.name} ({room_info}) converted back to normal Room.")
+                    caller.msg("Character generation progress display has been disabled.")
+                else:
+                    caller.msg("Chargen setting must be 'on' or 'off'.")
                     
             else:
-                caller.msg("Valid switches: /area, /code, /coords, /hierarchy, /places, /tag, /tags, /hisil, /gauntlet")
+                caller.msg("Valid switches: /area, /code, /coords, /hierarchy, /places, /tag, /tags, /hisil, /gauntlet, /chargen")
         else:
             # Old syntax fallback for backwards compatibility
             if "=" not in self.args:

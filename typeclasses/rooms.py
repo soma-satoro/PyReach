@@ -554,3 +554,273 @@ class Room(DefaultRoom):
         }
         
         return place_number
+
+
+class ChargenRoom(Room):
+    """
+    Special room typeclass for character generation.
+    
+    This room displays character creation progress for all characters present,
+    showing how many points they've spent vs. how many they have available
+    based on their template (starting with mortal base).
+    
+    Features:
+    - Tracks mortal base points (Attributes, Skills, Specialties, Merits)
+    - Displays points spent vs. available for each character
+    - Template-aware (future expansion for supernatural templates)
+    """
+    
+    def at_object_creation(self):
+        """Called when the chargen room is first created."""
+        super().at_object_creation()
+        
+        # Tag this room as chargen by default
+        if not hasattr(self.db, 'tags') or not self.db.tags:
+            self.db.tags = []
+        if 'chargen' not in self.db.tags:
+            self.db.tags.append('chargen')
+        if 'ooc' not in self.db.tags:
+            self.db.tags.append('ooc')
+    
+    def calculate_chargen_points(self, character):
+        """
+        Calculate character generation points for a character.
+        
+        Returns a dictionary with:
+        - attributes_spent, attributes_available
+        - skills_spent, skills_available  
+        - specialties_spent, specialties_available
+        - merits_spent, merits_available
+        - attribute categories (mental, physical, social) with points and priority
+        - skill categories (mental, physical, social) with points and priority
+        
+        Args:
+            character: The character object to calculate points for
+            
+        Returns:
+            dict: Point allocation information
+        """
+        stats = getattr(character.db, 'stats', {})
+        if not stats:
+            return None
+            
+        # Mortal base starting points
+        # Attributes: 5/4/3 dots to ADD to starting values (all attrs start at 1)
+        # Skills: 11/7/4 dots to distribute among categories (all skills start at 0)
+        MORTAL_ATTR_POINTS = 12  # 5 + 4 + 3 = 12 total dots to add
+        MORTAL_SKILL_POINTS = 22  # 11 + 7 + 4 = 22 total dots to distribute
+        MORTAL_SPECIALTY_POINTS = 3
+        MORTAL_MERIT_POINTS = 7
+        
+        # Define attribute categories
+        MENTAL_ATTRIBUTES = ['intelligence', 'wits', 'resolve']
+        PHYSICAL_ATTRIBUTES = ['strength', 'dexterity', 'stamina']
+        SOCIAL_ATTRIBUTES = ['presence', 'manipulation', 'composure']
+        
+        # Define skill categories
+        MENTAL_SKILLS = ['academics', 'computer', 'crafts', 'investigation', 'medicine', 'occult', 'politics', 'science']
+        PHYSICAL_SKILLS = ['athletics', 'brawl', 'drive', 'firearms', 'larceny', 'stealth', 'survival', 'weaponry']
+        SOCIAL_SKILLS = ['animal_ken', 'empathy', 'expression', 'intimidation', 'persuasion', 'socialize', 'streetwise', 'subterfuge']
+        
+        attributes = stats.get('attributes', {})
+        skills = stats.get('skills', {})
+        
+        # Calculate attribute points by category (above starting 1)
+        attr_mental = sum(max(0, attributes.get(attr, 1) - 1) for attr in MENTAL_ATTRIBUTES)
+        attr_physical = sum(max(0, attributes.get(attr, 1) - 1) for attr in PHYSICAL_ATTRIBUTES)
+        attr_social = sum(max(0, attributes.get(attr, 1) - 1) for attr in SOCIAL_ATTRIBUTES)
+        
+        # Calculate skill points by category
+        skill_mental = sum(skills.get(skill, 0) for skill in MENTAL_SKILLS)
+        skill_physical = sum(skills.get(skill, 0) for skill in PHYSICAL_SKILLS)
+        skill_social = sum(skills.get(skill, 0) for skill in SOCIAL_SKILLS)
+        
+        # Determine attribute priorities (5/4/3)
+        # These are dots to ADD to the starting values (not total dots)
+        attr_categories = [
+            ('Mental', attr_mental),
+            ('Physical', attr_physical),
+            ('Social', attr_social)
+        ]
+        attr_categories_sorted = sorted(attr_categories, key=lambda x: x[1], reverse=True)
+        attr_priorities = {}
+        for i, (cat_name, points) in enumerate(attr_categories_sorted):
+            if i == 0:
+                priority = 'Primary (5)'
+                expected = 5  # 5 dots to add to starting values
+            elif i == 1:
+                priority = 'Secondary (4)'
+                expected = 4  # 4 dots to add to starting values
+            else:
+                priority = 'Tertiary (3)'
+                expected = 3  # 3 dots to add to starting values
+            attr_priorities[cat_name] = {'points': points, 'priority': priority, 'expected': expected}
+        
+        # Determine skill priorities (11/7/4)
+        skill_categories = [
+            ('Mental', skill_mental),
+            ('Physical', skill_physical),
+            ('Social', skill_social)
+        ]
+        skill_categories_sorted = sorted(skill_categories, key=lambda x: x[1], reverse=True)
+        skill_priorities = {}
+        for i, (cat_name, points) in enumerate(skill_categories_sorted):
+            if i == 0:
+                priority = 'Primary (11)'
+                expected = 11
+            elif i == 1:
+                priority = 'Secondary (7)'
+                expected = 7
+            else:
+                priority = 'Tertiary (4)'
+                expected = 4
+            skill_priorities[cat_name] = {'points': points, 'priority': priority, 'expected': expected}
+        
+        # Calculate total points
+        attr_spent = attr_mental + attr_physical + attr_social
+        skill_spent = skill_mental + skill_physical + skill_social
+        
+        # Calculate specialties
+        specialties = stats.get('specialties', {})
+        specialty_count = 0
+        for skill, specs in specialties.items():
+            if isinstance(specs, list):
+                specialty_count += len(specs)
+            elif isinstance(specs, int):
+                specialty_count += specs
+                
+        # Calculate merits
+        merits = stats.get('merits', {})
+        merit_spent = 0
+        for merit_name, merit_data in merits.items():
+            if isinstance(merit_data, dict):
+                merit_spent += merit_data.get('dots', 0)
+            elif isinstance(merit_data, int):
+                merit_spent += merit_data
+        
+        return {
+            'attributes_spent': attr_spent,
+            'attributes_available': MORTAL_ATTR_POINTS,
+            'attribute_categories': attr_priorities,
+            'skills_spent': skill_spent,
+            'skills_available': MORTAL_SKILL_POINTS,
+            'skill_categories': skill_priorities,
+            'specialties_spent': specialty_count,
+            'specialties_available': MORTAL_SPECIALTY_POINTS,
+            'merits_spent': merit_spent,
+            'merits_available': MORTAL_MERIT_POINTS,
+            'template': stats.get('other', {}).get('template', 'Mortal')
+        }
+    
+    def get_chargen_display(self, looker):
+        """
+        Generate a display of character generation progress for all characters in the room.
+        
+        Args:
+            looker: The character viewing the room
+            
+        Returns:
+            str: Formatted chargen progress display
+        """
+        # Get all characters in the room (including the looker)
+        characters = [obj for obj in self.contents if obj.has_account]
+        
+        if not characters:
+            return ""
+        
+        # Get theme colors
+        header_color, text_color, divider_color = self.get_theme_colors()
+        
+        lines = []
+        lines.append(f"\n|{divider_color}{'=' * 78}|n")
+        lines.append(f"|{header_color}CHARACTER GENERATION PROGRESS|n".center(78))
+        lines.append(f"|{divider_color}{'=' * 78}|n")
+        
+        for char in characters:
+            points = self.calculate_chargen_points(char)
+            
+            if not points:
+                continue
+                
+            char_name = char.get_display_name(looker)
+            template = points.get('template', 'Mortal')
+            
+            # Character header
+            lines.append(f"\n|y{char_name}|n ({template})")
+            lines.append(f"|{divider_color}{'-' * 78}|n")
+            
+            # Attributes with category breakdown
+            attr_spent = points['attributes_spent']
+            attr_avail = points['attributes_available']
+            attr_remaining = attr_avail - attr_spent
+            attr_color = '|g' if attr_remaining >= 0 else '|r'
+            lines.append(f"  |wAttributes:|n   {attr_color}{attr_spent}/{attr_avail}|n  (Remaining: {attr_color}{attr_remaining}|n)")
+            
+            # Show attribute categories
+            attr_cats = points.get('attribute_categories', {})
+            for cat_name in ['Mental', 'Physical', 'Social']:
+                if cat_name in attr_cats:
+                    cat_data = attr_cats[cat_name]
+                    cat_points = cat_data['points']
+                    cat_priority = cat_data['priority']
+                    cat_expected = cat_data['expected']
+                    cat_color = '|g' if cat_points == cat_expected else ('|y' if abs(cat_points - cat_expected) <= 1 else '|r')
+                    lines.append(f"    {cat_name:10s} {cat_color}{cat_points:2d}/{cat_expected:2d}|n  {cat_priority}")
+            
+            # Skills with category breakdown
+            skill_spent = points['skills_spent']
+            skill_avail = points['skills_available']
+            skill_remaining = skill_avail - skill_spent
+            skill_color = '|g' if skill_remaining >= 0 else '|r'
+            lines.append(f"  |wSkills:|n       {skill_color}{skill_spent}/{skill_avail}|n  (Remaining: {skill_color}{skill_remaining}|n)")
+            
+            # Show skill categories
+            skill_cats = points.get('skill_categories', {})
+            for cat_name in ['Mental', 'Physical', 'Social']:
+                if cat_name in skill_cats:
+                    cat_data = skill_cats[cat_name]
+                    cat_points = cat_data['points']
+                    cat_priority = cat_data['priority']
+                    cat_expected = cat_data['expected']
+                    cat_color = '|g' if cat_points == cat_expected else ('|y' if abs(cat_points - cat_expected) <= 1 else '|r')
+                    lines.append(f"    {cat_name:10s} {cat_color}{cat_points:2d}/{cat_expected:2d}|n  {cat_priority}")
+            
+            # Specialties
+            spec_spent = points['specialties_spent']
+            spec_avail = points['specialties_available']
+            spec_remaining = spec_avail - spec_spent
+            spec_color = '|g' if spec_remaining >= 0 else '|r'
+            lines.append(f"  |wSpecialties:|n  {spec_color}{spec_spent}/{spec_avail}|n  (Remaining: {spec_color}{spec_remaining}|n)")
+            
+            # Merits
+            merit_spent = points['merits_spent']
+            merit_avail = points['merits_available']
+            merit_remaining = merit_avail - merit_spent
+            merit_color = '|g' if merit_remaining >= 0 else '|r'
+            lines.append(f"  |wMerits:|n       {merit_color}{merit_spent}/{merit_avail}|n  (Remaining: {merit_color}{merit_remaining}|n)")
+            
+        lines.append(f"|{divider_color}{'=' * 78}|n\n")
+        
+        return "\n".join(lines)
+    
+    def return_appearance(self, looker, **kwargs):
+        """
+        Override the appearance to include chargen progress.
+        
+        Args:
+            looker: The character viewing the room
+            **kwargs: Additional arguments
+            
+        Returns:
+            str: Full room appearance with chargen progress
+        """
+        # Get the standard room appearance
+        standard_appearance = super().return_appearance(looker, **kwargs)
+        
+        # Add chargen progress display
+        chargen_display = self.get_chargen_display(looker)
+        
+        if chargen_display:
+            return standard_appearance + chargen_display
+        else:
+            return standard_appearance
