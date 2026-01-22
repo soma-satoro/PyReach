@@ -23,7 +23,7 @@ class CmdLookup(MuxCommand):
         
     Common Categories:
         attributes, skills, merits, disciplines, powers, clans, bloodlines, covenants,
-        arcana, spells, paths, orders, legacies, auspices, tribes, lodges, gifts,
+        arcana, spells, paths, orders, legacies, auspices, tribes, lodges, gifts, rites,
         kiths, entitlements, keys, haunts, variations, scars, adaptations, templates,
         lineages, guilds, tactics, compacts, conspiracies, etc.
         
@@ -33,6 +33,7 @@ class CmdLookup(MuxCommand):
         +lookup powers [discipline]
         +lookup spells [arcana]
         +lookup gifts [category]
+        +lookup rites [rank|category]
         +lookup endowments [type]
         +lookup tactics [mental|physical|social]
         
@@ -48,6 +49,9 @@ class CmdLookup(MuxCommand):
         +lookup tribes blood_talons          - Show Blood Talons tribe details
         +lookup lodges                       - List all werewolf lodges
         +lookup lodges eaters_of_the_dead    - Show Eaters of the Dead lodge
+        +lookup rites                        - List all werewolf rites
+        +lookup rites 2                      - List rank 2 rites
+        +lookup rites sacred_hunt            - Show Sacred Hunt rite details
         +lookup kiths                        - List all changeling kiths
         +lookup kiths bright_one             - Show Bright One kith details
         +lookup entitlements                 - List all changeling entitlements
@@ -374,6 +378,21 @@ class CmdLookup(MuxCommand):
                     self.show_stat_details(stat_name, category_filter="gifts")
             else:
                 self.show_werewolf_gifts(None)
+        elif args.startswith("rites") or args.startswith("rite"):
+            parts = args.split()
+            if len(parts) > 1:
+                # Check if it's a rite category filter or rank filter or a stat name
+                rite_categories = ["wolf", "pack", "other"]
+                if parts[1] in rite_categories:
+                    self.show_werewolf_rites(parts[1])
+                elif parts[1].isdigit() and 1 <= int(parts[1]) <= 5:
+                    self.show_werewolf_rites(None, int(parts[1]))
+                else:
+                    # It's a stat name lookup with category filter
+                    stat_name = " ".join(parts[1:])
+                    self.show_stat_details(stat_name, category_filter="rites")
+            else:
+                self.show_werewolf_rites(None)
         elif args.startswith("lodges") or args.startswith("lodge"):
             parts = args.split()
             if len(parts) > 1:
@@ -765,7 +784,7 @@ class CmdLookup(MuxCommand):
                 "left_title": "Mage:",
                 "left_items": ["arcana", "spells [arcana]", "paths", "orders", "legacies"],
                 "right_title": "Werewolf:",
-                "right_items": ["auspices", "tribes", "lodges", "gifts [category]"]
+                "right_items": ["auspices", "tribes", "lodges", "gifts [category]", "rites [rank]"]
             },
             # Row 3: Changeling | Geist
             {
@@ -1951,6 +1970,14 @@ class CmdLookup(MuxCommand):
             if gift_data:
                 matches.append(("gift", gift_key, gift_data))
         
+        # Check werewolf rites
+        if not category_filter or category_filter == "rites":
+            from world.cofd.powers.werewolf_rites import get_rite
+            rite_key = stat_name.lower().replace(" ", "_").replace("'", "")
+            rite_data = get_rite(rite_key)
+            if rite_data:
+                matches.append(("rite", rite_key, rite_data))
+        
         # Check changeling contracts
         if not category_filter or category_filter == "contracts":
             from world.cofd.powers.changeling_contracts import get_contract
@@ -2015,6 +2042,8 @@ class CmdLookup(MuxCommand):
                 self.show_discipline_power_details(key, data)
             elif stat_type == "gift":
                 self.show_gift_details(key, data)
+            elif stat_type == "rite":
+                self.show_rite_details(key, data)
             elif stat_type == "contract":
                 self.show_contract_details(key, data)
             elif stat_type == "key":
@@ -2048,6 +2077,7 @@ class CmdLookup(MuxCommand):
             self.caller.msg(f"  |y+lookup spells {stat_name}|n - View as spell")
             self.caller.msg(f"  |y+lookup powers {stat_name}|n - View as discipline power")
             self.caller.msg(f"  |y+lookup gifts {stat_name}|n - View as werewolf gift")
+            self.caller.msg(f"  |y+lookup rites {stat_name}|n - View as werewolf rite")
             self.caller.msg(f"  |y+lookup contracts {stat_name}|n - View as changeling contract")
             self.caller.msg(f"  |y+lookup keys {stat_name}|n - View as geist key")
             self.caller.msg(f"  |y+lookup haunts {stat_name}|n - View as geist haunt")
@@ -5184,6 +5214,196 @@ class CmdLookup(MuxCommand):
         msg += f"|cDescription:|n\n{torment_data['description']}\n\n"
         msg += f"|cAct:|n\n{torment_data['act']}\n\n"
         msg += f"|gTo set as your Torment:|n +stat torment={torment_data['name']}\n"
+        
+        self.caller.msg(msg)
+    
+    def show_werewolf_gifts(self, category=None):
+        """Show werewolf gifts, optionally filtered by category or renown."""
+        from world.cofd.powers.werewolf_gifts import (
+            GIFT_CATEGORIES, ALL_WEREWOLF_GIFTS, GIFTS_BY_RENOWN
+        )
+        
+        if category:
+            # Check if it's a renown filter
+            if category in ["cunning", "glory", "honor", "purity", "wisdom"]:
+                gifts = GIFTS_BY_RENOWN.get(category, {})
+                title = f"Werewolf Gifts - {category.title()} Renown"
+            elif category in GIFT_CATEGORIES:
+                gifts = GIFT_CATEGORIES[category]
+                title = f"Werewolf Gifts - {category.replace('_', ' ').title()}"
+            else:
+                self.caller.msg(f"Unknown gift category: {category}")
+                self.caller.msg("|cValid categories:|n agony, blood, death, disease, dominance, elementals, evasion, fervor, hunger, insight, inspiration, knowledge, nature, rage, shaping, stealth, strength, technology, warding, weather, change, hunting, pack")
+                self.caller.msg("|cValid renown:|n cunning, glory, honor, purity, wisdom")
+                self.caller.msg("|cMoon gifts:|n crescent_moon, full_moon, gibbous_moon, half_moon, new_moon")
+                return
+        else:
+            gifts = ALL_WEREWOLF_GIFTS
+            title = "All Werewolf Gifts (Facets)"
+        
+        msg = self.format_header(title)
+        msg += "\n\n"
+        
+        # Group by rank
+        gifts_by_rank = {1: [], 2: [], 3: [], 4: [], 5: []}
+        for gift_key, gift_data in gifts.items():
+            rank = gift_data['rank']
+            gifts_by_rank[rank].append((gift_key, gift_data))
+        
+        # Display gifts by rank
+        for rank in range(1, 6):
+            rank_gifts = gifts_by_rank[rank]
+            if rank_gifts:
+                dots = "●" * rank
+                msg += f"|g{dots}|n ({len(rank_gifts)} gifts)\n"
+                
+                for gift_key, gift_data in sorted(rank_gifts, key=lambda x: x[1]['name']):
+                    gift_name = gift_data['name']
+                    renown = gift_data['renown'].title()
+                    gift_type = gift_data['gift_type'].replace('_', ' ').title()
+                    
+                    msg += f"  |y{gift_name}|n ({renown}) - {gift_type}\n"
+                
+                msg += "\n"
+        
+        msg += f"|cTotal:|n {len(gifts)} gifts\n"
+        msg += f"\n|cNote:|n Gifts are individual facets, not rated. Set with: |y+stat gift=<name>|n"
+        msg += f"\n|cDetailed lookup:|n |y+lookup gifts <name>|n or |y+lookup <gift_name>|n"
+        msg += f"\n|cFilter by renown:|n |y+lookup gifts cunning|n, |y+lookup gifts glory|n, etc.\n\n"
+        msg += self.format_footer("Werewolf: The Forsaken")
+        
+        self.caller.msg(msg)
+    
+    def show_gift_details(self, gift_key, gift_data):
+        """Show detailed information about a specific werewolf gift."""
+        msg = f"|w{gift_data['name']} (Werewolf Gift)|n\n"
+        msg += f"|g{'=' * 78}|n\n\n"
+        
+        # Display gift details
+        msg += f"|cGift Category:|n {gift_data['gift_type'].replace('_', ' ').title()}\n"
+        msg += f"|cRenown:|n {gift_data['renown'].title()}\n"
+        
+        # Show rank as dots
+        rank = gift_data['rank']
+        dots = "●" * rank + "○" * (5 - rank)
+        msg += f"|cRank:|n {dots} ({rank})\n"
+        
+        msg += f"|cCost:|n {gift_data['cost']}\n"
+        msg += f"|cDice Pool:|n {gift_data['dice_pool']}\n"
+        msg += f"|cAction:|n {gift_data['action']}\n"
+        msg += f"|cDuration:|n {gift_data['duration']}\n"
+        msg += f"|cDescription:|n {gift_data['description']}\n"
+        msg += f"|cSource:|n {gift_data['book']}\n"
+        
+        msg += f"\n|gSet on Character:|n |y+stat gift={gift_key}|n\n"
+        
+        self.caller.msg(msg)
+    
+    def show_werewolf_rites(self, category=None, rank=None):
+        """Show werewolf rites, optionally filtered by category or rank."""
+        from world.cofd.powers.werewolf_rites import (
+            RITES_BY_CATEGORY, ALL_WEREWOLF_RITES, RITES_BY_RANK
+        )
+        
+        if rank:
+            # Filter by rank
+            rites = RITES_BY_RANK.get(rank, {})
+            title = f"Werewolf Rites - Rank {'●' * rank}"
+        elif category:
+            # Filter by category
+            if category in RITES_BY_CATEGORY:
+                rites = RITES_BY_CATEGORY[category]
+                title = f"Werewolf Rites - {category.title()} Rites"
+            else:
+                self.caller.msg(f"Unknown rite category: {category}")
+                self.caller.msg("|cValid categories:|n wolf, pack, other")
+                return
+        else:
+            rites = ALL_WEREWOLF_RITES
+            title = "All Werewolf Rites"
+        
+        msg = self.format_header(title)
+        msg += "\n\n"
+        
+        # Group by rank
+        rites_by_rank = {1: [], 2: [], 3: [], 4: [], 5: []}
+        for rite_key, rite_data in rites.items():
+            rank = rite_data['rank']
+            rites_by_rank[rank].append((rite_key, rite_data))
+        
+        # Display rites by rank
+        for rank in range(1, 6):
+            rank_rites = rites_by_rank[rank]
+            if rank_rites:
+                dots = "●" * rank
+                msg += f"|g{dots}|n ({len(rank_rites)} rites)\n"
+                
+                for rite_key, rite_data in sorted(rank_rites, key=lambda x: x[1]['name']):
+                    rite_name = rite_data['name']
+                    rite_type = rite_data['rite_type'].title()
+                    prereqs = rite_data.get('prerequisites')
+                    cost = rite_data.get('cost')
+                    
+                    # Build display line
+                    display = f"  |y{rite_name}|n ({rite_type})"
+                    if prereqs:
+                        display += f" - Req: {prereqs}"
+                    if cost:
+                        display += f" - Cost: {cost}"
+                    
+                    msg += display + "\n"
+                
+                msg += "\n"
+        
+        msg += f"|cTotal:|n {len(rites)} rites\n"
+        msg += f"\n|cNote:|n Rites are individual abilities, not rated. Set with: |y+stat rite=<name>|n"
+        msg += f"\n|cDetailed lookup:|n |y+lookup rites <name>|n or |y+lookup <rite_name>|n"
+        msg += f"\n|cFilter by category:|n |y+lookup rites wolf|n, |y+lookup rites pack|n"
+        msg += f"\n|cFilter by rank:|n |y+lookup rites 1|n, |y+lookup rites 2|n, etc.\n\n"
+        msg += self.format_footer("Werewolf: The Forsaken")
+        
+        self.caller.msg(msg)
+    
+    def show_rite_details(self, rite_key, rite_data):
+        """Show detailed information about a specific werewolf rite."""
+        msg = f"|w{rite_data['name']} (Werewolf Rite)|n\n"
+        msg += f"|g{'=' * 78}|n\n\n"
+        
+        # Display rite details
+        msg += f"|cRite Type:|n {rite_data['rite_type'].title()} Rite\n"
+        
+        # Show rank as dots
+        rank = rite_data['rank']
+        dots = "●" * rank + "○" * (5 - rank)
+        msg += f"|cRank:|n {dots} ({rank})\n"
+        
+        # Prerequisites
+        prereqs = rite_data.get('prerequisites')
+        if prereqs:
+            msg += f"|cPrerequisites:|n {prereqs}\n"
+        else:
+            msg += f"|cPrerequisites:|n None\n"
+        
+        # Cost
+        cost = rite_data.get('cost')
+        if cost:
+            msg += f"|cCost:|n {cost}\n"
+        else:
+            msg += f"|cCost:|n None\n"
+        
+        msg += f"|cDescription:|n {rite_data['description']}\n"
+        
+        # Show tribe benefits for Sacred Hunt
+        if rite_key == "sacred_hunt" and 'tribe_benefits' in rite_data:
+            msg += f"\n|wTribal Benefits:|n\n"
+            for tribe, benefit in sorted(rite_data['tribe_benefits'].items()):
+                tribe_display = tribe.replace('_', ' ').title()
+                msg += f"  |c{tribe_display}:|n {benefit}\n"
+            msg += "\n"
+        
+        msg += f"|cSource:|n {rite_data['book']}\n"
+        
+        msg += f"\n|gSet on Character:|n |y+stat rite={rite_key}|n\n"
         
         self.caller.msg(msg)
 

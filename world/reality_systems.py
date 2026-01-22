@@ -34,6 +34,12 @@ def can_see_mien(viewer, target):
     if not viewer or not target:
         return False
     
+    # Safety check: ensure both characters have been saved to database (have IDs)
+    if not hasattr(viewer, 'id') or viewer.id is None:
+        return False
+    if not hasattr(target, 'id') or target.id is None:
+        return False
+    
     # Get character templates
     viewer_template = get_template(viewer)
     target_template = get_template(target)
@@ -79,6 +85,11 @@ def is_fae_touched(character):
     if not character:
         return False
     
+    # Safety check: ensure character has been saved to database (has ID)
+    # This prevents errors when checking tags on unsaved/deleted objects
+    if not hasattr(character, 'id') or character.id is None:
+        return False
+    
     # Check for Fae-Touched tag (manually set by staff)
     if character.tags.get("fae_touched", category="supernatural"):
         return True
@@ -104,6 +115,14 @@ def has_mien(character):
     Returns:
         bool: True if character should have a Mien
     """
+    if not character:
+        return False
+    
+    # Safety check: ensure character has been saved to database (has ID)
+    # This prevents errors when checking tags on unsaved/deleted objects
+    if not hasattr(character, 'id') or character.id is None:
+        return False
+    
     template = get_template(character)
     return template == "Changeling" or is_fae_touched(character)
 
@@ -206,6 +225,13 @@ def is_in_shadow(character):
     Returns:
         bool: True if character is in the Shadow
     """
+    if not character:
+        return False
+    
+    # Safety check: ensure character has been saved to database (has ID)
+    if not hasattr(character, 'id') or character.id is None:
+        return False
+    
     return character.tags.get("in_shadow", category="reality")
 
 

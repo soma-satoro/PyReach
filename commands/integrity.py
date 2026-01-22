@@ -24,6 +24,11 @@ class CmdIntegrity(MuxCommand):
         +integrity/heal <amount> [type] - Heal Clarity damage (Changelings only)
         +integrity/heal <character>=<amount> [type] - Heal another's Clarity (staff)
         
+    Demon Cover Checks:
+        For Demons, integrity checks test your primary cover's rating.
+        Use +cover/primary <id> to change which cover is checked.
+        Each cover has its own integrity track that can be damaged.
+        
     Breaking point rolls use Resolve + Composure with an automatic modifier
     based on your current Integrity:
         
@@ -265,6 +270,8 @@ class CmdIntegrity(MuxCommand):
             self._show_vampire_humanity_status(output, current_level, bp_data)
         elif template == "werewolf":
             self._show_werewolf_harmony_status(output, current_level)
+        elif template == "demon":
+            self._show_demon_cover_status(output)
         elif template in ["mortal", "mortal+", "hunter"]:
             self._show_mortal_integrity_status(output, current_level)
         else:
@@ -390,6 +397,60 @@ class CmdIntegrity(MuxCommand):
             output.append("|cYour Harmony is 8 or higher:|n")
             output.append("|cAdditional breaking points are active (see +integrity/break)|n")
     
+    def _show_demon_cover_status(self, output):
+        """Show Demon-specific Cover status."""
+        # Initialize covers if needed
+        if not hasattr(self.caller.db, 'cover_identities'):
+            self.caller.db.cover_identities = {}
+        
+        if not self.caller.db.cover_identities:
+            output.append("|yYou have no cover identities yet.|n")
+            output.append("|yUse |w+cover/new <name>|y to create a cover identity.|n")
+            output.append("")
+            return
+        
+        # Calculate max covers based on Primum
+        primum = self.caller.db.stats.get("advantages", {}).get("primum", 1)
+        if primum <= 4:
+            max_covers = primum
+        elif primum <= 6:
+            max_covers = 5
+        elif primum <= 8:
+            max_covers = 6
+        else:
+            max_covers = 7
+        
+        current_covers = len(self.caller.db.cover_identities)
+        output.append(f"|wYour Cover Identities:|n {current_covers}/{max_covers} (Primum {primum})")
+        output.append("")
+        
+        # Show each cover's rating
+        primary_cover_id = getattr(self.caller.db, 'primary_cover_id', None)
+        
+        for cover_id in sorted(self.caller.db.cover_identities.keys()):
+            cover_data = self.caller.db.cover_identities[cover_id]
+            is_primary = (cover_id == primary_cover_id)
+            primary_marker = " |g[PRIMARY]|n" if is_primary else ""
+            
+            cover_rating = cover_data.get('rating', 7)
+            output.append(f"  |c#{cover_id}|n - {cover_data['name']}{primary_marker}: Cover {cover_rating}/10")
+        
+        output.append("")
+        output.append("|wHow Cover Works:|n")
+        output.append("  • Each cover identity has its own rating (like Integrity)")
+        output.append("  • Breaking points test your primary cover by default")
+        output.append("  • Roll dice based on Cover rating + modifiers")
+        output.append("  • Failure: Lose 1 Cover rating")
+        output.append("  • Dramatic Failure: Lose 1 Cover, risk Glitch, gain Beat")
+        output.append("  • Success: Cover holds")
+        output.append("  • Exceptional: Cover reinforced, gain Beat")
+        output.append("")
+        output.append("|wManaging Covers:|n")
+        output.append("  • Use |w+cover|n to view and manage your covers")
+        output.append("  • Use |w+cover/primary <id>|n to set your active cover")
+        output.append("  • Use |w+sheet/demon|n to see covers and glitches")
+        output.append("  • Maximum covers increases with Primum")
+    
     def _show_mortal_integrity_status(self, output, current_level):
         """Show Mortal/Hunter-specific Integrity status."""
         # Try to get breaking points from bio
@@ -439,20 +500,42 @@ class CmdIntegrity(MuxCommand):
         integrity_name = bp_data["name"]
         breaking_points = bp_data["data"]
         
-        # Get current integrity level
-        try:
-            current_level = self.caller.db.stats['other'].get('integrity', 7)
-        except (KeyError, TypeError, AttributeError):
-            current_level = 7
+        # Get current integrity level (for Demons, use primary cover rating)
+        if template == "demon":
+            # Get primary cover rating
+            if not hasattr(self.caller.db, 'cover_identities') or not self.caller.db.cover_identities:
+                self.caller.msg("|yYou have no cover identities yet.|n")
+                self.caller.msg("Use |w+cover/new <name>|n to create a cover identity.")
+                return
+            
+            primary_cover_id = getattr(self.caller.db, 'primary_cover_id', None)
+            if not primary_cover_id or primary_cover_id not in self.caller.db.cover_identities:
+                primary_cover_id = min(self.caller.db.cover_identities.keys())
+            
+            cover_data = self.caller.db.cover_identities[primary_cover_id]
+            current_level = cover_data.get('rating', 7)
+            cover_name = cover_data['name']
+        else:
+            try:
+                current_level = self.caller.db.stats['other'].get('integrity', 7)
+            except (KeyError, TypeError, AttributeError):
+                current_level = 7
+            cover_name = None
         
         # Build output
         output = []
         output.append("|g<" + "=" * 78 + ">|n")
-        title = f"{integrity_name.upper()} BREAKING POINTS"
+        if template == "demon" and cover_name:
+            title = f"{integrity_name.upper()} BREAKING POINTS - {cover_name.upper()}"
+        else:
+            title = f"{integrity_name.upper()} BREAKING POINTS"
         output.append("|g" + title.center(80) + "|n")
         output.append("|g<" + "=" * 78 + ">|n")
         output.append("")
-        output.append(f"|wCurrent {integrity_name}:|n {current_level}")
+        if template == "demon" and cover_name:
+            output.append(f"|wCurrent {integrity_name} (Cover #{primary_cover_id} - {cover_name}):|n {current_level}")
+        else:
+            output.append(f"|wCurrent {integrity_name}:|n {current_level}")
         output.append("")
         
         # Check the type of breaking points display
@@ -569,6 +652,11 @@ class CmdIntegrity(MuxCommand):
         elif bp_type == "descending":
             output.append("|yNote:|n Breaking points require a degeneration roll using the listed dice.")
             output.append("Roll results determine if you lose a point of " + integrity_name + " and gain Conditions.")
+            if template == "demon":
+                output.append("")
+                output.append("|cDemons:|n Each cover identity has its own Cover rating.")
+                output.append("Checks are made against your primary cover (use |w+cover/primary <id>|n to change).")
+                output.append("Use |w+cover|n to manage your cover identities.")
         else:
             output.append("|yNote:|n When you encounter a breaking point, roll the listed number of dice.")
             output.append("Your current " + integrity_name + " may modify the roll. Failure means losing " + integrity_name + ".")
@@ -589,6 +677,9 @@ class CmdIntegrity(MuxCommand):
             return
         elif template == "vampire":
             self.perform_vampire_detachment(target, manual_modifier, stat_bonuses)
+            return
+        elif template == "demon":
+            self.perform_demon_cover_check(target, manual_modifier, stat_bonuses)
             return
         
         # Get character stats
@@ -1097,6 +1188,239 @@ class CmdIntegrity(MuxCommand):
         # Clean up stored data
         if hasattr(target.ndb, 'vampire_detachment_result'):
             del target.ndb.vampire_detachment_result
+    
+    def perform_demon_cover_check(self, target, manual_modifier=0, stat_bonuses=None):
+        """Perform a Cover check for a Demon character."""
+        # Initialize covers if needed
+        if not hasattr(target.db, 'cover_identities') or not target.db.cover_identities:
+            self.caller.msg(f"|r{target.name} has no cover identities.|n")
+            self.caller.msg("Use |w+cover/new <name>|n to create a cover identity.")
+            return
+        
+        # Determine which cover to check
+        # For now, use primary cover. Later we can add support for specifying cover
+        primary_cover_id = getattr(target.db, 'primary_cover_id', None)
+        
+        if not primary_cover_id or primary_cover_id not in target.db.cover_identities:
+            # Use first available cover
+            primary_cover_id = min(target.db.cover_identities.keys())
+            target.db.primary_cover_id = primary_cover_id
+        
+        cover_data = target.db.cover_identities[primary_cover_id]
+        cover_name = cover_data['name']
+        cover_rating = cover_data.get('rating', 7)
+        
+        # Get the dice pool from Cover rating
+        bp_data = get_breaking_points("demon")
+        if bp_data and cover_rating in bp_data["data"]:
+            base_dice = bp_data["data"][cover_rating]["dice"]
+        else:
+            base_dice = 3  # Default
+        
+        # Add stat bonuses if provided
+        stat_bonus_total = 0
+        if stat_bonuses:
+            for stat_name, stat_value in stat_bonuses:
+                stat_bonus_total += stat_value
+        
+        # Calculate total dice pool
+        dice_pool = base_dice + manual_modifier + stat_bonus_total
+        
+        # Ensure minimum pool
+        if dice_pool < 0:
+            dice_pool = 0
+        
+        # Perform the roll
+        rolls, successes, ones = roll_dice(dice_pool, 10, {RollType.NORMAL})
+        
+        # Determine result type (CoD 2e rules)
+        result_type = "success"
+        if dice_pool == 0 and ones >= 1:
+            result_type = "dramatic_failure"
+        elif successes == 0:
+            result_type = "failure"
+        elif successes >= 5:
+            result_type = "exceptional_success"
+        
+        # Display the result
+        self._display_demon_cover_result(target, dice_pool, rolls, successes, ones, result_type,
+                                         cover_rating, base_dice, manual_modifier, stat_bonuses,
+                                         primary_cover_id, cover_name)
+        
+        # Store result for processing
+        target.ndb.demon_cover_result = {
+            'result_type': result_type,
+            'successes': successes,
+            'cover_rating': cover_rating,
+            'cover_id': primary_cover_id,
+            'cover_name': cover_name,
+            'caller': self.caller
+        }
+        
+        # Handle the result
+        if result_type == "dramatic_failure":
+            self._handle_demon_dramatic_failure(target, primary_cover_id)
+        elif result_type == "failure":
+            self._handle_demon_failure(target, primary_cover_id)
+        elif result_type == "success":
+            self._handle_demon_success(target)
+        elif result_type == "exceptional_success":
+            self._handle_demon_exceptional_success(target)
+    
+    def _display_demon_cover_result(self, target, dice_pool, rolls, successes, ones,
+                                    result_type, cover_rating, base_dice, manual_modifier,
+                                    stat_bonuses, cover_id, cover_name):
+        """Display the formatted Demon cover check result."""
+        # Build header
+        output = []
+        output.append("|y" + "=" * 78 + "|n")
+        title = f"COVER CHECK - {target.name}"
+        output.append("|y" + title.center(78) + "|n")
+        output.append("|y" + "=" * 78 + "|n")
+        output.append("")
+        output.append(f"|wCover Identity:|n #{cover_id} - {cover_name}")
+        output.append("")
+        
+        # Dice pool breakdown
+        output.append("|wDice Pool:|n")
+        breakdown = []
+        breakdown.append(f"  Base (Cover {cover_rating}): {base_dice}")
+        if stat_bonuses:
+            for stat_name, stat_value in stat_bonuses:
+                breakdown.append(f"  {stat_name.title()}: +{stat_value}")
+        if manual_modifier != 0:
+            mod_sign = "+" if manual_modifier > 0 else ""
+            breakdown.append(f"  Situational Modifier: {mod_sign}{manual_modifier}")
+        breakdown.append(f"  |cTotal: {dice_pool} dice|n")
+        output.extend(breakdown)
+        output.append("")
+        
+        # Roll results
+        output.append("|wRoll Results:|n")
+        
+        # Format dice rolls with color coding
+        formatted_rolls = []
+        for die in rolls:
+            if die == 10:
+                formatted_rolls.append(f"|g{die}|n")
+            elif die >= 8:
+                formatted_rolls.append(f"|c{die}|n")
+            elif die == 1:
+                formatted_rolls.append(f"|r{die}|n")
+            else:
+                formatted_rolls.append(f"|x{die}|n")
+        
+        output.append(f"  Rolls: {' '.join(formatted_rolls)}")
+        output.append(f"  |cSuccesses: {successes}|n")
+        if ones > 0:
+            output.append(f"  |rOnes: {ones}|n")
+        output.append("")
+        
+        # Result type
+        if result_type == "dramatic_failure":
+            output.append("|r" + "DRAMATIC FAILURE".center(78) + "|n")
+        elif result_type == "failure":
+            output.append("|y" + "FAILURE".center(78) + "|n")
+        elif result_type == "success":
+            output.append("|g" + "SUCCESS".center(78) + "|n")
+        elif result_type == "exceptional_success":
+            output.append("|G" + "EXCEPTIONAL SUCCESS!".center(78) + "|n")
+        
+        output.append("|y" + "=" * 78 + "|n")
+        
+        # Send to roller and target (if different)
+        message = "\n".join(output)
+        self.caller.msg(message)
+        if target != self.caller:
+            target.msg(message)
+        
+        # Send to room
+        room_msg = []
+        room_msg.append(f"|c{target.name}|n makes a cover check.")
+        if result_type == "dramatic_failure":
+            room_msg.append("|r[Dramatic Failure]|n")
+        elif result_type == "failure":
+            room_msg.append("|y[Failure]|n")
+        elif result_type == "success":
+            room_msg.append("|g[Success]|n")
+        elif result_type == "exceptional_success":
+            room_msg.append("|G[Exceptional Success!]|n")
+        
+        # Announce to room (exclude self and staff if different)
+        if target.location:
+            exclude = [target]
+            if self.caller != target:
+                exclude.append(self.caller)
+            target.location.msg_contents("\n".join(room_msg), exclude=exclude)
+    
+    def _handle_demon_dramatic_failure(self, target, cover_id):
+        """Handle Demon dramatic failure - lose Cover, risk Glitch."""
+        cover_data = target.db.cover_identities[cover_id]
+        current_cover = cover_data['rating']
+        new_cover = max(0, current_cover - 1)
+        
+        cover_data['rating'] = new_cover
+        target.db.cover_identities[cover_id] = cover_data
+        
+        target.msg(f"|rYour cover '{cover_data['name']}' is compromised!|n")
+        target.msg(f"|rCover rating drops from {current_cover} to {new_cover}.|n")
+        target.msg(f"|rYou risk developing a Glitch. Contact staff to determine effects.|n")
+        
+        # Award beat for dramatic failure
+        if not hasattr(target, 'experience'):
+            target.experience = ExperienceHandler(target)
+        target.experience.add_beat(1)
+        
+        # Log the beat gain
+        from world.xp_logger import get_xp_logger
+        logger = get_xp_logger(target)
+        logger.log_beat(1, "Cover Check Dramatic Failure", details=f"Cover: {cover_data['name']}")
+        
+        target.msg("|yYou gain a Beat for dramatic failure.|n")
+    
+    def _handle_demon_failure(self, target, cover_id):
+        """Handle Demon failure - lose Cover."""
+        cover_data = target.db.cover_identities[cover_id]
+        current_cover = cover_data['rating']
+        new_cover = max(0, current_cover - 1)
+        
+        cover_data['rating'] = new_cover
+        target.db.cover_identities[cover_id] = cover_data
+        
+        target.msg(f"|yYour cover '{cover_data['name']}' is weakened.|n")
+        target.msg(f"|yCover rating drops from {current_cover} to {new_cover}.|n")
+        
+        # Clean up stored data
+        if hasattr(target.ndb, 'demon_cover_result'):
+            del target.ndb.demon_cover_result
+    
+    def _handle_demon_success(self, target):
+        """Handle Demon success - Cover holds."""
+        target.msg("|gYour cover identity holds firm!|n")
+        
+        # Clean up stored data
+        if hasattr(target.ndb, 'demon_cover_result'):
+            del target.ndb.demon_cover_result
+    
+    def _handle_demon_exceptional_success(self, target):
+        """Handle Demon exceptional success - Cover strengthened, gain Beat."""
+        target.msg("|GYour cover is reinforced by your performance!|n")
+        
+        # Award beat for exceptional success
+        if not hasattr(target, 'experience'):
+            target.experience = ExperienceHandler(target)
+        target.experience.add_beat(1)
+        
+        # Log the beat gain
+        from world.xp_logger import get_xp_logger
+        logger = get_xp_logger(target)
+        logger.log_beat(1, "Cover Check Exceptional Success", details="Cover reinforced")
+        
+        target.msg("|yYou gain a Beat for exceptional success!|n")
+        
+        # Clean up stored data
+        if hasattr(target.ndb, 'demon_cover_result'):
+            del target.ndb.demon_cover_result
     
     def _handle_clarity_success(self, target, wyrd, severe=False):
         """Handle Clarity attack success - roll Wyrd for damage."""

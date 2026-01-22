@@ -82,12 +82,20 @@ class Character(DefaultCharacter):
             "merits": {},
             "specialties": {},
             "powers": {},
+            "renown": {
+                "glory": 0,
+                "honor": 0,
+                "cunning": 0,
+                "purity": 0,
+                "wisdom": 0
+            },
             "other": {
                 "template": "Mortal",
                 "integrity": 7,
                 "size": 5,
                 "beats": 0,
-                "experience": 0
+                "experience": 0,
+                "favored_stat": None  # Tracks which stat gets the free dot (vampire attr, werewolf skill, etc.)
             }
         }
         
@@ -112,18 +120,30 @@ class Character(DefaultCharacter):
         if expired:
             self.msg(f"The following conditions have expired: {', '.join(expired)}")
 
-    def at_object_receive(self, moved_obj, source_location):
+    def at_object_receive(self, moved_obj, source_location, move_type="move", **kwargs):
         """
         Called when an object is moved into this character's inventory.
+        
+        Args:
+            moved_obj (Object): The object moved into this one
+            source_location (Object): Where `moved_object` came from
+            move_type (str): The type of move (e.g., "give", "traverse", etc.)
+            **kwargs: Arbitrary, optional arguments
         """
-        super().at_object_receive(moved_obj, source_location)
+        super().at_object_receive(moved_obj, source_location, move_type=move_type, **kwargs)
         # Add any condition-related logic here
 
-    def at_object_leave(self, moved_obj, destination):
+    def at_object_leave(self, moved_obj, destination, move_type="move", **kwargs):
         """
         Called when an object is moved out of this character's inventory.
+        
+        Args:
+            moved_obj (Object): The object leaving
+            destination (Object): Where `moved_obj` is going
+            move_type (str): The type of move (e.g., "give", "traverse", etc.)
+            **kwargs: Arbitrary, optional arguments
         """
-        super().at_object_leave(moved_obj, destination)
+        super().at_object_leave(moved_obj, destination, move_type=move_type, **kwargs)
         # Add any condition-related logic here
 
     def stat_add(self, stat, value):
@@ -242,12 +262,21 @@ class Character(DefaultCharacter):
             },
             "merits": {},
             "specialties": {},
+            "powers": {},
+            "renown": {
+                "glory": 0,
+                "honor": 0,
+                "cunning": 0,
+                "purity": 0,
+                "wisdom": 0
+            },
             "other": {
                 "template": str(new_template).title(),
                 "integrity": starting_integrity,
                 "size": 5,
                 "beats": 0,
-                "experience": 0
+                "experience": 0,
+                "favored_stat": None
             }
         }
         

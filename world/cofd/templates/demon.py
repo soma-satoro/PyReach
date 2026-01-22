@@ -43,9 +43,10 @@ DEMON_TEMPLATE = {
     "name": "demon",
     "display_name": "Demon",
     "description": "Demons are fallen angels who have escaped from the God-Machine's control and now struggle to maintain their human identities.",
-    "bio_fields": ["virtue", "vice", "incarnation", "agenda", "catalyst", "ring", "cover_identity", "first_key"],
+    "bio_fields": ["virtue", "vice", "incarnation", "agenda", "catalyst", "ring", "first_key"],
     "integrity_name": "Cover",
     "starting_integrity": 7,
+    "multiple_integrity": True,  # Demons have multiple covers
     "supernatural_power_stat": "primum",
     "starting_power_stat": 1,
     "resource_pool": "aether",

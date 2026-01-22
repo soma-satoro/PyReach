@@ -171,6 +171,72 @@ class CmdSheet(MuxCommand):
         # Fallback to default mortal fields if template not found
         return ["virtue", "vice"]
 
+    def _format_covenant_name(self, covenant):
+        """
+        Format covenant name with proper capitalization and full name.
+        Handles abbreviations and variations.
+        
+        Args:
+            covenant (str): Raw covenant name from database
+            
+        Returns:
+            str: Properly formatted covenant name
+        """
+        if not covenant:
+            return covenant
+        
+        # Covenant full name mapping
+        covenant_names = {
+            'carthian_movement': 'The Carthian Movement',
+            'carthian': 'The Carthian Movement',
+            'circle_of_the_crone': 'The Circle of the Crone',
+            'circle': 'The Circle of the Crone',
+            'crone': 'The Circle of the Crone',
+            'crones': 'The Circle of the Crone',
+            'invictus': 'The Invictus',
+            'ordo_dracul': 'The Ordo Dracul',
+            'ordo': 'The Ordo Dracul',
+            'dracul': 'The Ordo Dracul',
+            'lancea_et_sanctum': 'Lancea et Sanctum',
+            'lancea_sanctum': 'Lancea et Sanctum',
+            'lancea': 'Lancea et Sanctum',
+            'belials_brood': "Belial's Brood",
+            'belial': "Belial's Brood",
+            'vii': 'VII',
+            'seven': 'VII',
+            'unaligned': 'Unaligned'
+        }
+        
+        covenant_lower = covenant.lower().replace(' ', '_')
+        return covenant_names.get(covenant_lower, covenant.replace('_', ' ').title())
+    
+    def _format_tribe_name(self, tribe):
+        """
+        Format tribe name with proper capitalization.
+        
+        Args:
+            tribe (str): Raw tribe name from database
+            
+        Returns:
+            str: Properly formatted tribe name
+        """
+        if not tribe:
+            return tribe
+        
+        # Tribe name mapping
+        tribe_names = {
+            'blood_talons': 'Blood Talons',
+            'bone_shadows': 'Bone Shadows',
+            'hunters_in_darkness': 'Hunters in Darkness',
+            'iron_masters': 'Iron Masters',
+            'storm_lords': 'Storm Lords',
+            'ghost_wolf': 'Ghost Wolf',
+            'ghost_wolves': 'Ghost Wolf'
+        }
+        
+        tribe_lower = tribe.lower().replace(' ', '_')
+        return tribe_names.get(tribe_lower, tribe.replace('_', ' ').title())
+    
     def _format_section_header(self, section_name):
         """
         Create an arrow-style section header that spans 78 characters.
@@ -631,8 +697,14 @@ class CmdSheet(MuxCommand):
                         "clan": True, "bloodline": True,  # Vampire
                         "lineage": True, "refinement": True  # Promethean
                     }
-                    # Special handling for keeper and entitlement - use title case (all words capitalized)
-                    if field in ["keeper", "entitlement"] and field_value != "<not set>":
+                    # Special handling for covenant - use full name mapping
+                    if field == "covenant" and field_value != "<not set>":
+                        field_value = self._format_covenant_name(field_value)
+                    # Special handling for tribe - use proper formatting
+                    elif field == "tribe" and field_value != "<not set>":
+                        field_value = self._format_tribe_name(field_value)
+                    # Special handling for multi-word fields - use title case (all words capitalized)
+                    elif field in ["keeper", "entitlement", "lodge", "pack"] and field_value != "<not set>":
                         field_value = field_value.replace("_", " ").replace("-", " ").title()
                     elif field in capitalization_fixes and field_value != "<not set>":
                         # Convert to sentence case (first letter uppercase, rest lowercase)
@@ -867,8 +939,18 @@ class CmdSheet(MuxCommand):
                 f"{'Size':<15} : {other.get('size', 5)}"
             ]
         
-        # Add integrity to advantages (except for Geist characters who don't use integrity)
-        if template != "geist":
+        # Add integrity to advantages (except for Geist and Deviant characters)
+        # Deviants use Loyalty and Conviction instead of Integrity
+        if template == "deviant":
+            loyalty = other.get('loyalty', 1)
+            conviction = other.get('conviction', 3)
+            if use_numeric:
+                advantage_list.append(f"  Loyalty................... {loyalty}")
+                advantage_list.append(f"  Conviction................ {conviction}")
+            else:
+                advantage_list.append(f"  {'Loyalty':<21} : {loyalty}")
+                advantage_list.append(f"  {'Conviction':<21} : {conviction}")
+        elif template != "geist":
             integrity_name = target.get_integrity_name(template)
             if use_numeric:
                 padding = '.' * (26 - len(integrity_name))
@@ -1204,7 +1286,7 @@ class CmdSheet(MuxCommand):
                 # Add hint for demon characters
                 if template.lower() == "demon":
                     output.append("")
-                    output.append("|gSee +sheet/demon for detailed demonic form traits (Modifications, Technologies, Propulsion, Process).|n")
+                    output.append("|gSee +demon for detailed demonic form traits.|n")
         
         # Mage Spells section (individual spells without ratings)
         if template.lower() in ["mage", "legacy_mage"]:
@@ -1364,6 +1446,62 @@ class CmdSheet(MuxCommand):
                 output.append("No gifts learned yet.")
             
             output.append("")
+            
+            # Renown section (for Werewolves)
+            renown = target.db.stats.get("renown", {})
+            if renown:
+                has_renown = any(v > 0 for v in renown.values())
+                if has_renown:
+                    output.append(self._format_section_header("|wRENOWN|n"))
+                    
+                    renown_display = []
+                    for renown_type in ['glory', 'honor', 'cunning', 'purity', 'wisdom']:
+                        dots = renown.get(renown_type, 0)
+                        if dots > 0:
+                            dots_display = self._format_dots(dots, 10, force_ascii)
+                            renown_name = renown_type.title()
+                            
+                            if use_numeric:
+                                padding = '.' * (20 - len(renown_name))
+                                renown_text = f"{renown_name}{padding}{dots}"
+                            else:
+                                renown_text = f"{renown_name:<20} {dots_display}"
+                            renown_display.append(renown_text)
+                    
+                    if renown_display:
+                        # Display renown in single column
+                        for renown_line in renown_display:
+                            output.append(f"  {renown_line}")
+                    
+                    output.append("")
+            
+            # Rites section (for Werewolves)
+            rite_list = []
+            for power_name, value in powers.items():
+                if power_name.startswith("rite:") and value == "known":
+                    # Extract rite key from "rite:rite_name"
+                    rite_key = power_name[5:]  # Remove "rite:" prefix
+                    
+                    # Look up rite data for rank information
+                    from world.cofd.powers.werewolf_rites import get_rite
+                    rite_data = get_rite(rite_key)
+                    if rite_data:
+                        rank_dots = self._format_dots(rite_data['rank'], 5, force_ascii)
+                        rite_type = rite_data['rite_type'].title()
+                        rite_display = f"{rite_data['name']} ({rite_type} {rank_dots})"
+                        rite_list.append(rite_display)
+                    else:
+                        # Rite not found, show as unknown
+                        rite_display = f"{rite_key.replace('_', ' ').title()} (Unknown Rite)"
+                        rite_list.append(rite_display)
+            
+            if rite_list:
+                output.append(self._format_section_header("|wRITES|n"))
+                # Display rites in single column for readability (since they have rank info)
+                for rite in sorted(rite_list):
+                    output.append(f"  {rite}")
+                
+                output.append("")
         
         # Vampire Discipline Powers/Devotions/Ritual sections
         if template.lower() == "vampire":
@@ -1836,7 +1974,7 @@ class CmdSheet(MuxCommand):
         self.caller.msg("\n".join(output))
     
     def show_demon_form_sheet(self):
-        """Display the demonic form character sheet for Demons"""
+        """Display cover identities and glitches for Demons"""
         # Determine target
         if self.args:
             target = search_character(self.caller, self.args.strip())
@@ -1849,35 +1987,117 @@ class CmdSheet(MuxCommand):
         character_template = target.db.stats.get("other", {}).get("template", "Mortal")
         if character_template.lower() != "demon":
             self.caller.msg(f"{target.name} is not a Demon. Current template: {character_template}")
-            self.caller.msg("Only Demon characters have a demonic form to display.")
-            return
-        
-        # Check if demon form stats exist
-        if not hasattr(target.db, 'demon_form_stats') or not target.db.demon_form_stats:
-            self.caller.msg(f"{target.name} has no demonic form character sheet set up yet.")
-            self.caller.msg("Use +stat/demon <stat>=<value> to set demonic form traits.")
+            self.caller.msg("Only Demon characters have cover identities.")
             return
         
         # Get dot style and check UTF-8 support
         force_ascii = "ascii" in self.switches
         filled_char, empty_char, supports_utf8, use_numeric = self._get_dots_style(force_ascii)
         
-        # Import the template-specific render function
-        from world.cofd.templates.demon import render_demon_form_sheet
+        # Build output
+        output = []
+        output.append("|y" + "=" * 78 + "|n")
+        title = f"{target.name}'s COVER IDENTITIES & GLITCHES"
+        output.append("|y" + title.center(78) + "|n")
+        output.append("|y" + "=" * 78 + "|n")
+        output.append("")
         
-        # Render the demon form sheet
-        output = render_demon_form_sheet(target, self.caller, force_ascii)
+        # Cover Identities Section
+        output.append(self._format_section_header("|wCOVER IDENTITIES|n"))
         
-        if output is None:
-            self.caller.msg(f"{target.name} has no demonic form character sheet set up yet.")
-            self.caller.msg("Use +stat/demon <stat>=<value> to set demonic form traits.")
-            return
+        # Initialize covers if needed
+        if not hasattr(target.db, 'cover_identities'):
+            target.db.cover_identities = {}
+        
+        if not target.db.cover_identities:
+            output.append("No cover identities created yet.")
+            output.append("|xUse |w+cover/new <name>|x to create a cover identity.|n")
+        else:
+            # Calculate max covers based on Primum
+            primum = target.db.stats.get("advantages", {}).get("primum", 1)
+            if primum <= 4:
+                max_covers = primum
+            elif primum <= 6:
+                max_covers = 5
+            elif primum <= 8:
+                max_covers = 6
+            else:
+                max_covers = 7
+            
+            current_covers = len(target.db.cover_identities)
+            output.append(f"|wCurrent Covers:|n {current_covers}/{max_covers} (Primum {primum})")
+            output.append("")
+            
+            # Show each cover
+            primary_cover_id = getattr(target.db, 'primary_cover_id', None)
+            
+            for cover_id in sorted(target.db.cover_identities.keys()):
+                cover_data = target.db.cover_identities[cover_id]
+                
+                is_primary = (cover_id == primary_cover_id)
+                primary_marker = " |g[PRIMARY]|n" if is_primary else ""
+                
+                # Header with rating
+                cover_rating = cover_data.get('rating', 7)
+                rating_display = self._format_dots(cover_rating, 10, force_ascii)
+                
+                if use_numeric:
+                    output.append(f"|c#{cover_id}|n - |w{cover_data['name']}|n{primary_marker} - Cover: {cover_rating}/10")
+                else:
+                    output.append(f"|c#{cover_id}|n - |w{cover_data['name']}|n{primary_marker}")
+                    output.append(f"     Cover Rating: {rating_display}")
+                
+                # Details
+                details = []
+                if cover_data.get('age'):
+                    details.append(f"Age: {cover_data['age']}")
+                if cover_data.get('gender'):
+                    details.append(f"Gender: {cover_data['gender']}")
+                if cover_data.get('occupation'):
+                    details.append(f"Occupation: {cover_data['occupation']}")
+                
+                if details:
+                    output.append(f"     {', '.join(details)}")
+                output.append("")
+            
+            output.append("|xUse |w+cover <id>|x for detailed view, |w+cover/primary <id>|x to set primary.|n")
+        
+        output.append("")
+        
+        # Glitches Section
+        output.append(self._format_section_header("|wGLITCHES|n"))
+        
+        # Get glitches from conditions or dedicated storage
+        glitches = []
+        if hasattr(target.db, 'glitches') and target.db.glitches:
+            glitches = target.db.glitches
+        
+        if not glitches:
+            output.append("No active glitches.")
+            output.append("|xGlitches are supernatural effects that occur when Cover is compromised.|n")
+        else:
+            for i, glitch in enumerate(glitches, 1):
+                if isinstance(glitch, dict):
+                    glitch_name = glitch.get('name', 'Unknown Glitch')
+                    glitch_desc = glitch.get('description', '')
+                    output.append(f"{i}. |r{glitch_name}|n")
+                    if glitch_desc:
+                        output.append(f"   {glitch_desc}")
+                else:
+                    output.append(f"{i}. |r{glitch}|n")
+                output.append("")
+        
+        output.append("")
+        output.append("|xUse |w+demon|x to view your demonic form.|n")
+        output.append("|y" + "=" * 78 + "|n")
         
         # Add encoding warning if needed
         if not supports_utf8 and not force_ascii:
             output.append("|y(ASCII mode due to encoding - see note above for UTF-8)|n")
         
-        self.caller.msg("\n".join(output))
+        text = "\n".join(output)
+        from evennia.utils.evmore import EvMore
+        EvMore(self.caller, text, always_page=False, session=self.session, justify_kwargs=False, exit_on_lastpage=True)
     
     def show_deviant_sheet(self):
         """Display the Deviant-specific character sheet showing Variations and Scars"""
@@ -2193,8 +2413,14 @@ class CmdSheet(MuxCommand):
                         "clan": True, "bloodline": True,  # Vampire
                         "lineage": True, "refinement": True  # Promethean
                     }
-                    # Special handling for keeper and entitlement - use title case (all words capitalized)
-                    if field in ["keeper", "entitlement"] and field_value != "<not set>":
+                    # Special handling for covenant - use full name mapping
+                    if field == "covenant" and field_value != "<not set>":
+                        field_value = self._format_covenant_name(field_value)
+                    # Special handling for tribe - use proper formatting
+                    elif field == "tribe" and field_value != "<not set>":
+                        field_value = self._format_tribe_name(field_value)
+                    # Special handling for multi-word fields - use title case (all words capitalized)
+                    elif field in ["keeper", "entitlement", "lodge", "pack"] and field_value != "<not set>":
                         field_value = field_value.replace("_", " ").replace("-", " ").title()
                     elif field in capitalization_fixes and field_value != "<not set>":
                         # Convert to sentence case (first letter uppercase, rest lowercase)
@@ -2440,8 +2666,18 @@ class CmdSheet(MuxCommand):
                 f"{'Size':<15} : {other.get('size', 5)}"
             ]
         
-        # Add integrity to advantages (except for Geist characters who don't use integrity)
-        if template != "geist":
+        # Add integrity to advantages (except for Geist and Deviant characters)
+        # Deviants use Loyalty and Conviction instead of Integrity
+        if template == "deviant":
+            loyalty = other.get('loyalty', 1)
+            conviction = other.get('conviction', 3)
+            if use_numeric:
+                advantage_list.append(f"Loyalty................... {loyalty}")
+                advantage_list.append(f"Conviction................ {conviction}")
+            else:
+                advantage_list.append(f"{'Loyalty':<15} : {loyalty}")
+                advantage_list.append(f"{'Conviction':<15} : {conviction}")
+        elif template != "geist":
             integrity_name = target.get_integrity_name(template)
             if use_numeric:
                 padding = '.' * (21 - len(integrity_name))
@@ -2946,6 +3182,62 @@ class CmdSheet(MuxCommand):
                 output.append("No gifts learned yet.")
             
             output.append("")
+            
+            # Renown section (for Werewolves)
+            renown = target.db.stats.get("renown", {})
+            if renown:
+                has_renown = any(v > 0 for v in renown.values())
+                if has_renown:
+                    output.append(self._format_section_header("|wRENOWN|n"))
+                    
+                    renown_display = []
+                    for renown_type in ['glory', 'honor', 'cunning', 'purity', 'wisdom']:
+                        dots = renown.get(renown_type, 0)
+                        if dots > 0:
+                            dots_display = self._format_dots(dots, 10, force_ascii)
+                            renown_name = renown_type.title()
+                            
+                            if use_numeric:
+                                padding = '.' * (20 - len(renown_name))
+                                renown_text = f"{renown_name}{padding}{dots}"
+                            else:
+                                renown_text = f"{renown_name:<20} {dots_display}"
+                            renown_display.append(renown_text)
+                    
+                    if renown_display:
+                        # Display renown in single column
+                        for renown_line in renown_display:
+                            output.append(f"  {renown_line}")
+                    
+                    output.append("")
+            
+            # Rites section (for Werewolves)
+            rite_list = []
+            for power_name, value in powers.items():
+                if power_name.startswith("rite:") and value == "known":
+                    # Extract rite key from "rite:rite_name"
+                    rite_key = power_name[5:]  # Remove "rite:" prefix
+                    
+                    # Look up rite data for rank information
+                    from world.cofd.powers.werewolf_rites import get_rite
+                    rite_data = get_rite(rite_key)
+                    if rite_data:
+                        rank_dots = self._format_dots(rite_data['rank'], 5, force_ascii)
+                        rite_type = rite_data['rite_type'].title()
+                        rite_display = f"{rite_data['name']} ({rite_type} {rank_dots})"
+                        rite_list.append(rite_display)
+                    else:
+                        # Rite not found, show as unknown
+                        rite_display = f"{rite_key.replace('_', ' ').title()} (Unknown Rite)"
+                        rite_list.append(rite_display)
+            
+            if rite_list:
+                output.append(self._format_section_header("|wRITES|n"))
+                # Display rites in single column for readability (since they have rank info)
+                for rite in sorted(rite_list):
+                    output.append(f"  {rite}")
+                
+                output.append("")
         
         # Vampire Discipline Powers/Devotions/Ritual sections
         if template.lower() == "vampire":

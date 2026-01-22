@@ -22,14 +22,126 @@ class CmdStat(MuxCommand):
         +stat/remove <stat> - Remove a stat from yourself (if not approved)
         +stat/remove specialty/<skill> - Remove all specialties for a skill
         +stat/remove specialty/<skill>=<specialty name> - Remove a specific specialty
+        +stat/favored <stat> - Select free bonus dot (adds 1 dot to the stat)
         +stat/geist <stat>=<value> - Set a geist stat (Sin-Eater characters only)
         +stat/mage <stat>=<value> - Set a mage stat (Mage characters only)
         +stat/demon <stat>=<value> - Set a demon form stat (Demon characters only)
         
         Shortcuts:
         +stat type=<value> - Alias for template_type (Mortal+ characters)
-        +stat clan=<value> - Alias for subtype (Ghoul characters)
+        +stat clan=<value> - Sets clan for Vampires, or subtype for Ghouls/Revenants
         +stat tell=<value> - Alias for subtype (Wolf-Blooded characters)
+        
+        Covenant Abbreviations (Vampire):
+        Carthian, Circle, Crone/Crones, Invictus, Ordo, Dracul, Lancea, Belial, VII/Seven
+        
+        Tribe Abbreviations (Werewolf):
+        Talons, Shadows, Hunters, Masters, Lords, Ghost
+        
+        Template-Specific Free Bonus Dots:
+        Vampire: One attribute from clan favored attributes (use +stat/favored)
+        Werewolf: One skill from auspice skills (use +stat/favored)
+        Changeling: One attribute based on seeming category (use +stat/favored)
+        Mage: Choice of Composure, Resolve, or Stamina (use +stat/favored)
+        Hunter: 3 free tactics (use +stat tactics=<list>) + 1 dot Status (tier 2+)
+        
+        Hunter-Specific Stats:
+        +stat tier=<1-3> - Set hunter tier (1=Cell, 2=Compact, 3=Conspiracy)
+        +stat tactics=<tactic1,tactic2,tactic3> - Set 3 cell favored tactics
+        +stat organization=<name> - Set compact/conspiracy name (tier 2+)
+        +stat profession=<job> - Set profession (tier 1 cells)
+        
+        Mummy-Specific Stats:
+        +stat decree=<name> - Set decree (ashem/jackal, deshret/falcon, kheru/lion, nesrem/bull, usheb/serpent)
+        +stat guild=<name> - Set guild (maa-kep, mesen-nebu, sesha-hebsu, su-menent, tef-aabhi)
+        +stat judge=<name> - Set judge (am-khaibit, arem-abfu, kenemti, nebha, neheb-ka, unem-besek, usekh-nemtet)
+        +stat balance=<archetype> - Set balance anchor (mummy's virtue equivalent)
+        +stat burden=<archetype> - Set burden anchor (mummy's vice equivalent)
+        +stat ab/ba/ka/ren/sheut=<0-5> - Set pillar dots (9 total, defining pillar must be highest)
+        +stat memory=<0-10> - Set memory stat (starts at 3)
+        +stat sekhem=<0-10> - Set sekhem vital force (starts at 8-10 based on awakening)
+        +stat affinity:<name>=known - Add affinity (4 total: 1 decree + 1 guild + 2 soul)
+        +stat utterance:<name>=known - Add utterance (2 chosen + Dreams of Dead Gods free)
+        
+        Promethean-Specific Stats:
+        +stat lineage=<name> - Set lineage (frankenstein, galateid, osiris, tammuz, ulgan, unfleshed, extempore)
+        +stat refinement=<name> - Set refinement (aurum, cuprum, ferrum, mercurius, stannum)
+        +stat role=<name> - Set current role within refinement
+        +stat elpis=<archetype> - Set elpis anchor (what keeps them on Pilgrimage)
+        +stat torment=<archetype> - Set torment anchor (what distances them from humanity)
+        +stat bestowment:<name>=known - Set bestowment (1 from lineage options)
+        +stat alembic:<name>=known - Add alembic (2 total, one per refinement transmutation)
+        +stat pilgrimage=<1-10> - Set pilgrimage progress (starts at 1)
+        +stat pyros=<0-max> - Set current pyros (max = Azoth * 10)
+        
+        Mortal+ Specific Stats:
+        +stat template_type=<type> - Set Mortal+ type
+          Types: ghoul, revenant, dhampir, wolf-blooded, psychic, atariya, infected, 
+                 plain, lost boy, psychic vampire, immortal, proximus, sleepwalker, fae-touched
+        
+        Ghoul: +stat clan=<regnant's clan> - Set regnant's clan for disciplines
+               2 dots of in-clan disciplines, Blood Potency 0
+        
+        Revenant: +stat clan=<family clan> - Set family lineage
+                  +stat mask/dirge=<name> - Set anchors
+                  3 dots disciplines (1 must be physical, no unique), Blood Potency 1
+        
+        Dhampir: +stat clan=<parent clan> - Set parent clan
+                 +stat destiny/doom/affliction=<name> - Set dhampir traits
+                 +stat theme:<name>=<dots> - Set clan theme (3 themes, 1 dot each)
+                 +stat twist:<name>=<dots> - Set twist (3 free dots + clan unique)
+                 +stat malison:<name>=known - Add malison (3 merit dots each)
+                 Free merits: Blood Sense, Omen Sensitivity, Thief of Fate
+        
+        Wolf-Blooded: +stat tell=<name> - Set Tell (inherited werewolf trait)
+        
+        Psychic: Purchase psychic merits (Telepathy, Telekinesis, etc.)
+        
+        Atariya: Requires Damn Lucky Merit (caught attention of luck)
+        
+        Infected: Starts with Carrier Merit and Latent Symptoms Condition
+        
+        Plain: Gets Plain Reader Merit free (devoted to radical nonviolence)
+        
+        Lost Boy: Gets Protocol Merit free (Delta Protocol augmentation)
+        
+        Psychic Vampire: Gets Psychic Vampirism Merit free (steals life energy)
+                         +stat ephemera=<0-20> - Set psychic fuel
+        
+        Immortal/Endless: +stat template_type=immortal, then +stat subtype=<method>
+                          Methods: blood_bather, body_thief (mystical_thief/psychic_thief),
+                                   eternal, reborn
+                          +stat curse=<description> or +stat method=<description>
+                          +stat investment=<arisen name> - If part of mummy cult
+                          +stat sekhem=<1-5> - Immortal power (starts at 1, max 5)
+                          
+                          Blood Bather: Favored Attr = Presence, Integrity starts at 5
+                          Body Thief: Favored Attr = Manipulation
+                          Eternal: Favored Attr = Stamina, gets 1 free Relic dot
+                          Reborn: Favored Attr = Intelligence
+                          
+                          All get: 1 free dot in favored attribute
+                                   1 free dot in Endless Potency (favored attribute) merit
+        
+        Proximus: +stat path=<parent path> - Set parent path (determines ruling arcana)
+                  +stat blessing_arcanum=<arcanum> - Choose 3rd blessing arcanum
+                  +stat dynasty=<family name> - Set family/dynasty name
+                  +stat curse=<description> - Set familial curse
+                  +stat mana=<0-5> - Set mana (max 5 for Proximi)
+                  Purchase blessings as merits: +stat blessing:<name>=<dots> (max 30 dots total)
+        
+        Sleepwalker: Gets Sleepwalker merit (1 dot) free
+                     Immune to Curse, cause no Dissonance
+                     Can assist mages with rituals
+        
+        Fae-Touched: +stat promise=<description> - Set promise to changeling
+                     +stat promise_type=<type> - Set type (clemency, debt, love, loyalty, protection, provision, service)
+                     +stat favored regalia=<name> - Choose favored regalia
+                     +stat wyrd=0 - Wyrd always 0 (cannot increase)
+                     +stat glamour=<0-10> - Set glamour (max 10)
+                     +stat contract:<name>=known - Add contract (2 Common from favored regalia)
+                     Wyrd 0, max 10 Glamour, 2 Common Contracts from favored Regalia
+                     Start with: Madness, Arcadian Dreams, Hedge Addiction Conditions
         
         Merit Instances:
         Some merits can be taken multiple times with different specifications.
@@ -43,16 +155,28 @@ class CmdStat(MuxCommand):
         Skills: All CoD skills (athletics, brawl, investigation, etc.)
         Specialties: specialty/[skill]=[specialty name] (requires dots in skill)
         Power Stats: blood_potency, gnosis, primal_urge, wyrd, synergy, 
-                    azoth, primum, psyche, feral_heart
+                    azoth (promethean), primum, psyche, feral_heart, 
+                    sekhem (mummy 0-10, immortal 1-5), mana (mage/proximus)
+        Renown (Werewolf): glory, honor, cunning, purity, wisdom
         Merits: All Chronicles of Darkness merits (see +lookup merits)
         Powers: Template-specific supernatural abilities
             discipline, devotion, coil, scale, theban, cruac, arcana, gift, 
-            rite, contract, spell, alembic, bestowment, endowment, embed, exploit
-            adaptation, affinity, utterance
+            rite, contract, spell, alembic, bestowment, endowment, embed, exploit,
+            adaptation, affinity (mummy), utterance (mummy), variation (deviant), scar (deviant)
         Anchors: virtue/vice (mortal/most templates), elpis/torment (promethean),
-                 mask/dirge (vampire), thread/needle (changeling), bloom/root (geist),
-                 bone/blood (werewolf), conviction/loyalty (deviant)
+                 mask/dirge (vampire), thread/needle (changeling), root/bloom (geist),
+                 bone/blood (werewolf), conviction/loyalty (deviant - also tracked as 0-10 stats),
+                 balance/burden (mummy - stored as anchors)
+        Note: Sin-Eater "burden" is a bio field (Hungry/Bereaved/etc), not an anchor
+              Mummy "burden" is an anchor (Accusing/Careless/etc), like vice
+        Hunter Tactics: Favored tactics grant 8-again quality to rolls when performed
+        Mummy Pillars: ab, ba, ka, ren, sheut (aspects of soul, 0-5 each, 9 total)
+        Mummy Memory: memory (0-10, starts at 3, tracks retained personality/knowledge)
+        Mummy/Immortal Sekhem: sekhem - Mummy: 0-10 (vital force), Immortal: 1-5 (power rating)
+        Psychic Vampire: ephemera (0-20, psychic fuel, max = Resolve, loses 1/day)
+        Changeling/Fae-Touched: glamour - Changeling: max 10+Wyrd, Fae-Touched: max 10
         Integrity: clarity, wisdom, humanity, harmony, cover, memory, integrity, stability
+                   Note: Deviants use loyalty and conviction (0-10) instead of integrity
         
         Semantic Power Setting:
         The following are semantic powers, which require you to set individual abilities, which
@@ -133,6 +257,8 @@ class CmdStat(MuxCommand):
             self.list_stats()
         elif switch == "remove":
             self.remove_stat()
+        elif switch == "favored":
+            self.set_favored_stat()
         elif switch == "approve":
             self.approve_character()
         elif switch == "unapprove":
@@ -297,10 +423,6 @@ class CmdStat(MuxCommand):
         if stat == "type":
             stat = "template_type"
         
-        # Alias: "clan" -> "subtype" for Ghouls
-        if stat == "clan":
-            stat = "subtype"
-        
         # Alias: "tell" -> "subtype" for Wolf-Blooded
         if stat == "tell":
             stat = "subtype"
@@ -348,6 +470,19 @@ class CmdStat(MuxCommand):
                 self.caller.msg(f"|r{reason}|n")
                 return
         
+        # Alias: "clan" -> "subtype" for Ghouls only (must be after target is determined)
+        # For Vampires, clan is a direct bio field, not subtype
+        if stat == "clan":
+            # Check if this is a Ghoul/Revenant (Mortal+ with vampire blood)
+            template = target.db.stats.get("other", {}).get("template", "Mortal") if target.db.stats else "Mortal"
+            template_type = target.db.stats.get("bio", {}).get("template_type", "") if target.db.stats else ""
+            
+            # Only map to subtype for Ghouls/Revenants
+            if template.lower() in ["mortal+", "mortal plus"]:
+                if template_type.lower() in ["ghoul", "revenant"]:
+                    stat = "subtype"
+                # Otherwise leave as "clan" which will fail gracefully
+            # For Vampires, leave as "clan" (proper bio field)
        
         # Initialize stats if needed
         if not target.db.stats:
@@ -473,8 +608,25 @@ class CmdStat(MuxCommand):
         
         # Check supernatural power stats (these CAN be set by players)
         elif stat in ["blood_potency", "gnosis", "primal_urge", "wyrd", "synergy", 
-                      "azoth", "primum", "satiety", "deviation", "psyche", "feral_heart", "acclimation"]:
+                      "azoth", "primum", "satiety", "deviation", "psyche", "feral_heart", "acclimation", "mana"]:
             if isinstance(value, int) and value >= 0:
+                # Special validation for mana
+                if stat == "mana":
+                    template = target.db.stats.get("other", {}).get("template", "Mortal")
+                    template_type = target.db.stats.get("bio", {}).get("template_type", "")
+                    
+                    # Proximi have max 5, Mages have max based on Gnosis
+                    if template.lower() in ["mortal+", "mortal plus"] and template_type.lower() == "proximus":
+                        if value > 5:
+                            self.caller.msg("Proximi cannot have more than 5 Mana.")
+                            return
+                    elif template.lower() == "mage":
+                        gnosis = target.db.stats.get("advantages", {}).get("gnosis", 1)
+                        max_mana = 10 + gnosis
+                        if value > max_mana:
+                            self.caller.msg(f"Mages with Gnosis {gnosis} cannot have more than {max_mana} Mana.")
+                            return
+                
                 # Initialize advantages dict if missing
                 if "advantages" not in target.db.stats:
                     target.db.stats["advantages"] = {}
@@ -482,6 +634,47 @@ class CmdStat(MuxCommand):
                 stat_set = True
             else:
                 self.caller.msg("Power stats must be positive numbers.")
+                return
+        
+        # Check Deviant-specific anchor stats (Loyalty and Conviction)
+        elif stat in ["loyalty", "conviction"]:
+            # Verify character is a Deviant
+            character_template = target.db.stats.get("other", {}).get("template", "Mortal")
+            if character_template.lower() != "deviant":
+                self.caller.msg(f"Loyalty and Conviction can only be set for Deviant characters. Your template is: {character_template}")
+                return
+            
+            if isinstance(value, int) and 0 <= value <= 10:
+                # Initialize other dict if missing
+                if "other" not in target.db.stats:
+                    target.db.stats["other"] = {}
+                target.db.stats["other"][stat] = value
+                stat_set = True
+            else:
+                self.caller.msg("Loyalty and Conviction must be between 0 and 10.")
+                return
+        
+        # Check renown (Werewolf-specific)
+        elif stat in ["glory", "honor", "cunning", "purity", "wisdom"]:
+            template = target.db.stats.get("other", {}).get("template", "Mortal")
+            if template.lower() != "werewolf":
+                self.caller.msg(f"Renown can only be set for Werewolf characters. Your template is: {template}")
+                return
+            
+            if isinstance(value, int) and 0 <= value <= 10:
+                # Initialize renown dict if missing
+                if "renown" not in target.db.stats:
+                    target.db.stats["renown"] = {
+                        "glory": 0,
+                        "honor": 0,
+                        "cunning": 0,
+                        "purity": 0,
+                        "wisdom": 0
+                    }
+                target.db.stats["renown"][stat] = value
+                stat_set = True
+            else:
+                self.caller.msg("Renown must be between 0 and 10.")
                 return
         
         # Check bio fields
@@ -562,9 +755,11 @@ class CmdStat(MuxCommand):
         # Check template-specific bio fields
         elif stat in ["path", "order", "mask", "dirge", "clan", "covenant", "bone", "blood", 
                      "auspice", "tribe", "seeming", "court", "kith", "burden", "root", "bloom", 
-                     "krewe", "lineage", "refinement", "profession", "organization", "creed", 
+                     "krewe", "lineage", "refinement", "role", "profession", "organization", "creed", 
                      "incarnation", "agenda", "catalyst", "ring", "cover_identity", "agency", "hunger", "family", "inheritance", 
-                     "origin", "clade", "divergence", "needle", "thread", "legend", "life",
+                     "origin", "clade", "divergence", "needle", "thread", "legend", "life", "form",
+                     "destiny", "doom", "affliction", "curse", "method", "investment", "dynasty", "blessing_arcanum",
+                     "promise", "promise_type",
                      "geist_name", "embrace_date", "legacy", "shadow_name", "cabal", "lodge",
                      "pack", "deed_name", "throng", "creator", "pilgrimage", "athanor",
                      "template_type", "subtype", "game_line", "abilities", "guild", "decree", "judge", "cult", "tomb",
@@ -723,6 +918,38 @@ class CmdStat(MuxCommand):
                         self.caller.msg(f"|rYour Lineage ({char_lineage.title()}) does not have access to Athanors.|n")
                         self.caller.msg("|wValid Lineages with Athanors:|n Frankenstein, Galatea, Osiris, Tammuz, Ulgan, Unfleshed, Zeka")
                         return
+                
+                # Special handling for covenant - normalize abbreviations and variations
+                if stat == "covenant" and character_template.lower() == "vampire":
+                    covenant_aliases = {
+                        'carthian': 'carthian_movement',
+                        'circle': 'circle_of_the_crone',
+                        'crone': 'circle_of_the_crone',
+                        'crones': 'circle_of_the_crone',
+                        'ordo': 'ordo_dracul',
+                        'dracul': 'ordo_dracul',
+                        'lancea': 'lancea_et_sanctum',
+                        'lancea sanctum': 'lancea_et_sanctum',
+                        'belial': 'belials_brood',
+                        'seven': 'vii'
+                    }
+                    
+                    value_normalized = str(value).lower().replace(' ', '_')
+                    value = covenant_aliases.get(value_normalized, value_normalized)
+                
+                # Special handling for tribe - normalize abbreviations
+                if stat == "tribe" and character_template.lower() == "werewolf":
+                    tribe_aliases = {
+                        'talons': 'blood_talons',
+                        'shadows': 'bone_shadows',
+                        'hunters': 'hunters_in_darkness',
+                        'masters': 'iron_masters',
+                        'lords': 'storm_lords',
+                        'ghost': 'ghost_wolf'
+                    }
+                    
+                    value_normalized = str(value).lower().replace(' ', '_')
+                    value = tribe_aliases.get(value_normalized, value_normalized)
                 
                 # Validate field value if it has restrictions
                 is_valid, error_msg = target.validate_template_field(stat, str(value))
@@ -949,7 +1176,7 @@ class CmdStat(MuxCommand):
                 "merits": {},
                 "specialties": {},
                 "powers": {},
-                "other": {"template": value.title()}
+                "other": {"template": value.title(), "favored_stat": None}
             }
             
             # Also wipe any template-specific stats if they exist
@@ -1035,8 +1262,61 @@ class CmdStat(MuxCommand):
                 self.caller.msg("|rChanging Breeds data not available.|n")
                 return
         
-        # Other stats
-        elif stat in ["integrity", "size", "beats", "experience"]:
+        # Tactics (Hunter cell favored tactics - accepts comma-separated list)
+        elif stat == "tactics":
+            template = target.db.stats.get("other", {}).get("template", "Mortal")
+            if template.lower() != "hunter":
+                self.caller.msg("Tactics can only be set for Hunter characters.")
+                return
+            
+            # Validate value is a string
+            if not isinstance(value, str) or not value:
+                self.caller.msg("Tactics must be a comma-separated list of tactic names.")
+                self.caller.msg("Example: +stat tactics=Stealth Tactics,Combat Tactics,Investigation Tactics")
+                return
+            
+            # Parse comma-separated list
+            tactics_list = [t.strip() for t in value.split(',')]
+            
+            # Store the tactics list in other section
+            if 'other' not in target.db.stats:
+                target.db.stats['other'] = {}
+            target.db.stats['other']['tactics'] = tactics_list
+            target.db.stats = target.db.stats  # Trigger persistence
+            
+            self.caller.msg(f"Set {len(tactics_list)} favored tactics for your cell:")
+            for tactic in tactics_list:
+                self.caller.msg(f"  - {tactic}")
+            self.caller.msg("Your cell gains 8-again when performing these tactics.")
+            stat_set = True
+        
+        # Favored regalia (Changeling second favored regalia choice)
+        elif stat == "favored_regalia" or (stat.startswith("favored") and "regalia" in self.args.lower()):
+            template = target.db.stats.get("other", {}).get("template", "Mortal")
+            if template.lower() != "changeling":
+                self.caller.msg(f"Favored regalia can only be set for Changeling characters. Your template is: {template}")
+                return
+            
+            # Validate value is a string
+            if not isinstance(value, str) or not value:
+                self.caller.msg("Favored regalia must be a regalia name (e.g., mirror, crown, sword).")
+                return
+            
+            # Store the favored regalia in other section
+            if 'other' not in target.db.stats:
+                target.db.stats['other'] = {}
+            target.db.stats['other']['favored_regalia'] = value.lower().replace(' ', '_')
+            target.db.stats = target.db.stats  # Trigger persistence
+            
+            self.caller.msg(f"Set favored regalia to: {value.title()}")
+            self.caller.msg("This is your second favored regalia (first comes from seeming).")
+            self.caller.msg("You need 2 contracts from your favored regalia during chargen.")
+            stat_set = True
+        
+        # Other stats (including template-specific stats)
+        elif stat in ["integrity", "size", "beats", "experience", "loyalty", "conviction", "acclimation", "tier", 
+                     "ab", "ba", "ka", "ren", "sheut", "memory", "sekhem", "pilgrimage", "pyros", "ephemera",
+                     "curse", "method", "investment", "invested_pillars", "promise", "promise_type", "glamour"]:
             if stat in ["integrity", "size"] and isinstance(value, int):
                 if stat == "integrity" and not 0 <= value <= 10:
                     self.caller.msg("Integrity must be between 0 and 10.")
@@ -1047,6 +1327,127 @@ class CmdStat(MuxCommand):
             elif stat in ["beats", "experience"] and isinstance(value, int) and value < 0:
                 self.caller.msg("Beats and experience cannot be negative.")
                 return
+            elif stat in ["loyalty", "conviction"] and isinstance(value, int):
+                # Deviant-specific stats
+                template = target.db.stats.get("other", {}).get("template", "Mortal")
+                if template.lower() != "deviant":
+                    self.caller.msg(f"{stat.title()} can only be set for Deviant characters.")
+                    return
+                if not 0 <= value <= 10:
+                    self.caller.msg(f"{stat.title()} must be between 0 and 10.")
+                    return
+            elif stat == "acclimation" and isinstance(value, int):
+                # Deviant-specific stat
+                template = target.db.stats.get("other", {}).get("template", "Mortal")
+                if template.lower() != "deviant":
+                    self.caller.msg("Acclimation can only be set for Deviant characters.")
+                    return
+                if not 0 <= value <= 5:
+                    self.caller.msg("Acclimation must be between 0 and 5.")
+                    return
+            elif stat == "tier" and isinstance(value, int):
+                # Hunter-specific stat
+                template = target.db.stats.get("other", {}).get("template", "Mortal")
+                if template.lower() != "hunter":
+                    self.caller.msg("Tier can only be set for Hunter characters.")
+                    return
+                if not 1 <= value <= 3:
+                    self.caller.msg("Tier must be 1 (Cell), 2 (Compact), or 3 (Conspiracy).")
+                    return
+            elif stat in ["ab", "ba", "ka", "ren", "sheut"] and isinstance(value, int):
+                # Mummy Pillars
+                template = target.db.stats.get("other", {}).get("template", "Mortal")
+                if template.lower() not in ["mummy", "arisen"]:
+                    self.caller.msg(f"Pillars can only be set for Mummy characters.")
+                    return
+                if not 0 <= value <= 5:
+                    self.caller.msg(f"{stat.title()} must be between 0 and 5.")
+                    return
+            elif stat == "memory" and isinstance(value, int):
+                # Mummy Memory stat
+                template = target.db.stats.get("other", {}).get("template", "Mortal")
+                if template.lower() not in ["mummy", "arisen"]:
+                    self.caller.msg("Memory can only be set for Mummy characters.")
+                    return
+                if not 0 <= value <= 10:
+                    self.caller.msg("Memory must be between 0 and 10.")
+                    return
+            elif stat == "sekhem" and isinstance(value, int):
+                # Mummy or Immortal Sekhem stat
+                template = target.db.stats.get("other", {}).get("template", "Mortal")
+                template_type = target.db.stats.get("bio", {}).get("template_type", "")
+                
+                is_mummy = template.lower() in ["mummy", "arisen"]
+                is_immortal = template.lower() in ["mortal+", "mortal plus"] and template_type.lower() in ["immortal", "endless"]
+                
+                if not (is_mummy or is_immortal):
+                    self.caller.msg("Sekhem can only be set for Mummy or Immortal characters.")
+                    return
+                
+                if is_mummy:
+                    if not 0 <= value <= 10:
+                        self.caller.msg("Sekhem must be between 0 and 10 for Mummies.")
+                        return
+                elif is_immortal:
+                    if not 1 <= value <= 5:
+                        self.caller.msg("Sekhem must be between 1 and 5 for Immortals.")
+                        return
+            elif stat == "pilgrimage" and isinstance(value, int):
+                # Promethean Pilgrimage stat
+                template = target.db.stats.get("other", {}).get("template", "Mortal")
+                if template.lower() != "promethean":
+                    self.caller.msg("Pilgrimage can only be set for Promethean characters.")
+                    return
+                if not 1 <= value <= 10:
+                    self.caller.msg("Pilgrimage must be between 1 and 10.")
+                    return
+            elif stat == "pyros" and isinstance(value, int):
+                # Promethean Pyros stat
+                template = target.db.stats.get("other", {}).get("template", "Mortal")
+                if template.lower() != "promethean":
+                    self.caller.msg("Pyros can only be set for Promethean characters.")
+                    return
+                # Max is Azoth * 10
+                azoth = target.db.stats.get("advantages", {}).get("azoth", 1)
+                max_pyros = azoth * 10
+                if not 0 <= value <= max_pyros:
+                    self.caller.msg(f"Pyros must be between 0 and {max_pyros} (Azoth * 10).")
+                    return
+            elif stat == "ephemera" and isinstance(value, int):
+                # Psychic Vampire Ephemera stat
+                template = target.db.stats.get("other", {}).get("template", "Mortal")
+                template_type = target.db.stats.get("bio", {}).get("template_type", "")
+                if not (template.lower() in ["mortal+", "mortal plus"] and "psychic vampire" in template_type.lower()):
+                    self.caller.msg("Ephemera can only be set for Psychic Vampire characters.")
+                    return
+                # Max is Resolve (base)
+                attributes = target.db.stats.get("attributes", {})
+                resolve = attributes.get("resolve", 1)
+                # Could be higher with Ephemeral Battery merit
+                if not 0 <= value <= 20:  # Cap at 20 for sanity
+                    self.caller.msg(f"Ephemera must be between 0 and 20.")
+                    return
+            elif stat == "glamour" and isinstance(value, int):
+                # Glamour for Changeling or Fae-Touched
+                template = target.db.stats.get("other", {}).get("template", "Mortal")
+                template_type = target.db.stats.get("bio", {}).get("template_type", "")
+                
+                is_changeling = template.lower() == "changeling"
+                is_faetouched = template.lower() in ["mortal+", "mortal plus"] and "fae" in template_type.lower()
+                
+                if not (is_changeling or is_faetouched):
+                    self.caller.msg("Glamour can only be set for Changeling or Fae-Touched characters.")
+                    return
+                
+                if is_faetouched and value > 10:
+                    self.caller.msg("Fae-Touched cannot have more than 10 Glamour.")
+                    return
+                elif is_changeling:
+                    wyrd = target.db.stats.get("advantages", {}).get("wyrd", 1)
+                    max_glamour = 10 + wyrd
+                    if value > max_glamour:
+                        self.caller.msg(f"Changelings with Wyrd {wyrd} cannot have more than {max_glamour} Glamour.")
+                        return
                 
             target.db.stats["other"][stat] = value
             stat_set = True
@@ -1521,6 +1922,10 @@ class CmdStat(MuxCommand):
                     self.caller.msg("Virtue represents your character's highest moral principle.")
                 elif stat == "vice":
                     self.caller.msg("Vice represents your character's greatest moral failing.")
+                elif stat == "loyalty":
+                    self.caller.msg("Loyalty is one of the Deviant anchors. Remade start with 1 Loyalty (+1 from Autourgic/Epimorph Origins).")
+                elif stat == "conviction":
+                    self.caller.msg("Conviction is one of the Deviant anchors. Remade start with 3 Conviction (+1 from Exomorph/Genotypal Origins).")
             elif stat.lower() in ["humanity", "wisdom", "pilgrimage", "clarity", "cover", "harmony", "synergy", "satiety"]:
                 # Use the proper name for template-specific integrity
                 character_template = target.db.stats.get("other", {}).get("template", "Mortal")
@@ -1989,7 +2394,7 @@ class CmdStat(MuxCommand):
                     
                     # Add type indicator for vampire and werewolf semantic powers
                     type_indicator = ""
-                    if power_prefix in ["discipline_power", "devotion", "coil", "scale", "theban", "cruac", "gift"]:
+                    if power_prefix in ["discipline_power", "devotion", "coil", "scale", "theban", "cruac", "gift", "rite"]:
                         type_indicators = {
                             "discipline_power": "[Power]",
                             "devotion": "[Dev]",
@@ -1997,7 +2402,8 @@ class CmdStat(MuxCommand):
                             "scale": "[Scale]",
                             "theban": "[Thb]",
                             "cruac": "[Cru]",
-                            "gift": "[Gift]"
+                            "gift": "[Gift]",
+                            "rite": "[Rite]"
                         }
                         type_indicator = f" {type_indicators.get(power_prefix, '')}"
                     
@@ -2063,6 +2469,26 @@ class CmdStat(MuxCommand):
                         output.append(f"  {endowment_display}")
                     output.append("")
         
+        # Renown (for Werewolves)
+        renown = target.db.stats.get("renown", {})
+        other_stats = target.db.stats.get("other", {})
+        template = other_stats.get("template", "Mortal").lower()
+        if renown and template == "werewolf":
+            # Check if character has any renown
+            has_renown = any(v > 0 for v in renown.values())
+            if has_renown:
+                output.append("|wRenown:|n")
+                renown_display = []
+                for renown_type in ['glory', 'honor', 'cunning', 'purity', 'wisdom']:
+                    dots = renown.get(renown_type, 0)
+                    if dots > 0:
+                        renown_display.append(f"{renown_type.title()}: {dots}")
+                if renown_display:
+                    output.append("  " + ", ".join(renown_display))
+                else:
+                    output.append("  None")
+                output.append("")
+        
         # Anchors
         anchors = target.db.stats.get("anchors", {})
         if anchors:
@@ -2079,6 +2505,159 @@ class CmdStat(MuxCommand):
                 output.append(f"  {k.title()}: {v}")
         
         self.caller.msg("\n".join(output))
+    
+    def set_favored_stat(self):
+        """Mark a stat as receiving the free template bonus dot and add the dot"""
+        if not self.args:
+            self.caller.msg("Usage: +stat/favored <stat>")
+            self.caller.msg("This marks which stat receives your free template bonus dot and adds 1 dot to it.")
+            self.caller.msg("The dot is free and won't count against your chargen point total.")
+            return
+        
+        target = self.caller
+        
+        # Check if this is a player character that's approved
+        is_npc = hasattr(target, 'db') and target.db.is_npc
+        if not is_npc and target.db.approved:
+            self.caller.msg("Your character is approved. Only staff can modify your stats.")
+            return
+        
+        if not target.db.stats:
+            self.caller.msg("You must set your template first.")
+            return
+        
+        stat = self.args.strip().lower().replace(' ', '_')
+        template = target.db.stats.get("other", {}).get("template", "Mortal")
+        
+        # Import attribute category constants
+        from world.cofd.stat_dictionary import (
+            POWER_ATTRIBUTES, FINESSE_ATTRIBUTES, RESISTANCE_ATTRIBUTES
+        )
+        
+        valid_stats = []
+        stat_type = None
+        
+        if template.lower() == 'vampire':
+            # Clan-based favored attributes
+            clan = target.db.stats.get('bio', {}).get('clan', '').lower()
+            clan_favored = {
+                'daeva': ['dexterity', 'manipulation'],
+                'gangrel': ['composure', 'stamina'],
+                'mekhet': ['intelligence', 'wits'],
+                'nosferatu': ['composure', 'strength'],
+                'ventrue': ['presence', 'resolve']
+            }
+            valid_stats = clan_favored.get(clan, [])
+            stat_type = 'attribute'
+            
+        elif template.lower() == 'werewolf':
+            # Auspice-based favored skills
+            auspice = target.db.stats.get('bio', {}).get('auspice', '').lower()
+            auspice_skills = {
+                'cahalith': ['crafts', 'expression', 'persuasion'],
+                'elodoth': ['empathy', 'investigation', 'politics'],
+                'irraka': ['larceny', 'stealth', 'subterfuge'],
+                'ithaeur': ['animal_ken', 'medicine', 'occult'],
+                'rahu': ['brawl', 'intimidation', 'survival']
+            }
+            valid_stats = auspice_skills.get(auspice, [])
+            stat_type = 'skill'
+            
+        elif template.lower() == 'changeling':
+            # Seeming-based favored attributes by category
+            seeming = target.db.stats.get('bio', {}).get('seeming', '').lower()
+            seeming_categories = {
+                'beast': 'resistance',
+                'darkling': 'finesse',
+                'elemental': 'resistance',
+                'fairest': 'power',
+                'ogre': 'power',
+                'wizened': 'finesse'
+            }
+            category = seeming_categories.get(seeming, None)
+            if category == 'power':
+                valid_stats = POWER_ATTRIBUTES
+            elif category == 'finesse':
+                valid_stats = FINESSE_ATTRIBUTES
+            elif category == 'resistance':
+                valid_stats = RESISTANCE_ATTRIBUTES
+            stat_type = 'attribute'
+            
+        elif template.lower() == 'mage':
+            # Choice of Composure, Resolve, or Stamina
+            valid_stats = ['composure', 'resolve', 'stamina']
+            stat_type = 'attribute'
+        
+        else:
+            self.caller.msg(f"{template} characters do not have a favored stat bonus at character creation.")
+            return
+        
+        if not valid_stats:
+            self.caller.msg(f"Could not determine valid favored stats. Make sure you've set your clan/auspice/seeming first.")
+            return
+        
+        if stat not in valid_stats:
+            valid_str = ', '.join([s.replace('_', ' ').title() for s in valid_stats])
+            self.caller.msg(f"'{stat.replace('_', ' ').title()}' is not a valid favored {stat_type} for your character.")
+            self.caller.msg(f"Valid options: {valid_str}")
+            return
+        
+        # Check if a favored stat is already set
+        current_favored = target.db.stats.get('other', {}).get('favored_stat', None)
+        if current_favored and current_favored != stat:
+            self.caller.msg(f"|yYou already have {current_favored.replace('_', ' ').title()} marked as favored.|n")
+            self.caller.msg(f"Changing to {stat.replace('_', ' ').title()}...")
+            
+            # Remove a dot from the old favored stat
+            if stat_type == 'attribute':
+                old_value = target.db.stats.get('attributes', {}).get(current_favored, 1)
+                if old_value > 1:
+                    target.db.stats['attributes'][current_favored] = old_value - 1
+                    self.caller.msg(f"Removed 1 dot from {current_favored.replace('_', ' ').title()} (was {old_value}, now {old_value - 1})")
+            elif stat_type == 'skill':
+                old_value = target.db.stats.get('skills', {}).get(current_favored, 0)
+                if old_value > 0:
+                    target.db.stats['skills'][current_favored] = old_value - 1
+                    self.caller.msg(f"Removed 1 dot from {current_favored.replace('_', ' ').title()} (was {old_value}, now {old_value - 1})")
+        
+        # Add a dot to the new favored stat
+        if stat_type == 'attribute':
+            if 'attributes' not in target.db.stats:
+                target.db.stats['attributes'] = {}
+            current_value = target.db.stats['attributes'].get(stat, 1)
+            new_value = min(5, current_value + 1)  # Cap at 5
+            target.db.stats['attributes'][stat] = new_value
+            self.caller.msg(f"Added 1 dot to {stat.replace('_', ' ').title()} (now {new_value})")
+            
+            # Update base_attributes for werewolves in Hishu form
+            template = target.db.stats.get("other", {}).get("template", "").lower()
+            if template == "werewolf":
+                current_form = getattr(target.db, 'current_form', 'hishu')
+                if current_form == 'hishu':
+                    if not hasattr(target.db, 'base_attributes') or target.db.base_attributes is None:
+                        target.db.base_attributes = {}
+                    target.db.base_attributes[stat] = new_value
+                    
+        elif stat_type == 'skill':
+            if 'skills' not in target.db.stats:
+                target.db.stats['skills'] = {}
+            current_value = target.db.stats['skills'].get(stat, 0)
+            new_value = min(5, current_value + 1)  # Cap at 5
+            target.db.stats['skills'][stat] = new_value
+            self.caller.msg(f"Added 1 dot to {stat.replace('_', ' ').title()} (now {new_value})")
+        
+        # Store the favored stat
+        if 'other' not in target.db.stats:
+            target.db.stats['other'] = {}
+        target.db.stats['other']['favored_stat'] = stat
+        target.db.stats = target.db.stats  # Trigger persistence
+        
+        self.caller.msg(f"|gMarked {stat.replace('_', ' ').title()} as your favored {stat_type} (free dot).|n")
+        self.caller.msg("This dot won't count against your character generation point total.")
+        
+        # Recalculate derived stats if this was an attribute that affects them
+        if stat_type == 'attribute' and stat in ["strength", "dexterity", "stamina", "composure", "resolve", "wits"]:
+            target.calculate_derived_stats(self.caller)
     
     def approve_character(self):
         """Approve a character, locking their stats"""

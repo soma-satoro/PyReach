@@ -47,7 +47,7 @@ DEVIANT_TEMPLATE = {
     "version": "2.0",
     "author": "Chronicles of Darkness",
     "game_line": "Deviant: The Renegades",
-    "notes": "Deviant template with Deviation, Variations, Adaptations, and specialized mechanics"
+    "notes": "Deviant template with Deviation, Variations, Adaptations, and specialized mechanics. Remade start with Conviction 3, Loyalty 1, plus Origin bonus: Autourgic/Epimorph (+1 Loyalty), Exomorph/Genotypal (+1 Conviction), Pathological (+1 either)"
 }
 
 # Register the template
@@ -118,12 +118,15 @@ def render_deviant_sheet(character, caller, force_ascii=False):
     
     # Deviant power stats
     acclimation = other.get("acclimation", 0)
-    loyalty = other.get("loyalty", 0)
-    conviction = other.get("conviction", 0)
+    loyalty = other.get("loyalty", 1)  # Default 1 for Remade
+    conviction = other.get("conviction", 3)  # Default 3 for Remade
     
     output.append(f"|wAcclimation:|n {filled_char * acclimation}{empty_char * (5 - acclimation)}")
-    output.append(f"|wLoyalty:|n {filled_char * loyalty}{empty_char * (10 - loyalty)}")
-    output.append(f"|wConviction:|n {filled_char * conviction}{empty_char * (10 - conviction)}")
+    output.append(f"|wLoyalty:|n {filled_char * loyalty}{empty_char * (10 - loyalty)} (Anchor)")
+    output.append(f"|wConviction:|n {filled_char * conviction}{empty_char * (10 - conviction)} (Anchor)")
+    output.append("")
+    output.append("|xLoyalty and Conviction replace Integrity for Deviants.|n")
+    output.append("|xRemade start with Conviction 3, Loyalty 1, plus Origin bonus.|n")
     output.append("")
     
     # Forms (if any)

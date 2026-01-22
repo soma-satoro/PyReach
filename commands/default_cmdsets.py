@@ -55,6 +55,8 @@ from .character_submit import CmdSubmit
 from .reality_commands import CmdMien, CmdMask, CmdReach, CmdLocus, CmdHedge
 from .pledges import CmdPledge
 from .bio import CmdBio
+from .cover import CmdCover
+from .demon import CmdDemon
 
 # Custom help command that escapes ANSI codes in help text
 from .help_custom import CmdHelp
@@ -100,6 +102,10 @@ class CharacterCmdSet(default_cmds.CharacterCmdSet):
         # Shapeshifting (Werewolf)
         self.add(CmdShift())
         self.add(CmdForm())
+        
+        # Demon Systems
+        self.add(CmdCover())
+        self.add(CmdDemon())
         
         # Reality Systems (Changeling, Werewolf, Mage)
         self.add(CmdMien())

@@ -13,6 +13,7 @@ from world.cofd.powers.vampire_rituals import (
     ALL_SCALES, ALL_THEBAN, ALL_CRUAC
 )
 from world.cofd.powers.werewolf_gifts import ALL_WEREWOLF_GIFTS
+from world.cofd.powers.werewolf_rites import ALL_WEREWOLF_RITES
 from world.cofd.powers.changeling_contracts import ALL_CHANGELING_CONTRACTS
 from world.cofd.powers.demon_powers import ALL_EMBEDS, DEMON_EXPLOITS, ALL_EMBED_NAMES, ALL_EXPLOIT_NAMES
 from world.cofd.powers.deviant_data import DEVIANT_ADAPTATIONS
@@ -37,15 +38,7 @@ def get_valid_semantic_powers(power_type):
             "krewe_binding", "speaker_for_the_dead", "black_cats_crossing", "bloody_codex", "dumb_supper",
             "forge_anchor", "maggot_homonculus", "pass_on", "ghost_binding", "persephones_return"
         ],
-        "rite": [
-            "chain_rage", "messenger", "banish", "harness_the_cycle", "totemic_empowerment",
-            "bottle_spirit", "infest_locus", "rite_of_the_shroud", "sacred_hunt", "hunting_ground", "moons_mad_love",
-            "shackled_lightning", "sigrblot", "wellspring", "carrion_feast", "flay_auspice", "kindle_fury", 
-            "rite_of_absolution", "shadowbind", "the_thorn_pursuit", "banshee_howl", "raiment_of_the_storm", 
-            "shadowcall", "supplication", "between_worlds", "fetish", "shadow_bridge", "twilight_purge", 
-            "hidden_path", "expel", "heal_old_wounds", "lupus_venandi", "devour", "forge_alliance", 
-            "urfarahs_bane", "veil", "great_hunt", "shadow_distortion", "unleash_shadow"
-        ],
+        "rite": list(ALL_WEREWOLF_RITES.keys()),
         "ritual": [
             # Legacy keyword - kept for backward compatibility, but specific keywords preferred
             "ban_of_the_spiteful_bastard", "mantle_of_amorous_fire", "pangs_of_proserpina", 
@@ -279,6 +272,10 @@ def handle_semantic_power(character, power_type, power_name, value, caller):
             return False, f"Invalid {power_type.replace('_', ' ')}: {power_name}\nUse +lookup {power_type.split('_')[0]}s to browse or +lookup <power_name> for details. There are {len(valid_powers)} available."
         elif power_type in ["scale", "theban", "cruac"]:
             return False, f"Invalid {power_type}: {power_name}\nUse +lookup {power_type} to browse or +lookup <power_name> for details. There are {len(valid_powers)} available."
+        elif power_type == "rite":
+            return False, f"Invalid rite: {power_name}\nUse +lookup rites to browse rites or +lookup <rite_name> for details. There are {len(valid_powers)} rites available."
+        elif power_type == "gift":
+            return False, f"Invalid gift: {power_name}\nUse +lookup gifts to browse gifts or +lookup <gift_name> for details. There are {len(valid_powers)} gifts available."
         elif power_type == "embed":
             return False, f"Invalid embed: {power_name}\nUse +lookup embeds to browse embeds or +lookup <embed_name> for details. There are {len(valid_powers)} embeds available."
         elif power_type == "exploit":
@@ -337,7 +334,7 @@ def handle_semantic_power(character, power_type, power_name, value, caller):
         else:
             return True, f"Set {character.name} to know {power_name.title()} (endowment)."
     
-    elif power_type in ["discipline_power", "devotion", "coil", "scale", "theban", "cruac", "gift", "contract"]:
+    elif power_type in ["discipline_power", "devotion", "coil", "scale", "theban", "cruac", "gift", "rite", "contract"]:
         # Vampire-specific and werewolf-specific powers - store with prefixes for organization
         if "powers" not in character.db.stats:
             character.db.stats["powers"] = {}
@@ -383,6 +380,18 @@ def handle_semantic_power(character, power_type, power_name, value, caller):
             if power_name in ALL_WEREWOLF_GIFTS:
                 power_data = ALL_WEREWOLF_GIFTS[power_name]
             display_type = "Werewolf Gift"
+        elif power_type == "rite":
+            from world.cofd.powers.werewolf_rites import ALL_WEREWOLF_RITES, check_rite_prerequisites
+            if power_name in ALL_WEREWOLF_RITES:
+                power_data = ALL_WEREWOLF_RITES[power_name]
+                display_type = "Werewolf Rite"
+                
+                # Check prerequisites for rites
+                meets_prereqs, prereq_msg = check_rite_prerequisites(character, power_data)
+                if not meets_prereqs:
+                    return False, f"|rCannot learn {power_data.get('name', power_name)}:|n {prereq_msg}"
+            else:
+                display_type = "Werewolf Rite"
         elif power_type == "contract":
             if power_name in ALL_CHANGELING_CONTRACTS:
                 power_data = ALL_CHANGELING_CONTRACTS[power_name]
@@ -393,6 +402,13 @@ def handle_semantic_power(character, power_type, power_name, value, caller):
             if power_type == "gift" and 'renown' in power_data:
                 renown = power_data['renown'].title()
                 return True, f"Set {character.name} to know {power_data['name']} ({renown} {display_type})."
+            # Add rank info for rites
+            elif power_type == "rite" and 'rank' in power_data:
+                rank = power_data['rank']
+                rank_dots = "●" * rank
+                prereqs = power_data.get('prerequisites')
+                prereq_str = f" - Requires: {prereqs}" if prereqs else ""
+                return True, f"Set {character.name} to know {power_data['name']} (Rank {rank_dots} {display_type}){prereq_str}."
             return True, f"Set {character.name} to know {power_data['name']} ({display_type})."
         else:
             return True, f"Set {character.name} to know {power_name.replace('_', ' ').title()} ({display_type})."

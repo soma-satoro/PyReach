@@ -5,6 +5,36 @@ a 'mortal' stat, and is used to create basic characters before applying a supern
 
 from world.cofd.stat_types import Anchor, Stat, Advantage, Pool
 
+# Attribute Categories (used for spirits, NPCs, and some template abilities)
+POWER_ATTRIBUTES = ['strength', 'presence', 'intelligence']
+FINESSE_ATTRIBUTES = ['dexterity', 'manipulation', 'wits']
+RESISTANCE_ATTRIBUTES = ['stamina', 'composure', 'resolve']
+
+# Skill Categories
+MENTAL_SKILLS = ['academics', 'computer', 'crafts', 'investigation', 'medicine', 'occult', 'politics', 'science']
+PHYSICAL_SKILLS = ['athletics', 'brawl', 'drive', 'firearms', 'larceny', 'stealth', 'survival', 'weaponry']
+SOCIAL_SKILLS = ['animal_ken', 'empathy', 'expression', 'intimidation', 'persuasion', 'socialize', 'streetwise', 'subterfuge']
+
+def get_attribute_category(attribute):
+    """
+    Get the Power/Finesse/Resistance category for an attribute.
+    Used for spirits, NPCs, and some template abilities (like Changeling seeming bonuses).
+    
+    Args:
+        attribute (str): Attribute name
+        
+    Returns:
+        str: 'power', 'finesse', 'resistance', or None if not found
+    """
+    attr_lower = attribute.lower().replace(' ', '_')
+    if attr_lower in POWER_ATTRIBUTES:
+        return 'power'
+    elif attr_lower in FINESSE_ATTRIBUTES:
+        return 'finesse'
+    elif attr_lower in RESISTANCE_ATTRIBUTES:
+        return 'resistance'
+    return None
+
 """
 Attribute Dictionary
 

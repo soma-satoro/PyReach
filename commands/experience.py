@@ -39,7 +39,7 @@ class CmdExperience(MuxCommand):
         Skills: 2 XP per dot  
         Merits: 1 XP per dot (supports instances)
         Skill Specialty: 1 XP each
-        Integrity: 2 XP per dot
+        Integrity: 2 XP per dot (3 XP per dot for Demon Cover)
         Lost Willpower: 1 XP per dot
     
     Template-Specific Costs:
@@ -54,6 +54,7 @@ class CmdExperience(MuxCommand):
         +xp/spend animalism=3                   - Raise Animalism (Vampire)
         +xp/spend forces=2                      - Raise Forces (Mage)
         +xp/spend primal_urge=2                 - Raise Primal Urge (Werewolf)
+        +xp/spend cover:1=8                     - Raise Cover Identity #1 to 8 (Demon)
         +xp/award nicole=15                     - Award 15 beats to Nicole (staff only)
     """
     key = "+xp"
@@ -583,6 +584,19 @@ class CmdExperience(MuxCommand):
             max_dots = 5
         # Check for integrity/morality stats
         elif stat_name in ['integrity', 'humanity', 'wisdom', 'harmony', 'clarity', 'cover', 'synergy', 'pilgrimage', 'satiety', 'memory']:
+            # Special handling for Demon Cover (multiple covers)
+            if stat_name == 'cover' and template == 'demon':
+                # Demons need to specify which cover to raise
+                if not instance:
+                    self.caller.msg("|rDemons have multiple cover identities.|n")
+                    self.caller.msg("Usage: |w+xp/spend cover:<cover_id>=<new_rating>|n")
+                    self.caller.msg("Example: |w+xp/spend cover:1=8|n")
+                    self.caller.msg("Use |w+cover|n to see your cover IDs.")
+                    return
+                
+                # Handle cover-specific purchase
+                return self._spend_on_demon_cover(exp_handler, instance, target_dots)
+            
             stat_type = 'integrity'
             stat_category = 'other'
             current_dots = stats["other"].get("integrity", 7)
@@ -749,6 +763,80 @@ class CmdExperience(MuxCommand):
         logger.log_experience(-cost, f"Willpower Restored: {current_willpower} > {target_dots}")
         
         self.caller.msg(f"|gSpent {cost} XP to restore Willpower to {target_dots} dots.|n")
+        self.caller.msg(f"Remaining experience: {exp_handler.experience}")
+    
+    def _spend_on_demon_cover(self, exp_handler, cover_identifier, target_dots):
+        """Handle spending XP on a Demon cover rating."""
+        from world.xp_logger import get_xp_logger
+        
+        # Initialize covers if needed
+        if not hasattr(self.caller.db, 'cover_identities'):
+            self.caller.db.cover_identities = {}
+        
+        if not self.caller.db.cover_identities:
+            self.caller.msg("|rYou have no cover identities.|n")
+            self.caller.msg("Use |w+cover/new <name>|n to create a cover identity first.")
+            return
+        
+        # Find the cover by ID or name
+        cover_id = None
+        cover_data = None
+        
+        # Try as ID first
+        try:
+            cover_id = int(cover_identifier)
+            if cover_id not in self.caller.db.cover_identities:
+                self.caller.msg(f"|rCover ID {cover_id} not found.|n")
+                self.caller.msg("Use |w+cover|n to see your cover identities.")
+                return
+            cover_data = self.caller.db.cover_identities[cover_id]
+        except ValueError:
+            # Try as name
+            search_name = cover_identifier.lower().replace("_", " ")
+            for cid, cdata in self.caller.db.cover_identities.items():
+                cover_name = cdata['name'].lower().replace("_", " ")
+                if cover_name == search_name:
+                    cover_id = cid
+                    cover_data = cdata
+                    break
+            
+            if not cover_data:
+                self.caller.msg(f"|rCover '{cover_identifier}' not found.|n")
+                self.caller.msg("Use |w+cover|n to see your cover identities.")
+                return
+        
+        current_rating = cover_data.get('rating', 7)
+        cover_name = cover_data['name']
+        
+        # Validate target rating
+        if target_dots <= current_rating:
+            self.caller.msg(f"Cover '{cover_name}' already has a rating of {current_rating} or higher.")
+            return
+        
+        if target_dots > 10:
+            self.caller.msg("Cover rating cannot exceed 10.")
+            return
+        
+        # Calculate cost (3 XP per dot)
+        dots_to_buy = target_dots - current_rating
+        cost = dots_to_buy * 3  # Same as integrity
+        
+        if exp_handler.experience < cost:
+            self.caller.msg(f"Insufficient experience. Need {cost} XP, have {exp_handler.experience} XP.")
+            return
+        
+        # Spend the XP
+        exp_handler.spend_experience(cost)
+        
+        # Update the cover rating
+        cover_data['rating'] = target_dots
+        self.caller.db.cover_identities[cover_id] = cover_data
+        
+        # Log the expenditure
+        logger = get_xp_logger(self.caller)
+        logger.log_experience(-cost, f"Cover '{cover_name}' (#{cover_id}): {current_rating} > {target_dots}")
+        
+        self.caller.msg(f"|gSpent {cost} XP to raise Cover '{cover_name}' to {target_dots}.|n")
         self.caller.msg(f"Remaining experience: {exp_handler.experience}")
     
     def _spend_on_semantic_power(self, exp_handler, power_type, power_name):
@@ -926,21 +1014,40 @@ class CmdExperience(MuxCommand):
         
         # Check for rites (semantic, not dot-rated)
         if not target_dots:
-            # Might be a rite
-            cost = WEREWOLF_COSTS['rite']
-            if exp_handler.experience < cost:
-                self.caller.msg(f"Insufficient experience. Need {cost} XP, have {exp_handler.experience} XP.")
+            # Might be a rite - validate it exists
+            from world.cofd.powers.werewolf_rites import get_rite, check_rite_prerequisites
+            rite_data = get_rite(stat_name)
+            if rite_data:
+                # Check prerequisites
+                meets_prereqs, prereq_msg = check_rite_prerequisites(self.caller, rite_data)
+                if not meets_prereqs:
+                    self.caller.msg(f"|rCannot purchase {rite_data['name']}:|n {prereq_msg}")
+                    return
+                
+                # Check if already knows the rite
+                rite_key = f"rite:{stat_name}"
+                if rite_key in powers and powers[rite_key] == "known":
+                    self.caller.msg(f"You already know the {rite_data['name']} rite.")
+                    return
+                
+                cost = WEREWOLF_COSTS['rite']
+                if exp_handler.experience < cost:
+                    self.caller.msg(f"Insufficient experience. Need {cost} XP, have {exp_handler.experience} XP.")
+                    return
+                exp_handler.spend_experience(cost)
+                # Add rite to powers with rite: prefix
+                powers[rite_key] = "known"
+                stats["powers"] = powers
+                logger = get_xp_logger(self.caller)
+                logger.log_experience(-cost, f"Rite: {rite_data['name']}")
+                
+                # Show rank info
+                rank_dots = "●" * rite_data['rank']
+                self.caller.msg(f"|gSpent {cost} XP to learn the {rite_data['name']} rite (Rank {rank_dots}).|n")
+                if prereq_msg:
+                    self.caller.msg(f"|y{prereq_msg}|n")
+                self.caller.msg(f"Remaining experience: {exp_handler.experience}")
                 return
-            exp_handler.spend_experience(cost)
-            # Add rite to powers
-            if stat_name not in powers:
-                powers[stat_name] = "known"
-            stats["powers"] = powers
-            logger = get_xp_logger(self.caller)
-            logger.log_experience(-cost, f"Rite: {stat_name.replace('_', ' ').title()}")
-            self.caller.msg(f"|gSpent {cost} XP to learn the {stat_name.replace('_', ' ').title()} rite.|n")
-            self.caller.msg(f"Remaining experience: {exp_handler.experience}")
-            return
         
         self.caller.msg(f"Unknown Werewolf stat '{stat_name}'.")
     
@@ -1195,21 +1302,13 @@ class CmdExperience(MuxCommand):
             self.caller.msg(f"Remaining experience: {exp_handler.experience}")
             return
         
-        # Check for Cover
+        # Check for Cover - NOTE: Demons should use +xp/spend cover:<id>=<rating> syntax
+        # This is a fallback for non-Demons or legacy cover system
         if stat_name == 'cover':
-            current_dots = stats.get("advantages", {}).get("cover", 7)
-            if target_dots <= current_dots:
-                self.caller.msg(f"You already have Cover at {current_dots} dots.")
-                return
-            cost, xp_type = calculate_xp_cost(self.caller, 'cover', stat_name, current_dots, target_dots)
-            exp_handler.spend_experience(cost)
-            if "advantages" not in stats:
-                stats["advantages"] = {}
-            stats["advantages"]["cover"] = target_dots
-            logger = get_xp_logger(self.caller)
-            logger.log_experience(-cost, f"Cover: {current_dots} > {target_dots}")
-            self.caller.msg(f"|gSpent {cost} XP to raise Cover to {target_dots} dots.|n")
-            self.caller.msg(f"Remaining experience: {exp_handler.experience}")
+            self.caller.msg("|rDemons have multiple cover identities.|n")
+            self.caller.msg("Usage: |w+xp/spend cover:<cover_id>=<new_rating>|n")
+            self.caller.msg("Example: |w+xp/spend cover:1=8|n")
+            self.caller.msg("Use |w+cover|n to see your cover IDs.")
             return
         
         # Embeds and Exploits are semantic

@@ -1331,6 +1331,108 @@ psychic_merits = [
     # No template_type-specific merits for basic Psychics
 ]
 
+# MAGE-LINKED: Sleepwalkers & Proximi
+# Template type is set via template_type="Sleepwalker"
+# Mortals immune to the Curse who can assist mages
+sleepwalker_merits = [
+    Merit(
+        name="Sleepwalker",
+        min_value=1,
+        max_value=1,
+        description="You are immune to the Curse, cause no Dissonance, and can perceive magic without penalties",
+        merit_type="supernatural",
+        prerequisite="template_type:sleepwalker"
+    ),
+    Merit(
+        name="Banner-Bearer",
+        min_value=1,
+        max_value=3,
+        description="You can carry one additional spell for a mage per level of this Merit",
+        merit_type="supernatural",
+        prerequisite="template_type:sleepwalker"
+    ),
+    Merit(
+        name="Deadpan",
+        min_value=3,
+        max_value=3,
+        description="Never roll to resist fear or revulsion from magical effects. Treat Composure as +2 when fear plays off existing Conditions",
+        merit_type="supernatural",
+        prerequisite="template_type:sleepwalker"
+    ),
+    Merit(
+        name="Fitful Slumber",
+        min_value=1,
+        max_value=1,
+        description="Gain +2 to resist breaking points triggered by Abyssal or Supernal exposure",
+        merit_type="supernatural",
+        prerequisite="template_type:sleepwalker"
+    ),
+    Merit(
+        name="Loved",
+        min_value=3,
+        max_value=3,
+        description="Something loves you enough to change how magic flows to you. Nothing else can create Strong sympathy with you (but you can with them). Your lover knows when you're wounded or low on Willpower",
+        merit_type="supernatural",
+        prerequisite="template_type:sleepwalker"
+    ),
+    Merit(
+        name="Proxy Voice",
+        min_value=2,
+        max_value=2,
+        description="You speak on behalf of your mentor and can use their Status Merit when empowered to do so",
+        merit_type="social",
+        prerequisite="template_type:sleepwalker,mentor:1"
+    ),
+    Merit(
+        name="Relic Attuned",
+        min_value=3,
+        max_value=3,
+        description="You can activate Artifacts by spending Willpower, using your Willpower or the Artifact's activation dice",
+        merit_type="supernatural",
+        prerequisite="template_type:sleepwalker"
+    ),
+    Merit(
+        name="Ritual Martyr",
+        min_value=2,
+        max_value=2,
+        description="Take Paradox Conditions onto yourself during rituals, converting Arcane Beats to regular ones. The mage gains Humbled toward you",
+        merit_type="supernatural",
+        prerequisite="template_type:sleepwalker"
+    ),
+    Merit(
+        name="Ritual Savvy",
+        min_value=2,
+        max_value=2,
+        description="Roll to gather/prepare ritual components. Successes become bonus spellcasting dice that mages can buy with Willpower (1 per mage)",
+        merit_type="supernatural",
+        prerequisite="template_type:sleepwalker,occult:2"
+    ),
+    Merit(
+        name="Slippery",
+        min_value=2,
+        max_value=2,
+        description="Spend Willpower to redirect accusations toward another viable character first, buying time to build a defense",
+        merit_type="social",
+        prerequisite="template_type:sleepwalker"
+    ),
+]
+
+# Template type is set via template_type="Proximus"
+# Proximi have limited magical abilities from their bloodline
+proximus_merits = [
+    Merit(
+        name="Proximi Bloodline",
+        min_value=1,
+        max_value=1,
+        description="You belong to a Proximi Dynasty with magical heritage. Your family determines which Blessings you can access",
+        merit_type="supernatural",
+        prerequisite="template_type:proximus"
+    ),
+    # Note: Proximi Blessings are purchased as instanced merits
+    # Format: blessing:<name>=<dots>
+    # Each dynasty has a list of available blessings (up to 30 dots total)
+]
+
 # Template type is set via template_type="Psychic Vampire"
 # Psychics who drain life essence
 psychic_vampire_merits = [
@@ -1545,7 +1647,7 @@ skinthief_merits = [
 all_minor_template_merits = (
     general_supernatural_merits + ritual_sorcery_merits +
     ghoul_merits + dhampir_merits + wolf_blooded_merits + 
-    proximi_merits + fae_touched_merits + 
+    proximi_merits + sleepwalker_merits + fae_touched_merits + 
     ghost_merits + immortal_merits + host_merits + 
     demon_blooded_merits + stigmatic_merits + atariya_merits + 
     dreamer_merits + infected_merits + lost_boys_merits + 

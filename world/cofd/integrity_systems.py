@@ -236,7 +236,98 @@ CHANGELING_BREAKING_POINTS = {
 # TODO: Add Geist Synergy breaking points
 
 # Demon Breaking Points (Cover)
-# TODO: Add Demon Cover breaking points
+# Demons have multiple Cover identities, each with its own integrity track
+# Cover works differently - it's a measure of how believable an identity is
+DEMON_BREAKING_POINTS = {
+    10: {
+        "dice": 5,
+        "breaks": [
+            "Using an Embed in front of witnesses.",
+            "Letting someone see you without a reflection.",
+            "Being in two places at once (another cover).",
+        ]
+    },
+    9: {
+        "dice": 5,
+        "breaks": [
+            "Using obvious supernatural powers in public.",
+            "Getting caught in a minor lie about your cover.",
+            "Missing an important cover obligation (work, family).",
+            "Staying awake for several days straight.",
+        ]
+    },
+    8: {
+        "dice": 4,
+        "breaks": [
+            "Using an Exploit openly.",
+            "Displaying inhuman knowledge you shouldn't have.",
+            "Getting caught in a major lie about your background.",
+            "Violent outburst inconsistent with cover personality.",
+        ]
+    },
+    7: {
+        "dice": 4,
+        "breaks": [
+            "Public use of demonic form.",
+            "Contradicting established cover history.",
+            "Failing to maintain cover relationships.",
+        ]
+    },
+    6: {
+        "dice": 3,
+        "breaks": [
+            "Revealing knowledge of the God-Machine.",
+            "Displaying abilities impossible for cover identity.",
+            "Being recognized as a different cover identity.",
+            "Cover identity reported missing or dead.",
+        ]
+    },
+    5: {
+        "dice": 3,
+        "breaks": [
+            "Cover identity investigated by Infrastructure.",
+            "Angels asking questions about this cover.",
+            "Multiple witnesses to supernatural activity.",
+            "Background check reveals inconsistencies.",
+        ]
+    },
+    4: {
+        "dice": 2,
+        "breaks": [
+            "Direct confrontation with Infrastructure.",
+            "Cover identity linked to other covers.",
+            "Supernatural event recorded on camera.",
+            "God-Machine actively hunting this cover.",
+        ]
+    },
+    3: {
+        "dice": 2,
+        "breaks": [
+            "Angels actively pursuing this cover.",
+            "Infrastructure raid on cover residence/workplace.",
+            "Cover compromised by another Demon.",
+            "Glitch manifests in public.",
+        ]
+    },
+    2: {
+        "dice": 1,
+        "breaks": [
+            "Stigmatic sees through the cover.",
+            "Angels waiting at cover's home.",
+            "Cover identity flagged in God-Machine systems.",
+            "Forced to abandon cover location.",
+        ]
+    },
+    1: {
+        "dice": 0,
+        "breaks": [
+            "Angelic attack while in cover.",
+            "God-Machine directly targeting this identity.",
+            "Cover completely burned by Infrastructure.",
+            "True nature revealed to authorities.",
+        ]
+    },
+}
 
 # Promethean Breaking Points (Humanity)
 # TODO: Add Promethean Humanity breaking points
@@ -339,6 +430,13 @@ BREAKING_POINTS_BY_TEMPLATE = {
         "data": WEREWOLF_BREAKING_POINTS,
         "description": "Harmony measures a werewolf's balance between flesh and spirit.",
         "type": "dual",  # Organized by direction (flesh vs spirit) with thresholds
+    },
+    "demon": {
+        "name": "Cover",
+        "data": DEMON_BREAKING_POINTS,
+        "description": "Cover measures how well-established and believable a demon's false identity is.",
+        "type": "descending",  # Higher cover = more dice, similar to vampire humanity
+        "multiple": True,  # Demons have multiple cover identities
     },
     # Add more templates here as they are implemented
 }
