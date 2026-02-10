@@ -695,7 +695,7 @@ class ChargenRoom(Room):
     
     def get_chargen_display(self, looker):
         """
-        Generate a display of character generation progress for all characters in the room.
+        Generate a display of character generation progress for the looker.
         
         Args:
             looker: The character viewing the room
@@ -703,11 +703,11 @@ class ChargenRoom(Room):
         Returns:
             str: Formatted chargen progress display
         """
-        # Get all characters in the room (including the looker)
-        characters = [obj for obj in self.contents if obj.has_account]
-        
-        if not characters:
+        # Only show the looker's chargen progress
+        if not looker or not looker.has_account:
             return ""
+        
+        characters = [looker]
         
         # Get theme colors
         header_color, text_color, divider_color = self.get_theme_colors()
@@ -2515,7 +2515,7 @@ class ChargenRoom(Room):
     
     def get_chargen_display(self, looker):
         """
-        Generate a display of character generation progress for all characters in the room.
+        Generate a display of character generation progress for the looker.
         
         Args:
             looker: The character viewing the room
@@ -2523,11 +2523,11 @@ class ChargenRoom(Room):
         Returns:
             str: Formatted chargen progress display
         """
-        # Get all characters in the room (including the looker)
-        characters = [obj for obj in self.contents if obj.has_account]
-        
-        if not characters:
+        # Only show the looker's chargen progress
+        if not looker or not looker.has_account:
             return ""
+        
+        characters = [looker]
         
         # Get theme colors
         header_color, text_color, divider_color = self.get_theme_colors()

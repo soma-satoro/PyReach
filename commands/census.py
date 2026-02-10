@@ -22,8 +22,7 @@ class CmdCensus(MuxCommand):
         +census/all                       - (Staff) Show all approved chars (no filters)
         +census/debug                     - (Staff) Show why chars are filtered out
         
-    Shows counts of approved characters who have been approved for 6+ hours
-    and have connected within the past week.
+    Shows counts of all approved characters who have been approved for 6+ hours.
     
     Template breakdowns show:
         Vampire: Clan, Covenant
@@ -103,9 +102,8 @@ class CmdCensus(MuxCommand):
             if hasattr(char, 'db'):
                 approved = getattr(char.db, 'approved', None)
                 if approved is True:
-                    has_account = hasattr(char, 'account') and char.account is not None
                     template = get_template(char)
-                    approved_chars.append((char, has_account, template))
+                    approved_chars.append(char)
         
         if not approved_chars:
             self.caller.msg("|rNo approved characters found at all.|n")
@@ -115,20 +113,14 @@ class CmdCensus(MuxCommand):
         self.caller.msg(f"|gFound {len(approved_chars)} approved characters:|n")
         self.caller.msg("")
         
-        # Show detailed list
-        for char, has_account, template in approved_chars:
-            account_status = "|gYES|n" if has_account else "|rNO|n"
-            self.caller.msg(f"  {char.name}: Template={template}, Has Account={account_status}")
-        
-        self.caller.msg("")
-        
-        # Count by template
+        # Show detailed list and count by template
         template_counts = defaultdict(int)
-        for char, has_account, template in approved_chars:
-            if has_account:  # Only count those with accounts for comparison
-                template_counts[template] += 1
+        for char in approved_chars:
+            template = get_template(char)
+            self.caller.msg(f"  {char.name}: Template={template}")
+            template_counts[template] += 1
         
-        self.caller.msg("|wCharacters with accounts, by template:|n")        
+        self.caller.msg("|wApproved characters by template:|n")        
         for template, count in sorted(template_counts.items()):
             self.caller.msg(f"  {template}: {count}")
         
@@ -145,13 +137,10 @@ class CmdCensus(MuxCommand):
         
         # Current time for comparison
         now = timezone.now()
-        one_week_ago = now - timedelta(days=7)
         six_hours_ago = now - timedelta(hours=6)
         
         approved_count = 0
-        has_account_count = 0
         passed_approval_time = 0
-        passed_login_time = 0
         final_eligible = 0
         
         for char in all_chars:
@@ -163,12 +152,6 @@ class CmdCensus(MuxCommand):
             if approved is not True:
                 continue
             approved_count += 1
-            
-            # Check account
-            if not hasattr(char, 'account') or not char.account:
-                self.caller.msg(f"  |y{char.name}|n: Approved but |rNO ACCOUNT|n")
-                continue
-            has_account_count += 1
             
             # Check approval time
             approved_date = None
@@ -199,29 +182,6 @@ class CmdCensus(MuxCommand):
             
             if approval_time_ok:
                 passed_approval_time += 1
-            
-            # Check last login
-            login_ok = True
-            try:
-                if hasattr(char.account, 'last_login') and char.account.last_login:
-                    last_login = char.account.last_login
-                    
-                    if not timezone.is_aware(last_login):
-                        try:
-                            last_login = timezone.make_aware(last_login)
-                        except:
-                            last_login = None
-                    
-                    if last_login and last_login < one_week_ago:
-                        time_diff = now - last_login
-                        self.caller.msg(f"  |y{char.name}|n: Last login |rtoo old|n ({time_diff.days} days ago)")
-                        login_ok = False
-                        continue
-            except Exception as e:
-                pass
-            
-            if login_ok:
-                passed_login_time += 1
                 final_eligible += 1
                 template = get_template(char)
                 self.caller.msg(f"  |g{char.name}|n: Template={template} - |gPASSED ALL FILTERS|n")
@@ -229,9 +189,7 @@ class CmdCensus(MuxCommand):
         self.caller.msg("")
         self.caller.msg("|c" + "-"*78 + "|n")
         self.caller.msg(f"Approved: {approved_count}")
-        self.caller.msg(f"Has Account: {has_account_count}")
         self.caller.msg(f"Approved 6+ hours ago: {passed_approval_time}")
-        self.caller.msg(f"Logged in within 7 days: {passed_login_time}")
         self.caller.msg(f"|gFinal eligible count: {final_eligible}|n")
         self.caller.msg("|c" + "="*78 + "|n")
     
@@ -249,7 +207,6 @@ class CmdCensus(MuxCommand):
         
         # Current time for comparison
         now = timezone.now()
-        one_week_ago = now - timedelta(days=7)
         six_hours_ago = now - timedelta(hours=6)
         
         for char in all_chars:
@@ -262,9 +219,7 @@ class CmdCensus(MuxCommand):
             if approved is not True:
                 continue
             
-            # Must have an account (not NPCs)
-            if not hasattr(char, 'account') or not char.account:
-                continue
+            # That's it! No account check needed - if they're approved, show them
             
             # Try to get approval date for 6+ hour check (optional, lenient)
             # If we can't determine approval date, we'll allow the character through
@@ -298,24 +253,7 @@ class CmdCensus(MuxCommand):
                 # If any error with date checking, just allow through
                 pass
             
-            # Check last login (lenient - if no last_login, allow through)
-            try:
-                if hasattr(char.account, 'last_login') and char.account.last_login:
-                    last_login = char.account.last_login
-                    
-                    # Convert to timezone-aware if needed
-                    if not timezone.is_aware(last_login):
-                        try:
-                            last_login = timezone.make_aware(last_login)
-                        except:
-                            last_login = None
-                    
-                    # Only skip if they haven't logged in for over a week
-                    if last_login and last_login < one_week_ago:
-                        continue
-            except Exception:
-                # If any error with login checking, just allow through
-                pass
+            # No longer filtering by last login - show all approved characters regardless of connection status
             
             # Character meets criteria
             eligible.append(char)
@@ -329,7 +267,7 @@ class CmdCensus(MuxCommand):
         # Check if any characters found
         if not eligible:
             self.caller.msg("|yNo approved characters found for census.|n")
-            self.caller.msg("|xNote: Characters must have db.approved=True, have an account, and meet activity criteria.|n")
+            self.caller.msg("|xNote: Characters must have db.approved=True and be approved for 6+ hours.|n")
             return
         
         # Count by template
