@@ -299,6 +299,33 @@ class Room(DefaultRoom):
             line = f"{left_text:<39} {right_text}"
             char_lines.append(line.rstrip())
             
+            # Add shortdesc lines below character names if they exist
+            left_shortdesc = left_char.db.shortdesc if left_char.db.shortdesc else None
+            right_shortdesc = right_char.db.shortdesc if right_char and right_char.db.shortdesc else None
+            
+            if left_shortdesc or right_shortdesc:
+                # Format left shortdesc
+                left_desc_text = ""
+                if left_shortdesc:
+                    # Truncate to 36 characters max
+                    if len(left_shortdesc) > 36:
+                        left_desc_text = f"  - {left_shortdesc[:33]}..."
+                    else:
+                        left_desc_text = f"  - {left_shortdesc}"
+                
+                # Format right shortdesc
+                right_desc_text = ""
+                if right_shortdesc:
+                    # Truncate to 36 characters max
+                    if len(right_shortdesc) > 36:
+                        right_desc_text = f"  - {right_shortdesc[:33]}..."
+                    else:
+                        right_desc_text = f"  - {right_shortdesc}"
+                
+                # Combine shortdesc columns with proper spacing
+                desc_line = f"{left_desc_text:<40}{right_desc_text}"
+                char_lines.append(desc_line.rstrip())
+            
         return "\n" + "\n".join(char_lines)
 
     def get_character_idle_time(self, character):
