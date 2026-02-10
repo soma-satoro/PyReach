@@ -34,7 +34,7 @@ from .npc import CmdNPC
 from .CmdHealth import CmdHealth
 from .template_admin import CmdTemplate
 from .admin_commands import CmdMigrate
-from .admin import CmdConfigOOCIC
+from .admin import CmdConfigOOCIC, CmdApprove, CmdUnapprove
 from .building import (CmdAreaManage, CmdRoomSetup, CmdPlaces, CmdRoomInfo, CmdMap)
 from .admin_area_init import CmdInitAreaManager
 from .mystery_commands import CmdMystery
@@ -57,6 +57,7 @@ from .pledges import CmdPledge
 from .bio import CmdBio
 from .cover import CmdCover
 from .demon import CmdDemon
+from .census import CmdCensus
 
 # Custom help command that escapes ANSI codes in help text
 from .help_custom import CmdHelp
@@ -98,6 +99,7 @@ class CharacterCmdSet(default_cmds.CharacterCmdSet):
         self.add(CmdLegacy())
         self.add(CmdSubmit())
         self.add(CmdBio())
+        self.add(CmdCensus())
         
         # Shapeshifting (Werewolf)
         self.add(CmdShift())
@@ -152,6 +154,8 @@ class CharacterCmdSet(default_cmds.CharacterCmdSet):
         self.add(CmdConfigOOCIC())
         self.add(CmdSummon())
         self.add(CmdReturn())
+        self.add(CmdApprove())
+        self.add(CmdUnapprove())
         
         # Building commands (areas, rooms, places, mapping)
         self.add(CmdAreaManage())

@@ -21,7 +21,7 @@ from commands.commonmux.CmdTableTalk import CmdTableTalk
 from commands.commonmux.CmdTxt import CmdText
 from commands.commonmux.CmdWatch import CmdWatch
 from commands.commonmux.CmdWeather import CmdWeather
-from commands.commonmux.CmdWho import CmdWho, CmdCensus
+from commands.commonmux.CmdWho import CmdWho  # CmdCensus removed - see commands.census instead
 from commands.commonmux.notes import CmdNote
 from commands.commonmux.CmdFinger import CmdFinger
 
@@ -58,7 +58,7 @@ class CommonMuxCmdSet(CmdSet):
         self.add(CmdWatch())
         self.add(CmdWeather())
         self.add(CmdWho())
-        self.add(CmdCensus())
+        # self.add(CmdCensus())  # Commented out - replaced by commands.census.CmdCensus
         self.add(CmdNote())
         
         # Game mechanics commands
