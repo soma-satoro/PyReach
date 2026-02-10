@@ -309,7 +309,7 @@ class Room(DefaultRoom):
                 if left_shortdesc:
                     # Truncate to 36 characters max
                     if len(left_shortdesc) > 36:
-                        left_desc_text = f"  - {left_shortdesc[:33]}..."
+                        left_desc_text = f"  - {left_shortdesc[:28]}..."
                     else:
                         left_desc_text = f"  - {left_shortdesc}"
                 
