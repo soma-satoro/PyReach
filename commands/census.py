@@ -156,11 +156,13 @@ class CmdCensus(MuxCommand):
             # Check approval time
             approved_date = None
             try:
-                from world.roster.models import RosterMember
+                from world.roster.models import RosterMember  # type: ignore
                 roster_member = RosterMember.objects.filter(character=char).first()
                 if roster_member and hasattr(roster_member, 'approved_date'):
                     approved_date = roster_member.approved_date
-            except:
+            except ImportError:
+                pass
+            except Exception:
                 pass
             
             if not approved_date and hasattr(char, 'db_date_created'):
@@ -226,11 +228,13 @@ class CmdCensus(MuxCommand):
             try:
                 approved_date = None
                 try:
-                    from world.roster.models import RosterMember
+                    from world.roster.models import RosterMember  # type: ignore
                     roster_member = RosterMember.objects.filter(character=char).first()
                     if roster_member and hasattr(roster_member, 'approved_date'):
                         approved_date = roster_member.approved_date
-                except:
+                except ImportError:
+                    pass
+                except Exception:
                     pass
                 
                 # If no approval date found, check db_date_created as fallback

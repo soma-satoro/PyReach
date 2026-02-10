@@ -161,6 +161,7 @@ class Group(SharedMemoryModel):
     name = models.CharField(max_length=255, unique=True)
     description = models.TextField(blank=True)
     group_type = models.CharField(max_length=50, choices=[
+        ('sphere', 'Sphere'),
         ('coterie', 'Coterie'),
         ('pack', 'Pack'),
         ('cabal', 'Cabal'),

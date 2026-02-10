@@ -68,17 +68,18 @@ class CmdApprove(MuxCommand):
         target.tags.remove("unapproved", category="approval")
         target.tags.add("approved", category="approval")
         
-        # Determine character's sphere based on their splat
+        # Determine character's sphere based on their template
         sphere = 'Other'  # Default sphere with consistent capitalization
         if hasattr(target, 'db') and hasattr(target.db, 'stats'):
             stats = target.db.stats
-            if stats and 'other' in stats and 'splat' in stats['other']:
-                splat = stats['other']['splat'].get('Splat', {}).get('perm', '')
-                if splat:
+            if stats and 'other' in stats:
+                template = stats['other'].get('template', '')
+                if template:
                     # Capitalize first letter for consistency
-                    sphere = splat.capitalize()
+                    sphere = template.capitalize()
 
         # Try to find a roster matching the sphere (case-insensitive)
+        # Note: This is for the optional Django model-based roster system
         if ROSTER_AVAILABLE:
             try:
                 roster = Roster.objects.filter(sphere__iexact=sphere).first()
@@ -92,13 +93,9 @@ class CmdApprove(MuxCommand):
                             approved_by=self.caller.account,
                             approved_date=timezone.now()
                         )
-                        self.caller.msg(f"Added {target.name} to the {roster.name} roster.")
-                else:
-                    self.caller.msg(f"No roster found for sphere: {sphere}")
+                        self.caller.msg(f"Added {target.name} to the {roster.name} sphere roster.")
             except Exception as e:
-                self.caller.msg(f"Error adding to roster: {str(e)}")
-        else:
-            self.caller.msg(f"Roster system not available. Character sphere: {sphere}")
+                self.caller.msg(f"Error adding to sphere roster: {str(e)}")
         
         # Automatically assign character to appropriate groups
         try:
@@ -743,3 +740,81 @@ class CmdConfigOOCIC(MuxCommand):
                 caller.msg(f"  {theme_colors} (invalid format)")
         else:
             caller.msg("Theme colors not set (using defaults: green for all)")
+
+
+class CmdFixGroupTypes(MuxCommand):
+    """
+    Fix group types for sphere-level groups.
+    
+    Usage:
+        +fixgrouptypes
+        +fixgrouptypes/confirm
+    
+    This command scans all groups and updates any sphere-level groups
+    (Vampire, Mage, Changeling, etc.) to have the 'Sphere' type instead of
+    their current type (Coterie, Cabal, Motley, etc.).
+    
+    Without /confirm, it will show what would be changed.
+    With /confirm, it will actually make the changes.
+    """
+    
+    key = "+fixgrouptypes"
+    locks = "cmd:perm(Admin)"
+    help_category = "Admin Commands"
+    switch_options = ("confirm",)
+    
+    def func(self):
+        """Execute the command"""
+        from world.groups.utils import get_all_groups, determine_group_type
+        
+        caller = self.caller
+        confirm = "confirm" in self.switches
+        
+        # Define sphere names
+        sphere_names = ['vampire', 'werewolf', 'mage', 'changeling', 'hunter', 'geist', 
+                       'mummy', 'demon', 'deviant', 'promethean', 'mortal+', 'mortal']
+        
+        # Get all groups
+        all_groups = get_all_groups()
+        
+        # Find groups that need fixing
+        groups_to_fix = []
+        for group in all_groups:
+            if group.name.lower() in sphere_names and group.group_type != 'sphere':
+                groups_to_fix.append(group)
+        
+        if not groups_to_fix:
+            caller.msg("No groups need fixing. All sphere-level groups already have the correct type.")
+            return
+        
+        # Show what would be changed
+        caller.msg("|wGroups that need fixing:|n")
+        caller.msg("")
+        
+        for group in groups_to_fix:
+            caller.msg(f"  #{group.group_id} |c{group.name}|n")
+            caller.msg(f"    Current type: |r{group.get_group_type_display()}|n")
+            caller.msg(f"    New type: |gSphere|n")
+            caller.msg("")
+        
+        caller.msg(f"|wTotal groups to fix: {len(groups_to_fix)}|n")
+        
+        if not confirm:
+            caller.msg("")
+            caller.msg("Use |y+fixgrouptypes/confirm|n to apply these changes.")
+            return
+        
+        # Apply the changes
+        fixed_count = 0
+        for group in groups_to_fix:
+            old_type = group.get_group_type_display()
+            group.group_type = 'sphere'
+            group.save()
+            fixed_count += 1
+            
+            # Log the change
+            logger.log_info(f"Group Type Fix: {caller.name} changed {group.name} (#{group.group_id}) from {old_type} to Sphere")
+        
+        caller.msg("")
+        caller.msg(f"|gSuccessfully fixed {fixed_count} group(s)!|n")
+        caller.msg("All sphere-level groups now have the 'Sphere' type.")

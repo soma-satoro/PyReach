@@ -233,45 +233,51 @@ def auto_assign_character_groups(character):
 def determine_group_type(group_name):
     """
     Determine the appropriate group type based on the group name.
+    
+    Sphere-level groups (Vampire, Mage, Changeling, etc.) use 'sphere' type.
+    Specific sub-groups (clans, covenants, orders, etc.) use their specific types.
     """
     name_lower = group_name.lower()
     
-    # Vampire groups
+    # Template/Sphere names - these are the top-level groups
+    sphere_names = ['vampire', 'werewolf', 'mage', 'changeling', 'hunter', 'geist', 
+                    'mummy', 'demon', 'deviant', 'promethean', 'mortal+', 'mortal']
+    
+    if name_lower in sphere_names:
+        return 'sphere'
+    
+    # Vampire sub-groups (covenants and clans)
     vampire_covenants = ['carthian movement', 'circle of the crone', 'invictus', 
                         'lancea et sanctum', 'ordo dracul']
     vampire_clans = ['daeva', 'gangrel', 'mekhet', 'nosferatu', 'ventrue']
     
-    if name_lower in vampire_covenants or name_lower in vampire_clans or name_lower == 'vampire':
+    if name_lower in vampire_covenants or name_lower in vampire_clans:
         return 'coterie'
     
-    # Werewolf groups
+    # Werewolf sub-groups (tribes and auspices)
     werewolf_tribes = ['blood talons', 'bone shadows', 'hunters in darkness', 
                       'iron masters', 'storm lords', 'ghost wolves']
     werewolf_auspices = ['cahalith', 'elodoth', 'irraka', 'ithaeur', 'rahu']
     
-    if name_lower in werewolf_tribes or name_lower in werewolf_auspices or name_lower == 'werewolf':
+    if name_lower in werewolf_tribes or name_lower in werewolf_auspices:
         return 'pack'
     
-    # Mage groups
+    # Mage sub-groups (orders and paths)
     mage_orders = ['adamantine arrow', 'guardians of the veil', 'mysterium', 
                   'silver ladder', 'free council']
     mage_paths = ['acanthus', 'mastigos', 'moros', 'obrimos', 'thyrsus']
     
-    if name_lower in mage_orders or name_lower in mage_paths or name_lower == 'mage':
+    if name_lower in mage_orders or name_lower in mage_paths:
         return 'cabal'
     
-    # Changeling groups
+    # Changeling sub-groups (courts and seemings)
     changeling_courts = ['spring court', 'summer court', 'autumn court', 'winter court']
     changeling_seemings = ['beast', 'darkling', 'elemental', 'fairest', 'ogre', 'wizened']
     
-    if name_lower in changeling_courts or name_lower in changeling_seemings or name_lower == 'changeling':
+    if name_lower in changeling_courts or name_lower in changeling_seemings:
         return 'motley'
     
-    # Hunter groups
-    if name_lower == 'hunter':
-        return 'conspiracy'
-    
-    # Default
+    # Default for any other groups
     return 'other'
 
 

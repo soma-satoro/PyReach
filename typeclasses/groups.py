@@ -32,6 +32,7 @@ class Group(DefaultObject):
         ('agency', 'Agency'),        # Mortal organizations
         ('cult', 'Cult'),            # Mummy cults
         ('other', 'Other'),          # Generic groups
+        ('sphere', 'Sphere'),        # Spheres (template groups)
     ]
     
     def at_object_creation(self):

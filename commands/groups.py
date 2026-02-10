@@ -15,9 +15,10 @@ from typeclasses.groups import (
 )
 from django.db.models import Q
 from evennia.objects.models import ObjectDB
-from evennia.utils.utils import time_format
+from evennia.utils.utils import time_format, crop
 from django.utils import timezone
 from utils.search_helpers import search_character
+from world.utils.formatting import header, footer, divider
 
 class CmdGroups(MuxCommand):
     """
@@ -1220,28 +1221,28 @@ class CmdRoster(MuxCommand):
             self.caller.msg("No groups available to view rosters for.")
             return
         
-        # Create table
-        table = evtable.EvTable(
-            "|wID|n", "|wName|n", "|wType|n", "|wAccess|n", "|wMembers|n",
-            border="cells", width=78
-        )
+        # Build output with consistent formatting
+        output = []
+        output.append(header("Available Group Rosters", width=78))
+        output.append("|wID     Name                 Type          Access    Members|n")
+        output.append("|r" + "-" * 78 + "|n")
         
         for group in all_groups:
             member_count = group.get_member_count()
             access_type = "Public" if group.is_public else "Private"
             
-            table.add_row(
-                f"#{group.group_id}",
-                group.name,
-                group.get_group_type_display(),
-                access_type,
-                str(member_count)
-            )
+            # Format columns with proper spacing
+            id_str = f"#{group.group_id}".ljust(6)
+            name_str = crop(group.name, width=20).ljust(20)
+            type_str = crop(group.get_group_type_display(), width=13).ljust(13)
+            access_str = access_type.ljust(9)
+            members_str = str(member_count)
+            
+            output.append(f" {id_str} {name_str} {type_str} {access_str} {members_str}")
         
-        output = ["|wAvailable Group Rosters:|n"]
-        output.append(str(table))
-        output.append("")
+        output.append("|r" + "-" * 78 + "|n")
         output.append("Use '+roster <name>' or '+roster <id>' to view a specific roster.")
+        output.append(footer(width=78))
         
         self.caller.msg("\n".join(output))
     
@@ -1275,11 +1276,20 @@ class CmdRoster(MuxCommand):
             self.caller.msg(f"Group '{group.name}' has no members.")
             return
         
-        # Create table
-        table = evtable.EvTable(
-            "|wName|n", "|wStatus|n", "|wTitle|n", "|wRole|n", "|wLast Seen|n",
-            border="cells", width=78
-        )
+        # Build output with consistent formatting
+        output = []
+        output.append(header(f"{group.name} Roster (#{group.group_id})", width=78))
+        output.append(f"|wType:|n {group.get_group_type_display()}")
+        output.append(f"|wAccess:|n {'Public' if group.is_public else 'Private'}")
+        output.append(f"|wTotal Members:|n {len(members)}")
+        
+        if group.description:
+            output.append("")
+            output.append(f"|wDescription:|n {group.description}")
+        
+        output.append("")
+        output.append("|wName              Status    Title         Role          Last Seen|n")
+        output.append("|r" + "-" * 78 + "|n")
         
         for member in members:
             # Determine online status
@@ -1302,8 +1312,8 @@ class CmdRoster(MuxCommand):
                     last_seen = "Unknown"
             
             # Get title and role
-            title = group.get_member_title(member)
-            role = group.get_member_role(member)
+            title = group.get_member_title(member) or ""
+            role = group.get_member_role(member) or ""
             
             # Check if leader
             if group.leader == member:
@@ -1312,31 +1322,20 @@ class CmdRoster(MuxCommand):
                 else:
                     role = "Leader"
             
-            table.add_row(
-                member.name,
-                status,
-                title,
-                role,
-                last_seen
-            )
-        
-        # Build output
-        output = [f"|y{group.name} Roster|n (#{group.group_id})"]
-        output.append(f"Type: {group.get_group_type_display()}")
-        output.append(f"Access: {'Public' if group.is_public else 'Private'}")
-        output.append(f"Total Members: {len(members)}")
-        output.append("")
-        
-        if group.description:
-            output.append(f"|wDescription:|n {group.description}")
-            output.append("")
-        
-        output.append(str(table))
+            # Format columns - use plain status string for spacing calculation
+            name_str = crop(member.name, width=17).ljust(17)
+            # Status is 8 chars visible ("Online" or "Offline") + ANSI codes
+            status_display = status.ljust(17)  # Accounts for ANSI codes
+            title_str = crop(title, width=13).ljust(13)
+            role_str = crop(role, width=13).ljust(13)
+            
+            output.append(f" {name_str} {status_display} {title_str} {role_str} {last_seen}")
         
         # Show online count
         online_count = group.get_online_count()
-        output.append("")
+        output.append("|r" + "-" * 78 + "|n")
         output.append(f"|wOnline Now:|n {online_count}/{len(members)} members")
+        output.append(footer(width=78))
         
         self.caller.msg("\n".join(output))
     

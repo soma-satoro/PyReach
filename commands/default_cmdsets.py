@@ -34,7 +34,7 @@ from .npc import CmdNPC
 from .CmdHealth import CmdHealth
 from .template_admin import CmdTemplate
 from .admin_commands import CmdMigrate
-from .admin import CmdConfigOOCIC, CmdApprove, CmdUnapprove
+from .admin import CmdConfigOOCIC, CmdApprove, CmdUnapprove, CmdFixGroupTypes
 from .building import (CmdAreaManage, CmdRoomSetup, CmdPlaces, CmdRoomInfo, CmdMap)
 from .admin_area_init import CmdInitAreaManager
 from .mystery_commands import CmdMystery
@@ -156,7 +156,8 @@ class CharacterCmdSet(default_cmds.CharacterCmdSet):
         self.add(CmdReturn())
         self.add(CmdApprove())
         self.add(CmdUnapprove())
-        
+        self.add(CmdFixGroupTypes())
+
         # Building commands (areas, rooms, places, mapping)
         self.add(CmdAreaManage())
         self.add(CmdRoomSetup())
