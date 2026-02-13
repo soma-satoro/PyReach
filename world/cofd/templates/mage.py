@@ -188,15 +188,11 @@ def render_mage_sheet(character, caller, force_ascii=False):
             empty = "○" * (max_value - value)
         return filled + empty
     
-    # Helper function for section headers
+    from world.utils.formatting import sheet_section_header, footer
+
     def format_section_header(section_name):
-        total_width = 78
-        name_length = len(section_name)
-        available_dash_space = total_width - name_length - 4
-        left_dashes = available_dash_space // 2
-        right_dashes = available_dash_space - left_dashes
-        return f"|g<{'-' * left_dashes}|n {section_name} |g{'-' * right_dashes}>|n"
-    
+        return sheet_section_header(section_name)
+
     # Initialize mage stats if needed (using shared function)
     initialize_mage_stats(character)
     
@@ -205,11 +201,11 @@ def render_mage_sheet(character, caller, force_ascii=False):
     other = character.db.stats.get("other", {})
     advantages = character.db.stats.get("advantages", {})
     
-    # Build output
+    # Build output (theme colors for borders)
     output = []
-    output.append(f"|y{'='*78}|n")
+    output.append(footer(78, char="="))
     output.append(f"|y{character.name} - Mage Details|n".center(88))
-    output.append(f"|y{'='*78}|n")
+    output.append(footer(78, char="="))
     
     # Basic Mage Info
     output.append(format_section_header("|wMAGE IDENTITY|n"))
@@ -334,7 +330,7 @@ def render_mage_sheet(character, caller, force_ascii=False):
         output.append(f"|gCurrent Gnosis: {gnosis} = {gnosis} free praxis|n")
         output.append(f"|gSet with:|n +stat/mage praxis=<spell_name>")
     
-    output.append(f"|y{'='*78}|n")
+    output.append(footer(78, char="="))
     
     return output
 

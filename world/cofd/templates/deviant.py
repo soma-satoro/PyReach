@@ -71,12 +71,14 @@ def render_deviant_sheet(character, caller, force_ascii=False):
     filled_char = "*" if force_ascii else "●"
     empty_char = "-" if force_ascii else "○"
     
+    from world.utils.formatting import footer
+
     output = []
     
-    # Header
-    output.append("|g" + "=" * 78 + "|n")
+    # Header (theme colors for borders)
+    output.append(footer(78, char="="))
     output.append(f"|w{character.name}'s DEVIANT POWERS|n".center(78))
-    output.append("|g" + "=" * 78 + "|n")
+    output.append(footer(78, char="="))
     output.append("")
     
     # Get deviant stats
@@ -536,18 +538,12 @@ def render_deviant_sheet(character, caller, force_ascii=False):
     output.append("")
     
     output.append("|gUse +lookup variation=<name> or +lookup scar=<name> for details|n")
-    output.append("|g" + "=" * 78 + "|n")
+    output.append(footer(78, char="="))
     
     return output
 
 
 def _format_section_header(section_name):
-    """Create an arrow-style section header"""
-    total_width = 78
-    name_length = len(section_name) - 6  # Account for ANSI codes
-    available_dash_space = total_width - name_length - 4
-    
-    left_dashes = available_dash_space // 2
-    right_dashes = available_dash_space - left_dashes
-    
-    return f"|g<{'-' * left_dashes}|n {section_name} |g{'-' * right_dashes}>|n" 
+    """Create an arrow-style section header using theme colors."""
+    from world.utils.formatting import sheet_section_header
+    return sheet_section_header(section_name) 

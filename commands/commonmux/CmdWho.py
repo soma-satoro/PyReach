@@ -100,7 +100,7 @@ class CmdWho(COMMAND_DEFAULT_CLASS):
             # privileged info
             string = header("Online Characters", width=78) + "\n"
             string += "|wName              On       Idle     Account     Room            Cmds  Host|n\n"
-            string += "|r" + "-" * 78 + "|n\n"
+            string += divider(78) + "\n"
             
             for session in session_list:
                 if not session.logged_in:
@@ -134,7 +134,7 @@ class CmdWho(COMMAND_DEFAULT_CLASS):
             # unprivileged
             string = header("Online Characters", width=78) + "\n"
             string += "|wName              On       Idle     Room|n\n"
-            string += "|r" + "-" * 78 + "|n\n"
+            string += divider(78) + "\n"
             
             for session in session_list:
                 if not session.logged_in:
@@ -163,11 +163,11 @@ class CmdWho(COMMAND_DEFAULT_CLASS):
                 )
 
         is_one = naccounts == 1
-        string += "|r" + "-" * 78 + "|n\n"
+        string += divider(78) + "\n"
         string += f"{naccounts} unique account{'s' if not is_one else ''} logged in.\n"
-        string += "|r" + "-" * 78 + "|n\n"
-        string += "|yLegend: * = Staff, $ = Looking for RP, @ = In Hisil|n\n"  # Fixed legend formatting
-        string += "|r" + "-" * 78 + "|n\n"
+        string += divider(78) + "\n"
+        string += "|yLegend: * = Staff, $ = Looking for RP, @ = In Hisil|n\n"
+        string += divider(78) + "\n"
         string += footer(width=78)
         
         self.msg(string)
@@ -247,8 +247,8 @@ class CmdCensus(COMMAND_DEFAULT_CLASS):
             table.append(line.rstrip())
             
         # Add dividers
-        table.insert(1, "|r" + "-" * 78 + "|n")
-        table.append("|r" + "-" * 78 + "|n")
+        table.insert(1, divider(78))
+        table.append(divider(78))
         table.append(footer(width=78))
         
         return "\n".join(table)

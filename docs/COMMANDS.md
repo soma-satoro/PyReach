@@ -1,4 +1,4 @@
-# Exordium to Entropy - Complete Command Reference
+# Complete Command Reference
 
 **Version:** Chronicles of Darkness 2nd Edition  
 **Last Updated:** October 2025

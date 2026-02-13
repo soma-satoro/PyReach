@@ -90,12 +90,18 @@ class CmdLookup(MuxCommand):
     help_category = "Chargen & Character Info"
     
     def get_theme_colors(self):
-        """Get theme colors from server config or defaults."""
+        """Get theme colors from server config or defaults.
+        
+        Uses LOOKUP_THEME_COLORS if set, otherwise falls back to ROOM_THEME_COLORS
+        (set via +config/theme) for consistency with other commands.
+        """
         theme_colors = ServerConfig.objects.conf("LOOKUP_THEME_COLORS")
+        if not theme_colors:
+            theme_colors = ServerConfig.objects.conf("ROOM_THEME_COLORS")
         if theme_colors:
             colors = theme_colors.split(",")
             if len(colors) >= 3:
-                return colors[0], colors[1], colors[2]
+                return colors[0].strip(), colors[1].strip(), colors[2].strip()
         # Default colors (cyan for informational)
         return 'c', 'c', 'c'
     

@@ -22,7 +22,7 @@ class Command(BaseCommand):
         )
         
         # Get game name from settings
-        game_name = getattr(settings, 'SERVERNAME', 'Exordium')
+        game_name = getattr(settings, 'SERVERNAME', 'PyReach')
 
         self.stdout.write('Creating wiki categories...')
         

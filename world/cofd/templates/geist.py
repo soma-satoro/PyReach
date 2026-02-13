@@ -97,24 +97,18 @@ def render_geist_sheet(character, caller, force_ascii=False):
         empty = empty_char * (max_value - value)
         return filled + empty
     
+    from world.utils.formatting import sheet_section_header, footer
+
     def format_section_header(section_name):
-        """Create an arrow-style section header with magenta coloring"""
-        total_width = 78
-        name_length = len(section_name) - 4  # Account for color codes |w and |n
-        available_dash_space = total_width - name_length - 4
-        left_dashes = available_dash_space // 2
-        right_dashes = available_dash_space - left_dashes
-        return f"|m<{'-' * left_dashes}|n {section_name} |m{'-' * right_dashes}>|n"
-    
-    # Build the geist sheet display with magenta color scheme
+        return sheet_section_header(section_name)
+
+    # Build the geist sheet display (theme colors for borders)
     output = []
-    output.append(f"|m{'='*78}|n")  # Magenta border
-    
-    # Get geist concept or use default
+    output.append(footer(78, char="="))
     geist_concept = geist_stats.get("bio", {}).get("concept", f"{character.name}'s Geist")
-    output.append(f"|m{geist_concept.center(78)}|n")  # Magenta text
-    output.append(f"|M{'GEIST CHARACTER SHEET'.center(78)}|n")  # Bright magenta
-    output.append(f"|m{'='*78}|n")
+    output.append(f"|y{geist_concept.center(78)}|n")
+    output.append(f"|y{'GEIST CHARACTER SHEET'.center(78)}|n")
+    output.append(footer(78, char="="))
     
     # Bio Section
     output.append(format_section_header("|wBIO|n"))
@@ -278,7 +272,7 @@ def render_geist_sheet(character, caller, force_ascii=False):
             else:
                 row_parts.append(" " * 39)
         output.append("".join(row_parts))
-    output.append(f"|m{'='*78}|n")
+    output.append(footer(78, char="="))
     
     # Add encoding info to bottom if ASCII mode is being used
     if force_ascii:

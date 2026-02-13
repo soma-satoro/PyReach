@@ -1225,7 +1225,7 @@ class CmdRoster(MuxCommand):
         output = []
         output.append(header("Available Group Rosters", width=78))
         output.append("|wID     Name                 Type          Access    Members|n")
-        output.append("|r" + "-" * 78 + "|n")
+        output.append(divider(78))
         
         for group in all_groups:
             member_count = group.get_member_count()
@@ -1240,7 +1240,7 @@ class CmdRoster(MuxCommand):
             
             output.append(f" {id_str} {name_str} {type_str} {access_str} {members_str}")
         
-        output.append("|r" + "-" * 78 + "|n")
+        output.append(divider(78))
         output.append("Use '+roster <name>' or '+roster <id>' to view a specific roster.")
         output.append(footer(width=78))
         
@@ -1289,7 +1289,7 @@ class CmdRoster(MuxCommand):
         
         output.append("")
         output.append("|wName              Status    Title         Role          Last Seen|n")
-        output.append("|r" + "-" * 78 + "|n")
+        output.append(divider(78))
         
         for member in members:
             # Determine online status
@@ -1322,10 +1322,10 @@ class CmdRoster(MuxCommand):
                 else:
                     role = "Leader"
             
-            # Format columns - use plain status string for spacing calculation
+            # Format columns - pad status to consistent width (8 visible chars)
             name_str = crop(member.name, width=17).ljust(17)
-            # Status is 8 chars visible ("Online" or "Offline") + ANSI codes
-            status_display = status.ljust(17)  # Accounts for ANSI codes
+            status_pad = "  " if member.has_account else " "  # Online=6, Offline=7 chars
+            status_display = status + status_pad
             title_str = crop(title, width=13).ljust(13)
             role_str = crop(role, width=13).ljust(13)
             
@@ -1333,7 +1333,7 @@ class CmdRoster(MuxCommand):
         
         # Show online count
         online_count = group.get_online_count()
-        output.append("|r" + "-" * 78 + "|n")
+        output.append(divider(78))
         output.append(f"|wOnline Now:|n {online_count}/{len(members)} members")
         output.append(footer(width=78))
         

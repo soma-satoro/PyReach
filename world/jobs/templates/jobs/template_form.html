@@ -1,6 +1,6 @@
 {% extends "jobs/base.html" %}
 
-{% block title %}{% if form.instance.pk %}Edit Template{% else %}Create Template{% endif %} - Exordium to Entropy{% endblock %}
+{% block title %}{% if form.instance.pk %}Edit Template{% else %}Create Template{% endif %} - {{ game_name|default:"PyReach" }}{% endblock %}
 
 {% block content %}
 <div class="header">

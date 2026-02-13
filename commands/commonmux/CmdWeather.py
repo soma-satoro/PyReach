@@ -6,6 +6,8 @@ from evennia.utils.ansi import ANSIString
 from evennia import default_cmds
 from evennia.commands.default.muxcommand import MuxCommand
 from world.utils import ansi_utils
+from django.conf import settings
+from world.utils.formatting import header, footer, section_header
 import re
 
 class CmdWeather(MuxCommand):
@@ -131,12 +133,12 @@ class CmdWeather(MuxCommand):
 
         width = 78
         output = []
-        output.append(self.format_header("Exordium to Entropy Weather", width=width))
+        output.append(header(f"{settings.SERVERNAME} Weather", width=width, char="="))
         output.append(self.format_stat("Date", current_date, width=width))
         output.append(self.format_stat("Time", current_time, width=width))
 
         if custom_weather:
-            output.append(self.format_divider("Custom Weather", width=width))
+            output.append(section_header("Custom Weather", width=width))
             wrapped_weather = ansi_utils.wrap_ansi(custom_weather, width=width)
             output.extend(wrapped_weather.split('\n'))
         else:
@@ -184,33 +186,21 @@ class CmdWeather(MuxCommand):
                     output.append(self.format_stat("Moon Sign", moon_phase, width=width))
                     
                     # Add tide information
-                    output.append(self.format_divider("Tide Information", width=width))
+                    output.append(section_header("Tide Information", width=width))
                     for tide in tide_info:
                         output.append(self.format_stat(f"{tide[0]} Tide", f"{tide[1]} ({tide[2]})", width=width))
                     
-                    output.append(self.format_divider("Tomorrow's Forecast", width=width))
+                    output.append(section_header("Tomorrow's Forecast", width=width))
                     forecast = f"Clear sky, {tomorrow_temp:.1f}F"
                     output.append(self.format_stat("", forecast, width=width))
 
             except requests.RequestException:
                 self.caller.msg("Sorry, there was an error connecting to the weather service.")
 
-        output.append(self.format_footer(width=width))
+        output.append(footer(width=width, char="="))
         
         # Send the formatted output to the player
         self.caller.msg("\n".join(output))
-
-    def format_header(self, text, width=78):
-        return f"|r{'=' * 5}< |c{text}|r >{'=' * (width - len(text) - 9)}|n"
-
-    def format_footer(self, width=78):
-        return f"|r{'=' * width}|n"
-
-    def format_divider(self, text, width=78):
-        text_width = len(ANSIString(text).clean())
-        left_width = (width - text_width - 2) // 2
-        right_width = width - left_width - text_width - 2
-        return f"|b{'-' * left_width} |c{text}|n |b{'-' * right_width}|n"
 
     def format_stat(self, stat1, value1, stat2=None, value2=None, width=78):
         half_width = width // 2

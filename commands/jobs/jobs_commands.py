@@ -184,7 +184,7 @@ class CmdJobs(MuxCommand):
             'status': 8      # "Status   "
         }
 
-        output = header(f"{settings.SERVERNAME} Jobs", width=78, color="|r") + "\n"
+        output = header(f"{settings.SERVERNAME} Jobs", width=78) + "\n"
         
         # Create the header row with fixed column widths
         header_row = (
@@ -196,7 +196,7 @@ class CmdJobs(MuxCommand):
             f"Status|n"
         )
         output += header_row + "\n"
-        output += ANSIString("|r" + "-" * 78 + "|n") + "\n"
+        output += divider(78) + "\n"
 
         # Add each job as a row with proper column spacing
         for job in jobs:
@@ -220,7 +220,7 @@ class CmdJobs(MuxCommand):
             row = f"{job_id}{queue}{title}{originator}{assignee}{status}"
             output += row + "\n"
 
-        output += footer(width=78, color="|r")
+        output += footer(width=78)
         self.caller.msg(output)
 
     def view_job(self):
@@ -235,7 +235,7 @@ class CmdJobs(MuxCommand):
             # Mark the job as viewed by this account using mark_viewed
             job.mark_viewed(self.caller.account)
 
-            output = header(f"Job {job.id}", width=78, color="|r") + "\n"
+            output = header(f"Job {job.id}", width=78) + "\n"
             output += f"|cTitle:|n {job.title}\n"
             output += f"|cStatus:|n {job.status}\n"
             output += f"|cRequester:|n {job.requester.username}\n"
@@ -276,7 +276,7 @@ class CmdJobs(MuxCommand):
                     output += f"|c{comment['author']} [{comment['created_at']}]:|n\n"
                     output += comment['text'] + "\n\n"
             
-            output += footer(width=78, color="|r")
+            output += footer(width=78)
             self.caller.msg(output)
         except ValueError:
             self.caller.msg("Invalid job ID.")
@@ -1342,12 +1342,12 @@ class CmdJobs(MuxCommand):
                 self.caller.msg("There are no archived jobs.")
                 return
 
-            output = header(f"Archived {settings.SERVERNAME} Jobs", width=78, color="|r") + "\n"
+            output = header(f"Archived {settings.SERVERNAME} Jobs", width=78) + "\n"
             
             # Create the header row
             header_row = "|cJob #  Queue      Job Title                 Closed   Assignee          Requester|n"
             output += header_row + "\n"
-            output += ANSIString("|r" + "-" * 78 + "|n") + "\n"
+            output += divider(78) + "\n"
 
             # Add each job as a row
             for job in archived_jobs:
@@ -1365,7 +1365,7 @@ class CmdJobs(MuxCommand):
                 )
                 output += row + "\n"
 
-            output += footer(width=78, color="|r")
+            output += footer(width=78)
             self.caller.msg(output)
 
         else:
@@ -1383,7 +1383,7 @@ class CmdJobs(MuxCommand):
                 requester_name = archived_job.requester.username if archived_job.requester else "[Deleted User]"
                 assignee_name = archived_job.assignee.username if archived_job.assignee else "-----"
                 
-                output = header(f"Archived Job {archived_job.original_id}", width=78, color="|r") + "\n"
+                output = header(f"Archived Job {archived_job.original_id}", width=78) + "\n"
                 output += f"|cTitle:|n {archived_job.title}\n"
                 output += f"|cStatus:|n {archived_job.status}\n"
                 output += f"|cRequester:|n {requester_name}\n"
@@ -1399,7 +1399,7 @@ class CmdJobs(MuxCommand):
                     output += "|c" + "Comments".center(78, "-") + "|n\n"
                     output += archived_job.comments + "\n"
                 
-                output += footer(width=78, color="|r")
+                output += footer(width=78)
                 self.caller.msg(output)
             except ValueError:
                 self.caller.msg("Invalid job ID.")
@@ -1693,7 +1693,7 @@ class CmdJobs(MuxCommand):
     def display_note(self, note):
         """Display a note with formatting."""
         width = 78
-        output = header(f"Job #{note.note_id}", width=width, color="|y")
+        output = header(f"Job #{note.note_id}", width=width)
 
         if note.category:
             output += f"|c{note.category}|n"
@@ -1717,7 +1717,7 @@ class CmdJobs(MuxCommand):
             output += format_stat("Created:", note.created_at.strftime("%Y-%m-%d %H:%M:%S"), width=width) + "\n"
             output += format_stat("Updated:", note.updated_at.strftime("%Y-%m-%d %H:%M:%S"), width=width) + "\n"
 
-        output += divider(width=width, char="-", color="|r") + "\n"
+        output += divider(width=width) + "\n"
         
         # Note content - properly handle line breaks and indentation
         text = note.text.strip()
@@ -1735,7 +1735,7 @@ class CmdJobs(MuxCommand):
             if i < len(paragraphs) - 1:
                 output += "\n"
         
-        output += footer(width=width, color="|r")
+        output += footer(width=width)
         self.caller.msg(output)
 
     def list_my_jobs(self):
@@ -1758,12 +1758,12 @@ class CmdJobs(MuxCommand):
             self.caller.msg("You have no open jobs.")
             return
 
-        output = header(f"My {settings.SERVERNAME} Jobs", width=78, color="|r") + "\n"
+        output = header(f"My {settings.SERVERNAME} Jobs", width=78) + "\n"
         
         # Create the header row without fixed widths
         header_row = "|cJob #  Queue      Job Title           Originator    Assignee      Status|n"
         output += header_row + "\n"
-        output += ANSIString("|r" + "-" * 78 + "|n") + "\n"
+        output += divider(78) + "\n"
 
         # Add each job as a row without cropping
         for job in jobs:
@@ -1781,7 +1781,7 @@ class CmdJobs(MuxCommand):
             )
             output += row + "\n"
 
-        output += footer(width=78, color="|r")
+        output += footer(width=78)
         self.caller.msg(output)
 
     def reopen_job(self):
@@ -1897,12 +1897,12 @@ class CmdJobs(MuxCommand):
             self.caller.msg("You have no jobs assigned to you.")
             return
 
-        output = header("My Assigned Jobs", width=78, color="|r") + "\n"
+        output = header("My Assigned Jobs", width=78) + "\n"
         
         # Create the header row without fixed widths
         header_row = "|cJob #  Queue      Job Title                 Originator    Status|n"
         output += header_row + "\n"
-        output += ANSIString("|r" + "-" * 78 + "|n") + "\n"
+        output += divider(78) + "\n"
 
         # Add each job as a row without cropping
         for job in jobs:
@@ -1919,7 +1919,7 @@ class CmdJobs(MuxCommand):
             )
             output += row + "\n"
 
-        output += footer(width=78, color="|r")
+        output += footer(width=78)
         self.caller.msg(output)
 
     def clear_archive(self):
@@ -2257,7 +2257,7 @@ class CmdJobs(MuxCommand):
                 'archived': 9   # "Archived "
             }
 
-            output = header(f"Jobs for {player_username} ({total_count} total)", width=78, color="|r") + "\n"
+            output = header(f"Jobs for {player_username} ({total_count} total)", width=78) + "\n"
             
             # Create the header row with fixed column widths
             header_row = (
@@ -2269,7 +2269,7 @@ class CmdJobs(MuxCommand):
                 f"Archived|n"
             )
             output += header_row + "\n"
-            output += ANSIString("|r" + "-" * 78 + "|n") + "\n"
+            output += divider(78) + "\n"
 
             # Add active jobs
             if active_count > 0:
@@ -2321,7 +2321,7 @@ class CmdJobs(MuxCommand):
                     row = f"{job_id}{queue}{title}{role_display}{status}{archived}"
                     output += row + "\n"
 
-            output += footer(width=78, color="|r")
+            output += footer(width=78)
             self.caller.msg(output)
             
         except Exception as e:

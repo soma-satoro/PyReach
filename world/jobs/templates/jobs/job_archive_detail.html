@@ -1,6 +1,6 @@
 {% extends "jobs/base.html" %}
 
-{% block title %}{{ job.title }} - Archived Job - Exordium to Entropy{% endblock %}
+{% block title %}{{ job.title }} - Archived Job - {{ game_name|default:"PyReach" }}{% endblock %}
 
 {% block content %}
 <div class="header">

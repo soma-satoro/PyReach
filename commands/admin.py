@@ -593,8 +593,9 @@ class CmdConfigOOCIC(MuxCommand):
         theme_colors = ServerConfig.objects.conf("ROOM_THEME_COLORS")
         if theme_colors:
             caller.msg(f"Theme Colors: {theme_colors}")
+            caller.msg("(Affects rooms, +roster, who, +census, +lookup, and other formatted displays)")
         else:
-            caller.msg("Theme Colors: Not set (using defaults)")
+            caller.msg("Theme Colors: Not set (using defaults: green)")
         
         caller.msg("\nUse '+config/ooc <room>' or '+config/ic <room>' to set these values.")
         caller.msg("Use '+config/theme <color1>,<color2>,<color3>' to set theme colors.")
@@ -719,7 +720,7 @@ class CmdConfigOOCIC(MuxCommand):
         caller.msg(f"  Header/Footer: |{normalized_colors[0]}████|n {color_names[0]}")
         caller.msg(f"  Header Text: |{normalized_colors[1]}████|n {color_names[1]}")
         caller.msg(f"  Dividers: |{normalized_colors[2]}████|n {color_names[2]}")
-        caller.msg("\nReload rooms or reconnect to see the changes.")
+        caller.msg("\nTheme affects: rooms, +roster, who, +census, +lookup, and other formatted displays.")
     
     def show_theme_colors(self):
         """Show current theme colors."""
@@ -740,6 +741,7 @@ class CmdConfigOOCIC(MuxCommand):
                 caller.msg(f"  {theme_colors} (invalid format)")
         else:
             caller.msg("Theme colors not set (using defaults: green for all)")
+            caller.msg("Affects: rooms, +roster, who, +census, +lookup")
 
 
 class CmdFixGroupTypes(MuxCommand):

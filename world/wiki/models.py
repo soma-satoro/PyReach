@@ -1,5 +1,5 @@
 """
-Wiki models for the Exordium content management system.
+Wiki models for the game content management system.
 """
 
 from django.db import models

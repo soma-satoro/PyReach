@@ -33,7 +33,6 @@ from .groups import CmdGroups, CmdRoster, CmdGroupMerit, CmdTotem
 from .npc import CmdNPC
 from .CmdHealth import CmdHealth
 from .template_admin import CmdTemplate
-from .admin_commands import CmdMigrate
 from .admin import CmdConfigOOCIC, CmdApprove, CmdUnapprove, CmdFixGroupTypes
 from .building import (CmdAreaManage, CmdRoomSetup, CmdPlaces, CmdRoomInfo, CmdMap)
 from .admin_area_init import CmdInitAreaManager
@@ -147,7 +146,6 @@ class CharacterCmdSet(default_cmds.CharacterCmdSet):
         self.add(CmdNPC())
         
         # Admin commands
-        self.add(CmdMigrate())
         self.add(CmdTemplate())
         self.add(CmdInitAreaManager())
         self.add(CmdStoryteller())

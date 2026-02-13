@@ -114,24 +114,18 @@ def render_demon_form_sheet(character, caller, force_ascii=False):
     else:
         filled_char, empty_char = "●", "○"
     
+    from world.utils.formatting import sheet_section_header, footer
+
     def format_section_header(section_name):
-        """Create an arrow-style section header with cyan coloring"""
-        total_width = 78
-        name_length = len(section_name) - 4  # Account for color codes |w and |n
-        available_dash_space = total_width - name_length - 4
-        left_dashes = available_dash_space // 2
-        right_dashes = available_dash_space - left_dashes
-        return f"|c<{'-' * left_dashes}|n {section_name} |c{'-' * right_dashes}>|n"
-    
-    # Build the demon form sheet display with cyan color scheme
+        return sheet_section_header(section_name)
+
+    # Build the demon form sheet display (theme colors for borders)
     output = []
-    output.append(f"|c{'='*78}|n")  # Cyan border
-    
-    # Get form concept or use default
+    output.append(footer(78, char="="))
     form_concept = demon_form_stats.get("bio", {}).get("concept", f"{character.name}'s Apocalyptic Form")
-    output.append(f"|c{form_concept.center(78)}|n")  # Cyan text
-    output.append(f"|C{'DEMONIC FORM'.center(78)}|n")  # Bright cyan
-    output.append(f"|c{'='*78}|n")
+    output.append(f"|y{form_concept.center(78)}|n")
+    output.append(f"|y{'DEMONIC FORM'.center(78)}|n")
+    output.append(footer(78, char="="))
     
     # Bio Section
     output.append(format_section_header("|wBIO|n"))
@@ -259,7 +253,7 @@ def render_demon_form_sheet(character, caller, force_ascii=False):
         output.append("  No process selected yet.")
         output.append("")
     
-    output.append(f"|c{'='*78}|n")
+    output.append(footer(78, char="="))
     
     # Add encoding info to bottom if ASCII mode is being used
     if force_ascii:

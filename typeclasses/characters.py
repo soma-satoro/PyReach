@@ -17,6 +17,7 @@ from evennia.utils.utils import lazy_property
 from world.conditions import ConditionHandler
 from world.tilts import TiltHandler
 from world.experience import ExperienceHandler, EXPERIENCE_COSTS
+from world.mystery_handler import MysteryHandler
 from world.cofd.templates import (
     get_template_definition, get_bio_fields, get_integrity_name, 
     get_starting_integrity, validate_field, get_template_names
@@ -59,6 +60,13 @@ class Character(DefaultCharacter):
         Returns the pledge handler for this character.
         """
         return PledgeHandler(self)
+
+    @lazy_property
+    def mysteries(self):
+        """
+        Returns the mystery investigation handler for this character.
+        """
+        return MysteryHandler(self)
 
     def at_object_creation(self):
         """

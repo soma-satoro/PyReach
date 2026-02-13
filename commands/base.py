@@ -259,7 +259,7 @@ class InputValidationMixin:
 
 class BasePyReachCommand(MuxCommand, InputValidationMixin):
     """
-    Base command class for Exordium commands with common functionality and security.
+    Base command class for game commands with common functionality and security.
     """
     
     def at_pre_cmd(self):

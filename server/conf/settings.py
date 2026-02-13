@@ -53,6 +53,15 @@ SPECIAL_CHAR_SUBSTITUTIONS = {
     '%t': '     ',   # Tab (5 spaces)
 }
 
+# Add game_name to all template contexts (for Jobs web UI, etc.)
+if "TEMPLATES" in dir() and TEMPLATES:
+    for template_config in TEMPLATES:
+        if "OPTIONS" in template_config and "context_processors" in template_config["OPTIONS"]:
+            template_config["OPTIONS"]["context_processors"].append(
+                "web.utils.context_processors.game_info"
+            )
+            break
+
 # Add your custom apps to the existing INSTALLED_APPS
 INSTALLED_APPS += [
     'world.cofd',

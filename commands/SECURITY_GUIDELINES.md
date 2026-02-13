@@ -58,7 +58,7 @@ if self.caller.check_permstring("Admin"):
 ```python
 from commands.base import BasePyReachCommand
 
-class MyCommand(BaseExordiumCommand):
+class MyCommand(BaseExordiumCommand):  # BaseExordiumCommand = base game command class
     def func(self):
         # Use the built-in validation methods
         if not self.validate_input_length(self.args, self.MAX_MESSAGE_LENGTH, "Message"):

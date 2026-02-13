@@ -10,6 +10,7 @@ from datetime import datetime, timedelta
 from django.utils import timezone
 from collections import defaultdict
 from world.reality_systems import get_template
+from world.utils.formatting import header, footer, section_header
 
 
 class CmdCensus(MuxCommand):
@@ -285,15 +286,7 @@ class CmdCensus(MuxCommand):
         
         # Build output
         output = []
-        header_text = "Approved Character Census"
-        # Total width is 80, calculate padding for symmetric header
-        total_width = 80
-        # Format: ====> Text <====
-        text_and_arrows = f"> {header_text} <"
-        equals_count = total_width - len(text_and_arrows)
-        left_equals = equals_count // 2
-        right_equals = equals_count - left_equals
-        output.append("|g" + "=" * left_equals + ">|n |w" + header_text + "|n |g<" + "=" * right_equals + "|n")
+        output.append(header("Approved Character Census", width=80, char="="))
         
         # Format in columns (3 columns of ~26 chars each)
         line = ""
@@ -315,7 +308,7 @@ class CmdCensus(MuxCommand):
             output.append(" " + line)
         
         output.append("")
-        output.append("|g" + "=" * 80 + "|n")
+        output.append(footer(80, char="="))
         
         self.caller.msg("\n".join(output))
     
@@ -354,17 +347,9 @@ class CmdCensus(MuxCommand):
         # Build output
         output = []
         
-        # Header with template name
         template_display = template_name.replace("_", " ").title()
         header_text = f"Approved {template_display} Census"
-        # Total width is 80, calculate padding for symmetric header
-        total_width = 80
-        # Format: ====> Text <====
-        text_and_arrows = f"> {header_text} <"
-        equals_count = total_width - len(text_and_arrows)
-        left_equals = equals_count // 2
-        right_equals = equals_count - left_equals
-        output.append("|g" + "=" * left_equals + ">|n |w" + header_text + "|n |g<" + "=" * right_equals + "|n")
+        output.append(header(header_text, width=80, char="="))
         
         # For each field, count the values
         for field in fields:
@@ -395,7 +380,7 @@ class CmdCensus(MuxCommand):
             
             # Display this field's section
             field_display = field.replace("_", " ").title()
-            output.append(f"|g----> {field_display} <" + "-" * (72 - len(field_display)) + "|n")
+            output.append(section_header(field_display, width=78))
             
             # Format in columns (3 columns of ~26 chars each)
             line = ""
@@ -418,6 +403,6 @@ class CmdCensus(MuxCommand):
             
             output.append("")
         
-        output.append("|g" + "=" * 80 + "|n")
+        output.append(footer(80, char="="))
         
         self.caller.msg("\n".join(output))

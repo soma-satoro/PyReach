@@ -2,7 +2,7 @@ from evennia.utils import evtable
 from evennia.commands.default.muxcommand import MuxCommand
 from world.utils.language_data import AVAILABLE_LANGUAGES
 from evennia.utils.search import search_object
-from world.utils.formatting import header, footer, divider, format_stat
+from world.utils.formatting import header, footer, divider, section_header, format_stat
 from world.utils.ansi_utils import wrap_ansi
 from evennia.utils.ansi import ANSIString
 
@@ -126,28 +126,9 @@ class CmdLanguage(MuxCommand):
         languages = self.caller.get_languages()
         current = self.caller.get_speaking_language()
         
-        # Create the output using raw strings
-        divider_line = "-" * 78
-        
-        main_header = "|b< |yLanguages|n |b>"
-        known_header = "|b< |yKnown Languages|n |b>"
-        speaking_header = "|b< |yCurrently Speaking|n |b>"
-        merit_header = "|b< |yMerit Points|n |b>"
-        
-        # Strip ANSI codes for length calculation
-        main_length = len(ANSIString(main_header).clean())
-        known_length = len(ANSIString(known_header).clean())
-        speaking_length = len(ANSIString(speaking_header).clean())
-        merit_length = len(ANSIString(merit_header).clean())
-        
-        main_padding = (78 - main_length) // 2
-        known_padding = (78 - known_length) // 2
-        speaking_padding = (78 - speaking_length) // 2
-        merit_padding = (78 - merit_length) // 2
-        
         output = [
-            f"|b{'-' * main_padding}{main_header}{'-' * (78 - main_padding - main_length)}|n",
-            f"|b{'-' * known_padding}{known_header}{'-' * (78 - known_padding - known_length)}|n",
+            header("Languages", width=78),
+            section_header("Known Languages", width=78),
         ]
         
         # Format languages list with wrapping
@@ -159,7 +140,7 @@ class CmdLanguage(MuxCommand):
         
         # Add current speaking language
         output.extend([
-            f"|b{'-' * speaking_padding}{speaking_header}{'-' * (78 - speaking_padding - speaking_length)}|n",
+            section_header("Currently Speaking", width=78),
             current if current else "None"
         ])
 
@@ -188,7 +169,7 @@ class CmdLanguage(MuxCommand):
             points_remaining = language_merit_points - used_languages
 
             output.extend([
-                f"|b{'-' * merit_padding}{merit_header}{'-' * (78 - merit_padding - merit_length)}|n",
+                section_header("Merit Points", width=78),
                 f"Total points: {language_merit_points} (from Language and Multilingual merits)",
                 f"Native language: {native_language}",
                 f"Languages used: {used_languages}",
@@ -196,11 +177,11 @@ class CmdLanguage(MuxCommand):
             ])
         else:
             output.extend([
-                f"|b{'-' * merit_padding}{merit_header}{'-' * (78 - merit_padding - merit_length)}|n",
+                section_header("Merit Points", width=78),
                 f"Native language: {native_language}"
             ])
         
-        output.append(f"|b{'-' * 78}|n")
+        output.append(footer(78))
         
         # Send only the formatted output
         self.caller.msg("\n".join(output))
@@ -505,26 +486,9 @@ class CmdLanguage(MuxCommand):
         languages = target.get_languages()
         current = target.get_speaking_language()
         
-        # Create the output using raw strings
-        main_header = f"|b< |y{target.name}'s Languages|n |b>"
-        known_header = "|b< |yKnown Languages|n |b>"
-        speaking_header = "|b< |yCurrently Speaking|n |b>"
-        merit_header = "|b< |yMerit Points|n |b>"
-        
-        # Strip ANSI codes for length calculation
-        main_length = len(ANSIString(main_header).clean())
-        known_length = len(ANSIString(known_header).clean())
-        speaking_length = len(ANSIString(speaking_header).clean())
-        merit_length = len(ANSIString(merit_header).clean())
-        
-        main_padding = (78 - main_length) // 2
-        known_padding = (78 - known_length) // 2
-        speaking_padding = (78 - speaking_length) // 2
-        merit_padding = (78 - merit_length) // 2
-        
         output = [
-            f"|b{'-' * main_padding}{main_header}{'-' * (78 - main_padding - main_length)}|n",
-            f"|b{'-' * known_padding}{known_header}{'-' * (78 - known_padding - known_length)}|n",
+            header(f"{target.name}'s Languages", width=78),
+            section_header("Known Languages", width=78),
         ]
         
         # Format languages list with wrapping
@@ -536,7 +500,7 @@ class CmdLanguage(MuxCommand):
         
         # Add current speaking language
         output.extend([
-            f"|b{'-' * speaking_padding}{speaking_header}{'-' * (78 - speaking_padding - speaking_length)}|n",
+            section_header("Currently Speaking", width=78),
             current if current else "None"
         ])
 
@@ -565,7 +529,7 @@ class CmdLanguage(MuxCommand):
             points_remaining = language_merit_points - used_languages
 
             output.extend([
-                f"|b{'-' * merit_padding}{merit_header}{'-' * (78 - merit_padding - merit_length)}|n",
+                section_header("Merit Points", width=78),
                 f"Total points: {language_merit_points} (from Language and Multilingual merits)",
                 f"Native language: {native_language}",
                 f"Languages used: {used_languages}",
@@ -573,11 +537,11 @@ class CmdLanguage(MuxCommand):
             ])
         else:
             output.extend([
-                f"|b{'-' * merit_padding}{merit_header}{'-' * (78 - merit_padding - merit_length)}|n",
+                section_header("Merit Points", width=78),
                 f"Native language: {native_language}"
             ])
         
-        output.append(f"|b{'-' * 78}|n")
+        output.append(footer(78))
         
         # Send only the formatted output
         self.caller.msg("\n".join(output))

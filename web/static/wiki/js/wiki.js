@@ -1,5 +1,5 @@
 /**
- * EXORDIUM WIKI - JavaScript
+ * Wiki - JavaScript
  * Handles interactive features and enhancements
  */
 

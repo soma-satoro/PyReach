@@ -18,9 +18,11 @@ needed on the Evennia side.
 
 """
 
+from django.conf import settings
+
 MSSPTable = {
     # Required fields
-    "NAME": "Mygame",  # usually the same as SERVERNAME
+    "NAME": getattr(settings, "SERVERNAME", "PyReach"),
     # Generic
     "CRAWL DELAY": "-1",  # limit how often crawler may update the listing. -1 for no limit
     "HOSTNAME": "",  # telnet hostname

@@ -5,7 +5,9 @@ from evennia.utils.ansi import ANSIString
 from evennia.utils import ansi
 from evennia.commands.command import Command
 from evennia.utils import search
+from django.conf import settings
 from world.utils.permission_utils import check_admin_permission, format_permission_error
+from world.utils.formatting import header, footer, divider
 
 class CmdStaff(MuxCommand):
     """
@@ -99,9 +101,9 @@ class CmdStaff(MuxCommand):
             if is_staff:
                 staff.append((account, character))
 
-        string = self.format_header("Exordium to Entropy Staff", width=78)
+        string = header(f"{settings.SERVERNAME} Staff", width=78, char="=") + "\n"
         string += self.format_columns(["Name", "Position", "Status"], color="|w")
-        string += "|r=|n" * 78 + "\n"
+        string += divider(78, char="=") + "\n"
 
         if staff:
             for account, character in staff:
@@ -137,14 +139,8 @@ class CmdStaff(MuxCommand):
         else:
             string += "No staff members found.\n"
 
-        string += self.format_footer(width=78)
+        string += footer(width=78, char="=") + "\n"
         self.caller.msg(string)
-
-    def format_header(self, text, width=78):
-        return f"|r{'=' * 5}< |w{text}|r >{'=' * (width - len(text) - 9)}|n\n"
-
-    def format_footer(self, width=78):
-        return f"|r{'=' * width}|n\n"
 
     def format_columns(self, columns, color="|w"):
         return "".join([f"{color}{col:<25}|n" for col in columns]) + "\n"
@@ -349,12 +345,6 @@ class CmdPST(default_cmds.MuxCommand):
     locks = "cmd:all()"
     help_category = "Storyteller Commands"
 
-    def format_header(self, text, width=78):
-        return f"|r{'=' * 5}< |w{text}|r >{'=' * (width - len(text) - 9)}|n\n"
-
-    def format_footer(self, width=78):
-        return f"|r{'=' * width}|n\n"
-
     def format_columns(self, columns, color="|w"):
         return "".join([f"{color}{col:<20}|n" for col in columns]) + "\n"
 
@@ -427,9 +417,9 @@ class CmdPST(default_cmds.MuxCommand):
                 if obj.dbref not in [x[2] for x in player_storytellers]:
                     player_storytellers.add((None, obj, obj.dbref))
 
-        string = self.format_header("Exordium to Entropy Player Storytellers", width=78)
+        string = header(f"{settings.SERVERNAME} Player Storytellers", width=78, char="=") + "\n"
         string += self.format_columns(["Name", "Position", "Status", "Claimed"], color="|w")
-        string += "|r=|n" * 78 + "\n"
+        string += divider(78, char="=") + "\n"
 
         if player_storytellers:
             for account, character, _ in sorted(player_storytellers, key=lambda x: (x[1].key if x[1] else x[0].key) if x[1] or x[0] else ""):
@@ -457,7 +447,7 @@ class CmdPST(default_cmds.MuxCommand):
         else:
             string += "No player storytellers found.\n"
 
-        string += self.format_footer(width=78)
+        string += footer(width=78, char="=") + "\n"
         self.caller.msg(string)
 
     def is_claimed(self, account, character):
