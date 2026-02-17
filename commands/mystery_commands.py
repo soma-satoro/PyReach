@@ -6,16 +6,11 @@ into a single cohesive command structure, following the established patterns
 used throughout the PyReach codebase.
 """
 
-import re
 import secrets
-import json
 from evennia.commands.default.muxcommand import MuxCommand
-from evennia.utils import create, evtable, search
-from evennia.utils.ansi import ANSIString
-from world.experience import ExperienceHandler
 from typeclasses.mysteries import MysteryManager, Mystery, ClueObject
 from world.utils.permission_utils import check_mystery_permission, format_permission_error
-from django.utils import timezone
+from world.utils.formatting import header, format_simple_table
 from utils.search_helpers import search_character
 
 
@@ -93,30 +88,22 @@ class CmdMystery(MuxCommand):
             # Shift the switches so clueobj/create becomes just create for processing
             self.clueobj_switch = self.switches[1].lower()
     
-    def flexible_search(self, search_term):
+    def _search_object(self, search_term):
         """
-        Search for an object, trying both spaces and underscores.
-        
+        Search for an object (item, furniture, etc.) in caller's context.
+        Tries both spaces and underscores for flexible matching.
+
         Args:
             search_term (str): The term to search for
-            
+
         Returns:
             Object or None: The found object, or None if not found
         """
-        # Try the original search term first
         target = self.caller.search(search_term)
-        
-        # If not found and search term contains spaces, try with underscores
         if not target and ' ' in search_term:
-            underscore_term = search_term.replace(' ', '_')
-            target = self.caller.search(underscore_term)
-        
-        # If still not found and search term contains underscores, try with spaces
+            target = self.caller.search(search_term.replace(' ', '_'))
         if not target and '_' in search_term:
-            space_term = search_term.replace('_', ' ')
-            target = self.caller.search(space_term)
-        
-        # Handle both single objects and lists
+            target = self.caller.search(search_term.replace('_', ' '))
         if target:
             return target[0] if isinstance(target, list) else target
         return None
@@ -141,26 +128,23 @@ class CmdMystery(MuxCommand):
         switch = self.switches[0].lower()
         
         # Player commands (no permission check needed)
-        if switch in ["progress", "examine", "search", "interview", "research", "occult", "share", "collaborate", "clue"]:
-            if switch == "progress":
-                self.show_progress()
-            elif switch == "examine":
-                self.examine_for_clues()
-            elif switch == "search":
-                self.search_for_clues()
-            elif switch == "interview":
-                self.interview()
-            elif switch == "research":
-                self.research()
-            elif switch == "share":
-                self.share_clue()
-            elif switch == "collaborate":
-                self.collaborate()
-            elif switch == "clue":
-                self.view_clue()
+        player_switches = {
+            "progress": self.show_progress,
+            "examine": self.examine_for_clues,
+            "search": self.search_for_clues,
+            "interview": self.interview,
+            "research": self.research,
+            "occult": self.occult_research,
+            "share": self.share_clue,
+            "collaborate": self.collaborate,
+            "clue": self.view_clue,
+        }
+        if switch in player_switches:
+            player_switches[switch]()
+            return
         
         # Staff commands (require permission check)
-        elif switch in ["create", "list", "view", "edit", "delete", "status", "addclue", "editclue", 
+        if switch in ["create", "list", "view", "edit", "delete", "status", "addclue", "editclue", 
                        "delclue", "prereq", "leads", "cluetype", "methods", "conditions", "skillroll", "revelation", 
                        "access", "discovered", "grant", "revoke", "templates", "template", "staffprogress", "participant"]:
             if not check_mystery_permission(self.caller):
@@ -248,26 +232,22 @@ class CmdMystery(MuxCommand):
         if not accessible_mysteries:
             self.caller.msg("No mysteries are available for your character.")
             return
-        
-        table = evtable.EvTable(
-            "|cID|n", "|cTitle|n", "|cCategory|n", "|cDifficulty|n", "|cYour Progress|n",
-            border="table", align="l"
-        )
-        
+
+        headers = ["ID", "Title", "Category", "Difficulty", "Your Progress"]
+        rows = []
         for mystery in accessible_mysteries:
             discovered_clues = mystery.get_discovered_clues(self.caller)
             total_clues = len(mystery.db.clues)
             progress = f"{len(discovered_clues)}/{total_clues}"
-            
-            table.add_row(
+            rows.append((
                 mystery.id,
-                mystery.db.title[:25],
-                mystery.db.category,
+                (mystery.db.title or "")[:25],
+                mystery.db.category or "",
                 f"{mystery.db.difficulty}/5",
                 progress
-            )
-        
-        self.caller.msg(f"|cActive Mysteries:|n\n{table}")
+            ))
+        table = format_simple_table(headers, rows)
+        self.caller.msg(f"\n{header('Active Mysteries')}\n{table}")
     
     def view_mystery(self):
         """View details of a specific mystery and the character's progress."""
@@ -285,12 +265,9 @@ class CmdMystery(MuxCommand):
         if not mystery:
             return
         
-        # Check if character can access this mystery by checking access rules
+        # Check if character can access this mystery
         if hasattr(mystery.db, 'access_rules') and mystery.db.access_rules:
-            if isinstance(mystery.db.access_rules, dict) and mystery.db.access_rules.get('type') == 'open':
-                # Open access - allow viewing
-                pass
-            elif hasattr(mystery, '_check_access_rules'):
+            if not (isinstance(mystery.db.access_rules, dict) and mystery.db.access_rules.get('type') == 'open'):
                 if not mystery._check_access_rules(self.caller):
                     self.caller.msg("You cannot access this mystery.")
                     return
@@ -306,7 +283,7 @@ class CmdMystery(MuxCommand):
         available_clues = mystery.get_available_clues(self.caller)
         
         output = [
-            f"|c=== {mystery.db.title} ===|n",
+            header(mystery.db.title, char="="),
             f"|yDescription:|n {mystery.db.description}",
             f"|yCategory:|n {mystery.db.category}",
             f"|yDifficulty:|n {mystery.db.difficulty}/5",
@@ -332,8 +309,7 @@ class CmdMystery(MuxCommand):
     
     def show_progress(self):
         """Show investigation progress across all mysteries."""
-        mystery_clues = getattr(self.caller.db, 'mystery_clues', {})
-        
+        mystery_clues = self.caller.mysteries.get_all() if hasattr(self.caller, 'mysteries') else getattr(self.caller.db, 'mystery_clues', {})
         if not mystery_clues:
             self.caller.msg("You haven't discovered any mystery clues yet.")
             return
@@ -361,11 +337,11 @@ class CmdMystery(MuxCommand):
             return
         
         search_term = self.args.strip()
-        target = self.flexible_search(search_term)
-        
+        target = self._search_object(search_term)
+
         if not target:
             return
-        
+
         # Check if this is a clue object
         if isinstance(target, ClueObject):
             # Let the clue object handle the examination
@@ -414,11 +390,11 @@ class CmdMystery(MuxCommand):
             return
         
         search_term = self.args.strip()
-        target = self.flexible_search(search_term)
-        
+        target = search_character(self.caller, search_term)
+
         if not target:
             return
-        
+
         if target == self.caller:
             self.caller.msg("You can't interview yourself.")
             return
@@ -601,8 +577,8 @@ class CmdMystery(MuxCommand):
             return
         
         mystery_id_str, clue_name = [x.strip() for x in clue_path.split("/", 1)]
-        
-        target = self.flexible_search(char_name)
+
+        target = search_character(self.caller, char_name)
         if not target:
             return
         
@@ -654,11 +630,11 @@ class CmdMystery(MuxCommand):
             return
         
         search_term = self.args.strip()
-        target = self.flexible_search(search_term)
-        
+        target = search_character(self.caller, search_term)
+
         if not target:
             return
-        
+
         if target == self.caller:
             self.caller.msg("You can't collaborate with yourself.")
             return
@@ -715,23 +691,20 @@ class CmdMystery(MuxCommand):
         if not mysteries:
             self.caller.msg("No mysteries found.")
             return
-        
-        table = evtable.EvTable(
-            "|cID|n", "|cTitle|n", "|cCategory|n", "|cProgress|n", "|cStatus|n",
-            border="table", align="l"
-        )
-        
+
+        headers = ["ID", "Title", "Category", "Progress", "Status"]
+        rows = []
         for mystery in mysteries:
             title = mystery.db.title or f"Untitled Mystery #{mystery.id}"
-            table.add_row(
+            rows.append((
                 mystery.id,
                 title[:30],
-                mystery.db.category,
+                mystery.db.category or "",
                 f"{mystery.db.completion_percentage}%",
-                mystery.db.status
-            )
-        
-        self.caller.msg(f"|cActive Mysteries (Staff View):|n\n{table}")
+                mystery.db.status or ""
+            ))
+        table = format_simple_table(headers, rows)
+        self.caller.msg(f"\n{header('Active Mysteries (Staff View)')}\n{table}")
     
     def view_mystery_staff(self):
         """View detailed mystery information (staff view)."""
@@ -746,7 +719,7 @@ class CmdMystery(MuxCommand):
         
         # Basic info
         output = [
-            f"|c=== Mystery: {mystery.db.title} ===|n",
+            header(f"Mystery: {mystery.db.title}", char="="),
             f"|yID:|n {mystery.id}",
             f"|yDescription:|n {mystery.db.description}",
             f"|yCategory:|n {mystery.db.category}",
@@ -1027,17 +1000,34 @@ class CmdMystery(MuxCommand):
                     continue
                 
                 # Location filtering (not applicable for research/occult)
-                if method_type not in ['research', 'occult'] and location_hints and self.caller.location.key not in location_hints:
-                    continue
+                if method_type not in ['research', 'occult'] and location_hints and self.caller.location:
+                    room_key = self.caller.location.key.lower()
+                    room_tags = [t.lower() if isinstance(t, str) else str(t).lower()
+                                 for t in (getattr(self.caller.location.db, 'tags', None) or [])]
+                    hint_set = {h.lower() if isinstance(h, str) else str(h).lower() for h in location_hints}
+                    if hint_set and room_key not in hint_set and not (hint_set & set(room_tags)):
+                        continue
                 
                 # Legacy skill hints filtering (for backward compatibility)
                 if skill_hints and method_type not in skill_hints:
                     continue
                     
-                # Object-specific filtering for examine/interview
-                if target_object and method_type in ['examine', 'interview']:
-                    if target_object.key.lower() not in clue.get('description', '').lower():
-                        continue
+                # Object-specific filtering for examine
+                if target_object and method_type == 'examine':
+                    object_hints = clue.get('object_hints', [])
+                    if object_hints:
+                        target_key = target_object.key.lower()
+                        hint_keys = {h.lower() if isinstance(h, str) else str(h).lower() for h in object_hints}
+                        if target_key not in hint_keys:
+                            continue
+                # NPC/character-specific filtering for interview
+                if target_object and method_type == 'interview':
+                    social_hints = clue.get('social_hints', [])
+                    if social_hints:
+                        target_key = target_object.key.lower()
+                        hint_keys = {h.lower() if isinstance(h, str) else str(h).lower() for h in social_hints}
+                        if target_key not in hint_keys:
+                            continue
                 
                 # Topic-specific filtering for research and occult
                 if research_topic and method_type in ['research', 'occult']:
@@ -1334,10 +1324,13 @@ class CmdMystery(MuxCommand):
         self.caller.msg(f"Set status of '{mystery.db.title}' to {status.title()}.")
     
     def edit_clue(self):
-        """Edit clue properties: description, tags, or prerequisites."""
+        """Edit clue properties: description, tags, prerequisites, object or NPC hints."""
         if "=" not in self.args:
             self.caller.msg("Usage: +mystery/editclue <mystery_id>/<clue_id> = <field>/<value>")
-            self.caller.msg("Fields: desc, tags, prereq")
+            self.caller.msg("Fields: desc, tags, prereq, obj, social, location")
+            self.caller.msg("  obj - object keys that reveal clue when examined")
+            self.caller.msg("  social - NPC/char keys that reveal clue when interviewed")
+            self.caller.msg("  location - room keys or room tags (library, crime_scene) where clue can be found")
             return
             
         path, edit_info = [x.strip() for x in self.args.split("=", 1)]
@@ -1373,12 +1366,23 @@ class CmdMystery(MuxCommand):
             clue['tags'] = tags
             self.caller.msg(f"Updated tags for clue '{clue['name']}' to: {', '.join(tags)}")
         elif field == "prereq":
-            # Parse comma-separated prerequisite clue IDs
             prereqs = [prereq.strip() for prereq in value.split(",") if prereq.strip()]
             clue['prerequisite_clues'] = prereqs
             self.caller.msg(f"Updated prerequisites for clue '{clue['name']}' to: {', '.join(prereqs)}")
+        elif field == "obj":
+            objects = [o.strip() for o in value.split(",") if o.strip()]
+            clue['object_hints'] = objects
+            self.caller.msg(f"Updated object hints for clue '{clue['name']}' to: {', '.join(objects)}")
+        elif field == "social":
+            npcs = [n.strip() for n in value.split(",") if n.strip()]
+            clue['social_hints'] = npcs
+            self.caller.msg(f"Updated social/NPC hints for clue '{clue['name']}' to: {', '.join(npcs)}")
+        elif field == "location":
+            locations = [l.strip() for l in value.split(",") if l.strip()]
+            clue['location_hints'] = locations
+            self.caller.msg(f"Updated location hints for clue '{clue['name']}' to: {', '.join(locations)}")
         else:
-            self.caller.msg("Valid fields: desc, tags, prereq")
+            self.caller.msg("Valid fields: desc, tags, prereq, obj, social, location")
     
     def delete_clue(self):
         """Delete a clue from a mystery."""
@@ -1680,7 +1684,6 @@ class CmdMystery(MuxCommand):
             character = search_character(self.caller, character_name)
             if not character:
                 return
-            character = character[0] if isinstance(character, list) else character
             
             discovered_clues = mystery.get_discovered_clues(character)
             if not discovered_clues:
@@ -1843,25 +1846,16 @@ class CmdMystery(MuxCommand):
         if not objects:
             self.caller.msg("No clue objects found.")
             return
-        
-        table = evtable.EvTable(
-            "|cName|n", "|cLocation|n", "|cMystery/Clue|n", "|cDiscovered|n",
-            border="table", align="l"
-        )
-        
+
+        headers = ["Name", "Location", "Mystery/Clue", "Discovered"]
+        rows = []
         for obj in objects:
             location_name = obj.location.name if obj.location else "None"
             mystery_clue = f"{obj.db.mystery_id}/{obj.db.clue_id}"
             discovered_count = len(obj.db.discovered_by)
-            
-            table.add_row(
-                obj.name,
-                location_name,
-                mystery_clue,
-                discovered_count
-            )
-        
-        self.caller.msg(f"|cClue Objects:|n\n{table}")
+            rows.append((obj.name, location_name, mystery_clue, discovered_count))
+        table = format_simple_table(headers, rows)
+        self.caller.msg(f"\n{header('Clue Objects')}\n{table}")
     
     def delete_clue_object(self):
         """Delete a clue object."""
@@ -1877,7 +1871,7 @@ class CmdMystery(MuxCommand):
             return
             
         clue_obj = clue_obj[0] if isinstance(clue_obj, list) else clue_obj
-        obj_name = clue_obj.name
-        
+        obj_name = getattr(clue_obj, 'name', clue_obj.key) if clue_obj else 'unknown'
+
         clue_obj.delete()
         self.caller.msg(f"|gDeleted clue object:|n {obj_name}")

@@ -3,6 +3,7 @@ from evennia.utils import evtable
 from evennia import search_object
 from datetime import datetime
 from utils.text import process_special_characters
+from world.utils.formatting import footer
 from utils.search_helpers import search_character
 
 
@@ -197,7 +198,7 @@ class CmdNote(MuxCommand):
     def display_single_note(self, note, character):
         """Display a single note."""
         output = []
-        output.append("|w" + "=" * 78 + "|n")
+        output.append(footer(78, char="="))
         output.append(f"|wNote:|n {note['title']}")
         output.append(f"|wCategory:|n {note['category']}")
         output.append(f"|wCharacter:|n {character.name}")
@@ -211,10 +212,10 @@ class CmdNote(MuxCommand):
         else:
             output.append(f"|wStatus:|n |yDraft|n")
         
-        output.append("|w" + "=" * 78 + "|n")
+        output.append(footer(78, char="="))
         processed_text = process_special_characters(note["text"])
         output.append(processed_text)
-        output.append("|w" + "=" * 78 + "|n")
+        output.append(footer(78, char="="))
         
         self.caller.msg("\n".join(output))
     
@@ -613,7 +614,7 @@ class CmdNote(MuxCommand):
         
         # Format the note for display
         output = []
-        output.append("|w" + "=" * 78 + "|n")
+        output.append(footer(78, char="="))
         output.append(f"|wNote:|n {found_note['title']}")
         output.append(f"|wCategory:|n {found_note['category']}")
         output.append(f"|wAuthor:|n {self.caller.name}")
@@ -625,10 +626,10 @@ class CmdNote(MuxCommand):
         else:
             output.append(f"|wStatus:|n |yDraft|n")
         
-        output.append("|w" + "=" * 78 + "|n")
+        output.append(footer(78, char="="))
         processed_text = process_special_characters(found_note["text"])
         output.append(processed_text)
-        output.append("|w" + "=" * 78 + "|n")
+        output.append(footer(78, char="="))
         
         note_display = "\n".join(output)
         

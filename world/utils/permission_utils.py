@@ -60,6 +60,22 @@ def check_builder_permission(caller):
             caller.check_permstring("admin") or
             check_storyteller_permission(caller))
 
+
+def check_developer_permission(caller):
+    """
+    Check if caller has developer-level permissions.
+    
+    Args:
+        caller: The character/account making the request
+        
+    Returns:
+        bool: True if caller has developer permissions
+    """
+    return (caller.check_permstring("developer") or
+            caller.check_permstring("Developer") or
+            caller.check_permstring("admin") or
+            caller.check_permstring("Admin"))
+
 def check_storyteller_permission(caller):
     """
     Check if caller has the Storyteller flag.

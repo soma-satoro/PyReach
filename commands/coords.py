@@ -10,6 +10,7 @@ from evennia.commands.default.muxcommand import MuxCommand
 from evennia.utils.evtable import EvTable
 from evennia.utils.search import search_object
 from world.area_manager import get_area_manager
+from world.utils.formatting import footer, get_theme_colors, sheet_section_header
 
 
 class CmdCoords(MuxCommand):
@@ -76,10 +77,11 @@ class CmdCoords(MuxCommand):
         
         # Build styled output
         output = []
-        output.append("|y" + "=" * 78 + "|n")
+        output.append(footer(78, char="="))
         title = "COORDINATE DIRECTORY"
-        output.append("|y" + title.center(78) + "|n")
-        output.append("|y" + "=" * 78 + "|n")
+        _, text_color, _ = get_theme_colors()
+        output.append(f"|{text_color}{title.center(78)}|n")
+        output.append(footer(78, char="="))
         output.append("")
         output.append("Use |c+go/coord <code>|n to fast-travel to any location.")
         output.append("Use |c+coords <area>|n to see all rooms in that area.")
@@ -100,7 +102,7 @@ class CmdCoords(MuxCommand):
         
         # Footer with usage info
         output.append("|xTip: Use +coords/fav <code> to bookmark your favorite locations.|n")
-        output.append("|y" + "=" * 78 + "|n")
+        output.append(footer(78, char="="))
         
         caller.msg("\n".join(output))
     
@@ -124,10 +126,11 @@ class CmdCoords(MuxCommand):
         
         # Build styled output
         output = []
-        output.append("|y" + "=" * 78 + "|n")
+        output.append(footer(78, char="="))
         title = f"AREA COORDINATES - {info['name']}"
-        output.append("|y" + title.center(78) + "|n")
-        output.append("|y" + "=" * 78 + "|n")
+        _, text_color, _ = get_theme_colors()
+        output.append(f"|{text_color}{title.center(78)}|n")
+        output.append(footer(78, char="="))
         output.append("")
         output.append(f"|wArea Code:|n {area_code}")
         if info['description']:
@@ -163,7 +166,7 @@ class CmdCoords(MuxCommand):
         output.append(f"|gTotal: {total_rooms} room{'s' if total_rooms != 1 else ''}|n")
         output.append("|xUse +go/coord <code> to travel to any of these rooms.|n")
         output.append("|xUse +coords/fav <code> to bookmark a location.|n")
-        output.append("|y" + "=" * 78 + "|n")
+        output.append(footer(78, char="="))
         
         caller.msg("\n".join(output))
     
@@ -270,10 +273,11 @@ class CmdCoords(MuxCommand):
         
         # Build styled output
         output = []
-        output.append("|y" + "=" * 78 + "|n")
+        output.append(footer(78, char="="))
         title = "FAVORITE LOCATIONS"
-        output.append("|y" + title.center(78) + "|n")
-        output.append("|y" + "=" * 78 + "|n")
+        _, text_color, _ = get_theme_colors()
+        output.append(f"|{text_color}{title.center(78)}|n")
+        output.append(footer(78, char="="))
         output.append("")
         
         if not favorites:
@@ -309,7 +313,7 @@ class CmdCoords(MuxCommand):
             output.append("|xUse +go/coord <code> to travel to any favorite.|n")
             output.append("|xUse +coords/unfav <code> to remove a favorite.|n")
         
-        output.append("|y" + "=" * 78 + "|n")
+        output.append(footer(78, char="="))
         
         caller.msg("\n".join(output))
     
@@ -321,12 +325,5 @@ class CmdCoords(MuxCommand):
         return caller.db.favorite_coords
     
     def _format_section_header(self, section_name):
-        """Format a section header matching +sheet style"""
-        total_width = 78
-        # Remove ANSI codes for length calculation
-        clean_name = re.sub(r'\|[a-zA-Z]', '', section_name)
-        name_length = len(clean_name)
-        available_dash_space = total_width - name_length - 4
-        left_dashes = available_dash_space // 2
-        right_dashes = available_dash_space - left_dashes
-        return f"|g<{'-' * left_dashes}|n {section_name} |g{'-' * right_dashes}>|n"
+        """Format a section header using theme colors."""
+        return sheet_section_header(section_name)

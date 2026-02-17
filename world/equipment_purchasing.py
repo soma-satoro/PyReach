@@ -297,3 +297,36 @@ def purchase_equipment(character, equipment_key):
         }
     
     return True, f"Purchased {item['name']}! {spend_message}"
+
+
+def add_resource_points(character, amount):
+    """
+    Add resource points to a character's pool (staff only).
+    
+    In pool mode: Adds points to character's resource pool.
+    In absolute mode: Has no effect (absolute mode uses Resources merit, not a pool).
+    
+    Args:
+        character: The character to modify
+        amount: Number of points to add (can be negative to remove)
+        
+    Returns:
+        tuple: (success: bool, message: str)
+    """
+    if PURCHASE_CONFIG.resource_mode != "pool":
+        return False, "Resource pool grants only work in pool mode. Current mode is absolute."
+    
+    if not hasattr(character.db, 'resource_pool') or character.db.resource_pool is None:
+        # Initialize pool via get_current_resource_pool
+        PURCHASE_CONFIG.get_current_resource_pool(character)
+    
+    pool_data = character.db.resource_pool
+    old_points = pool_data.get('points', 0)
+    new_points = max(0, old_points + amount)
+    pool_data['points'] = new_points
+    
+    if amount >= 0:
+        action = f"Granted {amount} resource points"
+    else:
+        action = f"Adjusted by {amount} resource points"
+    return True, f"{action}. {character.name} now has {new_points} points."

@@ -5,6 +5,7 @@ from evennia.utils.evmore import EvMore
 from world.experience import ExperienceHandler
 from world.conditions import STANDARD_CONDITIONS
 from world.utils.dice_utils import roll_dice, RollType
+from world.utils.formatting import header, footer, section_header, get_theme_colors
 from utils.search_helpers import search_character
 from world.reality_systems import get_template
 from world.cofd.integrity_systems import BREAKING_POINTS_BY_TEMPLATE, get_breaking_points
@@ -248,7 +249,7 @@ class CmdIntegrity(MuxCommand):
             current_level = 7
         
         output = []
-        output.append("|g<" + "=" * 78 + ">|n")
+        output.append(footer(78, char="="))
         
         if bp_data:
             integrity_name = bp_data["name"]
@@ -257,8 +258,9 @@ class CmdIntegrity(MuxCommand):
             integrity_name = "Integrity"
             title = "YOUR INTEGRITY STATUS"
         
-        output.append("|g" + title.center(80) + "|n")
-        output.append("|g<" + "=" * 78 + ">|n")
+        _, text_color, _ = get_theme_colors()
+        output.append(f"|{text_color}{title.center(78)}|n")
+        output.append(footer(78, char="="))
         output.append("")
         output.append(f"|wCurrent {integrity_name}:|n {current_level} / 10")
         output.append("")
@@ -279,7 +281,7 @@ class CmdIntegrity(MuxCommand):
             output.append("|yIntegrity is managed by Storyteller discretion.|n")
         
         output.append("")
-        output.append("|g<" + "=" * 78 + ">|n")
+        output.append(footer(78, char="="))
         output.append("")
         
         # Send with pagination
@@ -524,13 +526,14 @@ class CmdIntegrity(MuxCommand):
         
         # Build output
         output = []
-        output.append("|g<" + "=" * 78 + ">|n")
+        output.append(footer(78, char="="))
         if template == "demon" and cover_name:
             title = f"{integrity_name.upper()} BREAKING POINTS - {cover_name.upper()}"
         else:
             title = f"{integrity_name.upper()} BREAKING POINTS"
-        output.append("|g" + title.center(80) + "|n")
-        output.append("|g<" + "=" * 78 + ">|n")
+        _, text_color, _ = get_theme_colors()
+        output.append(f"|{text_color}{title.center(78)}|n")
+        output.append(footer(78, char="="))
         output.append("")
         if template == "demon" and cover_name:
             output.append(f"|wCurrent {integrity_name} (Cover #{primary_cover_id} - {cover_name}):|n {current_level}")
@@ -549,7 +552,7 @@ class CmdIntegrity(MuxCommand):
             
             # Toward Flesh
             flesh_data = breaking_points.get("toward_flesh", {})
-            output.append("|r<==================== TOWARD FLESH ====================>|n")
+            output.append(section_header("TOWARD FLESH", width=78))
             output.append(f"|x{flesh_data.get('description', '')}|n")
             output.append("")
             for bp in flesh_data.get("breaks", []):
@@ -562,9 +565,9 @@ class CmdIntegrity(MuxCommand):
             # Low Harmony threshold
             low_data = breaking_points.get("low_harmony", {})
             if current_level <= low_data.get("threshold", 3):
-                output.append("|y<============ HARMONY 3 OR LOWER (ACTIVE) ============>|n")
+                output.append(section_header("HARMONY 3 OR LOWER (ACTIVE)", width=78))
             else:
-                output.append("|x<============ Harmony 3 or Lower (inactive) ==========>|n")
+                output.append(section_header("Harmony 3 or Lower (inactive)", width=78))
             output.append(f"|x{low_data.get('description', '')}|n")
             output.append("")
             for bp in low_data.get("breaks", []):
@@ -576,7 +579,7 @@ class CmdIntegrity(MuxCommand):
             
             # Toward Spirit
             spirit_data = breaking_points.get("toward_spirit", {})
-            output.append("|c<==================== TOWARD SPIRIT ====================>|n")
+            output.append(section_header("TOWARD SPIRIT", width=78))
             output.append(f"|x{spirit_data.get('description', '')}|n")
             output.append("")
             for bp in spirit_data.get("breaks", []):
@@ -589,9 +592,9 @@ class CmdIntegrity(MuxCommand):
             # High Harmony threshold
             high_data = breaking_points.get("high_harmony", {})
             if current_level >= high_data.get("threshold", 8):
-                output.append("|y<============ HARMONY 8 OR MORE (ACTIVE) =============>|n")
+                output.append(section_header("HARMONY 8 OR MORE (ACTIVE)", width=78))
             else:
-                output.append("|x<=========== Harmony 8 or More (inactive) ===========>|n")
+                output.append(section_header("Harmony 8 or More (inactive)", width=78))
             output.append(f"|x{high_data.get('description', '')}|n")
             output.append("")
             for bp in high_data.get("breaks", []):
@@ -642,7 +645,7 @@ class CmdIntegrity(MuxCommand):
                 
                 output.append("")
         
-        output.append("|g<" + "=" * 78 + ">|n")
+        output.append(footer(78, char="="))
         output.append("")
         
         if bp_type == "dual":
@@ -726,7 +729,7 @@ class CmdIntegrity(MuxCommand):
             dice_pool = 0
         
         # Perform the roll
-        rolls, successes, ones = roll_dice(dice_pool, 10, {RollType.NORMAL})
+        rolls, successes, ones = roll_dice(dice_pool, 8, {RollType.NORMAL})
         
         # Determine result type (CoD 2e rules)
         result_type = "success"
@@ -787,7 +790,7 @@ class CmdIntegrity(MuxCommand):
             attack_pool = 0
         
         # Perform the Clarity attack roll
-        rolls, successes, ones = roll_dice(attack_pool, 10, {RollType.NORMAL})
+        rolls, successes, ones = roll_dice(attack_pool, 8, {RollType.NORMAL})
         
         # Determine result type (CoD 2e rules)
         result_type = "success"
@@ -818,10 +821,11 @@ class CmdIntegrity(MuxCommand):
         """Display the formatted Clarity attack result."""
         # Build header
         output = []
-        output.append("|y" + "=" * 78 + "|n")
+        output.append(footer(78, char="="))
         title = f"CLARITY ATTACK - {target.name}"
-        output.append("|y" + title.center(78) + "|n")
-        output.append("|y" + "=" * 78 + "|n")
+        _, text_color, _ = get_theme_colors()
+        output.append(f"|{text_color}{title.center(78)}|n")
+        output.append(footer(78, char="="))
         output.append("")
         
         # Attack pool breakdown
@@ -852,8 +856,6 @@ class CmdIntegrity(MuxCommand):
         
         output.append(f"  Rolls: {' '.join(formatted_rolls)}")
         output.append(f"  |cSuccesses: {successes}|n")
-        if ones > 0:
-            output.append(f"  |rOnes: {ones}|n")
         output.append("")
         
         # Result type
@@ -866,7 +868,7 @@ class CmdIntegrity(MuxCommand):
         elif result_type == "exceptional_success":
             output.append("|r" + f"EXCEPTIONAL - ROLL WYRD ({wyrd} DICE) FOR SEVERE DAMAGE!".center(78) + "|n")
         
-        output.append("|y" + "=" * 78 + "|n")
+        output.append(footer(78, char="="))
         
         # Send to roller and target (if different)
         message = "\n".join(output)
@@ -987,7 +989,7 @@ class CmdIntegrity(MuxCommand):
         logger.log_beat(1, "Vampire Breaking Point", details=f"Humanity {humanity}")
         
         # Perform the roll
-        rolls, successes, ones = roll_dice(dice_pool, 10, {RollType.NORMAL})
+        rolls, successes, ones = roll_dice(dice_pool, 8, {RollType.NORMAL})
         
         # Determine result type (CoD 2e rules)
         result_type = "success"
@@ -1028,10 +1030,11 @@ class CmdIntegrity(MuxCommand):
         """Display the formatted Vampire detachment result."""
         # Build header
         output = []
-        output.append("|y" + "=" * 78 + "|n")
+        output.append(footer(78, char="="))
         title = f"HUMANITY DETACHMENT ROLL - {target.name}"
-        output.append("|y" + title.center(78) + "|n")
-        output.append("|y" + "=" * 78 + "|n")
+        _, text_color, _ = get_theme_colors()
+        output.append(f"|{text_color}{title.center(78)}|n")
+        output.append(footer(78, char="="))
         output.append("")
         output.append("|rYou gain a Beat for facing a breaking point.|n")
         output.append("")
@@ -1071,8 +1074,7 @@ class CmdIntegrity(MuxCommand):
         
         output.append(f"  Rolls: {' '.join(formatted_rolls)}")
         output.append(f"  |cSuccesses: {successes}|n")
-        if ones > 0:
-            output.append(f"  |rOnes: {ones}|n")
+
         output.append("")
         
         # Result type
@@ -1085,7 +1087,7 @@ class CmdIntegrity(MuxCommand):
         elif result_type == "exceptional_success":
             output.append("|G" + "EXCEPTIONAL SUCCESS!".center(78) + "|n")
         
-        output.append("|y" + "=" * 78 + "|n")
+        output.append(footer(78, char="="))
         
         # Send to roller and target (if different)
         message = "\n".join(output)
@@ -1231,7 +1233,7 @@ class CmdIntegrity(MuxCommand):
             dice_pool = 0
         
         # Perform the roll
-        rolls, successes, ones = roll_dice(dice_pool, 10, {RollType.NORMAL})
+        rolls, successes, ones = roll_dice(dice_pool, 8, {RollType.NORMAL})
         
         # Determine result type (CoD 2e rules)
         result_type = "success"
@@ -1273,10 +1275,11 @@ class CmdIntegrity(MuxCommand):
         """Display the formatted Demon cover check result."""
         # Build header
         output = []
-        output.append("|y" + "=" * 78 + "|n")
+        output.append(footer(78, char="="))
         title = f"COVER CHECK - {target.name}"
-        output.append("|y" + title.center(78) + "|n")
-        output.append("|y" + "=" * 78 + "|n")
+        _, text_color, _ = get_theme_colors()
+        output.append(f"|{text_color}{title.center(78)}|n")
+        output.append(footer(78, char="="))
         output.append("")
         output.append(f"|wCover Identity:|n #{cover_id} - {cover_name}")
         output.append("")
@@ -1312,8 +1315,6 @@ class CmdIntegrity(MuxCommand):
         
         output.append(f"  Rolls: {' '.join(formatted_rolls)}")
         output.append(f"  |cSuccesses: {successes}|n")
-        if ones > 0:
-            output.append(f"  |rOnes: {ones}|n")
         output.append("")
         
         # Result type
@@ -1326,7 +1327,7 @@ class CmdIntegrity(MuxCommand):
         elif result_type == "exceptional_success":
             output.append("|G" + "EXCEPTIONAL SUCCESS!".center(78) + "|n")
         
-        output.append("|y" + "=" * 78 + "|n")
+        output.append(footer(78, char="="))
         
         # Send to roller and target (if different)
         message = "\n".join(output)
@@ -1427,7 +1428,7 @@ class CmdIntegrity(MuxCommand):
         from world.cofd.clarity_utils import add_clarity_damage
         
         # Roll Wyrd for damage
-        damage_rolls, damage_successes, damage_ones = roll_dice(wyrd, 10, {RollType.NORMAL})
+        damage_rolls, damage_successes, damage_ones = roll_dice(wyrd, 8, {RollType.NORMAL})
         
         # Format damage roll display
         formatted_rolls = []
@@ -1444,11 +1445,11 @@ class CmdIntegrity(MuxCommand):
         damage_type = "severe" if severe else "mild"
         
         target.msg("")
-        target.msg("|y" + "=" * 78 + "|n")
+        target.msg(footer(78, char="="))
         target.msg(f"|wClarity Damage Roll (Wyrd {wyrd}):|n")
         target.msg(f"  Rolls: {' '.join(formatted_rolls)}")
         target.msg(f"  |cDamage: {damage_successes} points of {damage_type} damage|n")
-        target.msg("|y" + "=" * 78 + "|n")
+        target.msg(footer(78, char="="))
         target.msg("")
         
         # Award beat for exceptional success
@@ -1497,10 +1498,11 @@ class CmdIntegrity(MuxCommand):
         """Display the formatted breaking point roll result."""
         # Build header
         output = []
-        output.append("|y" + "=" * 78 + "|n")
+        output.append(footer(78, char="="))
         title = f"BREAKING POINT ROLL - {target.name}"
-        output.append("|y" + title.center(78) + "|n")
-        output.append("|y" + "=" * 78 + "|n")
+        _, text_color, _ = get_theme_colors()
+        output.append(f"|{text_color}{title.center(78)}|n")
+        output.append(footer(78, char="="))
         output.append("")
         
         # Pool breakdown
@@ -1538,8 +1540,6 @@ class CmdIntegrity(MuxCommand):
         
         output.append(f"  Rolls: {' '.join(formatted_rolls)}")
         output.append(f"  |cSuccesses: {successes}|n")
-        if ones > 0:
-            output.append(f"  |rOnes: {ones}|n")
         output.append("")
         
         # Result type
@@ -1552,7 +1552,7 @@ class CmdIntegrity(MuxCommand):
         elif result_type == "exceptional_success":
             output.append("|G" + "EXCEPTIONAL SUCCESS!".center(78) + "|n")
         
-        output.append("|y" + "=" * 78 + "|n")
+        output.append(footer(78, char="="))
         
         # Send to roller and target (if different)
         message = "\n".join(output)

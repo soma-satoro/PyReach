@@ -1,8 +1,21 @@
 from evennia.commands.default.muxcommand import MuxCommand
 from evennia.utils import create
 from world.equipment_database import WEAPON_DATABASE, ARMOR_DATABASE, WeaponData, ArmorData
-from world.equipment_purchasing import PURCHASE_CONFIG, get_available_equipment, can_purchase_equipment, purchase_equipment, EquipmentPurchasingConfig
-from .base import BuilderMixin
+from world.equipment_purchasing import PURCHASE_CONFIG, get_available_equipment, can_purchase_equipment, purchase_equipment, EquipmentPurchasingConfig, add_resource_points
+from world.utils.formatting import header, footer, section_header, divider, format_stat, format_stat_labeled, get_theme_colors
+from world.utils.ansi_utils import wrap_ansi
+from .base import DeveloperMixin, TargetResolutionMixin
+
+
+def _find_equipment_key(equipment_dict, name):
+    """Find equipment dict key by case-insensitive name match. Returns canonical key or None."""
+    if not equipment_dict or not name:
+        return None
+    name_lower = name.strip().lower()
+    for key in equipment_dict:
+        if key.lower() == name_lower:
+            return key
+    return None
 
 
 class CmdEquipment(MuxCommand):
@@ -10,6 +23,7 @@ class CmdEquipment(MuxCommand):
     Manage equipment, weapons, and armor.
     
     Usage:
+        +equipment - List your equipment (default)
         +equipment/list - List your equipment
         +equipment/add <name> <type> [rating] - Add equipment
         +equipment/remove <name> - Remove equipment
@@ -38,9 +52,9 @@ class CmdEquipment(MuxCommand):
     def func(self):
         """Execute the command"""
         if not self.switches:
-            self.caller.msg("Usage: +equipment/list, +equipment/add, +equipment/remove, +equipment/view, +equipment/wield, +equipment/wear, +equipment/weapons, or +equipment/armor")
+            self.list_equipment()
             return
-            
+
         switch = self.switches[0].lower()
         
         if switch == "list":
@@ -69,49 +83,49 @@ class CmdEquipment(MuxCommand):
     def list_equipment(self):
         """List all equipment"""
         if not self.caller.db.equipment:
-            self.caller.msg("You have no equipment")
+            self.caller.msg("You have no equipment.")
             return
-            
-        output = ["Your Equipment:"]
-        
-        # Check what's currently equipped
+
+        output = [header(f"Equipment: {self.caller.name}", width=78, char="=")]
+
         wielded_weapon = self.caller.db.wielded_weapon
         worn_armor = self.caller.db.worn_armor
-        
-        # Group by type
+
         weapons = []
         armor = []
         equipment = []
         styles = []
-        
+
         for name, item in self.caller.db.equipment.items():
             if item["type"] == "weapon":
                 status = " (wielded)" if name == wielded_weapon else ""
-                weapons.append(f"{name} (Dmg: {item.get('damage', 0)}, Initiative: {item.get('initiative', 0):+d}){status}")
+                weapons.append(f"  |w{name}|n (Dmg: {item.get('damage', 0)}, Init: {item.get('initiative', 0):+d}){status}")
             elif item["type"] == "armor":
                 status = " (worn)" if name == worn_armor else ""
-                armor.append(f"{name} (Armor: {item.get('general_armor', 0)}/{item.get('ballistic_armor', 0)}){status}")
+                armor.append(f"  |w{name}|n (Armor: {item.get('general_armor', 0)}/{item.get('ballistic_armor', 0)}){status}")
             elif item["type"] == "equipment":
-                equipment.append(f"{name} (Availability {item['rating']})")
+                avail = item.get("rating", item.get("availability", "-"))
+                equipment.append(f"  |w{name}|n (Availability {avail})")
             elif item["type"] == "style":
-                styles.append(f"{name} ({item['rating']} dots)")
-                
+                styles.append(f"  |w{name}|n ({item.get('rating', '-')} dots)")
+
         if weapons:
-            output.append("\nWeapons:")
-            output.extend(f"  {item}" for item in sorted(weapons))
-            
+            output.append(section_header("Weapons", width=78))
+            output.extend(sorted(weapons))
+
         if armor:
-            output.append("\nArmor:")
-            output.extend(f"  {item}" for item in sorted(armor))
-            
+            output.append(section_header("Armor", width=78))
+            output.extend(sorted(armor))
+
         if equipment:
-            output.append("\nEquipment:")
-            output.extend(f"  {item}" for item in sorted(equipment))
-            
+            output.append(section_header("Equipment", width=78))
+            output.extend(sorted(equipment))
+
         if styles:
-            output.append("\nFighting Styles:")
-            output.extend(f"  {item}" for item in sorted(styles))
-            
+            output.append(section_header("Fighting Styles", width=78))
+            output.extend(sorted(styles))
+
+        output.append(footer(width=78, char="="))
         self.caller.msg("\n".join(output))
     
     def add_equipment(self):
@@ -121,21 +135,21 @@ class CmdEquipment(MuxCommand):
             self.caller.msg("Usage: +equipment/add <name> <type> [rating]")
             self.caller.msg("Types: weapon, armor, equipment, style")
             return
-            
+
         name = args[0]
         type_ = args[1].lower()
         rating = int(args[2]) if len(args) > 2 else None
-        
+
         if type_ not in ["weapon", "armor", "equipment", "style"]:
             self.caller.msg("Invalid type. Use: weapon, armor, equipment, or style")
             return
-            
-        # Initialize equipment if not exists
+
         if not self.caller.db.equipment:
             self.caller.db.equipment = {}
-            
-        if name in self.caller.db.equipment:
-            self.caller.msg(f"You already have {name}")
+
+        existing_key = _find_equipment_key(self.caller.db.equipment, name)
+        if existing_key:
+            self.caller.msg(f"You already have {existing_key}.")
             return
             
         # Handle different equipment types
@@ -206,102 +220,125 @@ class CmdEquipment(MuxCommand):
     def remove_equipment(self):
         """Remove equipment or merit"""
         name = self.args.strip()
-        
-        if not self.caller.db.equipment or name not in self.caller.db.equipment:
-            self.caller.msg(f"You don't have {name}")
+        if not name:
+            self.caller.msg("Usage: +equipment/remove <name>")
             return
-            
-        # Check if item is currently equipped
-        if name == self.caller.db.wielded_weapon:
+
+        key = _find_equipment_key(self.caller.db.equipment or {}, name)
+        if not key:
+            self.caller.msg(f"You don't have '{name}'.")
+            return
+
+        if key == self.caller.db.wielded_weapon:
             self.caller.db.wielded_weapon = None
-            self.caller.msg(f"You stop wielding {name}")
-        if name == self.caller.db.worn_armor:
+        if key == self.caller.db.worn_armor:
             self.caller.db.worn_armor = None
-            self.caller.msg(f"You remove {name}")
-            
-        del self.caller.db.equipment[name]
-        self.caller.msg(f"Removed {name}")
+
+        del self.caller.db.equipment[key]
+        self.caller.msg(f"Removed {key}.")
     
     def view_equipment(self):
         """View equipment details"""
         name = self.args.strip()
-        
-        if not self.caller.db.equipment or name not in self.caller.db.equipment:
-            self.caller.msg(f"You don't have {name}")
+        if not name:
+            self.caller.msg("Usage: +equipment/view <name>")
             return
-            
-        item = self.caller.db.equipment[name]
-        
-        output = [
-            f"Name: {name}",
-            f"Type: {item['type'].title()}"
-        ]
-        
-        # Add type-specific information
+
+        key = _find_equipment_key(self.caller.db.equipment or {}, name)
+        if not key:
+            self.caller.msg(f"You don't have '{name}'.")
+            return
+
+        item = self.caller.db.equipment[key]
+        output = [header(f"Equipment: {key}", width=78, char="-")]
+        output.append(format_stat_labeled("Type", item["type"].title(), width=78))
+
         if item["type"] == "weapon":
-            output.extend([
-                f"Damage: {item['damage']}",
-                f"Initiative: {item['initiative']:+d}",
-                f"Strength: {item['strength']}",
-                f"Size: {item['size']}",
-                f"Range: {item['range']}",
-                f"Availability: {item['availability']}"
-            ])
-            if item.get("capacity"):
-                output.append(f"Capacity: {item['capacity']}")
+            output.append(format_stat_labeled("Damage", item.get("damage", 0), width=78))
+            output.append(format_stat_labeled("Initiative", f"{item.get('initiative', 0):+d}", width=78))
+            output.append(format_stat_labeled("Strength", item.get("strength", "-"), width=78))
+            output.append(format_stat_labeled("Size", item.get("size", "-"), width=78))
+            output.append(format_stat_labeled("Range", item.get("range", "-"), width=78))
+            output.append(format_stat_labeled("Availability", item.get("availability", "-"), width=78))
+            if item.get("capacity") and item.get("capacity") != "single":
+                output.append(format_stat_labeled("Capacity", item["capacity"], width=78))
             if item.get("tags"):
-                output.append(f"Tags: {item['tags']}")
-                
+                output.append(format_stat_labeled("Tags", item["tags"], width=78))
+
         elif item["type"] == "armor":
-            output.extend([
-                f"General Armor: {item['general_armor']}",
-                f"Ballistic Armor: {item['ballistic_armor']}",
-                f"Strength Requirement: {item['strength']}",
-                f"Defense Penalty: {item['defense']:+d}",
-                f"Speed Penalty: {item['speed']:+d}",
-                f"Availability: {item['availability']}"
-            ])
+            output.append(format_stat_labeled("General Armor", item.get("general_armor", 0), width=78))
+            output.append(format_stat_labeled("Ballistic Armor", item.get("ballistic_armor", 0), width=78))
+            output.append(format_stat_labeled("Strength Req", item.get("strength", "-"), width=78))
+            output.append(format_stat_labeled("Defense Penalty", f"{item.get('defense', 0):+d}", width=78))
+            output.append(format_stat_labeled("Speed Penalty", f"{item.get('speed', 0):+d}", width=78))
+            output.append(format_stat_labeled("Availability", item.get("availability", "-"), width=78))
             if item.get("coverage"):
-                output.append(f"Coverage: {', '.join(item['coverage'])}")
+                output.append(format_stat_labeled("Coverage", ", ".join(item["coverage"]), width=78))
             if item.get("notes"):
-                output.append(f"Notes: {item['notes']}")
-                
+                output.append(format_stat_labeled("Notes", item["notes"], width=78))
+
         elif item["type"] == "equipment":
-            output.append(f"Availability: {item['rating']}")
-            
+            avail = item.get("rating", item.get("availability", "-"))
+            output.append(format_stat_labeled("Availability", avail, width=78))
+            if item.get("category"):
+                output.append(format_stat_labeled("Category", item["category"], width=78))
+            if item.get("die_bonus") is not None:
+                output.append(format_stat_labeled("Die Bonus", item["die_bonus"], width=78))
+            if item.get("durability") is not None:
+                output.append(format_stat_labeled("Durability", item["durability"], width=78))
+            if item.get("size") is not None:
+                output.append(format_stat_labeled("Size", item["size"], width=78))
+            if item.get("structure") is not None:
+                output.append(format_stat_labeled("Structure", item["structure"], width=78))
+            if item.get("skill_bonuses"):
+                bonuses = ", ".join(f"{k}:+{v}" for k, v in item["skill_bonuses"].items())
+                output.append(format_stat_labeled("Skill Bonuses", bonuses, width=78))
+            if item.get("special_properties"):
+                prop_parts = []
+                for k, v in item["special_properties"].items():
+                    if v is True:
+                        prop_parts.append(k)
+                    else:
+                        prop_parts.append(f"{k}:{v}")
+                output.append(format_stat_labeled("Special Properties", ", ".join(prop_parts), width=78))
+            if item.get("effect"):
+                _, text_color, _ = get_theme_colors()
+                output.append("")
+                output.append(f"|{text_color}Effect|n")
+                wrapped = wrap_ansi(item["effect"], width=74, left_padding=4)
+                output.extend(wrapped.split("\n"))
+
         elif item["type"] == "style":
-            output.extend([
-                f"Dots: {item['rating']}",
-                f"Description: Fighting style technique"
-            ])
-            
+            output.append(format_stat_labeled("Dots", item.get("rating", "-"), width=78))
+            output.append(format_stat_labeled("Description", "Fighting style technique", width=78))
+
+        output.append(footer(width=78, char="-"))
         self.caller.msg("\n".join(output))
     
     def wield_weapon(self):
         """Wield a weapon"""
         weapon_name = self.args.strip()
-        
         if not weapon_name:
             self.caller.msg("Usage: +equipment/wield <weapon>")
             return
-            
-        if not self.caller.db.equipment or weapon_name not in self.caller.db.equipment:
-            self.caller.msg(f"You don't have {weapon_name}")
+
+        key = _find_equipment_key(self.caller.db.equipment or {}, weapon_name)
+        if not key:
+            self.caller.msg(f"You don't have '{weapon_name}'.")
             return
-            
-        item = self.caller.db.equipment[weapon_name]
+
+        item = self.caller.db.equipment[key]
         if item["type"] != "weapon":
-            self.caller.msg(f"{weapon_name} is not a weapon")
+            self.caller.msg(f"{key} is not a weapon.")
             return
             
-        # Unwield current weapon if any
         if self.caller.db.wielded_weapon:
-            self.caller.msg(f"You stop wielding {self.caller.db.wielded_weapon}")
-            
-        self.caller.db.wielded_weapon = weapon_name
-        self.caller.msg(f"You wield {weapon_name}")
+            self.caller.msg(f"You stop wielding {self.caller.db.wielded_weapon}.")
+
+        self.caller.db.wielded_weapon = key
+        self.caller.msg(f"You wield {key}.")
         self.caller.location.msg_contents(
-            f"{self.caller.name} wields {weapon_name}.",
+            f"{self.caller.name} wields {key}.",
             exclude=[self.caller]
         )
     
@@ -322,28 +359,27 @@ class CmdEquipment(MuxCommand):
     def wear_armor(self):
         """Wear armor"""
         armor_name = self.args.strip()
-        
         if not armor_name:
             self.caller.msg("Usage: +equipment/wear <armor>")
             return
-            
-        if not self.caller.db.equipment or armor_name not in self.caller.db.equipment:
-            self.caller.msg(f"You don't have {armor_name}")
+
+        key = _find_equipment_key(self.caller.db.equipment or {}, armor_name)
+        if not key:
+            self.caller.msg(f"You don't have '{armor_name}'.")
             return
-            
-        item = self.caller.db.equipment[armor_name]
+
+        item = self.caller.db.equipment[key]
         if item["type"] != "armor":
-            self.caller.msg(f"{armor_name} is not armor")
+            self.caller.msg(f"{key} is not armor.")
             return
             
-        # Remove current armor if any
         if self.caller.db.worn_armor:
-            self.caller.msg(f"You remove {self.caller.db.worn_armor}")
-            
-        self.caller.db.worn_armor = armor_name
-        self.caller.msg(f"You wear {armor_name}")
+            self.caller.msg(f"You remove {self.caller.db.worn_armor}.")
+
+        self.caller.db.worn_armor = key
+        self.caller.msg(f"You wear {key}.")
         self.caller.location.msg_contents(
-            f"{self.caller.name} puts on {armor_name}.",
+            f"{self.caller.name} puts on {key}.",
             exclude=[self.caller]
         )
     
@@ -363,8 +399,10 @@ class CmdEquipment(MuxCommand):
     
     def list_available_weapons(self):
         """List all available weapons that can be added"""
-        output = ["Available Weapons (from Chronicles of Darkness: Hurt Locker):"]
-        
+        output = [header("Available Weapons", width=78, char="=")]
+        output.append("|wSource:|n Chronicles of Darkness: Hurt Locker")
+        output.append(divider(width=78))
+
         categories = {
             "Melee - Bladed": [],
             "Melee - Blunt": [],
@@ -410,45 +448,45 @@ class CmdEquipment(MuxCommand):
         
         for category, weapons in categories.items():
             if weapons:
-                output.append(f"\n|c{category}:|n")
+                output.append(section_header(category, width=78))
                 for weapon in sorted(weapons):
                     output.append(f"  {weapon}")
-        
-        output.append("\nDamage types are determined automatically based on weapon category.")
-        output.append("Use '+equipment/add <weapon_name> weapon' to add a weapon.")
-        output.append("Use '+equipment/view <weapon_name>' for detailed information.")
+
+        output.append(divider(width=78))
+        output.append("|wDamage types|n are determined automatically based on weapon category.")
+        output.append("|wUsage:|n +equipment/add <weapon_name> weapon | +equipment/view <weapon_name>")
+        output.append(footer(width=78, char="="))
         self.caller.msg("\n".join(output))
     
     def list_available_armor(self):
         """List all available armor that can be added"""
-        output = ["Available Armor (from Chronicles of Darkness: Hurt Locker):"]
-        
-        # Separate modern and archaic armor
+        output = [header("Available Armor", width=78, char="=")]
+        output.append("|wSource:|n Chronicles of Darkness: Hurt Locker")
+        output.append(divider(width=78))
+
         modern_armor = []
         archaic_armor = []
-        
+
         for armor_key, armor in ARMOR_DATABASE.items():
-            armor_str = f"{armor.name} - Armor:{armor.general_armor}/{armor.ballistic_armor} Str:{armor.strength_req} Def:{armor.defense_penalty:+d} Spd:{armor.speed_penalty:+d} Avail:{armor.availability}"
-            
+            armor_str = f"  |w{armor.name}|n - Armor:{armor.general_armor}/{armor.ballistic_armor} Str:{armor.strength_req} Def:{armor.defense_penalty:+d} Spd:{armor.speed_penalty:+d} Avail:{armor.availability}"
+
             if any(modern in armor_key for modern in ["reinforced", "sports", "kevlar", "flak", "riot", "bomb", "helmet_modern"]):
                 modern_armor.append(armor_str)
             else:
                 archaic_armor.append(armor_str)
-        
+
         if modern_armor:
-            output.append(f"\n|cModern Armor:|n")
-            for armor in sorted(modern_armor):
-                output.append(f"  {armor}")
-                
+            output.append(section_header("Modern Armor", width=78))
+            output.extend(sorted(modern_armor))
+
         if archaic_armor:
-            output.append(f"\n|cArchaic Armor:|n")
-            for armor in sorted(archaic_armor):
-                output.append(f"  {armor}")
-        
-        output.append("\nArmor format: General/Ballistic armor ratings")
-        output.append("General armor reduces total damage, Ballistic downgrades firearm lethal to bashing")
-        output.append("Use '+equipment/add <armor_name> armor' to add armor.")
-        output.append("Use '+equipment/view <armor_name>' for detailed information.")
+            output.append(section_header("Archaic Armor", width=78))
+            output.extend(sorted(archaic_armor))
+
+        output.append(divider(width=78))
+        output.append("|wFormat:|n General/Ballistic - General reduces damage, Ballistic downgrades firearm lethal to bashing.")
+        output.append("|wUsage:|n +equipment/add <armor_name> armor | +equipment/view <armor_name>")
+        output.append(footer(width=78, char="="))
         self.caller.msg("\n".join(output)) 
 
 
@@ -550,11 +588,11 @@ class CmdBuy(MuxCommand):
         if not items:
             self.caller.msg(f"No {category} available for purchase.")
             return
-            
-        output = [f"|c{title}|n"]
-        output.append(f"Resource Mode: |y{PURCHASE_CONFIG.resource_mode.title()}|n")
-        output.append("")
-        
+
+        output = [header(title, width=78, char="=")]
+        output.append(format_stat("Resource Mode", PURCHASE_CONFIG.resource_mode.title(), width=78))
+        output.append(divider(width=78))
+
         # Group by availability
         by_availability = {}
         for key, item in items.items():
@@ -563,10 +601,9 @@ class CmdBuy(MuxCommand):
                 by_availability[avail] = []
             by_availability[avail].append((key, item))
         
-        # Display by availability level
         for availability in sorted(by_availability.keys()):
-            output.append(f"|yAvailability {availability}:|n")
-            
+            output.append(section_header(f"Availability {availability}", width=78))
+
             for key, item in sorted(by_availability[availability], key=lambda x: x[1]['name']):
                 # Check if character can afford
                 can_afford, _ = can_purchase_equipment(self.caller, key)
@@ -584,14 +621,11 @@ class CmdBuy(MuxCommand):
                 else:
                     details = ""
                     
-                output.append(f"  {afford_indicator} |y{item['name']}|n - {details}")
-        
-        output.append("")
-        output.append("|yUsage:|n")
-        output.append("  +buy <item> - Purchase item")
-        output.append("  +buy/info <item> - Get detailed information")
-        output.append("  +buy/status - Check your resource status")
-        
+                output.append(f"  {afford_indicator} |w{item['name']}|n - {details}")
+
+        output.append(divider(width=78))
+        output.append("|wUsage:|n +buy <item> | +buy/info <item> | +buy/status")
+        output.append(footer(width=78, char="="))
         self.caller.msg("\n".join(output))
     
     def item_info(self):
@@ -604,71 +638,61 @@ class CmdBuy(MuxCommand):
         available_equipment = get_available_equipment()
         
         if item_name not in available_equipment:
-            self.caller.msg(f"Unknown item: {item_name}")
+            self.caller.msg(f"Unknown item: '{self.args.strip()}'.")
             return
-            
+
         item = available_equipment[item_name]
-        
-        output = [f"|cEquipment Information: {item['name']}|n"]
-        output.append(f"Type: {item['type'].title()}")
-        output.append(f"Availability: {item['availability']}")
-        
-        # Check affordability
         can_afford, afford_message = can_purchase_equipment(self.caller, item_name)
         afford_status = "|gAffordable|n" if can_afford else f"|rNot Affordable|n ({afford_message})"
-        output.append(f"Status: {afford_status}")
-        output.append("")
+
+        output = [header(f"Equipment: {item['name']}", width=78, char="-")]
+        output.append(format_stat("Type", item["type"].title(), width=78))
+        output.append(format_stat("Availability", item["availability"], width=78))
+        output.append(format_stat("Status", afford_status, width=78))
+        output.append(divider(width=78))
         
-        # Add type-specific details
-        if item['type'] == 'weapon':
-            weapon = item['data']
-            output.extend([
-                f"Damage: +{weapon.damage}",
-                f"Initiative Modifier: {weapon.initiative_mod:+d}",
-                f"Strength Requirement: {weapon.strength_req}",
-                f"Size: {weapon.size}",
-                f"Weapon Type: {weapon.weapon_type.title()}"
-            ])
-            
+        if item["type"] == "weapon":
+            weapon = item["data"]
+            output.append(format_stat("Damage", f"+{weapon.damage}", width=78))
+            output.append(format_stat("Initiative Mod", f"{weapon.initiative_mod:+d}", width=78))
+            output.append(format_stat("Strength Req", weapon.strength_req, width=78))
+            output.append(format_stat("Size", weapon.size, width=78))
+            output.append(format_stat("Weapon Type", weapon.weapon_type.title(), width=78))
             if weapon.capacity != "single":
-                output.append(f"Capacity: {weapon.capacity.title()}")
-                
+                output.append(format_stat("Capacity", weapon.capacity.title(), width=78))
             if weapon.tags:
-                output.append(f"Special Tags: {weapon.tags}")
-                
-        elif item['type'] == 'armor':
-            armor = item['data']
-            output.extend([
-                f"General Armor: {armor.general_armor}",
-                f"Ballistic Armor: {armor.ballistic_armor}",
-                f"Strength Requirement: {armor.strength_req}",
-                f"Defense Penalty: {armor.defense_penalty:+d}",
-                f"Speed Penalty: {armor.speed_penalty:+d}",
-                f"Coverage: {', '.join(armor.coverage)}"
-            ])
-            
+                output.append(format_stat("Special Tags", weapon.tags, width=78))
+
+        elif item["type"] == "armor":
+            armor = item["data"]
+            output.append(format_stat("General Armor", armor.general_armor, width=78))
+            output.append(format_stat("Ballistic Armor", armor.ballistic_armor, width=78))
+            output.append(format_stat("Strength Req", armor.strength_req, width=78))
+            output.append(format_stat("Defense Penalty", f"{armor.defense_penalty:+d}", width=78))
+            output.append(format_stat("Speed Penalty", f"{armor.speed_penalty:+d}", width=78))
+            output.append(format_stat("Coverage", ", ".join(armor.coverage), width=78))
             if armor.notes:
-                output.append(f"Notes: {armor.notes}")
-        
+                output.append(format_stat("Notes", armor.notes, width=78))
+
+        output.append(footer(width=78, char="-"))
         self.caller.msg("\n".join(output))
     
     def resource_status(self):
         """Show character's resource status"""
         status_info = PURCHASE_CONFIG.get_status_info(self.caller)
-        
-        output = [f"|cResource Status for {self.caller.name}|n"]
-        output.append(f"Mode: {status_info['mode']}")
-        output.append(f"Resources Merit Rating: {status_info['resource_rating']}")
-        
-        if status_info['mode'] == 'Absolute Value':
-            output.append(f"Maximum Item Availability: {status_info['max_availability']}")
-            output.append(f"Purchases This Period: {status_info['purchases_this_period']}/{status_info['max_purchases']}")
+
+        output = [header(f"Resource Status: {self.caller.name}", width=78, char="=")]
+        output.append(format_stat("Mode", status_info["mode"], width=78))
+        output.append(format_stat("Resources Merit", status_info["resource_rating"], width=78))
+
+        if status_info["mode"] == "Absolute Value":
+            output.append(format_stat("Max Availability", status_info["max_availability"], width=78))
+            output.append(format_stat("Purchases This Period", f"{status_info['purchases_this_period']}/{status_info['max_purchases']}", width=78))
         else:
-            output.append(f"Current Resource Pool: {status_info['current_pool']}")
-            output.append(f"Maximum Pool: {status_info['max_pool']}")
-            output.append(f"Next Refresh: {status_info['next_refresh'].strftime('%Y-%m-%d')}")
-            
-        # Show bonus merits
+            output.append(format_stat("Current Pool", status_info["current_pool"], width=78))
+            output.append(format_stat("Maximum Pool", status_info["max_pool"], width=78))
+            output.append(format_stat("Next Refresh", status_info["next_refresh"].strftime("%Y-%m-%d"), width=78))
+
         merits = self.caller.db.stats.get("merits", {})
         bonus_sources = []
         for merit_name, bonus_per_dot in PURCHASE_CONFIG.bonus_merits.items():
@@ -677,55 +701,43 @@ class CmdBuy(MuxCommand):
                 bonus = int(merit_dots * bonus_per_dot)
                 if bonus > 0:
                     bonus_sources.append(f"{merit_name.title()} {merit_dots} (+{bonus})")
-                    
+
         if bonus_sources:
-            output.append(f"Resource Bonuses: {', '.join(bonus_sources)}")
-            
+            output.append(format_stat("Resource Bonuses", ", ".join(bonus_sources), width=78))
+
+        output.append(footer(width=78, char="="))
         self.caller.msg("\n".join(output))
     
     def show_help(self):
         """Show purchasing help"""
-        output = [
-            "|cEquipment Purchasing System|n",
-            "",
-            f"|yResource Mode:|n {PURCHASE_CONFIG.resource_mode.title()}",
-            f"|yRefresh Period:|n {PURCHASE_CONFIG.refresh_period_days} days",
-        ]
-        
+        output = [header("Equipment Purchasing System", width=78, char="=")]
+        output.append(format_stat("Resource Mode", PURCHASE_CONFIG.resource_mode.title(), width=78))
+        output.append(format_stat("Refresh Period", f"{PURCHASE_CONFIG.refresh_period_days} days", width=78))
+        output.append(divider(width=78))
+
         if PURCHASE_CONFIG.resource_mode == "absolute":
-            output.extend([
-                "",
-                "|yAbsolute Mode:|n",
-                "- Your Resources merit rating determines maximum item availability",
-                "- Resources 3 can buy any Availability 3 or lower item",
-                "- Purchase limits may apply per period"
-            ])
+            output.append(section_header("Absolute Mode", width=78))
+            output.append("  Resources merit rating determines max item availability.")
+            output.append("  Resources 3 can buy any Availability 3 or lower item.")
+            output.append("  Purchase limits may apply per period.")
         else:
-            output.extend([
-                "",
-                "|yPool Mode:|n", 
-                "- Gain resource points equal to Resources merit each period",
-                "- Spend points to purchase items (Availability = cost)",
-                "- Can save up points for expensive items" if PURCHASE_CONFIG.allow_saving else "- Cannot save points between periods"
-            ])
-            
-        output.extend([
-            "",
-            "|yCommands:|n",
-            "+buy/list [category] - List available equipment",
-            "+buy/info <item> - Get item details",
-            "+buy <item> - Purchase item",
-            "+buy/status - Check resource status",
-            "",
-            "|yMerit Bonuses:|n"
-        ])
-        
+            output.append(section_header("Pool Mode", width=78))
+            output.append("  Gain resource points equal to Resources merit each period.")
+            output.append("  Spend points to purchase items (Availability = cost).")
+            output.append("  Can save up for expensive items." if PURCHASE_CONFIG.allow_saving else "  Cannot save points between periods.")
+
+        output.append(divider(width=78))
+        output.append(section_header("Commands", width=78))
+        output.append("  +buy/list [category] - List equipment  +buy/info <item> - Item details")
+        output.append("  +buy <item> - Purchase  +buy/status - Resource status")
+        output.append(section_header("Merit Bonuses", width=78))
         for merit_name, bonus_per_dot in PURCHASE_CONFIG.bonus_merits.items():
-            output.append(f"  {merit_name.title()}: +{bonus_per_dot} per dot")
-            
+            output.append(format_stat(merit_name.title(), f"+{bonus_per_dot} per dot", width=78))
+
+        output.append(footer(width=78, char="="))
         self.caller.msg("\n".join(output))
 
-class CmdBuyConfig(MuxCommand, BuilderMixin):
+class CmdBuyConfig(MuxCommand, DeveloperMixin):
     """
     Configure equipment purchasing system (Developer+ only).
     
@@ -755,9 +767,9 @@ class CmdBuyConfig(MuxCommand, BuilderMixin):
     
     def func(self):
         """Execute the command"""
-        if not self.check_builder_access():
+        if not self.check_developer_access():
             return
-            
+
         if not self.switches:
             self.caller.msg("Usage: +buyconfig/mode, +buyconfig/period, +buyconfig/status, etc. Use +buyconfig/help for full list.")
             return
@@ -893,19 +905,15 @@ class CmdBuyConfig(MuxCommand, BuilderMixin):
     
     def show_config(self):
         """Show current configuration"""
-        output = [
-            "|cEquipment Purchase Configuration|n",
-            f"Resource Mode: {PURCHASE_CONFIG.resource_mode.title()}",
-            f"Refresh Period: {PURCHASE_CONFIG.refresh_period_days} days",
-            f"Max Purchases: {PURCHASE_CONFIG.max_purchases_per_period or 'Unlimited'}",
-            f"Allow Saving: {'Yes' if PURCHASE_CONFIG.allow_saving else 'No'}",
-            "",
-            "|yMerit Bonuses:|n"
-        ]
-        
+        output = [header("Equipment Purchase Configuration", width=78, char="=")]
+        output.append(format_stat("Resource Mode", PURCHASE_CONFIG.resource_mode.title(), width=78))
+        output.append(format_stat("Refresh Period", f"{PURCHASE_CONFIG.refresh_period_days} days", width=78))
+        output.append(format_stat("Max Purchases", PURCHASE_CONFIG.max_purchases_per_period or "Unlimited", width=78))
+        output.append(format_stat("Allow Saving", "Yes" if PURCHASE_CONFIG.allow_saving else "No", width=78))
+        output.append(section_header("Merit Bonuses", width=78))
         for merit_name, bonus in PURCHASE_CONFIG.bonus_merits.items():
-            output.append(f"  {merit_name.title()}: +{bonus} per dot")
-            
+            output.append(format_stat(merit_name.title(), f"+{bonus} per dot", width=78))
+        output.append(footer(width=78, char="="))
         self.caller.msg("\n".join(output))
     
     def reset_config(self):
@@ -971,31 +979,74 @@ class CmdBuyConfig(MuxCommand, BuilderMixin):
     
     def show_config_help(self):
         """Show configuration help"""
-        output = [
-            "|cEquipment Purchase Configuration Help|n",
-            "",
-            "|yAvailable Commands:|n",
-            "+buyconfig/mode <pool|absolute> - Set resource spending mode",
-            "+buyconfig/period <days> - Set how often resources refresh",
-            "+buyconfig/maxpurchases <number> - Limit purchases per period",
-            "+buyconfig/saving <on|off> - Allow saving resource points",
-            "+buyconfig/bonus <merit> <bonus> - Set merit resource bonus",
-            "+buyconfig/remove <merit> - Remove merit resource bonus",
-            "+buyconfig/script <start|stop|status> - Manage automatic refresh script",
-            "+buyconfig/status - Show current settings",
-            "+buyconfig/reset - Reset to defaults",
-            "",
-            "|yResource Modes:|n",
-            "|yPool Mode:|n Characters gain resource points each period equal to their Resources merit.",
-            "They spend these points to buy items. Can save up for expensive items.",
-            "",
-            "|yAbsolute Mode:|n Characters can buy any item with Availability ≤ their Resources merit.",
-            "Purchase frequency is limited by max purchases per period setting.",
-            "",
-            "|yExamples:|n",
-            "+buyconfig/mode pool - Use resource pool system",
-            "+buyconfig/period 30 - Monthly refresh (default)",
-            "+buyconfig/bonus contacts 1 - Contacts merit adds +1 resource per dot"
-        ]
-        
+        output = [header("Equipment Purchase Configuration Help", width=78, char="=")]
+        output.append(section_header("Available Commands", width=78))
+        output.append("  +buyconfig/mode <pool|absolute>     - Set resource spending mode")
+        output.append("  +buyconfig/period <days>            - Set refresh frequency")
+        output.append("  +buyconfig/maxpurchases <number>     - Limit purchases per period")
+        output.append("  +buyconfig/saving <on|off>           - Allow saving resource points")
+        output.append("  +buyconfig/bonus <merit> <bonus>    - Set merit resource bonus")
+        output.append("  +buyconfig/remove <merit>            - Remove merit resource bonus")
+        output.append("  +buyconfig/script <start|stop|status> - Manage refresh script")
+        output.append("  +buyconfig/status                   - Show current settings")
+        output.append("  +buyconfig/reset                    - Reset to defaults")
+        output.append(section_header("Resource Modes", width=78))
+        output.append("  |wPool:|n Gain points each period; spend on items; can save up.")
+        output.append("  |wAbsolute:|n Buy any item Availability ≤ Resources merit; purchase limits apply.")
+        output.append(section_header("Examples", width=78))
+        output.append("  +buyconfig/mode pool  +buyconfig/period 30  +buyconfig/bonus contacts 1")
+        output.append(footer(width=78, char="="))
         self.caller.msg("\n".join(output))
+
+
+class CmdAddResources(MuxCommand, DeveloperMixin, TargetResolutionMixin):
+    """
+    Grant resource points to a character for purchasing equipment (Builder+ only).
+    
+    Usage:
+        +addresources <character> <amount>
+        
+    In pool mode, adds points to the target's resource pool. Negative amounts
+    reduce the pool (to a minimum of 0). Only works when resource mode is "pool".
+    
+    Examples:
+        +addresources Alice 5 - Grant Alice 5 resource points
+        +addresources Bob -2 - Remove 2 resource points from Bob
+    """
+    
+    key = "+addresources"
+    aliases = ["+grantresources", "+resourcegrant"]
+    help_category = "Gear & Resources"
+    
+    def func(self):
+        """Execute the command"""
+        if not self.check_developer_access():
+            return
+
+        args = self.args.split()
+        if len(args) < 2:
+            self.caller.msg("Usage: +addresources <character> <amount>")
+            self.caller.msg("Example: +addresources Alice 5")
+            return
+            
+        target_name = args[0]
+        try:
+            amount = int(args[1])
+        except ValueError:
+            self.caller.msg("Amount must be a number.")
+            return
+            
+        target = self.find_target(target_name)
+        if not target:
+            return
+            
+        success, message = add_resource_points(target, amount)
+        
+        if success:
+            self.caller.msg(f"|g{message}|n")
+            if amount > 0:
+                target.msg(f"Staff has granted you {amount} resource points for equipment purchases.")
+            elif amount < 0:
+                target.msg(f"Staff has adjusted your resource points by {amount}.")
+        else:
+            self.caller.msg(f"|r{message}|n")

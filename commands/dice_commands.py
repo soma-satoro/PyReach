@@ -8,6 +8,7 @@ from evennia.utils.utils import inherits_from
 from evennia.utils.evmenu import EvMenu
 from world.conditions import STANDARD_CONDITIONS, Condition
 from world.utils.dice_utils import roll_dice, interpret_roll_results, roll_to_job_display, roll_to_room_display, format_roll_display, RollType
+from world.utils.formatting import footer, divider
 from django.utils import timezone
 
 class CmdRoll(MuxCommand):
@@ -710,9 +711,9 @@ class CmdRoll(MuxCommand):
     def _display_extended_action_header(self, state):
         """Display the header for an extended action."""
         msg = []
-        msg.append("|w" + "=" * 70 + "|n")
+        msg.append(footer(70, char="="))
         msg.append("|W|[bEXTENDED ACTION|n")
-        msg.append("|w" + "-" * 70 + "|n")
+        msg.append(divider(70, char="-"))
         
         roll_desc = f"{state['stat_name'].title()} + {state['skill_name'].title()}"
         if state['specialty_name']:
@@ -725,7 +726,7 @@ class CmdRoll(MuxCommand):
         if state['specialty_name']:
             msg.append(f"  Specialty Bonus: |w+1|n die ({state['specialty_name']})")
         
-        msg.append("|w" + "-" * 70 + "|n")
+        msg.append(divider(70, char="-"))
         
         self.caller.msg("\n".join(msg))
         
@@ -890,7 +891,7 @@ class CmdRoll(MuxCommand):
         target = state['target'] - state['target_reduction']
         
         msg = []
-        msg.append("|w" + "-" * 70 + "|n")
+        msg.append(divider(70, char="-"))
         
         # Display exceptional bonuses if any
         if state['exceptional_bonuses']:
@@ -903,7 +904,7 @@ class CmdRoll(MuxCommand):
         else:
             msg.append(f"|W|[bINCOMPLETE|n Achieved {total_successes}/{target} successes after {len(roll_results)} roll{'s' if len(roll_results) > 1 else ''}|n")
         
-        msg.append("|w" + "=" * 70 + "|n")
+        msg.append(footer(70, char="="))
         
         self.caller.msg("\n".join(msg))
         
@@ -1034,9 +1035,9 @@ class CmdRoll(MuxCommand):
         """Format the display for an opposed roll."""
         
         msg = []
-        msg.append("|w" + "=" * 70 + "|n")
+        msg.append(footer(70, char="="))
         msg.append("|W|[bOPPOSED ROLL|n")
-        msg.append("|w" + "-" * 70 + "|n")
+        msg.append(divider(70, char="-"))
         
         # Attacker's roll - show stat names and result only
         stat_display = ""
@@ -1048,7 +1049,7 @@ class CmdRoll(MuxCommand):
         msg.append(f"|c{attacker_name}|n rolls {stat_display}")
         msg.append(f"  Result: |w{attacker_successes}|n success(es)")
         
-        msg.append("|w" + "-" * 70 + "|n")
+        msg.append(divider(70, char="-"))
         
         # Defender's roll - show stat names and result only
         defender_stat_display = ""
@@ -1058,9 +1059,9 @@ class CmdRoll(MuxCommand):
         msg.append(f"|c{defender_name}|n rolls {defender_stat_display}")
         msg.append(f"  Result: |w{defender_successes}|n success(es)")
         
-        msg.append("|w" + "-" * 70 + "|n")
+        msg.append(divider(70, char="-"))
         msg.append(f"|W|[bRESULT:|n {result}|n")
-        msg.append("|w" + "=" * 70 + "|n")
+        msg.append(footer(70, char="="))
         
         return "\n".join(msg)
     
@@ -1069,9 +1070,9 @@ class CmdRoll(MuxCommand):
         dice_str = ", ".join(str(d) for d in sorted(rolls, reverse=True))
         
         msg = []
-        msg.append("|w" + "=" * 70 + "|n")
+        msg.append(footer(70, char="="))
         msg.append("|W|[bCONTESTED ROLL|n")
-        msg.append("|w" + "-" * 70 + "|n")
+        msg.append(divider(70, char="-"))
         
         # Roll description - show stat names without values
         if self.stat_name and self.skill_name:
@@ -1095,7 +1096,7 @@ class CmdRoll(MuxCommand):
         final_pool = self.dice_pool + self.modifier + wound_penalty + vs_penalty
         msg.append(f"  Final Pool: |w{final_pool}|n dice")
         
-        msg.append("|w" + "-" * 70 + "|n")
+        msg.append(divider(70, char="-"))
         msg.append(f"  Dice: [{dice_str}]")
         msg.append(f"  Successes: |w{successes}|n")
         if ones > 0:
@@ -1111,7 +1112,7 @@ class CmdRoll(MuxCommand):
         else:
             msg.append(f"  |yFailure|n")
         
-        msg.append("|w" + "=" * 70 + "|n")
+        msg.append(footer(70, char="="))
         
         return "\n".join(msg)
     

@@ -479,41 +479,43 @@ class CmdReturn(MuxCommand):
 
 class CmdConfigOOCIC(MuxCommand):
     """
-    Configure OOC/IC room settings from in-game.
+    Configure game settings from in-game (Developer only).
     
     Usage:
-        +config/ooc
-        +config/ooc <room dbref or name>
-        +config/ic
-        +config/ic <room dbref or name>
-        +config/ooc/clear
-        +config/ic/clear
-        +config/list
-        +config/theme <color1>,<color2>,<color3>  - Set theme colors (header, text, dividers)
-        +config/theme/clear                       - Clear theme colors (use defaults)
+        +config/list                   - List all configuration settings
+        +config/ooc [room]             - Set or view OOC room
+        +config/ic [room]              - Set or view IC starting room
+        +config/theme [colors]         - Set or view theme colors
+        +config/equipment [subcommand] - Equipment purchasing configuration
+        +config/xp [subcommand]        - XP/voting system configuration
     
-    Switches:
-        ooc - Set or view the OOC room setting
-        ic - Set or view the IC starting room setting
-        clear - Clear the specified setting
-        list - List all OOC/IC configuration settings
+    Equipment (+config/equipment):
+        +config/equipment              - Show equipment config
+        +config/equipment/mode <pool|absolute>
+        +config/equipment/period <days>
+        +config/equipment/maxpurchases <number>
+        +config/equipment/saving <on|off>
+        +config/equipment/bonus <merit> <amount>
+        +config/equipment/remove <merit>
+        +config/equipment/script <start|stop|status>
     
-    This command allows developer-level staff to configure the OOC_ROOM_DBREF
-    and IC_STARTING_ROOM_DBREF settings without editing the configuration file.
-    
-    Examples:
-        +config/list                    # Show current settings
-        +config/ooc #123               # Set OOC room to dbref #123
-        +config/ooc OOC Lounge         # Set OOC room by name
-        +config/ic #1                  # Set IC starting room to dbref #1
-        +config/ooc/clear              # Clear OOC room setting
+    XP System (+config/xp):
+        +config/xp                     - Show XP system settings
+        +config/xp/mode <voting|weekly>
+        +config/xp/set <setting>=<value>
+        +config/xp/weekly              - Weekly beats info
+        +config/xp/distribute          - Force beat distribution
+        +config/xp/script <start|stop>
     """
     
     key = "+config"
     aliases = ["config"]
     locks = "cmd:perm(developer)"
     help_category = "Admin Commands"
-    switch_options = ("ooc", "ic", "clear", "list", "theme")
+    switch_options = ("ooc", "ic", "clear", "list", "theme", "equipment", "xp",
+                     "mode", "period", "maxpurchases", "saving", "bonus", "remove",
+                     "status", "reset", "script", "help", "set", "settings",
+                     "weekly", "distribute")
     
     def func(self):
         """Execute the command"""
@@ -558,8 +560,12 @@ class CmdConfigOOCIC(MuxCommand):
                 self.show_theme_colors()
             else:
                 self.set_theme_colors(args)
+        elif "equipment" in self.switches:
+            self.handle_equipment_config()
+        elif "xp" in self.switches:
+            self.handle_xp_config()
         else:
-            caller.msg("Usage: +config/ooc <room>, +config/ic <room>, or +config/theme <colors>")
+            caller.msg("Usage: +config/ooc <room>, +config/ic <room>, +config/theme <colors>, +config/equipment, or +config/xp")
     
     def show_current_settings(self):
         """Show all current OOC/IC configuration settings"""
@@ -597,7 +603,11 @@ class CmdConfigOOCIC(MuxCommand):
         else:
             caller.msg("Theme Colors: Not set (using defaults: green)")
         
-        caller.msg("\nUse '+config/ooc <room>' or '+config/ic <room>' to set these values.")
+        caller.msg("")
+        caller.msg("|wEquipment Purchasing:|n Use +config/equipment for resource pool, merits, purchase mode.")
+        caller.msg("|wXP System:|n Use +config/xp for voting/weekly beats mode and settings.")
+        caller.msg("")
+        caller.msg("Use '+config/ooc <room>' or '+config/ic <room>' to set room values.")
         caller.msg("Use '+config/theme <color1>,<color2>,<color3>' to set theme colors.")
         caller.msg("Use '+config/ooc/clear', '+config/ic/clear', or '+config/theme/clear' to clear them.")
     
@@ -721,6 +731,259 @@ class CmdConfigOOCIC(MuxCommand):
         caller.msg(f"  Header Text: |{normalized_colors[1]}████|n {color_names[1]}")
         caller.msg(f"  Dividers: |{normalized_colors[2]}████|n {color_names[2]}")
         caller.msg("\nTheme affects: rooms, +roster, who, +census, +lookup, and other formatted displays.")
+
+    def handle_equipment_config(self):
+        """Handle equipment purchasing configuration via +config/equipment."""
+        from world.equipment_purchasing import PURCHASE_CONFIG
+        from world.utils.formatting import header, footer, section_header, format_stat
+
+        caller = self.caller
+        args = self.args.strip()
+        switches = [s.lower() for s in self.switches if s.lower() != "equipment"]
+
+        if not switches:
+            # +config/equipment - show status
+            output = [header("Equipment Purchase Configuration", width=78, char="=")]
+            output.append(format_stat("Resource Mode", PURCHASE_CONFIG.resource_mode.title(), width=78))
+            output.append(format_stat("Refresh Period", f"{PURCHASE_CONFIG.refresh_period_days} days", width=78))
+            output.append(format_stat("Max Purchases", PURCHASE_CONFIG.max_purchases_per_period or "Unlimited", width=78))
+            output.append(format_stat("Allow Saving", "Yes" if PURCHASE_CONFIG.allow_saving else "No", width=78))
+            output.append(section_header("Merit Bonuses", width=78))
+            for merit_name, bonus in PURCHASE_CONFIG.bonus_merits.items():
+                output.append(format_stat(merit_name.title(), f"+{bonus} per dot", width=78))
+            output.append(footer(width=78, char="="))
+            caller.msg("\n".join(output))
+            caller.msg("Use +config/equipment/mode <pool|absolute>, +config/equipment/period <days>, etc.")
+            return
+
+        switch = switches[0]
+        if switch == "mode":
+            if not args:
+                caller.msg("Usage: +config/equipment/mode <pool|absolute>")
+                return
+            mode = args.lower()
+            if mode not in ["pool", "absolute"]:
+                caller.msg("Mode must be 'pool' or 'absolute'")
+                return
+            PURCHASE_CONFIG.resource_mode = mode
+            caller.msg(f"Set resource mode to: {mode}")
+        elif switch == "period":
+            if not args:
+                caller.msg("Usage: +config/equipment/period <days>")
+                return
+            try:
+                days = int(args)
+                if days < 1:
+                    caller.msg("Period must be at least 1 day")
+                    return
+                PURCHASE_CONFIG.refresh_period_days = days
+                caller.msg(f"Set refresh period to: {days} days")
+            except ValueError:
+                caller.msg("Period must be a number")
+        elif switch == "maxpurchases":
+            if not args:
+                caller.msg("Usage: +config/equipment/maxpurchases <number|unlimited>")
+                return
+            arg = args.lower()
+            if arg in ["unlimited", "none", "0"]:
+                PURCHASE_CONFIG.max_purchases_per_period = None
+                caller.msg("Set maximum purchases to: unlimited")
+            else:
+                try:
+                    max_p = int(arg)
+                    if max_p < 1:
+                        caller.msg("Must be at least 1")
+                        return
+                    PURCHASE_CONFIG.max_purchases_per_period = max_p
+                    caller.msg(f"Set max purchases per period to: {max_p}")
+                except ValueError:
+                    caller.msg("Must be a number or 'unlimited'")
+        elif switch == "saving":
+            if not args:
+                caller.msg("Usage: +config/equipment/saving <on|off>")
+                return
+            setting = args.lower()
+            if setting in ["on", "true", "yes", "1"]:
+                PURCHASE_CONFIG.allow_saving = True
+                caller.msg("Resource point saving: ENABLED")
+            elif setting in ["off", "false", "no", "0"]:
+                PURCHASE_CONFIG.allow_saving = False
+                caller.msg("Resource point saving: DISABLED")
+            else:
+                caller.msg("Setting must be 'on' or 'off'")
+        elif switch == "bonus":
+            parts = args.split()
+            if len(parts) != 2:
+                caller.msg("Usage: +config/equipment/bonus <merit_name> <bonus_per_dot>")
+                return
+            merit_name = parts[0].lower()
+            try:
+                bonus = float(parts[1])
+                PURCHASE_CONFIG.bonus_merits[merit_name] = bonus
+                caller.msg(f"Set {merit_name} bonus to: +{bonus} per dot")
+            except ValueError:
+                caller.msg("Bonus must be a number")
+        elif switch == "remove":
+            if not args:
+                caller.msg("Usage: +config/equipment/remove <merit_name>")
+                return
+            merit_name = args.lower()
+            if merit_name not in PURCHASE_CONFIG.bonus_merits:
+                caller.msg(f"Merit '{merit_name}' does not have a resource bonus.")
+                return
+            del PURCHASE_CONFIG.bonus_merits[merit_name]
+            caller.msg(f"Removed resource bonus for {merit_name} merit.")
+        elif switch == "script":
+            if not args:
+                caller.msg("Usage: +config/equipment/script <start|stop|restart|status>")
+                return
+            action = args.lower()
+            if action == "start":
+                try:
+                    from world.scripts.resource_refresh_script import create_resource_refresh_script
+                    create_resource_refresh_script()
+                    caller.msg("Resource refresh script started.")
+                except Exception as e:
+                    caller.msg(f"Error: {e}")
+            elif action == "stop":
+                try:
+                    from world.scripts.resource_refresh_script import stop_resource_refresh_script
+                    count = stop_resource_refresh_script()
+                    caller.msg(f"Stopped {count} resource refresh script(s).")
+                except Exception as e:
+                    caller.msg(f"Error: {e}")
+            elif action == "restart":
+                try:
+                    from world.scripts.resource_refresh_script import create_resource_refresh_script
+                    create_resource_refresh_script()
+                    caller.msg("Resource refresh script restarted.")
+                except Exception as e:
+                    caller.msg(f"Error: {e}")
+            elif action == "status":
+                try:
+                    from evennia import search_object
+                    scripts = search_object("resource_refresh_script",
+                                            typeclass="world.scripts.resource_refresh_script.ResourceRefreshScript")
+                    if scripts:
+                        caller.msg("Resource refresh script is RUNNING.")
+                    else:
+                        caller.msg("Resource refresh script is NOT RUNNING.")
+                except Exception as e:
+                    caller.msg(f"Error: {e}")
+            else:
+                caller.msg("Use: start, stop, restart, or status")
+        elif switch == "reset":
+            import world.equipment_purchasing as ep_mod
+            from world.equipment_purchasing import EquipmentPurchasingConfig
+            ep_mod.PURCHASE_CONFIG = EquipmentPurchasingConfig()
+            caller.msg("Reset equipment purchase configuration to defaults.")
+        else:
+            caller.msg("Equipment subcommands: mode, period, maxpurchases, saving, bonus, remove, script, reset. Use +config/equipment for status.")
+
+    def handle_xp_config(self):
+        """Handle XP system configuration via +config/xp."""
+        from world.voting import VotingHandler
+        from datetime import datetime
+
+        caller = self.caller
+        args = self.args.strip()
+        switches = [s.lower() for s in self.switches if s.lower() != "xp"]
+
+        if not switches:
+            # +config/xp - show XP settings
+            current_mode = ServerConfig.objects.conf('xp_system_mode', default='voting')
+            output = ["|wExperience Point System Settings|n", "=" * 40]
+            output.append(f"Current Mode: |c{current_mode.title()}|n")
+            if current_mode == 'voting':
+                output.append("|cVoting:|n")
+                output.append(f"  Vote Cooldown: {VotingHandler.get_setting('vote_cooldown_hours', 168)} hours")
+                output.append(f"  Recc Cooldown: {VotingHandler.get_setting('recc_cooldown_hours', 168)} hours")
+            else:
+                ws = VotingHandler.get_weekly_beats_settings()
+                output.append("|cWeekly Beats:|n")
+                output.append(f"  Amount: {ws['weekly_beats_amount']} beats")
+                output.append(f"  Day: {ws['weekly_beats_day'].title()}")
+                output.append(f"  Time: {ws['weekly_beats_time']}")
+            output.append("")
+            output.append("Use +config/xp/mode <voting|weekly>, +config/xp/set <key>=<value>")
+            caller.msg("\n".join(output))
+            return
+
+        switch = switches[0]
+        if switch == "mode":
+            if not args:
+                caller.msg("Usage: +config/xp/mode <voting|weekly>")
+                return
+            success, msg = VotingHandler.set_xp_system_mode(args.lower())
+            caller.msg(f"|g{msg}|n" if success else f"|r{msg}|n")
+        elif switch == "set":
+            if "=" not in args:
+                caller.msg("Usage: +config/xp/set <setting>=<value>")
+                return
+            key, _, value_str = args.partition("=")
+            key = key.strip().lower()
+            value_str = value_str.strip()
+            valid = ['vote_cooldown_hours', 'recc_cooldown_hours', 'vote_beats', 'recc_beats',
+                     'weekly_beats_amount', 'weekly_beats_day', 'weekly_beats_time']
+            if key not in valid:
+                caller.msg(f"Invalid setting. Valid: {', '.join(valid)}")
+                return
+            try:
+                if key.endswith('_hours') or key == 'weekly_beats_amount':
+                    value = int(value_str) if key.endswith('_hours') else float(value_str)
+                elif key == 'weekly_beats_day':
+                    if value_str.lower() not in ['monday', 'tuesday', 'wednesday', 'thursday', 'friday', 'saturday', 'sunday']:
+                        caller.msg("Invalid day. Use a weekday name.")
+                        return
+                    value = value_str.lower()
+                elif key == 'weekly_beats_time':
+                    import re
+                    if not re.match(r'^([01]?[0-9]|2[0-3]):[0-5][0-9]$', value_str):
+                        caller.msg("Time must be HH:MM format.")
+                        return
+                    value = value_str
+                else:
+                    value = float(value_str)
+                if key in ['weekly_beats_amount', 'weekly_beats_day', 'weekly_beats_time']:
+                    ServerConfig.objects.conf(key, value=value)
+                else:
+                    VotingHandler.set_setting(key, value)
+                caller.msg(f"Set {key} to {value}.")
+            except (ValueError, TypeError) as e:
+                caller.msg(f"Invalid value: {e}")
+        elif switch == "weekly":
+            from world.weekly_beats import WeeklyBeatsHandler
+            info = WeeklyBeatsHandler.get_next_distribution_info()
+            caller.msg(f"Next distribution: {info.get('next_distribution', 'N/A')}")
+            caller.msg(f"Beats per character: {info.get('beats_amount', 'N/A')}")
+        elif switch == "distribute":
+            if not VotingHandler.is_weekly_beats_enabled():
+                caller.msg("Weekly beats not enabled. Use +config/xp/mode weekly first.")
+                return
+            from world.weekly_beats import WeeklyBeatsHandler
+            success, message, count = WeeklyBeatsHandler.force_distribution()
+            caller.msg(f"|g{message}|n" if success else f"|r{message}|n")
+        elif switch == "script":
+            if not args:
+                caller.msg("Usage: +config/xp/script <start|stop>")
+                return
+            action = args.lower()
+            if action == "start":
+                from world.scripts.weekly_beats_script import start_weekly_beats_script
+                if start_weekly_beats_script():
+                    caller.msg("Weekly beats script started.")
+                else:
+                    caller.msg("Could not start script.")
+            elif action == "stop":
+                from world.scripts.weekly_beats_script import stop_weekly_beats_script
+                if stop_weekly_beats_script():
+                    caller.msg("Weekly beats script stopped.")
+                else:
+                    caller.msg("No weekly beats script was running.")
+            else:
+                caller.msg("Use: start or stop")
+        else:
+            caller.msg("XP subcommands: mode, set, weekly, distribute, script. Use +config/xp for status.")
     
     def show_theme_colors(self):
         """Show current theme colors."""

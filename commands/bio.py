@@ -2,6 +2,7 @@ from evennia.commands.default.muxcommand import MuxCommand
 from evennia.utils.ansi import ANSIString
 from evennia.utils.evmore import EvMore
 from world.reality_systems import get_template
+from world.utils.formatting import footer, section_header
 from utils.text import apply_text_formatting
 import re
 
@@ -342,15 +343,9 @@ class CmdBio(MuxCommand):
         # Bio Questions header
         # Show character name when staff views another character
         if target == self.caller:
-            output.append("|g<====================>|n |wYour Background Questions|n |g<====================>|n")
+            output.append(section_header("Your Background Questions", width=78))
         else:
-            # Calculate padding for centered text with character name
-            total_width = 80
-            header_text = f"{target.name}'s Background Questions"
-            available_space = total_width - len(header_text) - 4  # -4 for < > and spaces
-            left_pad = available_space // 2
-            right_pad = available_space - left_pad
-            output.append(f"|g<{'=' * left_pad}>|n |w{header_text}|n |g<{'=' * right_pad}>|n")
+            output.append(section_header(f"{target.name}'s Background Questions", width=78))
         output.append("")
         
         questions_dict = bio_data.get("questions", {}) or {}
@@ -366,7 +361,7 @@ class CmdBio(MuxCommand):
             output.append("")
         
         # Breaking Point Questions
-        output.append("|g<=================>|n |wBreaking Point Questions|n |g<=================>|n")
+        output.append(section_header("Breaking Point Questions", width=78))
         
         # Add note for non-Integrity templates
         if template not in INTEGRITY_TEMPLATES:
@@ -386,7 +381,7 @@ class CmdBio(MuxCommand):
             output.append("")
         
         # RP Preferences
-        output.append("|g<============================>|n |wRP Preferences|n |g<============================>|n")
+        output.append(section_header("RP Preferences", width=78))
         output.append("")
         pref = bio_data.get("rp_preferences", "") or ""
         if pref:
@@ -397,7 +392,7 @@ class CmdBio(MuxCommand):
         output.append("")
         
         # Touchstones
-        output.append("|g<===============================>|n |wTouchstones|n |g<===============================>|n")
+        output.append(section_header("Touchstones", width=78))
         output.append("")
         touchstones = bio_data.get("touchstones", []) or []
         if touchstones:
@@ -408,7 +403,7 @@ class CmdBio(MuxCommand):
         output.append("")
         
         # Free-form Story
-        output.append("|g<==========================>|n |wCharacter Story|n |g<==========================>|n")
+        output.append(section_header("Character Story", width=78))
         output.append("")
         story = bio_data.get("story", "") or ""
         if story:
@@ -419,7 +414,7 @@ class CmdBio(MuxCommand):
         output.append("")
         
         # Footer
-        output.append("|g<" + "=" * 78 + ">|n")
+        output.append(footer(78, char="="))
         
         # Send output with pagination (40 lines per page)
         text = "\n".join(output)

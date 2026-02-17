@@ -4,6 +4,7 @@ from evennia.utils.search import search_object
 from evennia.utils import logger
 import uuid
 from time import time
+from world.utils.formatting import footer
 from utils.search_helpers import search_character
 
 class CmdAlts(MuxCommand):
@@ -69,9 +70,9 @@ class CmdAlts(MuxCommand):
         alts = caller.db.public_alts or []
         
         # Build the display
-        msg = f"|b{'='*78}|n\n"
+        msg = footer(78, char="=") + "\n"
         msg += f"|w {caller.name}'s Alts|n\n"
-        msg += f"|b{'='*78}|n\n"
+        msg += footer(78, char="=") + "\n"
         
         if not alts:
             msg += "You have not declared any alt characters.\n"
@@ -98,9 +99,9 @@ class CmdAlts(MuxCommand):
         alts = target.db.public_alts or []
         
         # Build the display
-        msg = f"|b{'='*78}|n\n"
+        msg = footer(78, char="=") + "\n"
         msg += f"|w {target.name}'s Public Alts|n\n"
-        msg += f"|b{'='*78}|n\n"
+        msg += footer(78, char="=") + "\n"
         
         if not alts:
             msg += f"{target.name} has not declared any alt characters."
@@ -233,9 +234,9 @@ class CmdAlts(MuxCommand):
             return
         
         # Build the display
-        msg = f"|b{'='*78}|n\n"
+        msg = footer(78, char="=") + "\n"
         msg += f"|w Pending Alt Requests|n\n"
-        msg += f"|b{'='*78}|n\n"
+        msg += footer(78, char="=") + "\n"
         
         for requester, request in pending_requests.items():
             code = request.get('code', 'NO_CODE')

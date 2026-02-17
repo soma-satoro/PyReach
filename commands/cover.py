@@ -7,6 +7,7 @@ Each Demon can maintain multiple cover identities based on their Primum rating.
 
 from evennia.commands.default.muxcommand import MuxCommand
 from evennia.utils.evmore import EvMore
+from world.utils.formatting import footer, get_theme_colors
 from utils.search_helpers import search_character
 
 
@@ -122,12 +123,37 @@ class CmdCover(MuxCommand):
             
             self.list_covers(self.caller)
     
+    def get_primum(self, character=None):
+        """Get Primum from character's stat database, initializing if missing for Demons."""
+        if character is None:
+            character = self.caller
+        
+        if not hasattr(character.db, 'stats') or not character.db.stats:
+            return 1
+        
+        advantages = character.db.stats.get("advantages", {})
+        primum = advantages.get("primum")
+        
+        # Ensure Primum is in stat database for Demons (may be missing from legacy characters)
+        if primum is None:
+            template = character.db.stats.get("other", {}).get("template", "").lower()
+            if template == "demon":
+                if "advantages" not in character.db.stats:
+                    character.db.stats["advantages"] = {}
+                character.db.stats["advantages"]["primum"] = 1
+                character.db.stats = character.db.stats  # Persist
+                primum = 1
+            else:
+                primum = 1
+        
+        return primum
+    
     def get_max_covers(self, character=None):
         """Calculate maximum number of covers based on Primum."""
         if character is None:
             character = self.caller
         
-        primum = character.db.stats.get("advantages", {}).get("primum", 1)
+        primum = self.get_primum(character)
         
         if primum <= 4:
             return primum
@@ -163,7 +189,7 @@ class CmdCover(MuxCommand):
         current_covers = len(self.caller.db.cover_identities)
         
         if current_covers >= max_covers:
-            primum = self.caller.db.stats.get("advantages", {}).get("primum", 1)
+            primum = self.get_primum()
             self.caller.msg(f"|rYou already have {current_covers} cover identities (maximum for Primum {primum}).|n")
             self.caller.msg(f"Increase your Primum or delete an existing cover to create a new one.")
             return
@@ -390,7 +416,7 @@ class CmdCover(MuxCommand):
             return
         
         output = []
-        output.append("|y" + "=" * 78 + "|n")
+        output.append(footer(78, char="="))
         
         is_primary = (cover_id == character.db.primary_cover_id)
         primary_text = " |g(PRIMARY)|n" if is_primary else ""
@@ -400,8 +426,9 @@ class CmdCover(MuxCommand):
         else:
             title = f"{character.name.upper()}'S COVER #{cover_id}{primary_text}"
         
-        output.append("|y" + title.center(78) + "|n")
-        output.append("|y" + "=" * 78 + "|n")
+        _, text_color, _ = get_theme_colors()
+        output.append(f"|{text_color}{title.center(78)}|n")
+        output.append(footer(78, char="="))
         output.append("")
         
         output.append(f"|wName:|n {cover_data['name']}")
@@ -414,7 +441,7 @@ class CmdCover(MuxCommand):
         output.append("|xCover rating represents how well-established this identity is.|n")
         output.append("|xIt can be damaged by breaking points and raised with XP.|n")
         output.append("")
-        output.append("|y" + "=" * 78 + "|n")
+        output.append(footer(78, char="="))
         
         self.caller.msg("\n".join(output))
     
@@ -434,13 +461,14 @@ class CmdCover(MuxCommand):
             return
         
         output = []
-        output.append("|y" + "=" * 78 + "|n")
+        output.append(footer(78, char="="))
         title = f"{character.name}'s COVER IDENTITIES"
-        output.append("|y" + title.center(78) + "|n")
-        output.append("|y" + "=" * 78 + "|n")
+        _, text_color, _ = get_theme_colors()
+        output.append(f"|{text_color}{title.center(78)}|n")
+        output.append(footer(78, char="="))
         output.append("")
         
-        primum = character.db.stats.get("advantages", {}).get("primum", 1)
+        primum = self.get_primum(character)
         max_covers = self.get_max_covers(character)
         current_covers = len(character.db.cover_identities)
         
@@ -476,7 +504,7 @@ class CmdCover(MuxCommand):
             output.append("|xUse |w+cover/rating {0}/<id>=<rating>|x to set ratings (staff).|n".format(character.name))
             output.append("|xUse |w+cover/delete {0}=<id>|x to delete covers (staff).|n".format(character.name))
         
-        output.append("|y" + "=" * 78 + "|n")
+        output.append(footer(78, char="="))
         
         text = "\n".join(output)
         EvMore(self.caller, text, always_page=False, session=self.session, justify_kwargs=False, exit_on_lastpage=True)

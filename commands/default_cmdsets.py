@@ -28,7 +28,7 @@ from .aspirations import CmdAspiration
 from .social import CmdSocial
 from .combat import CmdCombat, CmdEquippedGear, CmdCombatHelp
 from .integrity import CmdIntegrity
-from .equipment import CmdEquipment, CmdBuyConfig, CmdBuy
+from .equipment import CmdEquipment, CmdBuyConfig, CmdBuy, CmdAddResources
 from .groups import CmdGroups, CmdRoster, CmdGroupMerit, CmdTotem
 from .npc import CmdNPC
 from .CmdHealth import CmdHealth
@@ -125,6 +125,7 @@ class CharacterCmdSet(default_cmds.CharacterCmdSet):
         self.add(CmdEquipment())
         self.add(CmdBuyConfig())
         self.add(CmdBuy())
+        self.add(CmdAddResources())
 
         # Testing (remove after verification)
         self.add(CmdTestXP())

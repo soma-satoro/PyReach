@@ -86,18 +86,28 @@ class ConditionHandler:
         self._save_conditions()
         self.obj.msg(f"You have gained the condition: {condition.name}")
     
+    def _find_condition_key(self, condition_name):
+        """Find the actual storage key for a condition (case-insensitive lookup)"""
+        condition_name_lower = condition_name.lower()
+        for key in self._conditions:
+            if key.lower() == condition_name_lower:
+                return key
+        return None
+
     def remove(self, condition_name):
         """Remove a condition from the object"""
-        if condition_name in self._conditions:
-            del self._conditions[condition_name]
+        key = self._find_condition_key(condition_name)
+        if key is not None:
+            del self._conditions[key]
             self._save_conditions()
-            self.obj.msg(f"You have lost the condition: {condition_name}")
+            self.obj.msg(f"You have lost the condition: {key}")
             return True
         return False
     
     def get(self, condition_name):
         """Get a specific condition"""
-        return self._conditions.get(condition_name)
+        key = self._find_condition_key(condition_name)
+        return self._conditions.get(key) if key else None
     
     def all(self):
         """Get all conditions"""
@@ -113,7 +123,14 @@ class ConditionHandler:
     
     def has(self, condition_name):
         """Check if object has a specific condition"""
-        return condition_name in self._conditions
+        return self._find_condition_key(condition_name) is not None
+
+    def clear(self):
+        """Clear all conditions from the object. Returns count of cleared conditions."""
+        count = len(self._conditions)
+        self._conditions = {}
+        self._save_conditions()
+        return count
 
 # Dictionary of standard conditions
 STANDARD_CONDITIONS = {

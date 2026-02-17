@@ -6,7 +6,7 @@ import re
 from evennia.commands.default.muxcommand import MuxCommand
 from world.utils.permission_utils import (
     check_staff_permission, check_admin_permission, check_builder_permission,
-    can_modify_character_stats, format_permission_error
+    check_developer_permission, can_modify_character_stats, format_permission_error
 )
 
 class StaffOnlyMixin:
@@ -38,6 +38,18 @@ class BuilderMixin:
             self.caller.msg(format_permission_error("Builder"))
             return False
         return True
+
+
+class DeveloperMixin:
+    """Mixin for commands that require developer permissions."""
+
+    def check_developer_access(self):
+        """Check if caller has developer access, return error message if not."""
+        if not check_developer_permission(self.caller):
+            self.caller.msg(format_permission_error("Developer"))
+            return False
+        return True
+
 
 class CharacterStatsMixin:
     """Mixin for commands that modify character stats."""

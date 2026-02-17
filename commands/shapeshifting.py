@@ -11,6 +11,7 @@ on stat modifications while shifted.
 
 from evennia.commands.default.muxcommand import MuxCommand
 from evennia.utils import evtable
+from world.utils.formatting import footer
 
 
 # Import Changing Breeds data for legacy mode support
@@ -290,9 +291,9 @@ class CmdShift(MuxCommand):
             title = "AVAILABLE FORMS"
         
         lines = [
-            "|w" + "=" * 78 + "|n",
+            footer(78, char="="),
             f"|c{title}|n",
-            "|w" + "=" * 78 + "|n",
+            footer(78, char="="),
             ""
         ]
         
@@ -304,7 +305,7 @@ class CmdShift(MuxCommand):
             "",
             "|wUse |c+shift <form>|w to change forms.|n",
             "|wUse |c+shift/info <form>|w for detailed information.|n",
-            "|w" + "=" * 78 + "|n"
+            footer(78, char="=")
         ])
         
         caller.msg("\n".join(lines))
@@ -325,9 +326,9 @@ class CmdShift(MuxCommand):
         current_form = self._get_current_form(caller)
         
         lines = [
-            "|w" + "=" * 78 + "|n",
+            footer(78, char="="),
             f"|c{form_data['display_name'].upper()} FORM|n",
-            "|w" + "=" * 78 + "|n",
+            footer(78, char="="),
             "",
             f"|w{form_data['description']}|n",
             ""
@@ -366,7 +367,7 @@ class CmdShift(MuxCommand):
             lines.append("|g>>> You are currently in this form <<<|n")
             lines.append("")
         
-        lines.append("|w" + "=" * 78 + "|n")
+        lines.append(footer(78, char="="))
         
         caller.msg("\n".join(lines))
     
@@ -606,9 +607,9 @@ class CmdForm(MuxCommand):
         # Display current form
         lines = [
             "",
-            "|w" + "=" * 78 + "|n",
+            footer(78, char="="),
             f"|cCurrent Form: {form_data['display_name']}|n",
-            "|w" + "=" * 78 + "|n",
+            footer(78, char="="),
             f"|w{form_data['description']}|n",
             ""
         ]
@@ -634,7 +635,7 @@ class CmdForm(MuxCommand):
         lines.extend([
             "|wUse |c+shift <form>|w to change forms.|n",
             "|wUse |c+shift/list|w to see all available forms.|n",
-            "|w" + "=" * 78 + "|n"
+            footer(78, char="=")
         ])
         
         caller.msg("\n".join(lines))

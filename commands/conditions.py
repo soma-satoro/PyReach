@@ -1,6 +1,7 @@
 from evennia.commands.default.muxcommand import MuxCommand
 from evennia.utils import create
 from world.conditions import Condition, STANDARD_CONDITIONS
+from world.utils.formatting import footer, get_theme_colors, sheet_section_header
 from utils.search_helpers import search_character
 
 class CmdCondition(MuxCommand):
@@ -14,8 +15,9 @@ class CmdCondition(MuxCommand):
         +condition/add <character> = <condition_name> - Add condition to character (staff only)
         +condition/remove <condition_name> - Remove condition from yourself
         +condition/remove <character> = <condition_name> - Remove condition from character (staff only)
-        +condition/list - Show all available conditions in the system
-        +condition/help <condition_name> - Show detailed information about a condition
+        +condition/clear <character> - Clear all conditions from a character (staff only)
+        +condition/list - Show all conditions with name, summary, and resolution
+        +condition/view <condition_name> - View full details of a condition
         
     Examples:
         +condition - View your conditions
@@ -23,8 +25,9 @@ class CmdCondition(MuxCommand):
         +condition/add blind - Add blind condition to yourself
         +condition/remove frightened - Remove frightened from yourself
         +condition/add John = blind - Staff: add blind to John
-        +condition/list - See all conditions available
-        +condition/help blind - See details about the blind condition
+        +condition/clear John - Staff: clear all conditions from John
+        +condition/list - See all conditions with summaries
+        +condition/view blind - See full details about the blind condition
     """
     key = "+condition"
     aliases = ["+cond", "+conditions"]
@@ -59,29 +62,30 @@ class CmdCondition(MuxCommand):
             self.cond_remove()
         elif switch == "list":
             self.cond_list_all()
-        elif switch == "help":
-            self.cond_help()
+        elif switch in ("view", "help"):
+            self.cond_view()
+        elif switch == "clear":
+            self.cond_clear()
         else:
-            self.caller.msg("Invalid switch. Use: add, remove, list, or help")
+            self.caller.msg("Invalid switch. Use: add, remove, clear, list, or view")
     
     def _format_section_header(self, section_name):
-        """
-        Create an arrow-style section header that spans 78 characters.
-        Format: <----------------- SECTION NAME ----------------->
-        """
-        total_width = 78
-        # Strip color codes for length calculation
-        import re
-        clean_name = re.sub(r'\|[a-z]', '', section_name)
-        name_length = len(clean_name)
-        # Account for < and > characters (2 total) and spaces around name (2 total)
-        available_dash_space = total_width - name_length - 4
-        
-        # Split dashes evenly, with extra dash on the right if odd number
-        left_dashes = available_dash_space // 2
-        right_dashes = available_dash_space - left_dashes
-        
-        return f"|g<{'-' * left_dashes}|n {section_name} |g{'-' * right_dashes}>|n"
+        """Format a section header using theme colors."""
+        return sheet_section_header(section_name)
+    
+    def _short_description(self, description, max_len=70):
+        """Get a short summary of a description - first sentence or truncated."""
+        if not description or not description.strip():
+            return ""
+        # Take first paragraph, then first sentence
+        first_para = description.split("\n\n")[0].strip()
+        if "." in first_para:
+            first_sentence = first_para.split(".")[0] + "."
+        else:
+            first_sentence = first_para
+        if len(first_sentence) > max_len:
+            return first_sentence[: max_len - 3].rstrip() + "..."
+        return first_sentence
     
     def _check_permission(self, target):
         """Check if caller has permission to modify target's conditions"""
@@ -170,6 +174,25 @@ class CmdCondition(MuxCommand):
             else:
                 self.caller.msg(f"|r{target.name} does not have the condition |w{condition_name}|r.|n")
 
+    def cond_clear(self):
+        """Clear all conditions from a character (staff only)"""
+        if not self.caller.check_permstring("Admin"):
+            self.caller.msg("|rOnly staff can clear all conditions.|n")
+            return
+
+        if not self.args:
+            self.caller.msg("Usage: +condition/clear <character>")
+            return
+
+        target = search_character(self.caller, self.args)
+        if not target:
+            return
+
+        count = target.conditions.clear()
+        if target != self.caller:
+            target.msg(f"|cA staff member has cleared all your conditions.|n")
+        self.caller.msg(f"|gCleared {count} condition(s) from |w{target.name}|g.|n")
+
     def cond_show(self):
         """Show current conditions on a character"""
         if not self.args:
@@ -188,9 +211,10 @@ class CmdCondition(MuxCommand):
         
         # Build formatted output
         output = []
-        output.append(f"|y{'='*78}|n")
-        output.append(f"|y{f'Conditions - {target.name}'.center(78)}|n")
-        output.append(f"|y{'='*78}|n")
+        output.append(footer(78, char="="))
+        _, text_color, _ = get_theme_colors()
+        output.append(f"|{text_color}{f'Conditions - {target.name}'.center(78)}|n")
+        output.append(footer(78, char="="))
         
         if not conditions:
             output.append("")
@@ -204,82 +228,82 @@ class CmdCondition(MuxCommand):
             for condition in conditions:
                 # Condition name in white
                 output.append(f"|w{condition.name.upper()}|n")
-                # Description
-                output.append(f"  {condition.description}")
-                
-                # Additional details
-                details = []
+                # Short summary instead of full description
+                short_desc = self._short_description(condition.description)
+                if short_desc:
+                    output.append(f"  |x{short_desc}|n")
                 if condition.duration:
-                    details.append(f"|cDuration:|n {condition.duration}")
+                    output.append(f"  |cDuration:|n {condition.duration}")
                 if condition.resolution_method:
-                    details.append(f"|cResolution:|n {condition.resolution_method}")
-                
-                if details:
-                    for detail in details:
-                        output.append(f"  {detail}")
+                    output.append(f"  |cResolution:|n {condition.resolution_method}")
                 output.append("")
+            output.append("|cUse |w+condition/view <name>|c for full description of any condition.|n")
+            output.append("")
                 
-        output.append(f"|y{'='*78}|n")
+        output.append(footer(78, char="="))
         self.caller.msg("\n".join(output))
     
     def cond_list_all(self):
-        """List all available conditions in the system in 3 columns"""
+        """List all available conditions with name, short summary, and resolution."""
         output = []
-        output.append(f"|y{'='*78}|n")
-        output.append(f"|y{'Available Conditions'.center(78)}|n")
-        output.append(f"|y{'='*78}|n")
+        output.append(footer(78, char="="))
+        _, text_color, _ = get_theme_colors()
+        output.append(f"|{text_color}{'Available Conditions'.center(78)}|n")
+        output.append(footer(78, char="="))
         output.append("")
-        output.append("|cUse |w+condition/help <name>|c to see details about a specific condition.|n")
+        output.append("|cUse |w+condition/view <name>|c for full description.|n")
         output.append("")
         
-        # Get all condition names and sort them
-        condition_names = sorted(STANDARD_CONDITIONS.keys())
+        # Get all conditions sorted by name
+        condition_keys = sorted(STANDARD_CONDITIONS.keys())
         
-        # Format in 3 columns
-        col_width = 24
-        num_cols = 3
+        for key in condition_keys:
+            condition = STANDARD_CONDITIONS[key]
+            # Condition name
+            output.append(f"|w{condition.name}|n")
+            # Short explanation
+            short_desc = self._short_description(condition.description)
+            if short_desc:
+                output.append(f"  |x{short_desc}|n")
+            # Resolution statement
+            if condition.resolution_method:
+                output.append(f"  |cResolution:|n {condition.resolution_method}")
+            output.append("")
         
-        # Split into rows
-        rows = []
-        for i in range(0, len(condition_names), num_cols):
-            row = condition_names[i:i+num_cols]
-            rows.append(row)
-        
-        # Format each row
-        for row in rows:
-            formatted_row = ""
-            for i, name in enumerate(row):
-                # Title case the name for display
-                display_name = name.replace("_", " ").title()
-                if i < len(row) - 1:
-                    formatted_row += f"|w{display_name:<{col_width}}|n"
-                else:
-                    formatted_row += f"|w{display_name}|n"
-            output.append(formatted_row)
-        
-        output.append("")
-        output.append(f"|y{'='*78}|n")
+        output.append(footer(78, char="="))
         self.caller.msg("\n".join(output))
 
-    def cond_help(self):
-        """Get information about a specific condition"""
+    def _find_condition_key(self, name):
+        """Find condition key by case-insensitive match (supports key or display name)."""
+        name_clean = name.strip().lower()
+        name_with_underscores = name_clean.replace(" ", "_")
+        for key in STANDARD_CONDITIONS:
+            if key.lower() == name_clean or key.lower() == name_with_underscores:
+                return key
+            if STANDARD_CONDITIONS[key].name.lower() == name_clean:
+                return key
+        return None
+
+    def cond_view(self):
+        """View full details of a specific condition."""
         if not self.args:
-            self.caller.msg("Usage: +condition/help <condition_name>")
+            self.caller.msg("Usage: +condition/view <condition_name>")
             return
-            
-        condition_name = self.args.strip().lower()
-        if condition_name not in STANDARD_CONDITIONS:
-            self.caller.msg(f"|rUnknown condition: |w{condition_name}|n")
+
+        condition_key = self._find_condition_key(self.args.strip())
+        if condition_key is None:
+            self.caller.msg(f"|rUnknown condition: |w{self.args.strip()}|n")
             self.caller.msg("Use |w+condition/list|n to see all available conditions.")
             return
-            
-        condition = STANDARD_CONDITIONS[condition_name]
-        
+
+        condition = STANDARD_CONDITIONS[condition_key]
+
         # Build formatted output
         output = []
-        output.append(f"|y{'='*78}|n")
-        output.append(f"|y{condition.name.center(78)}|n")
-        output.append(f"|y{'='*78}|n")
+        output.append(footer(78, char="="))
+        _, text_color, _ = get_theme_colors()
+        output.append(f"|{text_color}{condition.name.center(78)}|n")
+        output.append(footer(78, char="="))
         
         # Type
         output.append(self._format_section_header("|wTYPE|n"))
@@ -323,5 +347,5 @@ class CmdCondition(MuxCommand):
                 output.append(f"|c{effect}:|n {value}")
             output.append("")
                 
-        output.append(f"|y{'='*78}|n")
+        output.append(footer(78, char="="))
         self.caller.msg("\n".join(output)) 

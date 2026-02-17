@@ -1,5 +1,6 @@
 from evennia.commands.default.muxcommand import MuxCommand
 from world.experience import ExperienceHandler
+from world.utils.formatting import footer, get_theme_colors, sheet_section_header
 
 class CmdAspiration(MuxCommand):
     """
@@ -119,10 +120,11 @@ class CmdAspiration(MuxCommand):
         
         # Build styled output matching +sheet format
         output = []
-        output.append("|y" + "=" * 78 + "|n")
+        output.append(footer(78, char="="))
         title = f"ASPIRATIONS - {target.name}" if target != self.caller else "ASPIRATIONS"
-        output.append("|y" + title.center(78) + "|n")
-        output.append("|y" + "=" * 78 + "|n")
+        _, text_color, _ = get_theme_colors()
+        output.append(f"|{text_color}{title.center(78)}|n")
+        output.append(footer(78, char="="))
         output.append("")
         
         # Separate short-term and long-term (works with both dict and _SaverDict)
@@ -164,21 +166,13 @@ class CmdAspiration(MuxCommand):
         # Footer with count
         total_count = len(aspirations)
         output.append(f"|gTotal: {total_count}/6 aspirations|n")
-        output.append("|y" + "=" * 78 + "|n")
+        output.append(footer(78, char="="))
         
         self.caller.msg("\n".join(output))
     
     def _format_section_header(self, section_name):
-        """Format a section header matching +sheet style"""
-        total_width = 78
-        # Remove ANSI codes for length calculation
-        import re
-        clean_name = re.sub(r'\|[a-zA-Z]', '', section_name)
-        name_length = len(clean_name)
-        available_dash_space = total_width - name_length - 4
-        left_dashes = available_dash_space // 2
-        right_dashes = available_dash_space - left_dashes
-        return f"|g<{'-' * left_dashes}|n {section_name} |g{'-' * right_dashes}>|n"
+        """Format a section header using theme colors."""
+        return sheet_section_header(section_name)
     
     def add_aspiration(self):
         """Add a new aspiration"""
@@ -366,10 +360,11 @@ class CmdAspiration(MuxCommand):
         # Record the action for rate limiting
         record_action(self.caller, 'aspiration_fulfill', details=f"Fulfilled: {description[:30]}")
         
-        self.caller.msg("|y" + "=" * 78 + "|n")
-        self.caller.msg("|yASPIRATION FULFILLED!|n".center(78))
-        self.caller.msg("|y" + "=" * 78 + "|n")
+        self.caller.msg(footer(78, char="="))
+        _, text_color, _ = get_theme_colors()
+        self.caller.msg(f"|{text_color}{'ASPIRATION FULFILLED!'.center(78)}|n")
+        self.caller.msg(footer(78, char="="))
         self.caller.msg(f"|g{type_display} aspiration:|n {description}")
         self.caller.msg("")
         self.caller.msg("|c+1 Beat|n for fulfilling an aspiration!")
-        self.caller.msg("|y" + "=" * 78 + "|n") 
+        self.caller.msg(footer(78, char="=")) 

@@ -469,249 +469,45 @@ ARMOR_DATABASE = {
                                   coverage=["torso"]),
 }
 
-# Tag descriptions for reference
+# Tag descriptions for reference (comprehensive list for weapons and explosives)
 WEAPON_TAG_DESCRIPTIONS = {
     "8-again": "Re-roll 8s, 9s, and 10s on attack rolls",
-    "9-again": "Re-roll 9s and 10s on attack rolls", 
+    "9-again": "Re-roll 9s and 10s on attack rolls",
     "accurate": "+1 to attack rolls",
+    "ap_3": "Armor Piercing 3 - reduces armor by 3",
+    "ap_4": "Armor Piercing 4 - reduces armor by 4",
+    "ap_8": "Armor Piercing 8 - reduces armor by 8",
     "bleed": "Doubles weapon bonus for Bleeding Tilt",
+    "blast_3": "3 meter blast radius",
+    "blast_5": "5 meter blast radius",
+    "blast_10": "10 meter blast radius",
     "brawl": "Uses Brawl skill, enhanced by unarmed bonuses",
     "concealed": "Adds Size to Defense when used defensively",
+    "concealment": "Provides concealment modifier",
+    "dexterity_requirement": "-1 Damage and Initiative without Dexterity 3+",
+    "dexterity_weaponry": "Uses Dexterity + Weaponry to attack",
     "enhance_crafts_survival": "Provides bonus to Crafts or Survival rolls",
+    "force_2": "Force rating 2 for explosive knockback",
+    "force_3": "Force rating 3 for explosive knockback",
+    "force_4": "Force rating 4 for explosive knockback",
+    "force_5": "Force rating 5 for explosive knockback",
     "fragile": "-1 to weapon's Durability",
     "grapple": "Adds weapon dice to grapple rolls",
     "guard": "+1 Defense when wielding",
+    "heavy_recoil": "Causes Knocked Down Tilt if not properly braced",
     "inaccurate": "-1 penalty to attack rolls",
     "incendiary": "Causes Burning Tilt",
+    "initiative_bonus_1": "+1 Initiative when wielding",
     "knockdown": "Doubles weapon bonus for Knockdown Tilt",
+    "no_bonus_damage": "Bonus successes don't add to damage",
     "piercing_1": "Armor Piercing 1 - reduces armor by 1",
-    "piercing_2": "Armor Piercing 2 - reduces armor by 2", 
+    "piercing_2": "Armor Piercing 2 - reduces armor by 2",
     "reach": "+1 Defense vs smaller weapons, -1 penalty in grapples",
     "slow": "Target gains full Defense against attack",
-    "stun": "Doubles weapon bonus for Stun Tilt", 
+    "strength_firearms": "Uses Strength + Firearms to attack",
+    "stun": "Doubles weapon bonus for Stun Tilt",
     "thrown": "Can be thrown as ranged attack",
     "two-handed": "Requires two hands, can use one-handed at +1 Strength requirement"
-}
-
-
-WEAPON_DATA = {
-    # MELEE WEAPONS - BLADED
-    "battle_axe": {"damage": 3, "initiative": -4, "strength": 3, "size": 3, "tags": "9-again, two-handed", "range": "melee", "availability": 3},
-    "fire_axe": {"damage": 2, "initiative": -4, "strength": 3, "size": 3, "tags": "9-again, two-handed", "range": "melee", "availability": 2},
-    "great_sword": {"damage": 4, "initiative": -5, "strength": 4, "size": 3, "tags": "9-again, two-handed", "range": "melee", "availability": 4},
-    "hatchet": {"damage": 1, "initiative": -2, "strength": 1, "size": 1, "tags": "", "range": "melee", "availability": 2},
-    "knife_small": {"damage": 0, "initiative": 0, "strength": 1, "size": 1, "tags": "thrown", "range": "melee", "availability": 1},
-    "knife_hunting": {"damage": 1, "initiative": -1, "strength": 1, "size": 2, "tags": "enhance_crafts_survival", "range": "melee", "availability": 2},
-    "machete": {"damage": 2, "initiative": -2, "strength": 2, "size": 2, "tags": "", "range": "melee", "availability": 2},
-    "rapier": {"damage": 1, "initiative": -2, "strength": 1, "size": 2, "tags": "piercing_1", "range": "melee", "availability": 2},
-    "sword": {"damage": 3, "initiative": -3, "strength": 2, "size": 3, "tags": "initiative_bonus_1", "range": "melee", "availability": 3},
-
-    # MELEE WEAPONS - BLUNT
-    "brass_knuckles": {"damage": 0, "initiative": 0, "strength": 1, "size": 1, "tags": "brawl", "range": "melee", "availability": 1},
-    "metal_club": {"damage": 2, "initiative": -2, "strength": 2, "size": 2, "tags": "stun", "range": "melee", "availability": 1},
-    "nightstick": {"damage": 1, "initiative": -1, "strength": 2, "size": 2, "tags": "stun", "range": "melee", "availability": 2},
-    "nunchaku": {"damage": 1, "initiative": 1, "strength": 2, "size": 2, "tags": "stun, dexterity_requirement", "range": "melee", "availability": 2},
-    "sap": {"damage": 0, "initiative": -1, "strength": 2, "size": 2, "tags": "stun", "range": "melee", "availability": 1},
-    "sledgehammer": {"damage": 3, "initiative": -4, "strength": 3, "size": 3, "tags": "knockdown, stun", "range": "melee", "availability": 1},
-
-    # MELEE WEAPONS - EXOTIC
-    "catchpole": {"damage": 0, "initiative": -3, "strength": 2, "size": 2, "tags": "grapple, reach", "range": "melee", "availability": 1},
-    "chain": {"damage": 1, "initiative": -3, "strength": 2, "size": 2, "tags": "grapple, inaccurate, reach", "range": "melee", "availability": 1},
-    "chainsaw": {"damage": 3, "initiative": -6, "strength": 4, "size": 3, "tags": "bleed, inaccurate, two-handed", "range": "melee", "availability": 3},
-    "kusari_gama_chain": {"damage": 1, "initiative": -3, "strength": 2, "size": 2, "tags": "grapple, inaccurate, reach", "range": "melee", "availability": 1},
-    "kusari_gama_sickle": {"damage": 1, "initiative": -1, "strength": 1, "size": 2, "tags": "", "range": "melee", "availability": 2},
-    "shield_small": {"damage": 0, "initiative": -2, "strength": 2, "size": 2, "tags": "concealed", "range": "melee", "availability": 2},
-    "shield_large": {"damage": 2, "initiative": -4, "strength": 3, "size": 3, "tags": "concealed", "range": "melee", "availability": 2},
-    "stake": {"damage": 0, "initiative": -4, "strength": 1, "size": 1, "tags": "", "range": "melee", "availability": 0},
-    "stun_gun_melee": {"damage": 0, "initiative": -1, "strength": 1, "size": 1, "tags": "stun, no_bonus_damage", "range": "melee", "availability": 1},
-    "tiger_claws": {"damage": 1, "initiative": -1, "strength": 2, "size": 2, "tags": "brawl", "range": "melee", "availability": 2},
-    "whip": {"damage": 0, "initiative": -2, "strength": 1, "size": 2, "tags": "grapple, stun, dexterity_weaponry", "range": "melee", "availability": 1},
-
-    # MELEE WEAPONS - IMPROVISED
-    "blowtorch": {"damage": 0, "initiative": -2, "strength": 2, "size": 2, "tags": "incendiary, piercing_2, blinded_tilt", "range": "melee", "availability": 2},
-    "board_with_nail": {"damage": 1, "initiative": -3, "strength": 2, "size": 2, "tags": "fragile, stun", "range": "melee", "availability": 0},
-    "improvised_shield": {"damage": 0, "initiative": -4, "strength": 2, "size": 2, "tags": "concealed", "range": "melee", "availability": 1},
-    "nail_gun": {"damage": 0, "initiative": -2, "strength": 2, "size": 2, "tags": "inaccurate, piercing_1, strength_firearms", "range": "melee", "availability": 1},
-    "shovel": {"damage": 1, "initiative": -3, "strength": 2, "size": 2, "tags": "knockdown", "range": "melee", "availability": 1},
-    "tire_iron": {"damage": 1, "initiative": -3, "strength": 2, "size": 2, "tags": "guard, inaccurate", "range": "melee", "availability": 2},
-
-    # MELEE WEAPONS - POLEARMS
-    "spear": {"damage": 2, "initiative": -2, "strength": 2, "size": 4, "tags": "reach, two-handed", "range": "melee", "availability": 1},
-    "staff": {"damage": 1, "initiative": -1, "strength": 2, "size": 4, "tags": "knockdown, reach, two-handed", "range": "melee", "availability": 1},
-
-    # RANGED WEAPONS - ARCHERY
-    "short_bow": {"damage": 2, "range": "medium", "capacity": "low", "initiative": -3, "strength": 2, "size": 3, "availability": 2, "tags": ""},
-    "long_bow": {"damage": 3, "range": "medium", "capacity": "low", "initiative": -4, "strength": 3, "size": 4, "availability": 2, "tags": ""},
-    "crossbow": {"damage": 2, "range": "long", "capacity": "low", "initiative": -5, "strength": 3, "size": 3, "availability": 3, "tags": ""},
-
-    # RANGED WEAPONS - THROWN
-    "throwing_knife": {"damage": 0, "range": "close", "capacity": "single", "initiative": 0, "strength": 1, "size": 1, "availability": 1, "tags": "thrown"},
-
-    # RANGED WEAPONS - FIREARMS
-    "light_pistol": {"damage": 1, "range": "long", "capacity": "medium", "initiative": 0, "strength": 2, "size": 1, "availability": 2, "tags": ""},
-    "heavy_pistol": {"damage": 2, "range": "long", "capacity": "medium", "initiative": -2, "strength": 3, "size": 1, "availability": 3, "tags": ""},
-    "light_revolver": {"damage": 1, "range": "long", "capacity": "low", "initiative": 0, "strength": 2, "size": 2, "availability": 2, "tags": ""},
-    "heavy_revolver": {"damage": 2, "range": "long", "capacity": "low", "initiative": -2, "strength": 3, "size": 3, "availability": 2, "tags": ""},
-    "smg_small": {"damage": 1, "range": "medium", "capacity": "high", "initiative": -2, "strength": 2, "size": 1, "availability": 3, "tags": ""},
-    "smg_heavy": {"damage": 2, "range": "medium", "capacity": "high", "initiative": -3, "strength": 3, "size": 2, "availability": 3, "tags": ""},
-    "rifle": {"damage": 4, "range": "extreme", "capacity": "low", "initiative": -5, "strength": 2, "size": 3, "availability": 2, "tags": ""},
-    "big_game_rifle": {"damage": 5, "range": "extreme", "capacity": "low", "initiative": -5, "strength": 3, "size": 4, "availability": 5, "tags": "stun"},
-    "assault_rifle": {"damage": 3, "range": "long", "capacity": "high", "initiative": -3, "strength": 3, "size": 3, "availability": 3, "tags": "9-again"},
-    "shotgun": {"damage": 3, "range": "medium", "capacity": "low", "initiative": -4, "strength": 3, "size": 2, "availability": 2, "tags": "9-again"},
-
-    # RANGED WEAPONS - NONLETHAL
-    "pepper_spray": {"damage": 0, "range": "close", "capacity": "low", "initiative": 0, "strength": 1, "size": 1, "availability": 1, "tags": "slow"},
-    "stun_gun_ranged": {"damage": 0, "range": "close", "capacity": "medium", "initiative": -1, "strength": 1, "size": 1, "availability": 1, "tags": "slow, stun, no_bonus_damage"},
-
-    # EXPLOSIVES - GRENADES
-    "frag_grenade_standard": {"damage": 2, "range": "thrown", "capacity": "single", "initiative": 0, "strength": 2, "size": 1, "availability": 4, "tags": "knockdown, stun, blast_10, force_3"},
-    "frag_grenade_heavy": {"damage": 3, "range": "thrown", "capacity": "single", "initiative": -1, "strength": 2, "size": 1, "availability": 4, "tags": "knockdown, stun, blast_5, force_4"},
-    "molotov_cocktail": {"damage": 1, "range": "thrown", "capacity": "single", "initiative": -2, "strength": 2, "size": 2, "availability": 1, "tags": "incendiary, blast_3, force_2"},
-    "pipe_bomb": {"damage": 1, "range": "thrown", "capacity": "single", "initiative": -1, "strength": 2, "size": 1, "availability": 1, "tags": "inaccurate, stun, blast_5, force_2"},
-    "smoke_grenade": {"damage": 0, "range": "thrown", "capacity": "single", "initiative": 0, "strength": 2, "size": 1, "availability": 2, "tags": "concealment, blast_10"},
-    "stun_grenade": {"damage": 0, "range": "thrown", "capacity": "single", "initiative": 0, "strength": 2, "size": 1, "availability": 2, "tags": "knockdown, stun, blast_5, force_2"},
-    "thermite_grenade": {"damage": 3, "range": "thrown", "capacity": "single", "initiative": 0, "strength": 2, "size": 1, "availability": 4, "tags": "ap_8, incendiary, blast_5, force_4"},
-    "white_phosphorous": {"damage": 3, "range": "thrown", "capacity": "single", "initiative": 0, "strength": 2, "size": 1, "availability": 4, "tags": "ap_3, incendiary, concealment, blast_5, force_4"},
-
-    # EXPLOSIVES - GRENADE LAUNCHERS
-    "grenade_launcher_standalone": {"damage": "varies", "range": "long", "capacity": "low", "initiative": -5, "strength": 3, "size": 3, "availability": 4, "tags": "heavy_recoil"},
-    "grenade_launcher_underbarrel": {"damage": "varies", "range": "long", "capacity": "low", "initiative": -3, "strength": 2, "size": 2, "availability": 4, "tags": "attachment"},
-    "automatic_grenade_launcher": {"damage": "varies", "range": "extreme", "capacity": "high", "initiative": -6, "strength": 0, "size": 4, "availability": 5, "tags": "vehicle_mounted"},
-
-    # EXPLOSIVES - GRENADE AMMUNITION
-    "baton_round": {"damage": 1, "range": "long", "capacity": "single", "initiative": 0, "strength": 0, "size": 1, "availability": 2, "tags": "knockdown, stun, force_5"},
-    "buckshot_round": {"damage": 1, "range": "long", "capacity": "single", "initiative": 0, "strength": 0, "size": 1, "availability": 4, "tags": "knockdown, blast_10, force_4"},
-    "he_round": {"damage": 3, "range": "long", "capacity": "single", "initiative": 0, "strength": 0, "size": 1, "availability": 4, "tags": "knockdown, blast_10, force_4"},
-    "hedp_round": {"damage": 2, "range": "long", "capacity": "single", "initiative": 0, "strength": 0, "size": 1, "availability": 4, "tags": "knockdown, ap_4, blast_10, force_3"},
-
-    # HEAVY WEAPONS - FLAMETHROWERS
-    "flamethrower_civilian": {"damage": "special", "range": "short", "capacity": "high", "initiative": -4, "strength": 3, "size": 4, "availability": 3, "tags": "incendiary"},
-    "flamethrower_military": {"damage": "special", "range": "medium", "capacity": "high", "initiative": -5, "strength": 3, "size": 4, "availability": 5, "tags": "incendiary"},
-}
-
-# ARMOR DATABASE
-# Rating: First number is general armor (reduces total damage), second is ballistic armor (downgrades lethal to bashing)
-# Strength: Minimum Strength requirement. Lower Strength causes -1 to Brawl and Weaponry rolls
-# Defense: Defense penalty while wearing armor
-# Speed: Speed penalty while wearing armor  
-# Availability: Cost in Resources dots or appropriate Social Merit level
-# Coverage: Body areas protected by the armor
-
-ARMOR_DATA = {
-    # MODERN ARMOR
-    "reinforced_clothing": {
-        "general_armor": 1, 
-        "ballistic_armor": 0, 
-        "strength": 1, 
-        "defense": 0, 
-        "speed": 0, 
-        "availability": 1, 
-        "coverage": ["torso", "arms", "legs"]
-    },
-    "sports_gear": {
-        "general_armor": 2, 
-        "ballistic_armor": 0, 
-        "strength": 2, 
-        "defense": -1, 
-        "speed": -1, 
-        "availability": 1, 
-        "coverage": ["torso", "arms", "legs"]
-    },
-    "kevlar_vest": {
-        "general_armor": 1, 
-        "ballistic_armor": 3, 
-        "strength": 1, 
-        "defense": 0, 
-        "speed": 0, 
-        "availability": 1, 
-        "coverage": ["torso"]
-    },
-    "flak_jacket": {
-        "general_armor": 2, 
-        "ballistic_armor": 4, 
-        "strength": 1, 
-        "defense": -1, 
-        "speed": 0, 
-        "availability": 2, 
-        "coverage": ["torso", "arms"]
-    },
-    "full_riot_gear": {
-        "general_armor": 3, 
-        "ballistic_armor": 5, 
-        "strength": 2, 
-        "defense": -2, 
-        "speed": -1, 
-        "availability": 3, 
-        "coverage": ["torso", "arms", "legs"]
-    },
-    "bomb_suit": {
-        "general_armor": 4, 
-        "ballistic_armor": 6, 
-        "strength": 3, 
-        "defense": -5, 
-        "speed": -4, 
-        "availability": 5, 
-        "coverage": ["torso", "arms", "head"]
-    },
-    "helmet_modern": {
-        "general_armor": "special", 
-        "ballistic_armor": "special", 
-        "strength": 2, 
-        "defense": -1, 
-        "speed": 0, 
-        "availability": 3, 
-        "coverage": ["head"],
-        "notes": "Extends armor protection to head. Half of worn armor's normal ratings (rounded up). -1 to sight/hearing Perception rolls"
-    },
-
-    # ARCHAIC ARMOR
-    "leather_hard": {
-        "general_armor": 2, 
-        "ballistic_armor": 0, 
-        "strength": 2, 
-        "defense": -1, 
-        "speed": 0, 
-        "availability": 1, 
-        "coverage": ["torso", "arms"]
-    },
-    "lorica_segmentata": {
-        "general_armor": 2, 
-        "ballistic_armor": 2, 
-        "strength": 3, 
-        "defense": -2, 
-        "speed": -3, 
-        "availability": 4, 
-        "coverage": ["torso"]
-    },
-    "chainmail": {
-        "general_armor": 3, 
-        "ballistic_armor": 1, 
-        "strength": 3, 
-        "defense": -2, 
-        "speed": -2, 
-        "availability": 2, 
-        "coverage": ["torso", "arms"],
-        "notes": "Full suit can protect entire body at additional cost of one dot"
-    },
-    "plate_mail": {
-        "general_armor": 4, 
-        "ballistic_armor": 2, 
-        "strength": 3, 
-        "defense": -2, 
-        "speed": -3, 
-        "availability": 4, 
-        "coverage": ["torso", "arms", "legs"]
-    },
-    "helmet_archaic": {
-        "general_armor": "special", 
-        "ballistic_armor": "special", 
-        "strength": 2, 
-        "defense": -1, 
-        "speed": 0, 
-        "availability": 3, 
-        "coverage": ["head"],
-        "notes": "Extends armor protection to head. Half of worn armor's normal ratings (rounded up). -1 to sight/hearing Perception rolls"
-    }
 }
 
 # Armor mechanics notes
@@ -760,47 +556,6 @@ availability_costs = {
     3: "••• (3 Resources dots or appropriate Social Merit)",
     4: "•••• (4 Resources dots or appropriate Social Merit)",
     5: "••••• (5 Resources dots or appropriate Social Merit)"
-}
-
-# Tag definitions
-tag_descriptions = {
-    "9-again": "Re-roll 9s and 10s on attack rolls",
-    "8-again": "Re-roll 8s, 9s, and 10s on attack rolls", 
-    "accurate": "+1 to attack rolls",
-    "ap_3": "Armor Piercing 3 - reduces armor by 3",
-    "ap_4": "Armor Piercing 4 - reduces armor by 4", 
-    "ap_8": "Armor Piercing 8 - reduces armor by 8",
-    "bleed": "Doubles weapon bonus for Bleeding Tilt",
-    "blast_3": "3 meter blast radius",
-    "blast_5": "5 meter blast radius", 
-    "blast_10": "10 meter blast radius",
-    "brawl": "Uses Brawl skill, enhanced by unarmed bonuses",
-    "concealed": "Adds Size to Defense when used defensively",
-    "concealment": "Provides concealment modifier",
-    "dexterity_requirement": "-1 Damage and Initiative without Dexterity 3+",
-    "dexterity_weaponry": "Uses Dexterity + Weaponry to attack",
-    "enhance_crafts_survival": "Provides bonus to Crafts or Survival rolls",
-    "force_2": "Force rating 2 for explosive knockback",
-    "force_3": "Force rating 3 for explosive knockback",
-    "force_4": "Force rating 4 for explosive knockback", 
-    "force_5": "Force rating 5 for explosive knockback",
-    "fragile": "-1 to weapon's Durability",
-    "grapple": "Adds weapon dice to grapple rolls",
-    "guard": "+1 Defense when wielding",
-    "heavy_recoil": "Causes Knocked Down Tilt if not properly braced",
-    "inaccurate": "-1 penalty to attack rolls",
-    "incendiary": "Causes Burning Tilt",
-    "initiative_bonus_1": "+1 Initiative when wielding",
-    "knockdown": "Doubles weapon bonus for Knockdown Tilt",
-    "no_bonus_damage": "Bonus successes don't add to damage",
-    "piercing_1": "Armor Piercing 1 - reduces armor by 1",
-    "piercing_2": "Armor Piercing 2 - reduces armor by 2", 
-    "reach": "+1 Defense vs smaller weapons, -1 penalty in grapples",
-    "slow": "Target gains full Defense against attack",
-    "strength_firearms": "Uses Strength + Firearms to attack",
-    "stun": "Doubles weapon bonus for Stun Tilt", 
-    "thrown": "Can be thrown as ranged attack",
-    "two-handed": "Requires two hands, can use one-handed at +1 Strength requirement"
 }
 
 # ========================================

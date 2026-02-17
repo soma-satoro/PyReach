@@ -311,7 +311,7 @@ class CmdVoteAdmin(Command):
     
     key = "+voteadmin"
     help_category = "Admin Commands"
-    locks = "cmd:perm(Builder)"
+    locks = "cmd:perm(developer)"
     
     def parse(self):
         """Parse command arguments."""

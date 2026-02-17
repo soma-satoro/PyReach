@@ -164,3 +164,121 @@ def format_stat(name, value, width=40):
     """
     dots = "." * (width - len(name) - len(str(value)))
     return f"{name}{dots}{value}"
+
+
+def format_simple_table(headers, rows, use_theme=True, max_width=78):
+    """
+    Format a table using ASCII box-drawing style consistent with +jobs, +who, +lookup.
+
+    Format:
+        +-----------+-------------------+-------------+
+        | Header1   | Header2           | Header3     |
+        +~~~~~~~~~~~+~~~~~~~~~~~~~~~~~~~+~~~~~~~~~~~~~+
+        | value1    | value2            | value3      |
+        +-----------+-------------------+-------------+
+
+    Args:
+        headers (list): Column header strings
+        rows (list): List of rows, each row is a list/tuple of cell values
+        use_theme (bool): If True, apply theme colors to borders
+        max_width (int): Maximum total table width (for column sizing)
+
+    Returns:
+        str: Formatted table string
+    """
+    from evennia.utils.ansi import ANSIString
+
+    def _clean_len(s):
+        return len(ANSIString(str(s)).clean()) if s else 0
+
+    if not headers:
+        return ""
+
+    num_cols = len(headers)
+    min_col_width = 2
+
+    # Calculate column widths: max of header len and all cell lengths
+    widths = [max(min_col_width, _clean_len(h)) for h in headers]
+    for row in rows:
+        for i, cell in enumerate(row):
+            if i < num_cols:
+                widths[i] = max(widths[i], min_col_width, _clean_len(cell))
+
+    # Cap total width - distribute extra space or shrink proportionally
+    total = 3 * num_cols + sum(widths)  # +s, pipes, and content
+    if total > max_width and num_cols > 0:
+        excess = total - max_width
+        per_col = excess // num_cols
+        widths = [max(min_col_width, w - per_col) for w in widths]
+
+    if use_theme:
+        header_color, text_color, divider_color = get_theme_colors()
+        border_style = f"|{header_color}"
+        header_style = f"|{text_color}"
+        tilde_style = f"|{divider_color}"
+    else:
+        border_style = "|w"
+        header_style = "|w"
+        tilde_style = "|w"
+
+    def _border(char="-", fill_style=None):
+        # Each segment: width+2 chars (content width + left space + right space)
+        style = fill_style or border_style
+        parts = [border_style + "+"]
+        for w in widths:
+            parts.append(style + char * (w + 2))
+            parts.append(border_style + "+")
+        return "".join(parts) + "|n"
+
+    def _row(cells, cell_style=""):
+        parts = [border_style + "|"]
+        for i, w in enumerate(widths):
+            val = str(cells[i]) if i < len(cells) else ""
+            clean = ANSIString(val).clean()
+            if len(clean) > w:
+                val = clean[: w - 1] + "…"
+                clean = val
+            padded = " " + val.ljust(w)
+            if cell_style:
+                parts.append(cell_style + padded + "|n")
+            else:
+                parts.append(padded)
+            parts.append(border_style + "|")
+        return "".join(parts) + "|n"
+
+    lines = []
+    lines.append(_border("-"))
+    lines.append(_row(headers, header_style))
+    lines.append(_border("~", tilde_style))
+    for row in rows:
+        # Pad row to num_cols
+        padded_row = list(row)[:num_cols]
+        while len(padded_row) < num_cols:
+            padded_row.append("")
+        lines.append(_row(padded_row))
+    lines.append(_border("-"))
+
+    return "\n".join(lines)
+
+
+def format_stat_labeled(name, value, width=78, use_theme=True):
+    """
+    Format a stat with a colored/styled label (subheader appearance).
+    
+    Args:
+        name (str): Stat name (label)
+        value: Stat value
+        width (int): Total width for the stat line
+        use_theme (bool): If True, use ROOM_THEME_COLORS text color for label
+        
+    Returns:
+        str: Formatted stat string with styled label
+    """
+    if use_theme:
+        _, text_color, _ = get_theme_colors()
+        styled_name = f"|{text_color}{name}|n"
+    else:
+        styled_name = f"|w{name}|n"
+    clean_name_len = len(ANSIString(name).clean())
+    dots = "." * (width - clean_name_len - len(str(value)))
+    return f"{styled_name}{dots}{value}"

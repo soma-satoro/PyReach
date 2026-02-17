@@ -20,8 +20,8 @@ def check_stat_permissions(caller, target, is_removal=False):
     is_npc = hasattr(target, 'db') and target.db.is_npc
     
     if target == caller:
-        # Modifying own stats
-        if not is_npc and target.db.approved:
+        # Modifying own stats - staff can bypass approved restriction
+        if not is_npc and target.db.approved and not caller.check_permstring("Builder"):
             return False, "Your character is approved. Only staff can modify your stats."
         return True, None
     

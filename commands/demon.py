@@ -6,6 +6,7 @@ This module handles the creation and display of demonic forms for Demon: The Des
 
 from evennia.commands.default.muxcommand import MuxCommand
 from evennia.utils.evmore import EvMore
+from world.utils.formatting import footer, get_theme_colors
 from utils.search_helpers import search_character
 
 
@@ -299,10 +300,11 @@ class CmdDemon(MuxCommand):
             max_proc = 1 if primum < 10 else 2
         
         output = []
-        output.append("|y" + "=" * 78 + "|n")
+        output.append(footer(78, char="="))
         title = f"{target.name}'s DEMONIC FORM"
-        output.append("|y" + title.center(78) + "|n")
-        output.append("|y" + "=" * 78 + "|n")
+        _, text_color, _ = get_theme_colors()
+        output.append(f"|{text_color}{title.center(78)}|n")
+        output.append(footer(78, char="="))
         output.append("")
         
         # Description
@@ -373,7 +375,7 @@ class CmdDemon(MuxCommand):
                 output.append("  |x○|n Primum 10: 2nd Process (not yet)")
         
         output.append("")
-        output.append("|y" + "=" * 78 + "|n")
+        output.append(footer(78, char="="))
         
         text = "\n".join(output)
         EvMore(self.caller, text, always_page=False, session=self.session, justify_kwargs=False, exit_on_lastpage=True)

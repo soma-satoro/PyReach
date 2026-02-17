@@ -133,9 +133,11 @@ class TiltHandler:
         return tilt_name in self._tilts
     
     def clear_all(self):
-        """Clear all tilts (when leaving combat)"""
+        """Clear all tilts (when leaving combat). Returns count of cleared tilts."""
+        count = len(self._tilts)
         for tilt_name in list(self._tilts.keys()):
             self.remove(tilt_name)
+        return count
     
     def _is_in_combat(self):
         """Check if the object is currently in combat"""
@@ -214,9 +216,11 @@ class EnvironmentalTiltHandler:
         return tilt_name in self._tilts
     
     def clear_all(self):
-        """Clear all environmental tilts (when combat ends)"""
+        """Clear all environmental tilts (when combat ends). Returns count of cleared tilts."""
+        count = len(self._tilts)
         for tilt_name in list(self._tilts.keys()):
             self.remove(tilt_name)
+        return count
 
 # Dictionary of standard tilts
 STANDARD_TILTS = {

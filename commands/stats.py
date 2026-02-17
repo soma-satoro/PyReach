@@ -13,12 +13,12 @@ class CmdStat(MuxCommand):
     IMPORTANT: This command can only be used in character generation rooms.
     The room must be tagged with both 'chargen' and 'ooc' tags.
     Use +room/tag here=chargen,ooc to set up a chargen room.
-    The +stat/list switch can be used anywhere to view stats.
+    The +stat/list switch is staff-only and can be used anywhere to view stats.
     
     Usage:
         +stat <stat>=<value> - Set a stat on yourself (if not approved)
         +stat <stat>= - Remove a stat from yourself (if not approved)
-        +stat/list [name] - List all stats for yourself or another
+        +stat/list [name] - List all stats for yourself or another (staff only)
         +stat/remove <stat> - Remove a stat from yourself (if not approved)
         +stat/remove specialty/<skill> - Remove all specialties for a skill
         +stat/remove specialty/<skill>=<specialty name> - Remove a specific specialty
@@ -457,9 +457,9 @@ class CmdStat(MuxCommand):
             # Setting for self
             target = self.caller
             
-            # Check if this is a player character that's approved
+            # Check if this is a player character that's approved (staff can bypass)
             is_npc = hasattr(target, 'db') and target.db.is_npc
-            if not is_npc and target.db.approved:
+            if not is_npc and target.db.approved and not self.caller.check_permstring("Builder"):
                 self.caller.msg("Your character is approved. Only staff can modify your stats.")
                 return
             
@@ -2094,9 +2094,9 @@ class CmdStat(MuxCommand):
                 # Keep the full stat string including any =value part for specialty removal
                 stat = self.args.strip().lower().replace(" ", "_")
                 
-                # Check if this is a player character that's approved
+                # Check if this is a player character that's approved (staff can bypass)
                 is_npc = hasattr(target, 'db') and target.db.is_npc
-                if not is_npc and target.db.approved:
+                if not is_npc and target.db.approved and not self.caller.check_permstring("Builder"):
                     self.caller.msg("Your character is approved. Only staff can modify your stats.")
                     return
             elif len(args_parts) == 3 and args_parts[1].strip().lower() == "specialty":
@@ -2151,9 +2151,9 @@ class CmdStat(MuxCommand):
             args = self.args.strip()
             stat = args.lower().replace(" ", "_")
             
-            # Check if this is a player character that's approved
+            # Check if this is a player character that's approved (staff can bypass)
             is_npc = hasattr(target, 'db') and target.db.is_npc
-            if not is_npc and target.db.approved:
+            if not is_npc and target.db.approved and not self.caller.check_permstring("Builder"):
                 self.caller.msg("Your character is approved. Only staff can modify your stats.")
                 return
         
@@ -2168,7 +2168,10 @@ class CmdStat(MuxCommand):
         self.caller.msg(message)
     
     def list_stats(self):
-        """List all stats for a character"""
+        """List all stats for a character (staff only)"""
+        if not self.caller.check_permstring("Builder"):
+            self.caller.msg("Only staff can use +stat/list.")
+            return
         if self.args:
             # Viewing someone else
             target = search_character(self.caller, self.args.strip())
@@ -2516,9 +2519,9 @@ class CmdStat(MuxCommand):
         
         target = self.caller
         
-        # Check if this is a player character that's approved
+        # Check if this is a player character that's approved (staff can bypass)
         is_npc = hasattr(target, 'db') and target.db.is_npc
-        if not is_npc and target.db.approved:
+        if not is_npc and target.db.approved and not self.caller.check_permstring("Builder"):
             self.caller.msg("Your character is approved. Only staff can modify your stats.")
             return
         
@@ -2779,7 +2782,7 @@ class CmdStat(MuxCommand):
         
         # Check if character is approved (same restrictions as regular stats)
         is_npc = hasattr(target, 'db') and target.db.is_npc
-        if not is_npc and target.db.approved:
+        if not is_npc and target.db.approved and not self.caller.check_permstring("Builder"):
             self.caller.msg("Your character is approved. Only staff can modify your geist stats.")
             return
         

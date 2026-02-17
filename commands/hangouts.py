@@ -11,6 +11,7 @@ from evennia.commands.default.muxcommand import MuxCommand
 from evennia.utils.evtable import EvTable
 import evennia
 from typeclasses.groups import Group
+from world.utils.formatting import footer, divider
 from utils.search_helpers import search_character
 
 
@@ -105,16 +106,16 @@ class CmdHangouts(MuxCommand):
         caller = self.caller
         output = []
         
-        output.append("|w" + "=" * 78 + "|n")
+        output.append(footer(78, char="="))
         output.append("|wAvailable Hangout Locations|n".center(78))
-        output.append("|w" + "=" * 78 + "|n")
+        output.append(footer(78, char="="))
         
         # Public hangouts
         if show_public:
             public_hangouts = self.get_public_hangouts()
             if public_hangouts:
                 output.append("\n|cPublic Hangout Locations:|n")
-                output.append("|w" + "-" * 78 + "|n")
+                output.append(divider(78, char="-"))
                 
                 table = EvTable(
                     "|wName|n",
@@ -146,7 +147,7 @@ class CmdHangouts(MuxCommand):
             group_hangouts = self.get_group_hangouts()
             if group_hangouts:
                 output.append("\n|cGroup Hangout Locations:|n")
-                output.append("|w" + "-" * 78 + "|n")
+                output.append(divider(78, char="-"))
                 
                 table = EvTable(
                     "|wGroup|n",
@@ -173,7 +174,7 @@ class CmdHangouts(MuxCommand):
         
         output.append("\n|wUsage:|n +hangouts <name> to travel to a location")
         output.append("       +hangouts/return to return to your previous location")
-        output.append("|w" + "=" * 78 + "|n")
+        output.append(footer(78, char="="))
         
         caller.msg("\n".join(output))
     

@@ -1,6 +1,7 @@
 from evennia.commands.default.muxcommand import MuxCommand
 from evennia.utils import create
 from world.tilts import Tilt, STANDARD_TILTS
+from world.utils.formatting import footer, get_theme_colors
 from utils.search_helpers import search_character
 
 class CmdTilt(MuxCommand):
@@ -31,6 +32,7 @@ class CmdTilt(MuxCommand):
         +tilt/add John = stunned - Staff: add stunned to John
         +tilt/list - See all tilts available
         +tilt/help blinded - See details about the blinded tilt
+        +tilt/clear John - Staff: clear all tilts from John
         +tilt/env/add darkness - Staff: add darkness to location
         +tilt/advance - Advance tilts by one turn
     """
@@ -252,9 +254,10 @@ class CmdTilt(MuxCommand):
         
         # Build formatted output
         output = []
-        output.append(f"|y{'='*78}|n")
-        output.append(f"|y{f'Tilts - {target.name}'.center(78)}|n")
-        output.append(f"|y{'='*78}|n")
+        output.append(footer(78, char="="))
+        _, text_color, _ = get_theme_colors()
+        output.append(f"|{text_color}{f'Tilts - {target.name}'.center(78)}|n")
+        output.append(footer(78, char="="))
         
         if not tilts:
             output.append("")
@@ -285,15 +288,16 @@ class CmdTilt(MuxCommand):
                         output.append(f"  {detail}")
                 output.append("")
                 
-        output.append(f"|y{'='*78}|n")
+        output.append(footer(78, char="="))
         self.caller.msg("\n".join(output))
 
     def tilt_list_all(self):
         """List all available tilts in the system in 3 columns"""
         output = []
-        output.append(f"|y{'='*78}|n")
-        output.append(f"|y{'Available Tilts'.center(78)}|n")
-        output.append(f"|y{'='*78}|n")
+        output.append(footer(78, char="="))
+        _, text_color, _ = get_theme_colors()
+        output.append(f"|{text_color}{'Available Tilts'.center(78)}|n")
+        output.append(footer(78, char="="))
         output.append("")
         output.append("|cUse |w+tilt/help <name>|c to see details about a specific tilt.|n")
         output.append("")
@@ -355,7 +359,7 @@ class CmdTilt(MuxCommand):
             output.append("|x(none)|n")
         
         output.append("")
-        output.append(f"|y{'='*78}|n")
+        output.append(footer(78, char="="))
         self.caller.msg("\n".join(output))
         
     def tilt_help(self):
@@ -374,9 +378,10 @@ class CmdTilt(MuxCommand):
         
         # Build formatted output
         output = []
-        output.append(f"|y{'='*78}|n")
-        output.append(f"|y{tilt.name.center(78)}|n")
-        output.append(f"|y{'='*78}|n")
+        output.append(footer(78, char="="))
+        _, text_color, _ = get_theme_colors()
+        output.append(f"|{text_color}{tilt.name.center(78)}|n")
+        output.append(footer(78, char="="))
         
         # Type
         output.append(self._format_section_header("|wTYPE|n"))
@@ -415,7 +420,7 @@ class CmdTilt(MuxCommand):
             output.append(f"Becomes |w{tilt.condition_equivalent}|n condition when out of combat")
             output.append("")
                 
-        output.append(f"|y{'='*78}|n")
+        output.append(footer(78, char="="))
         self.caller.msg("\n".join(output))
     
     def tilt_advance(self):
@@ -468,9 +473,11 @@ class CmdTilt(MuxCommand):
         target = search_character(self.caller, self.args)
         if not target:
             return
-                
-        target.tilts.clear_all()
-        self.caller.msg(f"|gCleared all tilts from {target.name}.|n")
+
+        count = target.tilts.clear_all()
+        if target != self.caller:
+            target.msg(f"|cA staff member has cleared all your tilts.|n")
+        self.caller.msg(f"|gCleared {count} tilt(s) from |w{target.name}|g.|n")
     
     def env_add(self):
         """Add an environmental tilt"""
@@ -547,9 +554,10 @@ class CmdTilt(MuxCommand):
             
         # Format the output
         output = []
-        output.append(f"|y{'='*78}|n")
-        output.append(f"|y{'Environmental Tilts'.center(78)}|n")
-        output.append(f"|y{'='*78}|n")
+        output.append(footer(78, char="="))
+        _, text_color, _ = get_theme_colors()
+        output.append(f"|{text_color}{'Environmental Tilts'.center(78)}|n")
+        output.append(footer(78, char="="))
         output.append("")
         
         for tilt in tilts:
@@ -572,7 +580,7 @@ class CmdTilt(MuxCommand):
                     output.append(f"  {detail}")
             output.append("")
         
-        output.append(f"|y{'='*78}|n")
+        output.append(footer(78, char="="))
         self.caller.msg("\n".join(output))
     
     def env_clear(self):
@@ -584,6 +592,6 @@ class CmdTilt(MuxCommand):
         if not hasattr(self.caller.location, 'environmental_tilts'):
             self.caller.msg("|cNo environmental tilts in this location.|n")
             return
-            
-        self.caller.location.environmental_tilts.clear_all()
-        self.caller.msg("|gCleared all environmental tilts from this location.|n") 
+
+        count = self.caller.location.environmental_tilts.clear_all()
+        self.caller.msg(f"|gCleared {count} environmental tilt(s) from this location.|n") 

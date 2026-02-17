@@ -1,5 +1,6 @@
 from evennia.commands.default.muxcommand import MuxCommand
 from evennia.utils import logger
+from world.utils.formatting import footer, get_theme_colors
 
 class CmdLegacy(MuxCommand):
     """
@@ -56,9 +57,10 @@ class CmdLegacy(MuxCommand):
         current_mode = global_legacy or legacy_mode
         
         output = []
-        output.append("|y" + "="*60 + "|n")
-        output.append("|wLEGACY MODE STATUS|n".center(60))
-        output.append("|y" + "="*60 + "|n")
+        output.append(footer(60, char="="))
+        _, text_color, _ = get_theme_colors()
+        output.append(f"|{text_color}{'LEGACY MODE STATUS'.center(60)}|n")
+        output.append(footer(60, char="="))
         
         if current_mode:
             output.append("|gLegacy Mode: |GENABLED|n")
@@ -75,7 +77,7 @@ class CmdLegacy(MuxCommand):
             output.append("")
             output.append("|wStandard Chronicles of Darkness 2nd Edition active|n")
         
-        output.append("|y" + "="*60 + "|n")
+        output.append(footer(60, char="="))
         self.caller.msg("\n".join(output))
     
     def set_legacy_mode(self, enable):

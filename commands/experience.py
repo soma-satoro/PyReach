@@ -1,6 +1,7 @@
 import re
 from evennia.commands.default.muxcommand import MuxCommand
 from world.cofd.merits.general_merits import merits_dict, all_merits
+from world.utils.formatting import footer, get_theme_colors, sheet_section_header
 
 
 class CmdExperience(MuxCommand):
@@ -11,6 +12,7 @@ class CmdExperience(MuxCommand):
         +xp                              - Show your current experience and beats
         +xp/log                          - Show complete XP history with all gains/losses
         +xp/beat <source>               - Add a beat from a valid source
+        +xp/beat condition=<name>       - Add a beat for resolving a specific condition
         +xp/arcane <source>             - Add an arcane beat (Mages only)
         +xp/vitriol <source>            - Add a vitriol beat (Prometheans only)
         +xp/reminisce <source>          - Add a reminisce beat (Mummies only)
@@ -29,7 +31,7 @@ class CmdExperience(MuxCommand):
         
     Important Notes:
         - Manual beat awards via +xp/beat are limited to 5 per day
-        - Using +xp/beat condition requires you to have an active condition
+        - Using +xp/beat condition requires an active condition (optionally name it)
         - Exceptional successes and dramatic failures from dice rolls 
           automatically award beats - no need to manually request them
         - Other beat sources (dice rolls, aspirations, +vote) are unlimited
@@ -55,6 +57,7 @@ class CmdExperience(MuxCommand):
         +xp/spend forces=2                      - Raise Forces (Mage)
         +xp/spend primal_urge=2                 - Raise Primal Urge (Werewolf)
         +xp/spend cover:1=8                     - Raise Cover Identity #1 to 8 (Demon)
+        +xp/beat condition=Addicted            - Beat for resolving Addicted condition
         +xp/award nicole=15                     - Award 15 beats to Nicole (staff only)
     """
     key = "+xp"
@@ -141,9 +144,10 @@ class CmdExperience(MuxCommand):
         
         # Build styled output matching aspirations format
         output = []
-        output.append("|y" + "=" * 78 + "|n")
-        output.append("|y" + "EXPERIENCE & BEATS".center(78) + "|n")
-        output.append("|y" + "=" * 78 + "|n")
+        output.append(footer(78, char="="))
+        _, text_color, _ = get_theme_colors()
+        output.append(f"|{text_color}{'EXPERIENCE & BEATS'.center(78)}|n")
+        output.append(footer(78, char="="))
         output.append("")
         
         if legacy_mode:
@@ -217,20 +221,12 @@ class CmdExperience(MuxCommand):
             output.append("")
             output.append("|gUse |n+xp/log|g to see full XP history|n")
         
-        output.append("|y" + "=" * 78 + "|n")
+        output.append(footer(78, char="="))
         self.caller.msg("\n".join(output))
     
     def _format_section_header(self, section_name):
-        """Format section header matching aspiration style."""
-        import re
-        total_width = 78
-        # Remove ANSI codes for length calculation
-        clean_name = re.sub(r'\|[a-zA-Z]', '', section_name)
-        name_length = len(clean_name)
-        available_dash_space = total_width - name_length - 4
-        left_dashes = available_dash_space // 2
-        right_dashes = available_dash_space - left_dashes
-        return f"|g<{'-' * left_dashes}|n {section_name} |g{'-' * right_dashes}>|n"
+        """Format section header using theme colors."""
+        return sheet_section_header(section_name)
     
     def show_xp_log(self, exp_handler):
         """Show full XP history."""
@@ -244,9 +240,10 @@ class CmdExperience(MuxCommand):
             return
         
         output = []
-        output.append("|y" + "=" * 78 + "|n")
-        output.append("|y" + "COMPLETE XP HISTORY".center(78) + "|n")
-        output.append("|y" + "=" * 78 + "|n")
+        output.append(footer(78, char="="))
+        _, text_color, _ = get_theme_colors()
+        output.append(f"|{text_color}{'COMPLETE XP HISTORY'.center(78)}|n")
+        output.append(footer(78, char="="))
         output.append("")
         
         for entry in all_changes:
@@ -254,7 +251,7 @@ class CmdExperience(MuxCommand):
         
         output.append("")
         output.append(f"|gTotal entries: {len(all_changes)}|n")
-        output.append("|y" + "=" * 78 + "|n")
+        output.append(footer(78, char="="))
         
         self.caller.msg("\n".join(output))
     
@@ -336,7 +333,17 @@ class CmdExperience(MuxCommand):
             "consequence", "learning", "growth"
         ]
         
-        source = self.args.strip().lower().replace(" ", "_")
+        args = self.args.strip()
+        condition_name = None
+        condition_display = None
+        
+        # Parse condition=Name format for condition source
+        if "=" in args and args.lower().startswith("condition="):
+            source = "condition"
+            condition_name = args.split("=", 1)[1].strip()
+        else:
+            source = args.lower().replace(" ", "_")
+        
         if not source:
             self.caller.msg("You must specify a beat source. Valid sources: " + ", ".join(valid_sources))
             return
@@ -362,14 +369,27 @@ class CmdExperience(MuxCommand):
         
         # Special validation for 'condition' source - must have an active condition
         if source == "condition":
-            from world.conditions import ConditionHandler
-            condition_handler = ConditionHandler(self.caller)
-            active_conditions = condition_handler.all()
-            
-            if not active_conditions:
+            if not hasattr(self.caller, 'conditions'):
                 self.caller.msg("|rYou must have an active condition to claim a beat from this source.|n")
-                self.caller.msg("Use the conditions system to track active conditions on your character.")
                 return
+            
+            if condition_name:
+                # Specific condition named - verify character has it
+                if not self.caller.conditions.has(condition_name):
+                    self.caller.msg(f"|rYou do not have the condition |w{condition_name}|r.|n")
+                    self.caller.msg("Use |w+condition|n to view your current conditions.")
+                    return
+                # Get the actual condition for proper display name in log
+                condition = self.caller.conditions.get(condition_name)
+                condition_display = condition.name if condition else condition_name
+            else:
+                # No specific condition - just need at least one
+                active_conditions = self.caller.conditions.all()
+                if not active_conditions:
+                    self.caller.msg("|rYou must have an active condition to claim a beat from this source.|n")
+                    self.caller.msg("Use |w+condition|n to view your conditions, or specify one: +xp/beat condition=<name>")
+                    return
+                condition_display = None
             
         # Add the beat
         exp_handler.add_beat()
@@ -378,12 +398,18 @@ class CmdExperience(MuxCommand):
         beat_usage[today_str] = daily_count + 1
         self.caller.attributes.add('beat_usage', beat_usage)
         
-        # Log the beat gain
+        # Log the beat gain - include condition name when specified
         logger = get_xp_logger(self.caller)
-        logger.log_beat(1, source.replace('_', ' ').title(), details="Added via +xp/beat command")
+        if source == "condition" and condition_display:
+            logger.log_beat(1, "Condition", details=f"{condition_display} (via +xp/beat)")
+        else:
+            logger.log_beat(1, source.replace('_', ' ').title(), details="Added via +xp/beat command")
         
         remaining = 5 - beat_usage[today_str]
-        self.caller.msg(f"|gAdded 1 beat from '{source.replace('_', ' ')}'.|n")
+        if source == "condition" and condition_display:
+            self.caller.msg(f"|gAdded 1 beat from resolving condition |w{condition_display}|g.|n")
+        else:
+            self.caller.msg(f"|gAdded 1 beat from '{source.replace('_', ' ')}'.|n")
         self.caller.msg(f"Current beats: {exp_handler.beats}, Experience: {exp_handler.experience}")
         self.caller.msg(f"|xDaily manual beat awards remaining: {remaining}/5|n")
     
@@ -1946,9 +1972,10 @@ class CmdExperience(MuxCommand):
         template = stats.get("other", {}).get("template", "Mortal").lower()
         
         output = []
-        output.append("|y" + "=" * 78 + "|n")
-        output.append("|y" + "EXPERIENCE POINT COSTS".center(78) + "|n")
-        output.append("|y" + "=" * 78 + "|n")
+        output.append(footer(78, char="="))
+        _, text_color, _ = get_theme_colors()
+        output.append(f"|{text_color}{'EXPERIENCE POINT COSTS'.center(78)}|n")
+        output.append(footer(78, char="="))
         output.append("")
         
         # General costs (all templates)
@@ -2140,7 +2167,7 @@ class CmdExperience(MuxCommand):
         output.append("  +xp/spend unseen_sense:ghosts=2       - Buy instanced merit")
         output.append("  +xp/spend athletics_specialty=running - Add specialty")
         output.append("")
-        output.append("|y" + "=" * 78 + "|n")
+        output.append(footer(78, char="="))
         
         self.caller.msg("\n".join(output))
     

@@ -87,9 +87,10 @@ class Mystery(DefaultScript):
             'discovery_date': None,
             'prerequisite_clues': [],  # Clues that must be found first
             'leads_to': [],  # Clues this one can unlock
-            'location_hints': [],  # Where this clue might be found
+            'location_hints': [],  # Room keys or tags (library, crime_scene) where clue can be found
+            'object_hints': [],  # Object keys (e.g. "desk", "bloody_knife") that reveal clue when examined
             'skill_hints': [],  # What skills might help discover it
-            'social_hints': []  # NPCs or characters who might know about it
+            'social_hints': []  # NPC/character keys who might know about it (for interview)
         }
         
         self.db.clues[clue_id] = clue_data
@@ -200,6 +201,52 @@ class Mystery(DefaultScript):
         
         return True, "Can discover"
     
+    def _check_access_rules(self, character):
+        """Check if character meets the mystery's access rules."""
+        if not hasattr(self.db, 'access_rules') or not self.db.access_rules:
+            return True
+
+        # If access_rules is a dict with type 'open', allow access
+        if isinstance(self.db.access_rules, dict) and self.db.access_rules.get('type') == 'open':
+            return True
+
+        # Check each access rule
+        for rule in self.db.access_rules:
+            rule_type = rule.get('type')
+
+            if rule_type == 'group':
+                # Check group membership
+                from typeclasses.groups import get_character_groups
+                char_groups = get_character_groups(character)
+                group_names = [g.name.lower() for g in char_groups]
+                if rule.get('value', '').lower() in group_names:
+                    return True
+
+            elif rule_type == 'template':
+                # Check character template
+                char_template = character.db.stats.get('other', {}).get('template', 'mortal').lower()
+                if char_template == rule.get('value', '').lower():
+                    return True
+
+            elif rule_type in ['clan', 'tribe', 'order', 'kith', 'seeming', 'auspice', 'covenant']:
+                # Check bio requirements
+                char_bio = character.db.stats.get('bio', {})
+                char_value = char_bio.get(rule_type, '').lower()
+                if char_value == rule.get('value', '').lower():
+                    return True
+
+            elif rule_type == 'skill':
+                # Check skill requirements
+                skill_name = rule.get('skill', '')
+                required_level = rule.get('level', 0)
+                char_skills = character.db.stats.get('skills', {})
+                char_skill_level = char_skills.get(skill_name, 0)
+                if char_skill_level >= required_level:
+                    return True
+
+        # If no rules matched, deny access
+        return False
+
     def _check_discovery_conditions(self, character, conditions):
         """Check if character meets discovery conditions."""
         # Check access level first
@@ -382,16 +429,18 @@ class ClueObject(DefaultObject):
     def at_examine(self, looker, **kwargs):
         """Handle examination of the clue object."""
         if self.db.mystery_id and self.db.clue_id:
-            mystery = self.search(self.db.mystery_id, global_search=True)
-            if mystery and mystery[0]:
-                mystery = mystery[0]
+            from evennia.scripts.models import ScriptDB
+            try:
+                mystery = ScriptDB.objects.get(id=self.db.mystery_id)
+            except (ScriptDB.DoesNotExist, ValueError, TypeError):
+                mystery = None
+            if mystery and hasattr(mystery, 'can_discover_clue'):
                 
                 # Check if this character can discover the clue
                 can_discover, reason = mystery.can_discover_clue(looker, self.db.clue_id)
                 if can_discover:
                     # Attempt discovery
                     if self.db.skill_required:
-                        # Would integrate with roll system
                         success = self._attempt_skill_discovery(looker)
                     else:
                         success = True
@@ -406,8 +455,13 @@ class ClueObject(DefaultObject):
                             looker.msg(msg)
                     else:
                         looker.msg("You sense there's something here, but can't quite make it out.")
+                elif reason == "Already discovered":
+                    looker.msg("You've already discovered what this item could tell you.")
         
-        return super().at_examine(looker, **kwargs)
+        # Call parent's at_examine if it exists (some typeclasses add custom examine behavior)
+        parent = super()
+        if hasattr(parent, 'at_examine'):
+            return parent.at_examine(looker, **kwargs)
     
     def _attempt_skill_discovery(self, character):
         """Attempt skill-based discovery."""
@@ -458,60 +512,14 @@ class MysteryManager:
         """Search for mysteries by title or description."""
         mysteries = MysteryManager.get_active_mysteries()
         results = []
-        
+
         query = query.lower()
         for mystery in mysteries:
             title_match = query in mystery.db.title.lower()
             desc_match = query in mystery.db.description.lower()
             cat_match = not category or mystery.db.category == category
-            
+
             if (title_match or desc_match) and cat_match:
                 results.append(mystery)
-        
+
         return results
-    
-    def _check_access_rules(self, character):
-        """Check if character meets the mystery's access rules."""
-        if not hasattr(self.db, 'access_rules') or not self.db.access_rules:
-            return True
-        
-        # If access_rules is a dict with type 'open', allow access
-        if isinstance(self.db.access_rules, dict) and self.db.access_rules.get('type') == 'open':
-            return True
-        
-        # Check each access rule
-        for rule in self.db.access_rules:
-            rule_type = rule.get('type')
-            
-            if rule_type == 'group':
-                # Check group membership
-                from typeclasses.groups import get_character_groups
-                char_groups = get_character_groups(character)
-                group_names = [g.name.lower() for g in char_groups]
-                if rule.get('value', '').lower() in group_names:
-                    return True
-            
-            elif rule_type == 'template':
-                # Check character template
-                char_template = character.db.stats.get('other', {}).get('template', 'mortal').lower()
-                if char_template == rule.get('value', '').lower():
-                    return True
-            
-            elif rule_type in ['clan', 'tribe', 'order', 'kith', 'seeming', 'auspice', 'covenant']:
-                # Check bio requirements
-                char_bio = character.db.stats.get('bio', {})
-                char_value = char_bio.get(rule_type, '').lower()
-                if char_value == rule.get('value', '').lower():
-                    return True
-            
-            elif rule_type == 'skill':
-                # Check skill requirements
-                skill_name = rule.get('skill', '')
-                required_level = rule.get('level', 0)
-                char_skills = character.db.stats.get('skills', {})
-                char_skill_level = char_skills.get(skill_name, 0)
-                if char_skill_level >= required_level:
-                    return True
-        
-        # If no rules matched, deny access
-        return False
