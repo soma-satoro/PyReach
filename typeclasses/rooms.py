@@ -823,6 +823,9 @@ class ChargenRoom(Room):
             elif 'promethean' in points:
                 lines.append("")  # Empty line for spacing
                 self._add_promethean_display(lines, points['promethean'], divider_color)
+            elif 'demon' in points:
+                lines.append("")  # Empty line for spacing
+                self._add_demon_display(lines, points['demon'], divider_color)
             elif 'mortalplus' in points:
                 lines.append("")  # Empty line for spacing
                 self._add_mortalplus_display(lines, points['mortalplus'], divider_color)
@@ -1571,6 +1574,80 @@ class ChargenRoom(Room):
             lines.append(f"  |wInnate Key:|n   {key_status}  {geist_data['innate_key']}")
         else:
             lines.append(f"  |wInnate Key:|n   {key_status}  |y(Use +stat/geist innate_key=<key>)|n")
+    
+    def _add_demon_display(self, lines, demon_data, divider_color):
+        """Add Demon: The Descent chargen information to the display."""
+        lines.append(f"  |m{'=' * 80}|n")
+        lines.append(f"  |mDEMON TEMPLATE|n")
+        lines.append(f"  |m{'=' * 80}|n")
+        
+        # Incarnation
+        incarnation = demon_data['incarnation'].replace('_', ' ').title() if demon_data['incarnation'] else '|rNot Set|n'
+        incar_status = '|gok!|n' if demon_data['has_incarnation'] else '|rx|n'
+        lines.append(f"  |wIncarnation:|n  {incar_status}  {incarnation}")
+        lines.append(f"    |c(Destroyer/Guardian/Messenger/Psychopomp - use +stat incarnation=<name>)|n")
+        
+        # Agenda
+        agenda = demon_data['agenda'].replace('_', ' ').title() if demon_data['agenda'] else '|rNot Set|n'
+        agenda_status = '|gok!|n' if demon_data['has_agenda'] else '|rx|n'
+        lines.append(f"  |wAgenda:|n      {agenda_status}  {agenda}")
+        lines.append(f"    |c(Inquisitor/Integrator/Saboteur/Tempter or uncalled - use +stat agenda=<name>)|n")
+        
+        # Embeds and Exploits (4 total, 1 from Incarnation)
+        total = demon_data['total_embed_exploit']
+        avail = demon_data['embed_exploit_available']
+        ee_color = '|g' if total >= avail else '|r'
+        favored_status = '|gok!|n' if demon_data['has_favored_embed'] else '|rx|n'
+        lines.append(f"  |wEmbeds/Exploits:|n {ee_color}{total}/{avail}|n  (1 must be from Incarnation) {favored_status}")
+        if demon_data['embeds'] or demon_data['exploits']:
+            for e in demon_data['embeds']:
+                lines.append(f"    - Embed: {e.replace('_', ' ').title()}")
+            for ex in demon_data['exploits']:
+                lines.append(f"    - Exploit: {ex.replace('_', ' ').title()}")
+        else:
+            lines.append(f"    |y(Use +stat embed:<name>=known or exploit:<name>=known)|n")
+        
+        # First Key
+        first_key = demon_data['first_key'].replace('_', ' ').title() if demon_data['first_key'] else ''
+        key_status = '|gok!|n' if demon_data['has_first_key'] else '|rx|n'
+        lines.append(f"  |wFirst Key:|n   {key_status}  {first_key or '|y(Choose 1 embed as Cipher key)|n'}")
+        
+        # Demonic Form
+        mods = demon_data['modifications_count']
+        techs = demon_data['technologies_count']
+        props = demon_data['propulsions_count']
+        procs = demon_data['processes_count']
+        form_ok = demon_data['has_demonic_form']
+        form_status = '|gok!|n' if form_ok else '|rx|n'
+        lines.append(f"  |wDemonic Form:|n {form_status}  Mods {mods}/3, Tech {techs}/2, Prop {props}/1, Proc {procs}/1")
+        lines.append(f"    |c(Use +stat/demon modification/technology/propulsion/process=<name>)|n")
+        
+        # Cover
+        cover_status = '|gok!|n' if demon_data['has_cover'] else '|rx|n'
+        lines.append(f"  |wCover:|n       {cover_status}  {demon_data['cover_count']} cover(s), primary at {demon_data['primary_cover_rating']}")
+        lines.append(f"    |c(Start with 1 Cover at 7 - use +cover/new)|n")
+        
+        # Primum
+        primum = demon_data['primum']
+        cost = demon_data['primum_merit_cost']
+        if cost > 0:
+            lines.append(f"  |wPrimum:|n      {primum} ({cost} merit dots)")
+        else:
+            lines.append(f"  |wPrimum:|n      {primum} (starts at 1)")
+        
+        # Virtue and Vice
+        virtue = demon_data['virtue'] or '|rNot Set|n'
+        vice = demon_data['vice'] or '|rNot Set|n'
+        v_status = '|gok!|n' if demon_data['has_virtue'] else '|rx|n'
+        vc_status = '|gok!|n' if demon_data['has_vice'] else '|rx|n'
+        lines.append(f"  |wVirtue:|n      {v_status}  {virtue}")
+        lines.append(f"  |wVice:|n        {vc_status}  {vice}")
+        
+        # Specialties (4 total, 1 must threaten Cover)
+        spec_count = demon_data['specialties_count']
+        spec_expected = demon_data['specialties_expected']
+        spec_color = '|g' if spec_count >= spec_expected else '|r'
+        lines.append(f"  |wSpecialties:|n {spec_color}{spec_count}/{spec_expected}|n  (1 must threaten Cover)")
     
     def _add_hunter_display(self, lines, hunter_data, divider_color):
         """Add Hunter-specific chargen information to the display."""
@@ -2643,6 +2720,9 @@ class ChargenRoom(Room):
             elif 'promethean' in points:
                 lines.append("")  # Empty line for spacing
                 self._add_promethean_display(lines, points['promethean'], divider_color)
+            elif 'demon' in points:
+                lines.append("")  # Empty line for spacing
+                self._add_demon_display(lines, points['demon'], divider_color)
             elif 'mortalplus' in points:
                 lines.append("")  # Empty line for spacing
                 self._add_mortalplus_display(lines, points['mortalplus'], divider_color)
@@ -3405,6 +3485,80 @@ class ChargenRoom(Room):
             lines.append(f"  |wInnate Key:|n   {key_status}  {geist_data['innate_key']}")
         else:
             lines.append(f"  |wInnate Key:|n   {key_status}  |y(Use +stat/geist innate_key=<key>)|n")
+    
+    def _add_demon_display(self, lines, demon_data, divider_color):
+        """Add Demon: The Descent chargen information to the display."""
+        lines.append(f"  |m{'=' * 80}|n")
+        lines.append(f"  |mDEMON TEMPLATE|n")
+        lines.append(f"  |m{'=' * 80}|n")
+        
+        # Incarnation
+        incarnation = demon_data['incarnation'].replace('_', ' ').title() if demon_data['incarnation'] else '|rNot Set|n'
+        incar_status = '|gok!|n' if demon_data['has_incarnation'] else '|rx|n'
+        lines.append(f"  |wIncarnation:|n  {incar_status}  {incarnation}")
+        lines.append(f"    |c(Destroyer/Guardian/Messenger/Psychopomp - use +stat incarnation=<name>)|n")
+        
+        # Agenda
+        agenda = demon_data['agenda'].replace('_', ' ').title() if demon_data['agenda'] else '|rNot Set|n'
+        agenda_status = '|gok!|n' if demon_data['has_agenda'] else '|rx|n'
+        lines.append(f"  |wAgenda:|n      {agenda_status}  {agenda}")
+        lines.append(f"    |c(Inquisitor/Integrator/Saboteur/Tempter or uncalled - use +stat agenda=<name>)|n")
+        
+        # Embeds and Exploits (4 total, 1 from Incarnation)
+        total = demon_data['total_embed_exploit']
+        avail = demon_data['embed_exploit_available']
+        ee_color = '|g' if total >= avail else '|r'
+        favored_status = '|gok!|n' if demon_data['has_favored_embed'] else '|rx|n'
+        lines.append(f"  |wEmbeds/Exploits:|n {ee_color}{total}/{avail}|n  (1 must be from Incarnation) {favored_status}")
+        if demon_data['embeds'] or demon_data['exploits']:
+            for e in demon_data['embeds']:
+                lines.append(f"    - Embed: {e.replace('_', ' ').title()}")
+            for ex in demon_data['exploits']:
+                lines.append(f"    - Exploit: {ex.replace('_', ' ').title()}")
+        else:
+            lines.append(f"    |y(Use +stat embed:<name>=known or exploit:<name>=known)|n")
+        
+        # First Key
+        first_key = demon_data['first_key'].replace('_', ' ').title() if demon_data['first_key'] else ''
+        key_status = '|gok!|n' if demon_data['has_first_key'] else '|rx|n'
+        lines.append(f"  |wFirst Key:|n   {key_status}  {first_key or '|y(Choose 1 embed as Cipher key)|n'}")
+        
+        # Demonic Form
+        mods = demon_data['modifications_count']
+        techs = demon_data['technologies_count']
+        props = demon_data['propulsions_count']
+        procs = demon_data['processes_count']
+        form_ok = demon_data['has_demonic_form']
+        form_status = '|gok!|n' if form_ok else '|rx|n'
+        lines.append(f"  |wDemonic Form:|n {form_status}  Mods {mods}/3, Tech {techs}/2, Prop {props}/1, Proc {procs}/1")
+        lines.append(f"    |c(Use +stat/demon modification/technology/propulsion/process=<name>)|n")
+        
+        # Cover
+        cover_status = '|gok!|n' if demon_data['has_cover'] else '|rx|n'
+        lines.append(f"  |wCover:|n       {cover_status}  {demon_data['cover_count']} cover(s), primary at {demon_data['primary_cover_rating']}")
+        lines.append(f"    |c(Start with 1 Cover at 7 - use +cover/new)|n")
+        
+        # Primum
+        primum = demon_data['primum']
+        cost = demon_data['primum_merit_cost']
+        if cost > 0:
+            lines.append(f"  |wPrimum:|n      {primum} ({cost} merit dots)")
+        else:
+            lines.append(f"  |wPrimum:|n      {primum} (starts at 1)")
+        
+        # Virtue and Vice
+        virtue = demon_data['virtue'] or '|rNot Set|n'
+        vice = demon_data['vice'] or '|rNot Set|n'
+        v_status = '|gok!|n' if demon_data['has_virtue'] else '|rx|n'
+        vc_status = '|gok!|n' if demon_data['has_vice'] else '|rx|n'
+        lines.append(f"  |wVirtue:|n      {v_status}  {virtue}")
+        lines.append(f"  |wVice:|n        {vc_status}  {vice}")
+        
+        # Specialties (4 total, 1 must threaten Cover)
+        spec_count = demon_data['specialties_count']
+        spec_expected = demon_data['specialties_expected']
+        spec_color = '|g' if spec_count >= spec_expected else '|r'
+        lines.append(f"  |wSpecialties:|n {spec_color}{spec_count}/{spec_expected}|n  (1 must threaten Cover)")
     
     def _add_hunter_display(self, lines, hunter_data, divider_color):
         """Add Hunter-specific chargen information to the display."""

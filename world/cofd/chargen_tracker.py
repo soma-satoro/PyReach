@@ -205,6 +205,11 @@ def calculate_chargen_points(character):
     elif template.lower() == 'promethean':
         promethean_data = calculate_promethean_chargen(character, stats, merits)
         result['promethean'] = promethean_data
+    elif template.lower() == 'demon':
+        demon_data = calculate_demon_chargen(character, stats, merits)
+        result['demon'] = demon_data
+        # Demon has 4 specialties (one must threaten Cover)
+        result['specialties_available'] = 4
     
     return result
 
@@ -854,8 +859,8 @@ def calculate_mage_chargen(character, stats, merits):
     gnosis_from_merits = max(0, gnosis - 1)  # Subtract the free dot
     gnosis_merit_cost = gnosis_from_merits * 5  # 5 merits per dot
     
-    # Get mage-specific stats
-    mage_stats = getattr(character.db, 'mage_stats', {})
+    # Get mage-specific stats (guard against None - getattr returns default only when attr missing)
+    mage_stats = getattr(character.db, 'mage_stats', None) or {}
     
     # Check for nimbus descriptions
     has_immediate_nimbus = bool(mage_stats.get('immediate_nimbus', ''))
@@ -1141,8 +1146,8 @@ def calculate_geist_chargen(character, stats, merits):
     # Touchstone
     has_touchstone_merit = any('touchstone' in m.lower() for m in merits.keys())
     
-    # Check for Geist stats (from +stat/geist command)
-    geist_stats = getattr(character.db, 'geist_stats', {})
+    # Check for Geist stats (from +stat/geist command) - guard against None
+    geist_stats = getattr(character.db, 'geist_stats', None) or {}
     
     # Geist name
     geist_name = geist_stats.get('geist_name', None)
@@ -1228,6 +1233,155 @@ def calculate_geist_chargen(character, stats, merits):
         'has_bane': has_bane,
         'innate_key': innate_key,
         'has_innate_key': has_innate_key
+    }
+
+
+def calculate_demon_chargen(character, stats, merits):
+    """
+    Calculate Demon: The Descent chargen tracking.
+    
+    Demon chargen requirements:
+    - Incarnation (Destroyer, Guardian, Messenger, Psychopomp)
+    - Agenda (Inquisitor, Integrator, Saboteur, Tempter, or Uncalled)
+    - 4 Embeds and/or Exploits (1 must be from Incarnation's favored category)
+    - First Key (1 embed chosen as first key in Cipher)
+    - Demonic Form: 3 Modifications, 2 Technologies, 1 Propulsion, 1 Process
+    - Cover: Start at 7 (1 Cover at Primum 1)
+    - Primum: Start at 1 (5 Merit dots per additional dot)
+    - Virtue and Vice
+    - 4 Skill Specialties (1 must threaten Cover)
+    
+    Returns:
+        dict: Demon chargen information
+    """
+    from world.cofd.powers.demon_powers import EMBEDS_BY_INCARNATION
+    
+    bio = stats.get('bio', {}) or {}
+    other = stats.get('other', {}) or {}
+    powers = stats.get('powers', {}) or {}
+    advantages = stats.get('advantages', {}) or {}
+    
+    # Incarnation and Agenda
+    incarnation = (bio.get('incarnation') or other.get('incarnation') or '').lower().replace(' ', '_')
+    agenda = (bio.get('agenda') or other.get('agenda') or '').lower().replace(' ', '_')
+    has_incarnation = bool(incarnation and incarnation in ['destroyer', 'guardian', 'messenger', 'psychopomp'])
+    has_agenda = bool(agenda)  # Can be 'uncalled' for no agenda
+    
+    # First Key (must be one of character's embeds)
+    first_key = (bio.get('first_key') or other.get('first_key') or '').lower().replace(' ', '_')
+    has_first_key = bool(first_key)
+    
+    # Count Embeds and Exploits
+    embeds = []
+    exploits = []
+    for power_name, power_value in powers.items():
+        pn_lower = power_name.lower()
+        if pn_lower.startswith('embed:'):
+            embed_key = pn_lower.replace('embed:', '').strip()
+            if power_value and power_value != 'unknown':  # Has the embed
+                embeds.append(embed_key)
+        elif pn_lower.startswith('exploit:'):
+            exploit_key = pn_lower.replace('exploit:', '').strip()
+            if power_value and power_value != 'unknown':
+                exploits.append(exploit_key)
+    
+    embed_count = len(embeds)
+    exploit_count = len(exploits)
+    total_embed_exploit = embed_count + exploit_count
+    expected_embed_exploit = 4
+    
+    # Check for Incarnation-favored embed (1 must be from Incarnation's list)
+    favored_embeds = EMBEDS_BY_INCARNATION.get(incarnation, {}) if incarnation else {}
+    has_favored_embed = any(e in favored_embeds for e in embeds) if incarnation else False
+    
+    # Demonic Form (demon_form_stats - handle both dict and list structures)
+    demon_form = getattr(character.db, 'demon_form_stats', None) or {}
+    
+    def _count_traits(trait_data):
+        """Count selected traits - supports both dict {k: True} and list [name] formats."""
+        if not trait_data:
+            return 0
+        if isinstance(trait_data, list):
+            return len(trait_data)
+        if isinstance(trait_data, dict):
+            return sum(1 for v in trait_data.values() if v)
+        return 0
+    
+    mods = _count_traits(demon_form.get('modifications'))
+    techs = _count_traits(demon_form.get('technologies'))
+    props = _count_traits(demon_form.get('propulsions') or demon_form.get('propulsion'))
+    procs = _count_traits(demon_form.get('processes') or demon_form.get('process'))
+    
+    has_demonic_form = (mods >= 3 and techs >= 2 and props >= 1 and procs >= 1)
+    
+    # Primum and Cover
+    primum = advantages.get('primum', 1)
+    primum_from_merits = max(0, primum - 1)
+    primum_merit_cost = primum_from_merits * 5  # 5 Merit dots per Primum dot
+    
+    # Cover - demons start with 1 Cover at 7; stored in cover_identities dict
+    cover_identities = getattr(character.db, 'cover_identities', None) or {}
+    cover_count = len(cover_identities) if isinstance(cover_identities, dict) else 0
+    
+    # At least 1 cover at creation; primary cover starts at 7
+    has_cover = cover_count >= 1
+    primary_cover_rating = 7  # Default starting rating
+    primary_cover_id = getattr(character.db, 'primary_cover_id', None)
+    if cover_identities and isinstance(cover_identities, dict) and primary_cover_id in cover_identities:
+        primary_cover_rating = cover_identities[primary_cover_id].get('rating', 7)
+    
+    # Virtue and Vice
+    virtue = bio.get('virtue') or other.get('virtue') or ''
+    vice = bio.get('vice') or other.get('vice') or ''
+    anchors = stats.get('anchors', {}) or {}
+    virtue = virtue or anchors.get('virtue', '')
+    vice = vice or anchors.get('vice', '')
+    has_virtue = bool(virtue and str(virtue).lower() != '<not set>')
+    has_vice = bool(vice and str(vice).lower() != '<not set>')
+    
+    # Specialties: Demon needs 4 (1 must threaten Cover) - tracked in base result
+    specialties = stats.get('specialties', {})
+    specialty_count = 0
+    for skill, specs in specialties.items():
+        if isinstance(specs, list):
+            specialty_count += len(specs)
+        elif isinstance(specs, int):
+            specialty_count += specs
+    
+    return {
+        'incarnation': incarnation,
+        'has_incarnation': has_incarnation,
+        'agenda': agenda,
+        'has_agenda': has_agenda,
+        'embeds': embeds,
+        'exploits': exploits,
+        'embed_count': embed_count,
+        'exploit_count': exploit_count,
+        'total_embed_exploit': total_embed_exploit,
+        'embed_exploit_available': expected_embed_exploit,
+        'has_favored_embed': has_favored_embed,
+        'first_key': first_key,
+        'has_first_key': has_first_key,
+        'modifications_count': mods,
+        'modifications_expected': 3,
+        'technologies_count': techs,
+        'technologies_expected': 2,
+        'propulsions_count': props,
+        'propulsions_expected': 1,
+        'processes_count': procs,
+        'processes_expected': 1,
+        'has_demonic_form': has_demonic_form,
+        'primum': primum,
+        'primum_merit_cost': primum_merit_cost,
+        'cover_count': cover_count,
+        'has_cover': has_cover,
+        'primary_cover_rating': primary_cover_rating,
+        'virtue': virtue,
+        'vice': vice,
+        'has_virtue': has_virtue,
+        'has_vice': has_vice,
+        'specialties_count': specialty_count,
+        'specialties_expected': 4
     }
 
 
