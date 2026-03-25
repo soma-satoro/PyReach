@@ -3,7 +3,7 @@ from evennia.utils.search import search_object
 from evennia.utils import utils
 from evennia import SESSION_HANDLER
 from utils.search_helpers import search_character
-from world.utils.formatting import header, footer, divider
+from world.utils.formatting import header, footer, divider, get_theme_colors
 from evennia.utils.ansi import strip_ansi, ANSIString
 import time
 
@@ -208,29 +208,32 @@ class CmdFinger(MuxCommand):
         
         # Build the display
         output = []
+        _, text_color, divider_color = get_theme_colors()
+        label_style = f"|{text_color}"
+        # Use a literal pipe (||) so Evennia doesn't parse the next letter as ANSI code.
+        col_separator = f"|{divider_color}|||n"
         
         # Header with character name (escape ANSI)
-        header_line = f"<---======##======================[ {self.escape_ansi(target.name)} ]======================##======--->"
-        output.append(header_line[:78])  # Truncate if too long
+        output.append(header(self.escape_ansi(target.name), width=78, char="="))
         
         # First info section
         left_col = []
         right_col = []
         
         # Left column
-        left_col.append(f"Alias: {self.escape_ansi(alias) if alias else 'None'}")
-        left_col.append(f"Sex: {self.escape_ansi(sex)}")
+        left_col.append(f"{label_style}Alias:|n {self.escape_ansi(alias) if alias else 'None'}")
+        left_col.append(f"{label_style}Sex:|n {self.escape_ansi(sex)}")
         
         email = self.escape_ansi(finger_data.get("email", "(unlisted)"))
-        left_col.append(f"E-Mail: {email}")
+        left_col.append(f"{label_style}E-Mail:|n {email}")
         
         # Right column
         if is_online:
-            right_col.append(f"On for: {on_time}          Idle: {idle_time}")
+            right_col.append(f"{label_style}On for:|n {on_time}          {label_style}Idle:|n {idle_time}")
         else:
             right_col.append("Not currently online")
         
-        right_col.append(f"Mail: {mail_info}")
+        right_col.append(f"{label_style}Mail:|n {mail_info}")
         
         # Combine columns
         max_lines = max(len(left_col), len(right_col))
@@ -247,19 +250,19 @@ class CmdFinger(MuxCommand):
             right_padded = right + " " * (39 - right_visible_len)
             
             # Combine with separator
-            line = f"{left_padded}|{right_padded}"
+            line = f"{left_padded}{col_separator}{right_padded}"
             output.append(line)
         
         # Divider
-        output.append("<-------------=============++++++++++++++++++++++++=============------------>")
+        output.append(divider(78, char="-"))
         
         # Location and RP-Prefs
         if target.location:
-            output.append(f"Location:       {location}")
+            output.append(f"{label_style}Location:|n       {location}")
         
         rp_prefs = finger_data.get("rp-prefs", None)
         if rp_prefs:
-            output.append(f"RP-Prefs:       {self.escape_ansi(rp_prefs)}")
+            output.append(f"{label_style}RP-Prefs:|n       {self.escape_ansi(rp_prefs)}")
         
         # Other finger attributes
         display_attrs = [
@@ -279,14 +282,14 @@ class CmdFinger(MuxCommand):
         for attr_key, attr_label in display_attrs:
             value = finger_data.get(attr_key, None)
             if value:
-                output.append(f"{attr_label + ':':<16}{self.escape_ansi(value)}")
+                output.append(f"{label_style}{attr_label + ':':<16}|n{self.escape_ansi(value)}")
         
         # Alts section
         if alts:
-            output.append(f"Alts:           {self.escape_ansi(alts_display)}")
+            output.append(f"{label_style}Alts:|n           {self.escape_ansi(alts_display)}")
         
         # Bottom divider
-        output.append("<-------------=============++++++++++++++++++++++++=============------------>")
+        output.append(footer(78, char="-"))
         
         # Send the output
         self.caller.msg("\n".join(output))
