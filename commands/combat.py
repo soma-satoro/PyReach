@@ -6,7 +6,7 @@ from evennia.commands.default.muxcommand import MuxCommand
 from evennia.utils import evtable
 # from .combat_core import CombatTracker, WeaponData  # Disabled - module doesn't exist
 from .base import BasePyReachCommand, BuilderMixin
-from world.utils.permission_utils import check_builder_permission
+from world.utils.permission_utils import check_builder_permission, require_approved_character
 
 # Combat system implementation
 from world.utils.dice_utils import roll_dice, RollType
@@ -520,6 +520,9 @@ class CmdCombat(BasePyReachCommand, BuilderMixin):
     
     def func(self):
         """Execute the command"""
+        if not require_approved_character(self.caller, "+combat"):
+            return
+
         # Get or create combat tracker for this location
         if not hasattr(self.caller.location, 'combat_tracker'):
             self.caller.location.combat_tracker = CombatTracker(self.caller.location)

@@ -9,6 +9,47 @@ from world.cofd.stat_dictionary import (
     POWER_ATTRIBUTES, FINESSE_ATTRIBUTES, RESISTANCE_ATTRIBUTES,
     MENTAL_SKILLS, PHYSICAL_SKILLS, SOCIAL_SKILLS
 )
+from collections.abc import Mapping
+
+
+def _count_specialties(character, stats):
+    """
+    Count specialties across current and legacy storage formats.
+
+    Primary source is `stats["specialties"]` (dict by skill -> list of specialties).
+    Legacy fallback is `character.db.specialties` (often list of (skill, specialty) tuples).
+    """
+    specialty_count = 0
+
+    specialties = stats.get("specialties", {}) if hasattr(stats, "get") else {}
+    if isinstance(specialties, Mapping):
+        for specs in specialties.values():
+            if isinstance(specs, int):
+                specialty_count += max(0, specs)
+            elif isinstance(specs, str):
+                specialty_count += 1 if specs.strip() else 0
+            elif isinstance(specs, Mapping):
+                specialty_count += len(specs)
+            else:
+                # Handle Evennia saver containers and other list-like objects.
+                try:
+                    specialty_count += len(specs)
+                except TypeError:
+                    specialty_count += 1 if specs else 0
+
+    # Legacy fallback: use only when current stats contain no specialties.
+    if specialty_count == 0:
+        legacy_specialties = getattr(character.db, "specialties", None)
+        if isinstance(legacy_specialties, (list, tuple, set)):
+            specialty_count = len(legacy_specialties)
+        elif isinstance(legacy_specialties, Mapping):
+            specialty_count = len(legacy_specialties)
+        elif isinstance(legacy_specialties, int):
+            specialty_count = max(0, legacy_specialties)
+        elif isinstance(legacy_specialties, str):
+            specialty_count = 1 if legacy_specialties.strip() else 0
+
+    return specialty_count
 
 
 def calculate_chargen_points(character):
@@ -131,23 +172,15 @@ def calculate_chargen_points(character):
     skill_spent = skill_mental + skill_physical + skill_social
     
     # Calculate specialties
-    specialties = stats.get('specialties', {})
-    specialty_count = 0
-    for skill, specs in specialties.items():
-        if isinstance(specs, list):
-            specialty_count += len(specs)
-        elif isinstance(specs, int):
-            specialty_count += specs
+    specialty_count = _count_specialties(character, stats)
             
     # Calculate merits
     merits = stats.get('merits', {})
     merit_spent = 0
-    for merit_name, merit_data in merits.items():
+    for merit_data in merits.values():
         try:
-            # Try dict-style access first
-            if 'dots' in merit_data:
-                dots = merit_data['dots']
-                merit_spent += int(dots)
+            if isinstance(merit_data, Mapping) and 'dots' in merit_data:
+                merit_spent += int(merit_data['dots'])
             elif isinstance(merit_data, int):
                 merit_spent += merit_data
         except (KeyError, TypeError, AttributeError, ValueError):
@@ -187,6 +220,9 @@ def calculate_chargen_points(character):
     elif template.lower() == 'changeling':
         changeling_data = calculate_changeling_chargen(character, stats, merits)
         result['changeling'] = changeling_data
+        # Court membership grants one free Mantle dot at chargen.
+        if changeling_data.get('mantle_free_dot_applied', False):
+            result['merits_spent'] = max(0, result['merits_spent'] - 1)
     elif template.lower() == 'mage':
         mage_data = calculate_mage_chargen(character, stats, merits)
         result['mage'] = mage_data
@@ -212,6 +248,129 @@ def calculate_chargen_points(character):
         result['specialties_available'] = 4
     
     return result
+
+
+def get_submission_blockers(character):
+    """
+    Return chargen blockers that should prevent +submit.
+
+    This is intentionally strict for core point tracking and conservative for
+    template-specific validation by relying on tracker counters/requirements.
+    """
+    points = calculate_chargen_points(character)
+    if not points:
+        return ["No chargen data found."]
+
+    blockers = []
+
+    def _to_int(value):
+        try:
+            return int(value)
+        except (TypeError, ValueError):
+            return None
+
+    def _check_exact(current, expected, label):
+        cur = _to_int(current)
+        exp = _to_int(expected)
+        if cur is None or exp is None:
+            return
+        if cur != exp:
+            blockers.append(f"{label}: {cur}/{exp}")
+
+    # Core chargen totals must be complete.
+    _check_exact(points.get("attributes_spent"), points.get("attributes_available"), "Attributes")
+    _check_exact(points.get("skills_spent"), points.get("skills_available"), "Skills")
+    _check_exact(points.get("specialties_spent"), points.get("specialties_available"), "Specialties")
+    _check_exact(points.get("merits_spent"), points.get("merits_available"), "Merits")
+
+    # Find template sub-dicts (e.g. points["changeling"], points["mage"], etc).
+    template_sections = {
+        key: value for key, value in points.items()
+        if isinstance(value, Mapping)
+    }
+
+    for section_name, data in template_sections.items():
+        # Generic counter checks:
+        #   *_available -> try matching *_spent/*_dots/*_count/*_total
+        for key, available in data.items():
+            if not isinstance(key, str) or not key.endswith("_available"):
+                continue
+            stem = key[:-10]
+            for suffix in ("_spent", "_dots", "_count", "_total"):
+                candidate = f"{stem}{suffix}"
+                if candidate in data:
+                    _check_exact(data.get(candidate), available, f"{section_name.title()} {stem.replace('_', ' ').title()}")
+                    break
+
+        # Generic expected checks:
+        #   *_expected -> try matching *_count/*_dots/*_total
+        for key, expected in data.items():
+            if not isinstance(key, str) or not key.endswith("_expected"):
+                continue
+            stem = key[:-9]
+            for suffix in ("_count", "_dots", "_total"):
+                candidate = f"{stem}{suffix}"
+                if candidate in data:
+                    _check_exact(data.get(candidate), expected, f"{section_name.title()} {stem.replace('_', ' ').title()}")
+                    break
+
+        # Generic needed checks:
+        #   *_needed requires corresponding *_count >= needed
+        for key, needed in data.items():
+            if not isinstance(key, str) or not key.endswith("_needed"):
+                continue
+            stem = key[:-7]
+            count_key = f"{stem}_count"
+            if count_key not in data:
+                continue
+            cnt = _to_int(data.get(count_key))
+            req = _to_int(needed)
+            if cnt is None or req is None:
+                continue
+            if cnt < req:
+                blockers.append(f"{section_name.title()} {stem.replace('_', ' ').title()}: {cnt}/{req}")
+
+        # Hard-stop invalid flags.
+        for key, value in data.items():
+            if isinstance(key, str) and key.startswith("has_excessive_") and bool(value):
+                label = key.replace("has_excessive_", "").replace("_", " ").title()
+                blockers.append(f"{section_name.title()} {label} exceeds chargen limit")
+
+    # Template-specific mandatory booleans not covered by numeric counters.
+    required_flags_by_template = {
+        "vampire": ("has_favored_attr_bonus", "has_mask", "has_dirge"),
+        "werewolf": ("has_auspice_skill_bonus", "has_auspice_renown", "has_tribe_renown", "has_moon_gift", "has_bone", "has_blood", "has_totem", "has_first_tongue"),
+        "changeling": ("has_favored_attr_bonus", "has_needle", "has_thread"),
+        "mage": ("has_favored_attr_bonus", "has_both_ruling", "has_inferior", "has_immediate_nimbus", "has_long_term_nimbus", "has_signature_nimbus", "has_dedicated_tool", "has_order_status", "has_high_speech"),
+        "geist": ("has_root", "has_bloom", "has_key", "has_tolerance_biology", "has_geist_name", "has_remembrance", "has_remembrance_trait", "has_geist_virtue", "has_geist_vice", "has_crisis_point", "has_ban", "has_bane", "has_innate_key"),
+        "demon": ("has_incarnation", "has_agenda", "has_favored_embed", "has_first_key", "has_demonic_form", "has_cover", "has_virtue", "has_vice"),
+        "mummy": ("has_balance", "has_burden", "has_dreams_of_dead_gods"),
+        "promethean": ("has_bestowment", "has_elpis", "has_torment"),
+    }
+
+    for template_key, required_flags in required_flags_by_template.items():
+        data = template_sections.get(template_key)
+        if not isinstance(data, Mapping):
+            continue
+        for flag in required_flags:
+            if flag in data and not bool(data.get(flag)):
+                label = flag.replace("has_", "").replace("_", " ").title()
+                blockers.append(f"{template_key.title()} {label} is not set")
+
+    # Changeling-specific conditional checks.
+    changeling = template_sections.get("changeling")
+    if isinstance(changeling, Mapping):
+        has_court = bool(str(changeling.get("court", "")).strip())
+        if has_court:
+            mantle_dots = _to_int(changeling.get("mantle_dots")) or 0
+            if mantle_dots < 1:
+                blockers.append("Changeling Mantle must be at least 1 dot with a court")
+        ts_count = _to_int(changeling.get("touchstones_count")) or 0
+        ts_needed = _to_int(changeling.get("touchstones_needed")) or 0
+        if ts_count < ts_needed:
+            blockers.append(f"Changeling Touchstones: {ts_count}/{ts_needed}")
+
+    return blockers
 
 
 def calculate_vampire_chargen(character, stats, merits):
@@ -661,12 +820,12 @@ def calculate_changeling_chargen(character, stats, merits):
     
     # Seeming favored regalia
     SEEMING_REGALIA = {
-        'beast': 'den',
+        'beast': 'steed',
         'darkling': 'mirror',
-        'elemental': 'stone',
+        'elemental': 'sword',
         'fairest': 'crown',
-        'ogre': 'sword',
-        'wizened': 'artifice'
+        'ogre': 'shield',
+        'wizened': 'jewels'
     }
     
     # Get character's seeming and kith
@@ -709,20 +868,54 @@ def calculate_changeling_chargen(character, stats, merits):
                   ('thread' in anchors and anchors['thread'] and anchors['thread'] != '<not set>'))
     
     # Get Contracts
+    from world.cofd.powers.changeling_contracts import ALL_CHANGELING_CONTRACTS
+
     powers = stats.get('powers', {})
     contracts = {}
     common_contracts = 0
     royal_contracts = 0
     favored_regalia_contracts = 0
+
+    favored_regalia_set = set()
+    if seeming_regalia:
+        favored_regalia_set.add(str(seeming_regalia).lower())
+    if favored_regalia:
+        favored_regalia_set.add(str(favored_regalia).lower())
     
     for power_name, power_value in powers.items():
-        power_lower = power_name.lower()
-        if power_name.startswith('contract:') and power_value == 'known':
-            contracts[power_name] = power_value
-            
-            # Check if it's royal or common (would need contract data to determine)
-            # For now, count all contracts
+        contract_key = None
+
+        if power_name.startswith('contract:'):
+            contract_key = power_name.split(':', 1)[1].lower()
+        elif power_name.lower() in ALL_CHANGELING_CONTRACTS:
+            contract_key = power_name.lower()
+
+        if not contract_key:
+            continue
+
+        is_known = (power_value == 'known')
+        if not is_known:
+            try:
+                is_known = int(power_value) > 0
+            except (TypeError, ValueError):
+                is_known = False
+
+        if not is_known:
+            continue
+
+        contracts[power_name] = power_value
+
+        contract_data = ALL_CHANGELING_CONTRACTS.get(contract_key, {})
+        contract_type = str(contract_data.get('contract_type', '')).lower()
+
+        if 'royal' in contract_type:
+            royal_contracts += 1
+        else:
             common_contracts += 1
+
+        regalia = contract_type.split('_', 1)[0] if '_' in contract_type else ''
+        if regalia in favored_regalia_set and 'common' in contract_type:
+            favored_regalia_contracts += 1
     
     # Wyrd tracking
     wyrd = stats.get('advantages', {}).get('wyrd', 1)
@@ -731,6 +924,12 @@ def calculate_changeling_chargen(character, stats, merits):
     
     # Check for Touchstone Merit
     has_touchstone_merit = any('touchstone' in m.lower() for m in merits.keys())
+    bio_data = getattr(character.db, "bio_data", {}) or {}
+    touchstones = bio_data.get("touchstones", []) if hasattr(bio_data, "get") else []
+    if not isinstance(touchstones, (list, tuple, set)):
+        touchstones = [touchstones] if touchstones else []
+    touchstones_count = len(touchstones)
+    touchstones_needed = 1
     
     # Check for Mantle (free dot from court)
     has_mantle = any('mantle' in m.lower() for m in merits.keys())
@@ -738,11 +937,18 @@ def calculate_changeling_chargen(character, stats, merits):
     for merit_name, merit_data in merits.items():
         if 'mantle' in merit_name.lower():
             try:
-                if 'dots' in merit_data:
+                if isinstance(merit_data, Mapping) and 'dots' in merit_data:
                     mantle_dots = int(merit_data['dots'])
+                    break
+                elif isinstance(merit_data, int):
+                    mantle_dots = merit_data
                     break
             except (KeyError, ValueError, TypeError, AttributeError):
                 pass
+
+    has_court = bool(str(court).strip())
+    mantle_free_dot_applied = has_court and mantle_dots >= 1
+    mantle_paid_dots = max(0, mantle_dots - 1) if has_court else mantle_dots
     
     return {
         'seeming': seeming,
@@ -765,8 +971,12 @@ def calculate_changeling_chargen(character, stats, merits):
         'wyrd': wyrd,
         'wyrd_merit_cost': wyrd_merit_cost,
         'has_touchstone_merit': has_touchstone_merit,
+        'touchstones_count': touchstones_count,
+        'touchstones_needed': touchstones_needed,
         'has_mantle': has_mantle,
-        'mantle_dots': mantle_dots
+        'mantle_dots': mantle_dots,
+        'mantle_paid_dots': mantle_paid_dots,
+        'mantle_free_dot_applied': mantle_free_dot_applied
     }
 
 
@@ -1340,13 +1550,7 @@ def calculate_demon_chargen(character, stats, merits):
     has_vice = bool(vice and str(vice).lower() != '<not set>')
     
     # Specialties: Demon needs 4 (1 must threaten Cover) - tracked in base result
-    specialties = stats.get('specialties', {})
-    specialty_count = 0
-    for skill, specs in specialties.items():
-        if isinstance(specs, list):
-            specialty_count += len(specs)
-        elif isinstance(specs, int):
-            specialty_count += specs
+    specialty_count = _count_specialties(character, stats)
     
     return {
         'incarnation': incarnation,

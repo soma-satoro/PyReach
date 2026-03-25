@@ -170,3 +170,37 @@ def format_permission_error(required_level):
         str: Formatted error message
     """
     return f"You don't have permission to use this command. Required: {required_level}"
+
+
+def is_character_approved(caller):
+    """
+    Check if a caller should be treated as approved for IC action gating.
+
+    Staff and NPCs bypass this check.
+    """
+    if check_staff_permission(caller):
+        return True
+
+    if not getattr(caller, "has_account", False):
+        return True
+
+    if hasattr(caller, "db") and getattr(caller.db, "is_npc", False):
+        return True
+
+    approved_flag = bool(getattr(caller.db, "approved", False))
+    approved_tag = bool(caller.tags.has("approved", category="approval"))
+    return approved_flag or approved_tag
+
+
+def require_approved_character(caller, command_name="This command"):
+    """
+    Enforce that a caller is approved before using IC-gated commands.
+    """
+    if is_character_approved(caller):
+        return True
+
+    caller.msg(
+        f"|r{command_name} requires an approved character. "
+        "Please remain in chargen/OOC flow until staff approval.|n"
+    )
+    return False

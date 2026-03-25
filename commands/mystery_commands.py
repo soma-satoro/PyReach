@@ -9,7 +9,11 @@ used throughout the PyReach codebase.
 import secrets
 from evennia.commands.default.muxcommand import MuxCommand
 from typeclasses.mysteries import MysteryManager, Mystery, ClueObject
-from world.utils.permission_utils import check_mystery_permission, format_permission_error
+from world.utils.permission_utils import (
+    check_mystery_permission,
+    format_permission_error,
+    require_approved_character,
+)
 from world.utils.formatting import header, format_simple_table
 from utils.search_helpers import search_character
 
@@ -110,6 +114,9 @@ class CmdMystery(MuxCommand):
     
     def func(self):
         """Execute the command"""
+        if not require_approved_character(self.caller, "+mystery"):
+            return
+
         # Handle clue object commands first
         if self.is_clueobj_cmd:
             self.handle_clueobj_commands()

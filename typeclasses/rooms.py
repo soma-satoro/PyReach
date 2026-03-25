@@ -789,6 +789,8 @@ class ChargenRoom(Room):
             merit_remaining = merit_avail - merit_spent
             merit_color = '|g' if merit_remaining >= 0 else '|r'
             lines.append(f"  |wMerits:|n       {merit_color}{merit_spent}/{merit_avail}|n  (Remaining: {merit_color}{merit_remaining}|n)")
+            if 'changeling' in points and points['changeling'].get('mantle_free_dot_applied', False):
+                lines.append("  |c  (Court free Mantle dot excluded from merit spend)|n")
             
             # Show favored stat if set
             favored_stat = points.get('favored_stat', None)
@@ -932,7 +934,7 @@ class ChargenRoom(Room):
             lines.append(f"  |wCovenant:|n     |yNone (optional)|n")
         
         # Touchstone reminder
-        touchstone_status = '|g(Merit taken)|n' if vamp_data['has_touchstone_merit'] else '|y(Use +touchstone)|n'
+        touchstone_status = '|g(Merit taken)|n' if vamp_data['has_touchstone_merit'] else '|y(Use +bio/touchstone)|n'
         lines.append(f"  |wTouchstone:|n   {touchstone_status}")
     
     def _add_werewolf_display(self, lines, wolf_data, divider_color):
@@ -1060,7 +1062,7 @@ class ChargenRoom(Room):
         lines.append(f"  |wFirst Tongue:|n {first_tongue_status}  (Language Merit, free)")
         
         # Touchstone reminder
-        lines.append(f"  |wTouchstones:|n  |y(Use +touchstone for Physical & Spiritual)|n")
+        lines.append(f"  |wTouchstones:|n  |y(Use +bio/touchstone for Physical & Spiritual)|n")
     
     def _add_changeling_display(self, lines, changeling_data, divider_color):
         """Add changeling-specific chargen information to the display."""
@@ -1157,14 +1159,20 @@ class ChargenRoom(Room):
             if changeling_data['has_mantle']:
                 mantle_dots = changeling_data['mantle_dots']
                 if mantle_dots >= 1:
-                    lines.append(f"  |wMantle:|n       {mantle_dots} dot{'s' if mantle_dots > 1 else ''} |g(1 free from court)|n")
+                    paid_dots = changeling_data.get('mantle_paid_dots', max(0, mantle_dots - 1))
+                    lines.append(f"  |wMantle:|n       {mantle_dots} dot{'s' if mantle_dots > 1 else ''} |g(1 free from court, {paid_dots} from merits)|n")
                 else:
                     lines.append(f"  |wMantle:|n       |yPresent but no dots set|n")
             else:
                 lines.append(f"  |wMantle:|n       |rx|n |y(Get Mantle merit for court benefits)|n")
         
         # Touchstone reminder
-        touchstone_status = '|g(Merit taken)|n' if changeling_data['has_touchstone_merit'] else '|y(Use +touchstone)|n'
+        touchstone_count = changeling_data.get('touchstones_count', 0)
+        touchstone_needed = changeling_data.get('touchstones_needed', 1)
+        if touchstone_count >= touchstone_needed:
+            touchstone_status = f"|g{touchstone_count}/{touchstone_needed} entered|n"
+        else:
+            touchstone_status = f"|y{touchstone_count}/{touchstone_needed} entered (use +bio/touchstone <name>)|n"
         lines.append(f"  |wTouchstone:|n   {touchstone_status}")
         lines.append(f"    |c(Composure + 1 Clarity boxes)|n")
     
@@ -1393,7 +1401,7 @@ class ChargenRoom(Room):
             for ts in loyalty_ts:
                 lines.append(f"    - {ts}")
         elif loyalty_needed > 0:
-            lines.append(f"    |y(Use +touchstone to add)|n")
+            lines.append(f"    |y(Use +bio/touchstone to add)|n")
         
         # Conviction Touchstones
         conviction_ts = deviant_data['conviction_touchstones']
@@ -1406,7 +1414,7 @@ class ChargenRoom(Room):
             for ts in conviction_ts:
                 lines.append(f"    - {ts}")
         elif conviction_needed > 0:
-            lines.append(f"    |y(Use +touchstone to add)|n")
+            lines.append(f"    |y(Use +bio/touchstone to add)|n")
         
         # Acclimation
         acclimation = deviant_data['acclimation']
@@ -1490,7 +1498,7 @@ class ChargenRoom(Room):
         lines.append(f"  |wTolerance for Biology:|n {tolerance_status}  (free merit)")
         
         # Touchstone
-        touchstone_status = '|g(Merit taken)|n' if geist_data['has_touchstone_merit'] else '|y(Use +touchstone)|n'
+        touchstone_status = '|g(Merit taken)|n' if geist_data['has_touchstone_merit'] else '|y(Use +bio/touchstone)|n'
         lines.append(f"  |wTouchstone:|n   {touchstone_status}")
         
         # Geist companion section
@@ -1824,7 +1832,7 @@ class ChargenRoom(Room):
             lines.append(f"  |wTomb:|n         {tomb_status}  |y(Get Tomb merit, 1 free)|n")
         
         # Touchstone
-        lines.append(f"  |wTouchstone:|n   |y(Use +touchstone, need 1)|n")
+        lines.append(f"  |wTouchstone:|n   |y(Use +bio/touchstone, need 1)|n")
     
     def _add_promethean_display(self, lines, promethean_data, divider_color):
         """Add Promethean-specific chargen information to the display."""
@@ -1900,7 +1908,7 @@ class ChargenRoom(Room):
         lines.append(f"  |wPilgrimage:|n   {pilgrimage} (progress toward humanity, starts at 1)")
         
         # Touchstone
-        touchstone_status = '|g(Merit taken)|n' if promethean_data['has_touchstone_merit'] else '|y(Use +touchstone)|n'
+        touchstone_status = '|g(Merit taken)|n' if promethean_data['has_touchstone_merit'] else '|y(Use +bio/touchstone)|n'
         lines.append(f"  |wTouchstone:|n   {touchstone_status}")
         lines.append(f"    |c(1 associated with Role/Pilgrimage)|n")
         
@@ -2006,7 +2014,7 @@ class ChargenRoom(Room):
         dirge_status = '|gok!|n' if revenant_data['has_dirge'] else '|rx|n'
         lines.append(f"  |wMask:|n         {mask_status}    |wDirge:|n {dirge_status}")
         
-        touchstone_status = '|g(Merit taken)|n' if revenant_data['has_touchstone_merit'] else '|y(Use +touchstone)|n'
+        touchstone_status = '|g(Merit taken)|n' if revenant_data['has_touchstone_merit'] else '|y(Use +bio/touchstone)|n'
         lines.append(f"  |wTouchstone:|n   {touchstone_status}")
         
         # Disciplines
@@ -2686,6 +2694,8 @@ class ChargenRoom(Room):
             merit_remaining = merit_avail - merit_spent
             merit_color = '|g' if merit_remaining >= 0 else '|r'
             lines.append(f"  |wMerits:|n       {merit_color}{merit_spent}/{merit_avail}|n  (Remaining: {merit_color}{merit_remaining}|n)")
+            if 'changeling' in points and points['changeling'].get('mantle_free_dot_applied', False):
+                lines.append("  |c  (Court free Mantle dot excluded from merit spend)|n")
             
             # Show favored stat if set
             favored_stat = points.get('favored_stat', None)
@@ -2836,7 +2846,7 @@ class ChargenRoom(Room):
             lines.append(f"  |wCovenant:|n     |yNone (optional)|n")
         
         # Touchstone reminder
-        touchstone_status = '|g(Merit taken)|n' if vamp_data['has_touchstone_merit'] else '|y(Use +touchstone)|n'
+        touchstone_status = '|g(Merit taken)|n' if vamp_data['has_touchstone_merit'] else '|y(Use +bio/touchstone)|n'
         lines.append(f"  |wTouchstone:|n   {touchstone_status}")
     
     def _add_werewolf_display(self, lines, wolf_data, divider_color):
@@ -2971,7 +2981,7 @@ class ChargenRoom(Room):
         lines.append(f"  |wFirst Tongue:|n {first_tongue_status}  (Language Merit, free)")
         
         # Touchstone reminder
-        lines.append(f"  |wTouchstones:|n  |y(Use +touchstone for Physical & Spiritual)|n")
+        lines.append(f"  |wTouchstones:|n  |y(Use +bio/touchstone for Physical & Spiritual)|n")
     
     def _add_changeling_display(self, lines, changeling_data, divider_color):
         """Add changeling-specific chargen information to the display."""
@@ -3068,14 +3078,20 @@ class ChargenRoom(Room):
             if changeling_data['has_mantle']:
                 mantle_dots = changeling_data['mantle_dots']
                 if mantle_dots >= 1:
-                    lines.append(f"  |wMantle:|n       {mantle_dots} dot{'s' if mantle_dots > 1 else ''} |g(1 free from court)|n")
+                    paid_dots = changeling_data.get('mantle_paid_dots', max(0, mantle_dots - 1))
+                    lines.append(f"  |wMantle:|n       {mantle_dots} dot{'s' if mantle_dots > 1 else ''} |g(1 free from court, {paid_dots} from merits)|n")
                 else:
                     lines.append(f"  |wMantle:|n       |yPresent but no dots set|n")
             else:
                 lines.append(f"  |wMantle:|n       |rx|n |y(Get Mantle merit for court benefits)|n")
         
         # Touchstone reminder
-        touchstone_status = '|g(Merit taken)|n' if changeling_data['has_touchstone_merit'] else '|y(Use +touchstone)|n'
+        touchstone_count = changeling_data.get('touchstones_count', 0)
+        touchstone_needed = changeling_data.get('touchstones_needed', 1)
+        if touchstone_count >= touchstone_needed:
+            touchstone_status = f"|g{touchstone_count}/{touchstone_needed} entered|n"
+        else:
+            touchstone_status = f"|y{touchstone_count}/{touchstone_needed} entered (use +bio/touchstone <name>)|n"
         lines.append(f"  |wTouchstone:|n   {touchstone_status}")
         lines.append(f"    |c(Composure + 1 Clarity boxes)|n")
     
@@ -3304,7 +3320,7 @@ class ChargenRoom(Room):
             for ts in loyalty_ts:
                 lines.append(f"    - {ts}")
         elif loyalty_needed > 0:
-            lines.append(f"    |y(Use +touchstone to add)|n")
+            lines.append(f"    |y(Use +bio/touchstone to add)|n")
         
         # Conviction Touchstones
         conviction_ts = deviant_data['conviction_touchstones']
@@ -3317,7 +3333,7 @@ class ChargenRoom(Room):
             for ts in conviction_ts:
                 lines.append(f"    - {ts}")
         elif conviction_needed > 0:
-            lines.append(f"    |y(Use +touchstone to add)|n")
+            lines.append(f"    |y(Use +bio/touchstone to add)|n")
         
         # Acclimation
         acclimation = deviant_data['acclimation']
@@ -3401,7 +3417,7 @@ class ChargenRoom(Room):
         lines.append(f"  |wTolerance for Biology:|n {tolerance_status}  (free merit)")
         
         # Touchstone
-        touchstone_status = '|g(Merit taken)|n' if geist_data['has_touchstone_merit'] else '|y(Use +touchstone)|n'
+        touchstone_status = '|g(Merit taken)|n' if geist_data['has_touchstone_merit'] else '|y(Use +bio/touchstone)|n'
         lines.append(f"  |wTouchstone:|n   {touchstone_status}")
         
         # Geist companion section
@@ -3735,7 +3751,7 @@ class ChargenRoom(Room):
             lines.append(f"  |wTomb:|n         {tomb_status}  |y(Get Tomb merit, 1 free)|n")
         
         # Touchstone
-        lines.append(f"  |wTouchstone:|n   |y(Use +touchstone, need 1)|n")
+        lines.append(f"  |wTouchstone:|n   |y(Use +bio/touchstone, need 1)|n")
     
     def _add_promethean_display(self, lines, promethean_data, divider_color):
         """Add Promethean-specific chargen information to the display."""
@@ -3811,7 +3827,7 @@ class ChargenRoom(Room):
         lines.append(f"  |wPilgrimage:|n   {pilgrimage} (progress toward humanity, starts at 1)")
         
         # Touchstone
-        touchstone_status = '|g(Merit taken)|n' if promethean_data['has_touchstone_merit'] else '|y(Use +touchstone)|n'
+        touchstone_status = '|g(Merit taken)|n' if promethean_data['has_touchstone_merit'] else '|y(Use +bio/touchstone)|n'
         lines.append(f"  |wTouchstone:|n   {touchstone_status}")
         lines.append(f"    |c(1 associated with Role/Pilgrimage)|n")
         
@@ -3917,7 +3933,7 @@ class ChargenRoom(Room):
         dirge_status = '|gok!|n' if revenant_data['has_dirge'] else '|rx|n'
         lines.append(f"  |wMask:|n         {mask_status}    |wDirge:|n {dirge_status}")
         
-        touchstone_status = '|g(Merit taken)|n' if revenant_data['has_touchstone_merit'] else '|y(Use +touchstone)|n'
+        touchstone_status = '|g(Merit taken)|n' if revenant_data['has_touchstone_merit'] else '|y(Use +bio/touchstone)|n'
         lines.append(f"  |wTouchstone:|n   {touchstone_status}")
         
         # Disciplines

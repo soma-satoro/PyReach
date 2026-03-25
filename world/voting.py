@@ -10,6 +10,7 @@ from evennia.objects.objects import DefaultObject
 from evennia.server.models import ServerConfig
 from evennia.utils import logger
 from evennia.utils.utils import make_iter
+from world.utils.permission_utils import is_character_approved
 
 
 class VotingHandler:
@@ -125,6 +126,12 @@ class VotingHandler:
             bool: True if vote was successful
         """
         target_name = target_character.name
+
+        # Require approved characters on both sides for player-driven rewards.
+        if not is_character_approved(self.obj):
+            return False, "You must have an approved character to cast votes."
+        if not is_character_approved(target_character):
+            return False, f"You can only vote for approved characters. {target_name} is not approved."
         
         # Check if voting system is enabled
         if not self.is_voting_system_enabled():
@@ -169,6 +176,12 @@ class VotingHandler:
             tuple: (success, message)
         """
         target_name = target_character.name
+
+        # Require approved characters on both sides for player-driven rewards.
+        if not is_character_approved(self.obj):
+            return False, "You must have an approved character to write recommendations."
+        if not is_character_approved(target_character):
+            return False, f"You can only recommend approved characters. {target_name} is not approved."
         
         # Check if voting system is enabled
         if not self.is_voting_system_enabled():

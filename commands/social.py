@@ -1,6 +1,7 @@
 from evennia.commands.default.muxcommand import MuxCommand
 from evennia.utils import create
 from world.experience import ExperienceHandler
+from world.utils.permission_utils import require_approved_character
 from utils.search_helpers import search_character
 
 class CmdSocial(MuxCommand):
@@ -30,6 +31,9 @@ class CmdSocial(MuxCommand):
     
     def func(self):
         """Execute the command"""
+        if not require_approved_character(self.caller, "+social"):
+            return
+
         # Check if legacy mode is active
         from commands.CmdLegacy import is_legacy_mode
         if is_legacy_mode():

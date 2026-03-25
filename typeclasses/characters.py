@@ -23,6 +23,7 @@ from world.cofd.templates import (
     get_starting_integrity, validate_field, get_template_names
 )
 from world.utils.health_utils import calculate_wound_penalty
+from world.utils.permission_utils import is_character_approved
 from world.cofd.pledges import PledgeHandler
 
 from .objects import ObjectParent
@@ -127,6 +128,43 @@ class Character(DefaultCharacter):
         expired = self.conditions.check_expired()
         if expired:
             self.msg(f"The following conditions have expired: {', '.join(expired)}")
+
+    def at_pre_move(self, destination, move_type="move", **kwargs):
+        """
+        Block unapproved characters from entering IC rooms.
+        """
+        if not super().at_pre_move(destination, move_type=move_type, **kwargs):
+            return False
+
+        if is_character_approved(self):
+            return True
+
+        if not destination:
+            return True
+
+        is_ooc_room = False
+
+        # Evennia tag handler check.
+        if hasattr(destination, "tags") and destination.tags.get("ooc", category=None):
+            is_ooc_room = True
+
+        # Legacy/alternate tag storage.
+        if not is_ooc_room and hasattr(destination, "db") and hasattr(destination.db, "tags") and destination.db.tags:
+            try:
+                if "ooc" in destination.db.tags:
+                    is_ooc_room = True
+            except TypeError:
+                if isinstance(destination.db.tags, str) and destination.db.tags == "ooc":
+                    is_ooc_room = True
+
+        if is_ooc_room:
+            return True
+
+        self.msg(
+            "|rYou must have an approved character before entering IC rooms. "
+            "Please remain in chargen/OOC flow until staff approval.|n"
+        )
+        return False
 
     def at_object_receive(self, moved_obj, source_location, move_type="move", **kwargs):
         """

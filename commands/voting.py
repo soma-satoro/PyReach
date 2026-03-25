@@ -7,6 +7,7 @@ Commands for the voting and recommendation system that awards experience points.
 from evennia.commands.command import Command
 from world.voting import VotingHandler, get_character_by_name
 from datetime import datetime, timedelta
+from world.utils.permission_utils import is_character_approved, require_approved_character
 
 
 class CmdVote(Command):
@@ -38,6 +39,9 @@ class CmdVote(Command):
     
     def func(self):
         """Execute the vote command."""
+        if not require_approved_character(self.caller, "+vote"):
+            return
+
         if not self.args:
             self.caller.msg("Usage: +vote <character>")
             return
@@ -64,6 +68,10 @@ class CmdVote(Command):
         target_character = get_character_by_name(target_name)
         if not target_character:
             self.caller.msg(f"Character '{target_name}' not found.")
+            return
+
+        if not is_character_approved(target_character):
+            self.caller.msg(f"|rYou can only vote for approved characters. {target_character.name} is not approved.|n")
             return
         
         # Check rate limit (once per player per week)
@@ -163,6 +171,9 @@ class CmdRecommend(Command):
     
     def func(self):
         """Execute the recommendation command."""
+        if not require_approved_character(self.caller, "+recc"):
+            return
+
         if self.switch == "list":
             self.list_recommendations()
         elif self.target_name and self.recommendation_text:
@@ -184,6 +195,10 @@ class CmdRecommend(Command):
         target_character = get_character_by_name(self.target_name)
         if not target_character:
             self.caller.msg(f"Character '{self.target_name}' not found.")
+            return
+
+        if not is_character_approved(target_character):
+            self.caller.msg(f"|rYou can only recommend approved characters. {target_character.name} is not approved.|n")
             return
         
         # Check rate limit (once per player per month)

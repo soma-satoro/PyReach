@@ -37,6 +37,58 @@ class CmdLanguage(MuxCommand):
     aliases = ["+lang", "+languages"]
     locks = "cmd:all()"
     help_category = "Roleplaying Tools"
+
+    def _extract_merit_dots(self, merit_data):
+        """Extract numeric dots from merit storage."""
+        if isinstance(merit_data, dict):
+            for key in ("dots", "perm"):
+                if key in merit_data:
+                    try:
+                        return int(merit_data.get(key, 0) or 0)
+                    except (TypeError, ValueError):
+                        return 0
+            return 0
+        if isinstance(merit_data, int):
+            return merit_data
+        return 0
+
+    def _calculate_language_points(self, target):
+        """
+        Calculate language slots from Language and Multilingual merits.
+
+        - Language: 1 language per dot
+        - Multilingual: 2 languages per dot
+        Supports instanced merits (e.g. language:italian, multilingual:french_italian).
+        """
+        stats = getattr(target.db, "stats", {}) or {}
+        merits = stats.get("merits", {}) or {}
+        points = 0
+
+        if not isinstance(merits, dict):
+            return 0
+
+        for merit_key, merit_data in merits.items():
+            if not isinstance(merit_key, str):
+                continue
+            base_key = merit_key.split(":", 1)[0].lower()
+            dots = self._extract_merit_dots(merit_data)
+            if dots <= 0:
+                continue
+            if base_key == "language":
+                points += dots
+            elif base_key == "multilingual":
+                points += dots * 2
+
+        return points
+
+    def _count_used_language_slots(self, languages, native_language):
+        """Count non-free languages (excluding English and native)."""
+        used_languages = len(languages)
+        if "English" in languages:
+            used_languages -= 1
+        if native_language in languages and native_language != "English":
+            used_languages -= 1
+        return max(0, used_languages)
     
     def func(self):
         """Execute command."""
@@ -145,8 +197,7 @@ class CmdLanguage(MuxCommand):
         ])
 
         # Merit points section
-        merits = self.caller.db.stats.get('merits', {})
-        language_merit_points = 0
+        language_merit_points = self._calculate_language_points(self.caller)
         native_language = self.caller.db.native_language or "English"  # Default to English if not set
         
         # Calculate total available language points from Language merit (1-5 dots)
@@ -160,11 +211,7 @@ class CmdLanguage(MuxCommand):
 
         if language_merit_points > 0:
             # Calculate used languages, excluding English and native language
-            used_languages = len(languages)
-            if "English" in languages:
-                used_languages -= 1  # English is always free
-            if native_language in languages and native_language != "English":
-                used_languages -= 1  # Native language is also free
+            used_languages = self._count_used_language_slots(languages, native_language)
             
             points_remaining = language_merit_points - used_languages
 
@@ -223,17 +270,7 @@ class CmdLanguage(MuxCommand):
             used_languages -= 1  # Native language is free
 
         # Check if they have enough points
-        merits = self.caller.db.stats.get('merits', {})
-        language_merit_points = 0
-
-        # Calculate total available language points from Language merit (1-5 dots)
-        for category in merits:
-            category_merits = merits[category]
-            for merit_name, merit_data in category_merits.items():
-                if merit_name.lower() == 'language':
-                    # Language merit: each dot gives 1 language point
-                    dots = merit_data.get('perm', 0)
-                    language_merit_points += dots
+        language_merit_points = self._calculate_language_points(self.caller)
 
         if used_languages >= language_merit_points:
             self.caller.msg("You don't have enough language points remaining.")
@@ -505,8 +542,7 @@ class CmdLanguage(MuxCommand):
         ])
 
         # Merit points section
-        merits = target.db.stats.get('merits', {})
-        language_merit_points = 0
+        language_merit_points = self._calculate_language_points(target)
         native_language = target.db.native_language or "English"  # Default to English if not set
         
         # Calculate total available language points from Language merit (1-5 dots)
@@ -520,11 +556,7 @@ class CmdLanguage(MuxCommand):
 
         if language_merit_points > 0:
             # Calculate used languages, excluding English and native language
-            used_languages = len(languages)
-            if "English" in languages:
-                used_languages -= 1  # English is always free
-            if native_language in languages and native_language != "English":
-                used_languages -= 1  # Native language is also free
+            used_languages = self._count_used_language_slots(languages, native_language)
             
             points_remaining = language_merit_points - used_languages
 
@@ -556,17 +588,7 @@ class CmdLanguage(MuxCommand):
         native_language = target.db.native_language or "English"
         
         # Calculate available points
-        merits = target.db.stats.get('merits', {})
-        language_merit_points = 0
-        
-        # Calculate total available language points from Language merit (1-5 dots)
-        for category in merits:
-            category_merits = merits[category]
-            for merit_name, merit_data in category_merits.items():
-                if merit_name.lower() == 'language':
-                    # Language merit: each dot gives 1 language point
-                    dots = merit_data.get('perm', 0)
-                    language_merit_points += dots
+        language_merit_points = self._calculate_language_points(target)
         
         # Calculate how many languages we can keep
         # Always keep English and native language

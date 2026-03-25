@@ -196,8 +196,9 @@ class CmdBio(MuxCommand):
     Manage your character's background and biography.
     
     Usage:
-        +bio                              - View your current bio
+        +bio                              - View your current bio summary
         +bio <character>                  - View another character's bio (staff only)
+        +bio/questions                    - View your full question answers
         +bio/q1 <text>                    - Answer bio question 1
         +bio/q2 <text>                    - Answer bio question 2
         ... (continues for all questions in your template)
@@ -205,7 +206,8 @@ class CmdBio(MuxCommand):
         +bio/bp2 <text>                   - Answer breaking point question 2
         ... (continues for all 5 breaking point questions)
         +bio/pref <text>                  - Set your RP preferences and genres
-        +bio/story <text>                 - Set your free-form character story
+        +bio/story                         - View your free-form character story
+        +bio/story <text>                  - Set your free-form character story
         +bio/touchstone <name>            - Add a touchstone
         +bio/touchstone/remove <#>        - Remove a touchstone by number
         
@@ -220,8 +222,9 @@ class CmdBio(MuxCommand):
     when resisting integrity loss.
     
     Examples:
-        +bio                              - View your bio
+        +bio                              - View your bio summary
         +bio John                          - Staff: View John's bio
+        +bio/questions                     - View question answers
         +bio/q1 I was a detective before the Embrace
         +bio/bp1 I killed someone in self-defense
         +bio/pref I enjoy political intrigue and social scenes. I prefer to avoid graphic violence.
@@ -269,8 +272,13 @@ class CmdBio(MuxCommand):
         # Other switches
         if switch == "pref":
             self.set_preference(target)
+        elif switch == "questions":
+            self.show_questions(target)
         elif switch == "story":
-            self.set_story(target)
+            if self.args.strip():
+                self.set_story(target)
+            else:
+                self.show_story(target)
         elif switch == "touchstone":
             # Check for nested switch (touchstone/remove)
             if len(self.switches) > 1 and self.switches[1].lower() == "remove":
@@ -287,7 +295,7 @@ class CmdBio(MuxCommand):
             return self.caller
         
         # Args provided - check if staff
-        if not self.caller.check_permstring("Admin"):
+        if not self.caller.check_permstring("Builder"):
             self.caller.msg("|rYou can only view your own bio. Staff can view others' bios.|n")
             return None
         
@@ -320,7 +328,7 @@ class CmdBio(MuxCommand):
                 character.db.bio_data["touchstones"] = []
     
     def show_bio(self, target):
-        """Display the character's bio."""
+        """Display a compact bio summary."""
         template = get_template(target).lower()
         bio_data = target.db.bio_data
         
@@ -337,49 +345,26 @@ class CmdBio(MuxCommand):
         
         output = []
         
-        # Get the appropriate questions for this template
-        questions = BIO_QUESTIONS.get(template, BIO_QUESTIONS["mortal"])
-        
-        # Bio Questions header
-        # Show character name when staff views another character
+        # Header
         if target == self.caller:
-            output.append(section_header("Your Background Questions", width=78))
+            output.append(section_header("Your Bio Summary", width=78))
         else:
-            output.append(section_header(f"{target.name}'s Background Questions", width=78))
+            output.append(section_header(f"{target.name}'s Bio Summary", width=78))
         output.append("")
-        
-        questions_dict = bio_data.get("questions", {}) or {}
-        for i, question in enumerate(questions, 1):
-            answer = questions_dict.get(f"q{i}", "")
-            output.append(f"|c{i}.|n {question}")
-            if answer:
-                # Wrap long answers
-                wrapped = self.wrap_text(answer, indent="   ")
-                output.append(f"   |g{wrapped}|n")
-            else:
-                output.append(f"   |x(Not answered)|n")
-            output.append("")
-        
-        # Breaking Point Questions
-        output.append(section_header("Breaking Point Questions", width=78))
-        
-        # Add note for non-Integrity templates
-        if template not in INTEGRITY_TEMPLATES:
-            output.append("|y(Your template uses different integrity mechanics, this is for background only.)|n")
-        
-        output.append("")
-        
+
+        # Breaking point status - show only answered numeric indices.
         breaking_points_dict = bio_data.get("breaking_points", {}) or {}
-        for i, question in enumerate(BREAKING_POINT_QUESTIONS, 1):
+        answered_bp = []
+        for i in range(1, len(BREAKING_POINT_QUESTIONS) + 1):
             answer = breaking_points_dict.get(f"bp{i}", "")
-            output.append(f"|c{i}.|n {question}")
-            if answer:
-                wrapped = self.wrap_text(answer, indent="   ")
-                output.append(f"   |g{wrapped}|n")
-            else:
-                output.append(f"   |x(Not answered)|n")
-            output.append("")
-        
+            if answer and str(answer).strip():
+                answered_bp.append(str(i))
+        answered_text = ", ".join(answered_bp) if answered_bp else "None"
+        output.append(f"|wIntegrity Questions Answered:|n {answered_text}")
+        if template not in INTEGRITY_TEMPLATES:
+            output.append("|y(Background-only for your template.)|n")
+        output.append("")
+
         # RP Preferences
         output.append(section_header("RP Preferences", width=78))
         output.append("")
@@ -390,7 +375,7 @@ class CmdBio(MuxCommand):
         else:
             output.append("|x(Not set)|n")
         output.append("")
-        
+
         # Touchstones
         output.append(section_header("Touchstones", width=78))
         output.append("")
@@ -401,16 +386,10 @@ class CmdBio(MuxCommand):
         else:
             output.append("|x(No touchstones set)|n")
         output.append("")
-        
-        # Free-form Story
-        output.append(section_header("Character Story", width=78))
-        output.append("")
-        story = bio_data.get("story", "") or ""
-        if story:
-            wrapped = self.wrap_text(story, indent="")
-            output.append(f"|g{wrapped}|n")
-        else:
-            output.append("|x(No story written)|n")
+
+        # Quick command pointers.
+        output.append("|wUse +bio/questions|n to view full question answers.")
+        output.append("|wUse +bio/story|n to view your story.")
         output.append("")
         
         # Footer
@@ -419,9 +398,73 @@ class CmdBio(MuxCommand):
         # Send output with pagination (40 lines per page)
         text = "\n".join(output)
         EvMore(self.caller, text, always_page=False, session=self.session, justify_kwargs=False, exit_on_lastpage=True)
+
+    def show_questions(self, target):
+        """Display full background and breaking point question answers."""
+        template = get_template(target).lower()
+        bio_data = target.db.bio_data
+        questions = BIO_QUESTIONS.get(template, BIO_QUESTIONS["mortal"])
+        output = []
+
+        output.append(section_header("Background Questions", width=78))
+        output.append("")
+        questions_dict = bio_data.get("questions", {}) or {}
+        for i, question in enumerate(questions, 1):
+            answer = questions_dict.get(f"q{i}", "")
+            output.append(f"|c{i}.|n {question}")
+            if answer:
+                wrapped = self.wrap_text(answer, indent="   ")
+                output.append(f"   |g{wrapped}|n")
+            else:
+                output.append("   |x(Not answered)|n")
+            output.append("")
+
+        output.append(section_header("Breaking Point Questions", width=78))
+        if template not in INTEGRITY_TEMPLATES:
+            output.append("|y(Your template uses different integrity mechanics, this is for background only.)|n")
+        output.append("")
+        breaking_points_dict = bio_data.get("breaking_points", {}) or {}
+        for i, question in enumerate(BREAKING_POINT_QUESTIONS, 1):
+            answer = breaking_points_dict.get(f"bp{i}", "")
+            output.append(f"|c{i}.|n {question}")
+            if answer:
+                wrapped = self.wrap_text(answer, indent="   ")
+                output.append(f"   |g{wrapped}|n")
+            else:
+                output.append("   |x(Not answered)|n")
+            output.append("")
+
+        output.append(footer(78, char="="))
+        text = "\n".join(output)
+        EvMore(self.caller, text, always_page=False, session=self.session, justify_kwargs=False, exit_on_lastpage=True)
+
+    def show_story(self, target):
+        """Display free-form character story."""
+        bio_data = target.db.bio_data
+        story = bio_data.get("story", "") or ""
+        output = [section_header("Character Story", width=78), ""]
+        if story:
+            wrapped = self.wrap_text(story, indent="")
+            output.append(f"|g{wrapped}|n")
+        else:
+            output.append("|x(No story written)|n")
+        output.append("")
+        output.append(footer(78, char="="))
+        self.caller.msg("\n".join(output))
+
+    def _is_locked_for_player_edits(self, target):
+        """
+        Return True if this bio is locked for non-staff edits.
+
+        After approval, players cannot edit question answers or story.
+        """
+        return bool(getattr(target.db, "approved", False)) and not self.caller.check_permstring("Builder")
     
     def set_question(self, target, question_num):
         """Set an answer to a bio question."""
+        if self._is_locked_for_player_edits(target):
+            self.caller.msg("|rYour character is approved. Bio question answers can no longer be edited.|n")
+            return
         if not self.args:
             self.caller.msg("Usage: +bio/q<number> <answer>")
             return
@@ -450,6 +493,9 @@ class CmdBio(MuxCommand):
     
     def set_breaking_point(self, target, bp_num):
         """Set an answer to a breaking point question."""
+        if self._is_locked_for_player_edits(target):
+            self.caller.msg("|rYour character is approved. Integrity question answers can no longer be edited.|n")
+            return
         if not self.args:
             self.caller.msg("Usage: +bio/bp<number> <answer>")
             return
@@ -495,6 +541,9 @@ class CmdBio(MuxCommand):
     
     def set_story(self, target):
         """Set free-form character story."""
+        if self._is_locked_for_player_edits(target):
+            self.caller.msg("|rYour character is approved. Your bio story can no longer be edited.|n")
+            return
         if not self.args:
             self.caller.msg("Usage: +bio/story <your character's story>")
             return

@@ -7,6 +7,11 @@ from evennia.commands.default.muxcommand import MuxCommand
 from world.jobs.models import Job, Queue
 from world.cofd.template_registry import template_registry
 from evennia.utils import logger
+from world.utils.sandbox_utils import (
+    should_auto_approve_on_submit,
+    grant_sandbox_starting_xp,
+)
+from world.cofd.chargen_tracker import get_submission_blockers
 
 
 class CmdSubmit(MuxCommand):
@@ -87,6 +92,48 @@ class CmdSubmit(MuxCommand):
         
         # Determine category based on template
         category = self.TEMPLATE_CATEGORY_MAP.get(template_lower, "CORE")
+
+        # Block submission until chargen tracker is fully complete.
+        blockers = get_submission_blockers(caller)
+        if blockers:
+            caller.msg("|rYou cannot submit yet. Your chargen tracker is not fully complete.|n")
+            caller.msg("|wPlease resolve the following before submitting:|n")
+            for item in blockers[:20]:
+                caller.msg(f"  - {item}")
+            if len(blockers) > 20:
+                caller.msg(f"  - ...and {len(blockers) - 20} more items")
+            return
+
+        # Sandbox mode can bypass staff approval workflow on submit.
+        if should_auto_approve_on_submit():
+            caller.db.approved = True
+            caller.tags.remove("unapproved", category="approval")
+            caller.tags.add("approved", category="approval")
+
+            granted, amount = grant_sandbox_starting_xp(caller)
+
+            # Keep sandbox approval behavior close to staff approval by auto-assigning groups.
+            try:
+                from world.groups.utils import auto_assign_character_groups
+
+                assigned_groups = auto_assign_character_groups(caller)
+                if assigned_groups:
+                    caller.msg(
+                        f"|gSandbox Mode:|n You were auto-assigned groups: {', '.join(assigned_groups)}"
+                    )
+            except Exception as err:
+                logger.log_err(f"Sandbox submit group assignment failed for {caller.name}: {err}")
+
+            caller.msg("|gSandbox Mode: character approved immediately on submission.|n")
+            if granted:
+                caller.msg(f"|gSandbox Mode: granted {amount} starting XP.|n")
+            else:
+                caller.msg("|ySandbox Mode: no starting XP was granted.|n")
+
+            logger.log_info(
+                f"{caller.name} submitted in sandbox mode and was auto-approved."
+            )
+            return
         
         # Create the snapshot
         snapshot = self._create_character_snapshot(caller, stats, template)

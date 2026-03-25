@@ -6,6 +6,7 @@ from world.experience import ExperienceHandler
 from world.conditions import STANDARD_CONDITIONS
 from world.utils.dice_utils import roll_dice, RollType
 from world.utils.formatting import header, footer, section_header, get_theme_colors
+from world.utils.permission_utils import require_approved_character
 from utils.search_helpers import search_character
 from world.reality_systems import get_template
 from world.cofd.integrity_systems import BREAKING_POINTS_BY_TEMPLATE, get_breaking_points
@@ -93,6 +94,8 @@ class CmdIntegrity(MuxCommand):
                 self.handle_clarity_heal()
                 return
             elif switch == "check" or switch == "roll":  # Support both for backwards compatibility
+                if not require_approved_character(self.caller, "+integrity/check"):
+                    return
                 # Parse the arguments for check
                 target = self.caller
                 manual_modifier = 0

@@ -2,6 +2,8 @@ import re
 from evennia.commands.default.muxcommand import MuxCommand
 from world.cofd.merits.general_merits import merits_dict, all_merits
 from world.utils.formatting import footer, get_theme_colors, sheet_section_header
+from world.utils.permission_utils import require_approved_character
+from world.utils.sandbox_utils import has_unlimited_xp_purchases
 
 
 class CmdExperience(MuxCommand):
@@ -52,8 +54,11 @@ class CmdExperience(MuxCommand):
         +xp/spend strength=4                    - Raise Strength to 4 dots
         +xp/spend unseen_sense:ghosts=2         - Buy Unseen Sense (Ghosts) merit
         +xp/spend athletics_specialty=running   - Add Running specialty to Athletics
+        +xp/spend contract=crown_of_thorns      - Learn a contract as known
+        +xp/spend contract/benefit=light_shy/darkling - Buy a non-native seeming benefit
         +xp/spend willpower=7                   - Restore lost Willpower
         +xp/spend animalism=3                   - Raise Animalism (Vampire)
+        +xp/spend contract=thirty_pieces        - Learn a Changeling/Fae-Touched contract
         +xp/spend forces=2                      - Raise Forces (Mage)
         +xp/spend primal_urge=2                 - Raise Primal Urge (Werewolf)
         +xp/spend cover:1=8                     - Raise Cover Identity #1 to 8 (Demon)
@@ -103,12 +108,16 @@ class CmdExperience(MuxCommand):
             else:
                 self.add_reminisce_beat(exp_handler)
         elif self.switches[0] == "spend":
+            if not require_approved_character(self.caller, "+xp/spend"):
+                return
             # Check for secondary switch (arcane)
             if len(self.switches) > 1 and self.switches[1] == "arcane":
                 self.spend_arcane_experience(exp_handler)
             else:
                 self.spend_experience(exp_handler)
         elif self.switches[0] == "buy":
+            if not require_approved_character(self.caller, "+xp/buy"):
+                return
             self.buy_merit(exp_handler)
         elif self.switches[0] == "refund":
             self.refund_merit(exp_handler)
@@ -545,6 +554,13 @@ class CmdExperience(MuxCommand):
         stat_input, value_str = self.args.split("=", 1)
         stat_input = stat_input.strip().lower()
         value_str = value_str.strip()
+
+        # Contract seeming benefit purchase syntax:
+        #   +xp/spend contract/benefit=<contract>/<seeming>
+        # Also supports:
+        #   +xp/spend contract/benefit/<contract>=<seeming>
+        if stat_input == "contract/benefit" or stat_input.startswith("contract/benefit/"):
+            return self._spend_on_contract_benefit(exp_handler, stat_input, value_str)
             
         # Initialize stats if needed
         if not self.caller.db.stats:
@@ -638,7 +654,7 @@ class CmdExperience(MuxCommand):
             current_dots = stats.get("merits", {}).get(merit_key, {}).get("dots", 0) if isinstance(stats.get("merits", {}).get(merit_key), dict) else 0
             max_dots = 5  # Will be validated against merit definition
         # Check for semantic power purchases (devotions, discipline_powers, etc.)
-        elif not is_dot_rated and stat_name in ["devotion", "discipline_power", "coil", "scale", "theban", "cruac"]:
+        elif not is_dot_rated and stat_name in ["devotion", "discipline_power", "coil", "scale", "theban", "cruac", "contract"]:
             # Handle semantic power purchases like +xp/spend devotion=colossus
             return self._spend_on_semantic_power(exp_handler, stat_name, value_str)
         # Template-specific stats
@@ -655,7 +671,7 @@ class CmdExperience(MuxCommand):
             self.caller.msg(f"You already have {stat_name.title()} at {current_dots} dots or higher.")
             return
             
-        if target_dots > max_dots:
+        if target_dots > max_dots and not has_unlimited_xp_purchases():
             self.caller.msg(f"{stat_name.title()} cannot exceed {max_dots} dots.")
             return
             
@@ -839,7 +855,7 @@ class CmdExperience(MuxCommand):
             self.caller.msg(f"Cover '{cover_name}' already has a rating of {current_rating} or higher.")
             return
         
-        if target_dots > 10:
+        if target_dots > 10 and not has_unlimited_xp_purchases():
             self.caller.msg("Cover rating cannot exceed 10.")
             return
         
@@ -869,10 +885,12 @@ class CmdExperience(MuxCommand):
         """Handle spending XP on semantic powers like devotions, discipline_powers, etc."""
         from world.cofd.power_utilities import handle_semantic_power, check_devotion_prerequisites, get_valid_semantic_powers
         from world.cofd.powers.vampire_disciplines import ALL_DEVOTIONS
+        from world.cofd.powers.changeling_contracts import ALL_CHANGELING_CONTRACTS
+        from world.xp_costs import calculate_xp_cost
         from world.xp_logger import get_xp_logger
         
         # Normalize power name
-        power_name = power_name.strip().lower().replace(" ", "_")
+        power_name = power_name.strip().lower().replace(" ", "_").replace("-", "_")
         
         # Validate power exists
         valid_powers = get_valid_semantic_powers(power_type)
@@ -905,6 +923,27 @@ class CmdExperience(MuxCommand):
             else:
                 self.caller.msg(f"Devotion '{power_name}' not found.")
                 return
+        elif power_type == "contract":
+            stats = self.caller.db.stats or {}
+            template = str(stats.get("other", {}).get("template", "")).lower()
+            template_type = str(stats.get("bio", {}).get("template_type", "")).lower()
+            is_changeling = template == "changeling"
+            is_fae_touched = template == "mortal+" and template_type == "fae_touched"
+
+            if not (is_changeling or is_fae_touched):
+                self.caller.msg("|rContract purchases are only available to Changeling and Fae-Touched characters.|n")
+                return
+
+            if power_name not in ALL_CHANGELING_CONTRACTS:
+                self.caller.msg(f"Invalid contract: {power_name}")
+                self.caller.msg("Use +lookup contracts to see available options.")
+                return
+
+            contract_data = ALL_CHANGELING_CONTRACTS.get(power_name, {}) or {}
+            contract_type = str(contract_data.get("contract_type", "")).lower()
+            stat_type = "goblin_contract" if contract_type == "goblin" else "contract"
+            xp_cost, _ = calculate_xp_cost(self.caller, stat_type, power_name, 0, 1)
+            power_data = contract_data
         else:
             # For other semantic powers, use handle_semantic_power which may have its own validation
             # But we need to check XP cost first. For now, default to 1 XP for non-devotion semantic powers
@@ -944,6 +983,114 @@ class CmdExperience(MuxCommand):
         logger.log_experience(-xp_cost, f"{display_name} ({power_type.replace('_', ' ').title()})")
         
         self.caller.msg(f"|gSpent {xp_cost} XP to learn {display_name} ({power_type.replace('_', ' ').title()}).|n")
+        self.caller.msg(f"Remaining experience: {exp_handler.experience}")
+
+    def _spend_on_contract_benefit(self, exp_handler, stat_input, value_str):
+        """
+        Purchase a non-native seeming benefit for a known contract.
+
+        Supported syntax:
+          +xp/spend contract/benefit=<contract>/<seeming>
+          +xp/spend contract/benefit/<contract>=<seeming>
+        """
+        from world.cofd.powers.changeling_contracts import ALL_CHANGELING_CONTRACTS
+        from world.xp_logger import get_xp_logger
+
+        stats = self.caller.db.stats or {}
+        template = str(stats.get("other", {}).get("template", "")).lower()
+        template_type = str(stats.get("bio", {}).get("template_type", "")).lower()
+        is_changeling = template == "changeling"
+        is_fae_touched = template == "mortal+" and template_type == "fae_touched"
+        if not (is_changeling or is_fae_touched):
+            self.caller.msg("|rContract benefits can only be purchased by Changeling or Fae-Touched characters.|n")
+            return
+
+        contract_name = ""
+        seeming_name = ""
+        if stat_input.startswith("contract/benefit/"):
+            contract_name = stat_input[len("contract/benefit/"):].strip()
+            seeming_name = value_str.strip()
+        else:
+            # contract/benefit=<contract>/<seeming>
+            if "/" in value_str:
+                contract_name, seeming_name = value_str.split("/", 1)
+            else:
+                # Convenience: allow +xp/spend contract/benefit=<seeming>
+                # if there is exactly one eligible known contract for that seeming.
+                seeming_name = value_str.strip()
+                seeming_key = seeming_name.lower().replace(" ", "_").replace("-", "_")
+                known_contracts = []
+                for pkey, pvalue in (stats.get("powers", {}) or {}).items():
+                    if isinstance(pkey, str) and pkey.startswith("contract:") and pvalue == "known":
+                        known_contracts.append(pkey.split(":", 1)[1])
+                eligible = []
+                for ckey in known_contracts:
+                    cdata = ALL_CHANGELING_CONTRACTS.get(ckey, {}) or {}
+                    sb = cdata.get("seeming_benefits", {}) or {}
+                    normalized_keys = {str(k).lower().replace(" ", "_").replace("-", "_") for k in sb.keys()}
+                    if seeming_key in normalized_keys:
+                        eligible.append(ckey)
+                if len(eligible) == 1:
+                    contract_name = eligible[0]
+                elif not eligible:
+                    self.caller.msg("|rNo known contracts on your sheet have that seeming benefit.|n")
+                    self.caller.msg("Usage: +xp/spend contract/benefit=<contract>/<seeming>")
+                    return
+                else:
+                    self.caller.msg("|yMultiple known contracts match that seeming benefit. Please specify contract.|n")
+                    self.caller.msg("Usage: +xp/spend contract/benefit=<contract>/<seeming>")
+                    return
+
+        contract_key = contract_name.strip().lower().replace(" ", "_").replace("-", "_")
+        seeming_key = seeming_name.strip().lower().replace(" ", "_").replace("-", "_")
+        if not contract_key or not seeming_key:
+            self.caller.msg("Usage: +xp/spend contract/benefit=<contract>/<seeming>")
+            return
+
+        contract_data = ALL_CHANGELING_CONTRACTS.get(contract_key)
+        if not contract_data:
+            self.caller.msg(f"|rUnknown contract '{contract_name}'.|n Use +lookup contracts.")
+            return
+
+        powers = stats.get("powers", {})
+        contract_power_key = f"contract:{contract_key}"
+        if powers.get(contract_power_key) != "known":
+            self.caller.msg(f"|rYou must know {contract_key.replace('_', ' ').title()} before buying extra seeming benefits.|n")
+            return
+
+        seeming_benefits = contract_data.get("seeming_benefits", {}) or {}
+        if seeming_key not in {str(k).lower().replace(" ", "_").replace("-", "_") for k in seeming_benefits.keys()}:
+            self.caller.msg(f"|r{contract_key.replace('_', ' ').title()} has no seeming benefit for '{seeming_name}'.|n")
+            return
+
+        native_seeming = str(stats.get("bio", {}).get("seeming", "")).lower().replace(" ", "_").replace("-", "_")
+        if seeming_key == native_seeming:
+            self.caller.msg("|yThat is your native seeming benefit and is already available automatically.|n")
+            return
+
+        benefit_key = f"contract_benefit:{contract_key}:{seeming_key}"
+        if powers.get(benefit_key) == "known":
+            self.caller.msg("|yYou already purchased that contract seeming benefit.|n")
+            return
+
+        cost = 1
+        if exp_handler.experience < cost:
+            self.caller.msg(f"Insufficient experience. Need {cost} XP, have {exp_handler.experience} XP.")
+            return
+
+        exp_handler.spend_experience(cost)
+        if "powers" not in stats:
+            stats["powers"] = {}
+        stats["powers"][benefit_key] = "known"
+        self.caller.db.stats = stats
+
+        logger = get_xp_logger(self.caller)
+        logger.log_experience(-cost, f"{contract_key.replace('_', ' ').title()} benefit ({seeming_key.title()})")
+
+        self.caller.msg(
+            f"|gSpent {cost} XP to purchase {seeming_key.title()} seeming benefit for "
+            f"{contract_key.replace('_', ' ').title()}.|n"
+        )
         self.caller.msg(f"Remaining experience: {exp_handler.experience}")
     
     def _spend_on_template_stat(self, exp_handler, stat_name, target_dots, instance=None):
@@ -1817,7 +1964,7 @@ class CmdExperience(MuxCommand):
                 self.caller.msg(f"You already have Wisdom at {current_dots} dots or higher.")
                 return
             
-            if target_dots > 10:
+            if target_dots > 10 and not has_unlimited_xp_purchases():
                 self.caller.msg("Wisdom cannot exceed 10 dots.")
                 return
             
@@ -1855,7 +2002,7 @@ class CmdExperience(MuxCommand):
                 self.caller.msg(f"You already have Gnosis at {current_dots} dots or higher.")
                 return
             
-            if target_dots > 10:
+            if target_dots > 10 and not has_unlimited_xp_purchases():
                 self.caller.msg("Gnosis cannot exceed 10 dots.")
                 return
             
@@ -1919,7 +2066,7 @@ class CmdExperience(MuxCommand):
                 self.caller.msg(f"You already have {arcana_name.replace('arcanum_', '').title()} at {current_dots} dots or higher.")
                 return
             
-            if target_dots > 5:
+            if target_dots > 5 and not has_unlimited_xp_purchases():
                 self.caller.msg("Arcana cannot exceed 5 dots.")
                 return
             

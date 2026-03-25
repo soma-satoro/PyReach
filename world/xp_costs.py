@@ -356,25 +356,88 @@ def get_geist_affinity_haunts(character):
 def get_changeling_favored_regalia(character):
     """Get list of favored regalia for a Changeling character."""
     stats = character.db.stats
-    kith = stats.get('bio', {}).get('kith', '').lower()
+    seeming = stats.get('bio', {}).get('seeming', '').lower()
     
     favored_regalia = []
     
-    if kith in CHANGELING_KITH_REGALIA:
-        favored_regalia.append(CHANGELING_KITH_REGALIA[kith])
+    # This mapping is by seeming (Beast, Darkling, etc).
+    if seeming in CHANGELING_KITH_REGALIA:
+        favored_regalia.append(CHANGELING_KITH_REGALIA[seeming])
     
-    second_regalia = stats.get('bio', {}).get('favored_regalia', '').lower()
+    # Favored regalia is stored in stats["other"] in current chargen flow,
+    # but keep bio fallback for legacy data.
+    second_regalia = (
+        stats.get('other', {}).get('favored_regalia', '')
+        or stats.get('bio', {}).get('favored_regalia', '')
+    )
+    second_regalia = str(second_regalia).lower().strip()
     if second_regalia and second_regalia not in favored_regalia:
         favored_regalia.append(second_regalia)
     
     return favored_regalia
 
 
+def get_changeling_contract_type(contract_name):
+    """
+    Get contract type metadata from canonical contract data.
+
+    Returns values like:
+      - 'crown'
+      - 'crown_royal'
+      - 'summer'
+      - 'summer_royal'
+      - 'goblin'
+    """
+    try:
+        from world.cofd.powers.changeling_contracts import ALL_CHANGELING_CONTRACTS
+    except Exception:
+        return ""
+
+    contract_normalized = str(contract_name).lower().replace(" ", "_")
+    data = ALL_CHANGELING_CONTRACTS.get(contract_normalized, {}) or {}
+    return str(data.get("contract_type", "")).lower()
+
+
+def is_out_of_seeming_contract(character, contract_name):
+    """
+    Check if a contract is out-of-seeming for this character.
+
+    Out-of-seeming applies a +1 XP surcharge for regalia/court contracts.
+    """
+    try:
+        from world.cofd.powers.changeling_contracts import ALL_CHANGELING_CONTRACTS
+    except Exception:
+        return False
+
+    stats = character.db.stats or {}
+    seeming = str(stats.get("bio", {}).get("seeming", "")).lower().strip()
+    if not seeming:
+        return False
+
+    contract_normalized = str(contract_name).lower().replace(" ", "_")
+    data = ALL_CHANGELING_CONTRACTS.get(contract_normalized, {}) or {}
+    seeming_benefits = data.get("seeming_benefits", {}) or {}
+    if not isinstance(seeming_benefits, dict) or not seeming_benefits:
+        return False
+
+    normalized_seemings = {str(k).lower().strip() for k in seeming_benefits.keys()}
+    return seeming not in normalized_seemings
+
+
 def is_changeling_contract_favored(character, contract_name):
     """Check if a contract belongs to a favored regalia."""
     contract_normalized = contract_name.lower().replace(' ', '_')
-    contract_regalia = CHANGELING_CONTRACT_REGALIA.get(contract_normalized)
-    
+    contract_type = get_changeling_contract_type(contract_normalized)
+    contract_regalia = ""
+    if contract_type and contract_type != "goblin":
+        if "_" in contract_type:
+            contract_regalia = contract_type.split("_", 1)[0]
+        else:
+            contract_regalia = contract_type
+
+    # Fallback for legacy/incomplete mappings.
+    if not contract_regalia:
+        contract_regalia = CHANGELING_CONTRACT_REGALIA.get(contract_normalized, "")
     if not contract_regalia:
         return False
     
@@ -513,7 +576,12 @@ def _calculate_changeling_cost(character, stat_type, stat_name, dots_to_buy):
     """Calculate changeling-specific costs."""
     if stat_type == 'contract':
         is_favored = is_changeling_contract_favored(character, stat_name)
-        is_royal = 'royal' in stat_name.lower()
+        contract_type = get_changeling_contract_type(stat_name)
+        is_royal = 'royal' in contract_type
+        is_goblin = contract_type == 'goblin'
+        
+        if is_goblin:
+            return (dots_to_buy * CHANGELING_COSTS['goblin_contract'], 'normal')
         
         if is_favored:
             if is_royal:
@@ -525,7 +593,7 @@ def _calculate_changeling_cost(character, stat_type, stat_name, dots_to_buy):
                 cost = CHANGELING_COSTS['royal_contract']
             else:
                 cost = CHANGELING_COSTS['common_contract']
-        
+
         return (dots_to_buy * cost, 'normal')
     elif stat_type == 'goblin_contract':
         return (dots_to_buy * CHANGELING_COSTS['goblin_contract'], 'normal')
@@ -702,7 +770,12 @@ def _calculate_mortal_plus_cost(character, stat_type, stat_name, dots_to_buy):
         if stat_type == 'contract':
             # Fae-Touched use same favored regalia system as Changelings
             is_favored = is_changeling_contract_favored(character, stat_name)
-            is_royal = 'royal' in stat_name.lower()
+            contract_type = get_changeling_contract_type(stat_name)
+            is_royal = 'royal' in contract_type
+            is_goblin = contract_type == 'goblin'
+            
+            if is_goblin:
+                return (dots_to_buy * FAE_TOUCHED_COSTS['goblin_contract'], 'normal')
             
             if is_favored:
                 if is_royal:
@@ -714,7 +787,7 @@ def _calculate_mortal_plus_cost(character, stat_type, stat_name, dots_to_buy):
                     cost = FAE_TOUCHED_COSTS['royal_contract']
                 else:
                     cost = FAE_TOUCHED_COSTS['common_contract']
-            
+
             return (dots_to_buy * cost, 'normal')
         elif stat_type == 'goblin_contract':
             return (dots_to_buy * FAE_TOUCHED_COSTS['goblin_contract'], 'normal')

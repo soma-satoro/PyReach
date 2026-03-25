@@ -488,6 +488,7 @@ class CmdConfigOOCIC(MuxCommand):
         +config/theme [colors]         - Set or view theme colors
         +config/equipment [subcommand] - Equipment purchasing configuration
         +config/xp [subcommand]        - XP/voting system configuration
+        +config/sandbox [subcommand]   - Sandbox approval/XP configuration
     
     Equipment (+config/equipment):
         +config/equipment              - Show equipment config
@@ -506,13 +507,18 @@ class CmdConfigOOCIC(MuxCommand):
         +config/xp/weekly              - Weekly beats info
         +config/xp/distribute          - Force beat distribution
         +config/xp/script <start|stop>
+
+    Sandbox (+config/sandbox):
+        +config/sandbox                - Show sandbox status
+        +config/sandbox on|off         - Enable/disable sandbox mode
+        +config/sandbox startxp=<num>  - Set starting XP granted on submit
     """
     
     key = "+config"
     aliases = ["config"]
     locks = "cmd:perm(developer)"
     help_category = "Admin Commands"
-    switch_options = ("ooc", "ic", "clear", "list", "theme", "equipment", "xp",
+    switch_options = ("ooc", "ic", "clear", "list", "theme", "equipment", "xp", "sandbox",
                      "mode", "period", "maxpurchases", "saving", "bonus", "remove",
                      "status", "reset", "script", "help", "set", "settings",
                      "weekly", "distribute")
@@ -564,8 +570,10 @@ class CmdConfigOOCIC(MuxCommand):
             self.handle_equipment_config()
         elif "xp" in self.switches:
             self.handle_xp_config()
+        elif "sandbox" in self.switches:
+            self.handle_sandbox_config()
         else:
-            caller.msg("Usage: +config/ooc <room>, +config/ic <room>, +config/theme <colors>, +config/equipment, or +config/xp")
+            caller.msg("Usage: +config/ooc <room>, +config/ic <room>, +config/theme <colors>, +config/equipment, +config/xp, or +config/sandbox")
     
     def show_current_settings(self):
         """Show all current OOC/IC configuration settings"""
@@ -606,6 +614,7 @@ class CmdConfigOOCIC(MuxCommand):
         caller.msg("")
         caller.msg("|wEquipment Purchasing:|n Use +config/equipment for resource pool, merits, purchase mode.")
         caller.msg("|wXP System:|n Use +config/xp for voting/weekly beats mode and settings.")
+        caller.msg("|wSandbox:|n Use +config/sandbox for submit auto-approval and sandbox starting XP.")
         caller.msg("")
         caller.msg("Use '+config/ooc <room>' or '+config/ic <room>' to set room values.")
         caller.msg("Use '+config/theme <color1>,<color2>,<color3>' to set theme colors.")
@@ -894,6 +903,17 @@ class CmdConfigOOCIC(MuxCommand):
             current_mode = ServerConfig.objects.conf('xp_system_mode', default='voting')
             output = ["|wExperience Point System Settings|n", "=" * 40]
             output.append(f"Current Mode: |c{current_mode.title()}|n")
+            output.append("")
+            output.append("|wSandbox Settings:|n")
+            sandbox_enabled = bool(ServerConfig.objects.conf('sandbox_mode_enabled', default=False))
+            sandbox_auto_approve = bool(ServerConfig.objects.conf('sandbox_auto_approve_on_submit', default=True))
+            sandbox_starting_xp = int(ServerConfig.objects.conf('sandbox_starting_xp', default=0) or 0)
+            sandbox_unlimited = bool(ServerConfig.objects.conf('sandbox_unlimited_xp_purchases', default=True))
+            output.append(f"  Sandbox Mode: {sandbox_enabled}")
+            output.append(f"  Auto-Approve On Submit: {sandbox_auto_approve}")
+            output.append(f"  Starting XP On Submit: {sandbox_starting_xp}")
+            output.append(f"  Unlimited XP Purchases: {sandbox_unlimited}")
+            output.append("")
             if current_mode == 'voting':
                 output.append("|cVoting:|n")
                 output.append(f"  Vote Cooldown: {VotingHandler.get_setting('vote_cooldown_hours', 168)} hours")
@@ -924,13 +944,29 @@ class CmdConfigOOCIC(MuxCommand):
             key = key.strip().lower()
             value_str = value_str.strip()
             valid = ['vote_cooldown_hours', 'recc_cooldown_hours', 'vote_beats', 'recc_beats',
-                     'weekly_beats_amount', 'weekly_beats_day', 'weekly_beats_time']
+                     'weekly_beats_amount', 'weekly_beats_day', 'weekly_beats_time',
+                     'sandbox_mode_enabled', 'sandbox_auto_approve_on_submit',
+                     'sandbox_starting_xp', 'sandbox_unlimited_xp_purchases']
             if key not in valid:
                 caller.msg(f"Invalid setting. Valid: {', '.join(valid)}")
                 return
             try:
-                if key.endswith('_hours') or key == 'weekly_beats_amount':
+                if key in ['sandbox_mode_enabled', 'sandbox_auto_approve_on_submit', 'sandbox_unlimited_xp_purchases']:
+                    lowered = value_str.lower()
+                    if lowered in ['on', 'true', '1', 'yes', 'enabled']:
+                        value = True
+                    elif lowered in ['off', 'false', '0', 'no', 'disabled']:
+                        value = False
+                    else:
+                        caller.msg("Boolean settings must be on/off, true/false, yes/no, or 1/0.")
+                        return
+                elif key.endswith('_hours') or key == 'weekly_beats_amount' or key == 'sandbox_starting_xp':
                     value = int(value_str) if key.endswith('_hours') else float(value_str)
+                    if key == 'sandbox_starting_xp':
+                        value = int(value_str)
+                        if value < 0:
+                            caller.msg("sandbox_starting_xp cannot be negative.")
+                            return
                 elif key == 'weekly_beats_day':
                     if value_str.lower() not in ['monday', 'tuesday', 'wednesday', 'thursday', 'friday', 'saturday', 'sunday']:
                         caller.msg("Invalid day. Use a weekday name.")
@@ -944,7 +980,9 @@ class CmdConfigOOCIC(MuxCommand):
                     value = value_str
                 else:
                     value = float(value_str)
-                if key in ['weekly_beats_amount', 'weekly_beats_day', 'weekly_beats_time']:
+                if key in ['weekly_beats_amount', 'weekly_beats_day', 'weekly_beats_time',
+                           'sandbox_mode_enabled', 'sandbox_auto_approve_on_submit',
+                           'sandbox_starting_xp', 'sandbox_unlimited_xp_purchases']:
                     ServerConfig.objects.conf(key, value=value)
                 else:
                     VotingHandler.set_setting(key, value)
@@ -984,6 +1022,67 @@ class CmdConfigOOCIC(MuxCommand):
                 caller.msg("Use: start or stop")
         else:
             caller.msg("XP subcommands: mode, set, weekly, distribute, script. Use +config/xp for status.")
+
+    def handle_sandbox_config(self):
+        """Handle sandbox configuration via +config/sandbox."""
+        caller = self.caller
+        args = self.args.strip()
+
+        sandbox_enabled = bool(ServerConfig.objects.conf('sandbox_mode_enabled', default=False))
+        auto_approve = bool(ServerConfig.objects.conf('sandbox_auto_approve_on_submit', default=True))
+        startxp = int(ServerConfig.objects.conf('sandbox_starting_xp', default=0) or 0)
+        unlimited = bool(ServerConfig.objects.conf('sandbox_unlimited_xp_purchases', default=True))
+
+        if not args:
+            output = ["|wSandbox Configuration|n", "=" * 40]
+            output.append(f"Enabled: |c{sandbox_enabled}|n")
+            output.append(f"Auto-approve on submit: |c{auto_approve}|n")
+            output.append(f"Starting XP on submit: |c{startxp}|n")
+            output.append(f"Unlimited XP purchases: |c{unlimited}|n")
+            output.append("")
+            output.append("Usage:")
+            output.append("  +config/sandbox on|off")
+            output.append("  +config/sandbox startxp=<amount>")
+            caller.msg("\n".join(output))
+            return
+
+        lowered = args.lower()
+        if lowered in ("on", "off"):
+            enable = lowered == "on"
+            ServerConfig.objects.conf('sandbox_mode_enabled', value=enable)
+
+            # Sandbox mode implies submit auto-approval and no staff XP-dot oversight.
+            if enable:
+                ServerConfig.objects.conf('sandbox_auto_approve_on_submit', value=True)
+                ServerConfig.objects.conf('sandbox_unlimited_xp_purchases', value=True)
+
+            status = "ENABLED" if enable else "DISABLED"
+            caller.msg(f"|gSandbox mode {status}.|n")
+            if enable:
+                caller.msg("|gSandbox defaults applied: auto-approve on submit + unlimited XP purchases.|n")
+            return
+
+        if "=" in args:
+            key, _, value_str = args.partition("=")
+            key = key.strip().lower()
+            value_str = value_str.strip()
+
+            if key == "startxp":
+                try:
+                    value = int(value_str)
+                except ValueError:
+                    caller.msg("startxp must be a whole number.")
+                    return
+
+                if value < 0:
+                    caller.msg("startxp cannot be negative.")
+                    return
+
+                ServerConfig.objects.conf('sandbox_starting_xp', value=value)
+                caller.msg(f"|gSandbox starting XP set to {value}.|n")
+                return
+
+        caller.msg("Usage: +config/sandbox on|off OR +config/sandbox startxp=<amount>")
     
     def show_theme_colors(self):
         """Show current theme colors."""

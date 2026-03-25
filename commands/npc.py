@@ -1,7 +1,11 @@
 from evennia.commands.default.muxcommand import MuxCommand
 from evennia.utils import create, evtable
 from typeclasses.npcs import NPC, MinorNPC, MajorNPC, BossNPC
-from world.utils.permission_utils import check_storyteller_permission, check_staff_permission
+from world.utils.permission_utils import (
+    check_storyteller_permission,
+    check_staff_permission,
+    require_approved_character,
+)
 
 class CmdNPC(MuxCommand):
     """
@@ -45,6 +49,9 @@ class CmdNPC(MuxCommand):
     
     def func(self):
         """Execute the command"""
+        if not require_approved_character(self.caller, "+npc"):
+            return
+
         if not self.switches:
             self.caller.msg("Usage: +npc/list, +npc/create, +npc/generate, +npc/puppet, etc. See help for more.")
             return

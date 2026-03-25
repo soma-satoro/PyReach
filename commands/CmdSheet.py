@@ -318,7 +318,7 @@ class CmdSheet(MuxCommand):
             # If mage_spells not found, return empty list
             return []
     
-    def _format_powers_display(self, powers, template_powers, force_ascii, use_numeric=False, template=None):
+    def _format_powers_display(self, powers, template_powers, force_ascii, use_numeric=False, template=None, stats=None):
         """Format the powers section for display."""
         if not template_powers:
             return ["No powers available for this template."]
@@ -336,6 +336,7 @@ class CmdSheet(MuxCommand):
         
         # Group powers by category if applicable
         displayed_powers = []
+        known_contract_keys = []
         for power_name in template_powers:
             # Check for power with and without prefix (e.g., "spinning_wheel" and "contract:spinning_wheel")
             power_value = powers.get(power_name, 0)
@@ -421,6 +422,8 @@ class CmdSheet(MuxCommand):
                     power_name_display = display_name.replace('_', ' ').title()
                     power_display = f"{power_name_display}{contract_info}"
                 displayed_powers.append(power_display)
+                if contract_data and contract_key:
+                    known_contract_keys.append(contract_key.lower())
         
         if not displayed_powers:
             return ["No powers learned yet."]
@@ -434,6 +437,54 @@ class CmdSheet(MuxCommand):
             left_formatted = left_power.ljust(42)
             power_lines.append(f"{left_formatted}{right_power}")
         
+        # Changeling contract seeming benefits display (automatic + purchased).
+        if contract_data and stats and known_contract_keys:
+            native_seeming = str(stats.get("bio", {}).get("seeming", "")).lower().replace(" ", "_").replace("-", "_")
+            purchased_benefits = {}
+            for pkey, pvalue in powers.items():
+                if not isinstance(pkey, str) or not pkey.startswith("contract_benefit:"):
+                    continue
+                if pvalue != "known":
+                    continue
+                parts = pkey.split(":", 2)
+                if len(parts) != 3:
+                    continue
+                _, contract_name, seeming_name = parts
+                contract_name = contract_name.lower()
+                seeming_name = seeming_name.lower()
+                if contract_name not in purchased_benefits:
+                    purchased_benefits[contract_name] = set()
+                purchased_benefits[contract_name].add(seeming_name)
+
+            benefit_lines = []
+            for contract_key in sorted(set(known_contract_keys)):
+                contract = contract_data(contract_key) if contract_data else None
+                if not contract:
+                    continue
+                seeming_benefits = contract.get("seeming_benefits", {}) or {}
+                if not isinstance(seeming_benefits, dict) or not seeming_benefits:
+                    continue
+
+                unlocked = []
+                purchased_for_contract = purchased_benefits.get(contract_key, set())
+                for seeming in sorted(seeming_benefits.keys()):
+                    seeming_norm = str(seeming).lower().replace(" ", "_").replace("-", "_")
+                    seeming_display = str(seeming).replace("_", " ").title()
+                    if seeming_norm == native_seeming:
+                        unlocked.append(seeming_display)
+                    elif seeming_norm in purchased_for_contract:
+                        unlocked.append(seeming_display)
+
+                contract_display = contract_key.replace("_", " ").title()
+                if unlocked:
+                    benefit_lines.append(f"{contract_display}: {', '.join(unlocked)}")
+
+            if benefit_lines:
+                power_lines.append("")
+                power_lines.append("Contract Benefits:")
+                for line in benefit_lines:
+                    power_lines.append(f"  {line}")
+
         return power_lines
     
     def _format_secondary_powers_display(self, powers, template_secondary_powers, force_ascii, use_numeric=False):
@@ -1257,7 +1308,7 @@ class CmdSheet(MuxCommand):
                     output.append(self._format_section_header(f"|w{primary_section}|n"))
                     
                     if template_powers:
-                        power_display = self._format_powers_display(powers, template_powers, force_ascii, use_numeric, template)
+                        power_display = self._format_powers_display(powers, template_powers, force_ascii, use_numeric, template, target.db.stats)
                         output.extend(power_display)
                     else:
                         output.append("No primary powers available for this template.")
@@ -2989,7 +3040,7 @@ class CmdSheet(MuxCommand):
                     output.append(self._format_section_header(f"|w{primary_section}|n"))
                     
                     if template_powers:
-                        power_display = self._format_powers_display(powers, template_powers, force_ascii, use_numeric, template)
+                        power_display = self._format_powers_display(powers, template_powers, force_ascii, use_numeric, template, target.db.stats)
                         output.extend(power_display)
                     else:
                         output.append("No primary powers available for this template.")

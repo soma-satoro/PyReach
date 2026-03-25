@@ -8,7 +8,11 @@ location desynchronization bugs experienced on Dies Irae.
 
 from evennia import default_cmds
 from evennia.commands.default.muxcommand import MuxCommand
-from world.utils.permission_utils import check_staff_permission, format_permission_error
+from world.utils.permission_utils import (
+    check_staff_permission,
+    format_permission_error,
+    require_approved_character,
+)
 from utils.search_helpers import search_character
 import evennia
 from evennia.server.models import ServerConfig
@@ -136,6 +140,8 @@ class CmdGo(MuxCommand):
     def go_ic(self):
         """Handle the /ic switch - return to IC area"""
         caller = self.caller
+        if not require_approved_character(caller, "+go/ic"):
+            return
         
         destination = None
         location_type = "starting"
@@ -196,6 +202,8 @@ class CmdGo(MuxCommand):
     def go_coord(self):
         """Handle the /coord switch - fast-travel to a room by area code"""
         caller = self.caller
+        if not require_approved_character(caller, "+go/coord"):
+            return
         
         # Check if an area code was provided
         if not self.args.strip():

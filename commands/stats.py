@@ -1,5 +1,6 @@
 from evennia.commands.default.muxcommand import MuxCommand
 from evennia.utils import evtable
+import difflib
 from world.cofd.stat_dictionary import (
     attribute_dictionary, skill_dictionary, 
     advantage_dictionary, anchor_dictionary
@@ -8,186 +9,37 @@ from utils.search_helpers import search_character
 
 class CmdStat(MuxCommand):
     """
-    Character generation tool for stat management.
-    
-    IMPORTANT: This command can only be used in character generation rooms.
-    The room must be tagged with both 'chargen' and 'ooc' tags.
-    Use +room/tag here=chargen,ooc to set up a chargen room.
-    The +stat/list switch is staff-only and can be used anywhere to view stats.
-    
-    Usage:
-        +stat <stat>=<value> - Set a stat on yourself (if not approved)
-        +stat <stat>= - Remove a stat from yourself (if not approved)
-        +stat/list [name] - List all stats for yourself or another (staff only)
-        +stat/remove <stat> - Remove a stat from yourself (if not approved)
-        +stat/remove specialty/<skill> - Remove all specialties for a skill
-        +stat/remove specialty/<skill>=<specialty name> - Remove a specific specialty
-        +stat/favored <stat> - Select free bonus dot (adds 1 dot to the stat)
-        +stat/geist <stat>=<value> - Set a geist stat (Sin-Eater characters only)
-        +stat/mage <stat>=<value> - Set a mage stat (Mage characters only)
-        +stat/demon <stat>=<value> - Set a demon form stat (Demon characters only)
-        
-        Shortcuts:
-        +stat type=<value> - Alias for template_type (Mortal+ characters)
-        +stat clan=<value> - Sets clan for Vampires, or subtype for Ghouls/Revenants
-        +stat tell=<value> - Alias for subtype (Wolf-Blooded characters)
-        
-        Covenant Abbreviations (Vampire):
-        Carthian, Circle, Crone/Crones, Invictus, Ordo, Dracul, Lancea, Belial, VII/Seven
-        
-        Tribe Abbreviations (Werewolf):
-        Talons, Shadows, Hunters, Masters, Lords, Ghost
-        
-        Template-Specific Free Bonus Dots:
-        Vampire: One attribute from clan favored attributes (use +stat/favored)
-        Werewolf: One skill from auspice skills (use +stat/favored)
-        Changeling: One attribute based on seeming category (use +stat/favored)
-        Mage: Choice of Composure, Resolve, or Stamina (use +stat/favored)
-        Hunter: 3 free tactics (use +stat tactics=<list>) + 1 dot Status (tier 2+)
-        
-        Hunter-Specific Stats:
-        +stat tier=<1-3> - Set hunter tier (1=Cell, 2=Compact, 3=Conspiracy)
-        +stat tactics=<tactic1,tactic2,tactic3> - Set 3 cell favored tactics
-        +stat organization=<name> - Set compact/conspiracy name (tier 2+)
-        +stat profession=<job> - Set profession (tier 1 cells)
-        
-        Mummy-Specific Stats:
-        +stat decree=<name> - Set decree (ashem/jackal, deshret/falcon, kheru/lion, nesrem/bull, usheb/serpent)
-        +stat guild=<name> - Set guild (maa-kep, mesen-nebu, sesha-hebsu, su-menent, tef-aabhi)
-        +stat judge=<name> - Set judge (am-khaibit, arem-abfu, kenemti, nebha, neheb-ka, unem-besek, usekh-nemtet)
-        +stat balance=<archetype> - Set balance anchor (mummy's virtue equivalent)
-        +stat burden=<archetype> - Set burden anchor (mummy's vice equivalent)
-        +stat ab/ba/ka/ren/sheut=<0-5> - Set pillar dots (9 total, defining pillar must be highest)
-        +stat memory=<0-10> - Set memory stat (starts at 3)
-        +stat sekhem=<0-10> - Set sekhem vital force (starts at 8-10 based on awakening)
-        +stat affinity:<name>=known - Add affinity (4 total: 1 decree + 1 guild + 2 soul)
-        +stat utterance:<name>=known - Add utterance (2 chosen + Dreams of Dead Gods free)
-        
-        Promethean-Specific Stats:
-        +stat lineage=<name> - Set lineage (frankenstein, galateid, osiris, tammuz, ulgan, unfleshed, extempore)
-        +stat refinement=<name> - Set refinement (aurum, cuprum, ferrum, mercurius, stannum)
-        +stat role=<name> - Set current role within refinement
-        +stat elpis=<archetype> - Set elpis anchor (what keeps them on Pilgrimage)
-        +stat torment=<archetype> - Set torment anchor (what distances them from humanity)
-        +stat bestowment:<name>=known - Set bestowment (1 from lineage options)
-        +stat alembic:<name>=known - Add alembic (2 total, one per refinement transmutation)
-        +stat pilgrimage=<1-10> - Set pilgrimage progress (starts at 1)
-        +stat pyros=<0-max> - Set current pyros (max = Azoth * 10)
-        
-        Mortal+ Specific Stats:
-        +stat template_type=<type> - Set Mortal+ type
-          Types: ghoul, revenant, dhampir, wolf-blooded, psychic, atariya, infected, 
-                 plain, lost boy, psychic vampire, immortal, proximus, sleepwalker, fae-touched
-        
-        Ghoul: +stat clan=<regnant's clan> - Set regnant's clan for disciplines
-               2 dots of in-clan disciplines, Blood Potency 0
-        
-        Revenant: +stat clan=<family clan> - Set family lineage
-                  +stat mask/dirge=<name> - Set anchors
-                  3 dots disciplines (1 must be physical, no unique), Blood Potency 1
-        
-        Dhampir: +stat clan=<parent clan> - Set parent clan
-                 +stat destiny/doom/affliction=<name> - Set dhampir traits
-                 +stat theme:<name>=<dots> - Set clan theme (3 themes, 1 dot each)
-                 +stat twist:<name>=<dots> - Set twist (3 free dots + clan unique)
-                 +stat malison:<name>=known - Add malison (3 merit dots each)
-                 Free merits: Blood Sense, Omen Sensitivity, Thief of Fate
-        
-        Wolf-Blooded: +stat tell=<name> - Set Tell (inherited werewolf trait)
-        
-        Psychic: Purchase psychic merits (Telepathy, Telekinesis, etc.)
-        
-        Atariya: Requires Damn Lucky Merit (caught attention of luck)
-        
-        Infected: Starts with Carrier Merit and Latent Symptoms Condition
-        
-        Plain: Gets Plain Reader Merit free (devoted to radical nonviolence)
-        
-        Lost Boy: Gets Protocol Merit free (Delta Protocol augmentation)
-        
-        Psychic Vampire: Gets Psychic Vampirism Merit free (steals life energy)
-                         +stat ephemera=<0-20> - Set psychic fuel
-        
-        Immortal/Endless: +stat template_type=immortal, then +stat subtype=<method>
-                          Methods: blood_bather, body_thief (mystical_thief/psychic_thief),
-                                   eternal, reborn
-                          +stat curse=<description> or +stat method=<description>
-                          +stat investment=<arisen name> - If part of mummy cult
-                          +stat sekhem=<1-5> - Immortal power (starts at 1, max 5)
-                          
-                          Blood Bather: Favored Attr = Presence, Integrity starts at 5
-                          Body Thief: Favored Attr = Manipulation
-                          Eternal: Favored Attr = Stamina, gets 1 free Relic dot
-                          Reborn: Favored Attr = Intelligence
-                          
-                          All get: 1 free dot in favored attribute
-                                   1 free dot in Endless Potency (favored attribute) merit
-        
-        Proximus: +stat path=<parent path> - Set parent path (determines ruling arcana)
-                  +stat blessing_arcanum=<arcanum> - Choose 3rd blessing arcanum
-                  +stat dynasty=<family name> - Set family/dynasty name
-                  +stat curse=<description> - Set familial curse
-                  +stat mana=<0-5> - Set mana (max 5 for Proximi)
-                  Purchase blessings as merits: +stat blessing:<name>=<dots> (max 30 dots total)
-        
-        Sleepwalker: Gets Sleepwalker merit (1 dot) free
-                     Immune to Curse, cause no Dissonance
-                     Can assist mages with rituals
-        
-        Fae-Touched: +stat promise=<description> - Set promise to changeling
-                     +stat promise_type=<type> - Set type (clemency, debt, love, loyalty, protection, provision, service)
-                     +stat favored regalia=<name> - Choose favored regalia
-                     +stat wyrd=0 - Wyrd always 0 (cannot increase)
-                     +stat glamour=<0-10> - Set glamour (max 10)
-                     +stat contract:<name>=known - Add contract (2 Common from favored regalia)
-                     Wyrd 0, max 10 Glamour, 2 Common Contracts from favored Regalia
-                     Start with: Madness, Arcadian Dreams, Hedge Addiction Conditions
-        
-        Merit Instances:
-        Some merits can be taken multiple times with different specifications.
-        Use colon notation to create instances:
-            +stat Unseen Sense:Ghosts=2
-        Each instance costs the full merit value. To remove an instance:
-            +stat Unseen Sense:Ghosts=
-    Valid stat categories:
-        Attributes: strength, dexterity, stamina, presence, manipulation, 
-                   composure, intelligence, wits, resolve
-        Skills: All CoD skills (athletics, brawl, investigation, etc.)
-        Specialties: specialty/[skill]=[specialty name] (requires dots in skill)
-        Power Stats: blood_potency, gnosis, primal_urge, wyrd, synergy, 
-                    azoth (promethean), primum, psyche, feral_heart, 
-                    sekhem (mummy 0-10, immortal 1-5), mana (mage/proximus)
-        Renown (Werewolf): glory, honor, cunning, purity, wisdom
-        Merits: All Chronicles of Darkness merits (see +lookup merits)
-        Powers: Template-specific supernatural abilities
-            discipline, devotion, coil, scale, theban, cruac, arcana, gift, 
-            rite, contract, spell, alembic, bestowment, endowment, embed, exploit,
-            adaptation, affinity (mummy), utterance (mummy), variation (deviant), scar (deviant)
-        Anchors: virtue/vice (mortal/most templates), elpis/torment (promethean),
-                 mask/dirge (vampire), thread/needle (changeling), root/bloom (geist),
-                 bone/blood (werewolf), conviction/loyalty (deviant - also tracked as 0-10 stats),
-                 balance/burden (mummy - stored as anchors)
-        Note: Sin-Eater "burden" is a bio field (Hungry/Bereaved/etc), not an anchor
-              Mummy "burden" is an anchor (Accusing/Careless/etc), like vice
-        Hunter Tactics: Favored tactics grant 8-again quality to rolls when performed
-        Mummy Pillars: ab, ba, ka, ren, sheut (aspects of soul, 0-5 each, 9 total)
-        Mummy Memory: memory (0-10, starts at 3, tracks retained personality/knowledge)
-        Mummy/Immortal Sekhem: sekhem - Mummy: 0-10 (vital force), Immortal: 1-5 (power rating)
-        Psychic Vampire: ephemera (0-20, psychic fuel, max = Resolve, loses 1/day)
-        Changeling/Fae-Touched: glamour - Changeling: max 10+Wyrd, Fae-Touched: max 10
-        Integrity: clarity, wisdom, humanity, harmony, cover, memory, integrity, stability
-                   Note: Deviants use loyalty and conviction (0-10) instead of integrity
-        
-        Semantic Power Setting:
-        The following are semantic powers, which require you to set individual abilities, which
-        would classically be similar to rites or rituals (+stat rite=<rite name>)
-        Keys, Ceremonies, Rites, Contracts, Spells, Alembics, Bestowments,
-        Endowments, Embeds, Exploits, Affinities, Utterances, Adaptations
-        
-        Mummy utterances are set with +stat <utterance name>=known, so +stat fury_of_sekhmet_sheut_1=known
-        Remove semantic powers with +stat/remove.
+    Character generation stat management.
 
-        All other powers are set with +stat <power name>=<value>, so +stat animalism=4
+    This command is for chargen. Most stat-setting requires being in a room
+    tagged both `chargen` and `ooc`. `+stat/list` is staff-usable anywhere.
+
+    Usage:
+        +stat <stat>=<value>
+        +stat <stat>=
+        +stat/list [name]
+        +stat/remove <stat>
+        +stat/favored <attribute>
+        +stat/geist <stat>=<value>
+        +stat/mage <stat>=<value>
+        +stat/demon <stat>=<value>
+
+    Common examples:
+        +stat dex=3
+        +stat wits=3
+        +stat specialty/investigation=Forensics
+        +stat contract=thirty_pieces
+        +stat contract/thirty_pieces=known
+        +stat affinity/fury_of_sekhmet_sheut_1=known
+
+    Notes:
+        - Semantic powers prefer slash syntax: `<type>/<name>=known`
+          (e.g. contract, spell, alembic, bestowment, endowment, embed, exploit).
+        - For convenience, `+stat contract=<name>` also sets that contract to `known`.
+        - Merit instances can use slash syntax too: `merit/<name>/<instance>=<dots>`.
+        - Legacy colon syntax is still supported for backward compatibility.
+        - Unknown stats are rejected (no silent custom-stat creation).
+        - Stat shorthand is supported for common attributes/skills (`dex`, `str`, `inv`, etc.).
     """
     
     key = "+stat"
@@ -284,12 +136,97 @@ class CmdStat(MuxCommand):
         
         # Get powers from template definition
         return get_template_all_powers(template)
+
+    def _resolve_common_stat_alias(self, stat, force_category=None):
+        """
+        Resolve common shorthand aliases/prefixes for attributes and skills.
+
+        Examples:
+            dex -> dexterity
+            int -> intelligence
+            inv -> investigation
+        """
+        if not isinstance(stat, str):
+            return stat, None
+
+        if ":" in stat or "/" in stat:
+            return stat, None
+
+        normalized = stat.lower().strip().replace(" ", "_")
+
+        if force_category == "attribute":
+            candidates = set(attribute_dictionary.keys())
+        elif force_category == "skill":
+            candidates = set(skill_dictionary.keys())
+        else:
+            candidates = set(attribute_dictionary.keys()) | set(skill_dictionary.keys())
+
+        if normalized in candidates:
+            return normalized, None
+
+        alias_map = {
+            # Attributes
+            "str": "strength",
+            "dex": "dexterity",
+            "sta": "stamina",
+            "pres": "presence",
+            "pre": "presence",
+            "man": "manipulation",
+            "manip": "manipulation",
+            "comp": "composure",
+            "int": "intelligence",
+            "wit": "wits",
+            "res": "resolve",
+            # Skills (common shortcuts)
+            "ath": "athletics",
+            "inv": "investigation",
+            "occ": "occult",
+            "pers": "persuasion",
+            "larc": "larceny",
+            "sub": "subterfuge",
+            "soc": "socialize",
+            "expr": "expression",
+            "intim": "intimidation",
+        }
+
+        mapped = alias_map.get(normalized)
+        if mapped and mapped in candidates:
+            return mapped, None
+
+        prefix_matches = sorted(name for name in candidates if name.startswith(normalized))
+        if len(prefix_matches) == 1:
+            return prefix_matches[0], None
+        if len(prefix_matches) > 1:
+            options = ", ".join(prefix_matches[:6])
+            return None, f"|rAmbiguous stat '{stat}'. Did you mean one of: {options}?|n"
+
+        return normalized, None
+
+    def _suggest_stat_name(self, stat):
+        """Return closest known stat suggestion for typo help."""
+        known_stats = set(attribute_dictionary.keys()) | set(skill_dictionary.keys()) | {
+            "health", "willpower", "speed", "defense", "initiative",
+            "blood_potency", "gnosis", "primal_urge", "wyrd", "synergy",
+            "azoth", "primum", "satiety", "deviation", "psyche",
+            "feral_heart", "acclimation", "mana",
+            "glory", "honor", "cunning", "purity", "wisdom",
+            "integrity", "size", "beats", "experience", "loyalty", "conviction",
+            "fullname", "full_name", "birthdate", "concept", "virtue", "vice",
+            "path", "order", "clan", "covenant", "auspice", "tribe", "seeming",
+            "court", "kith", "needle", "thread", "template", "template_type",
+            "subtype", "organization", "profession", "tactics", "favored_regalia",
+            "mask", "dirge", "burden", "lineage", "refinement", "athanor",
+            "ab", "ba", "ka", "ren", "sheut", "sekhem", "pilgrimage"
+        }
+        choices = difflib.get_close_matches(str(stat), sorted(known_stats), n=1, cutoff=0.72)
+        return choices[0] if choices else None
     
     def parse_target_stat(self, args):
         """Parse target and stat from arguments"""
+        lower_args = args.lower()
         if "/" in args and "=" in args:
             # Check if this is a specialty command
-            if args.startswith("specialty/") or "/specialty/" in args:
+            if lower_args.startswith("specialty/") or "/specialty/" in lower_args:
                 # Handle specialty commands: specialty/skill=value or name/specialty/skill=value
                 if args.count("/") == 2:  # name/specialty/skill=value
                     target_specialty_stat, value = args.split("=", 1)
@@ -300,12 +237,15 @@ class CmdStat(MuxCommand):
                     specialty_keyword, skill = specialty_stat.split("/", 1)
                     return None, f"specialty/{skill.strip().lower().replace(' ', '_')}", value.strip()
             # Check if this is a category prefix command (arcana/life, bio/life, power/strength, merit/telekinesis, etc.)
-            elif args.startswith(("arcana/", "bio/", "power/", "discipline/", "gift/", "merit/", "skill/", "attribute/")):
+            elif lower_args.startswith(("arcana/", "bio/", "power/", "discipline/", "gift/", "merit/", "skill/", "attribute/",
+                                  "key/", "ceremony/", "rite/", "ritual/", "contract/", "alembic/", "bestowment/",
+                                  "endowment/", "spell/", "discipline_power/", "devotion/", "coil/", "scale/",
+                                  "theban/", "cruac/", "adaptation/", "embed/", "exploit/", "affinity/", "utterance/")):
                 # Format: category/stat=value
                 category_stat, value = args.split("=", 1)
                 category, stat = category_stat.split("/", 1)
                 category = category.strip().lower()
-                stat = stat.strip().lower().replace(" ", "_")
+                stat = stat.strip().lower().replace(" ", "_").replace("-", "_")
                 
                 # Map category to internal format
                 if category == "arcana":
@@ -320,8 +260,28 @@ class CmdStat(MuxCommand):
                 elif category in ["power", "discipline", "gift"]:
                     # Generic power category
                     return None, f"power:{stat}", value.strip()
+                elif category in ["key", "ceremony", "rite", "ritual", "contract", "alembic", "bestowment",
+                                  "spell", "discipline_power", "devotion", "coil", "scale", "theban",
+                                  "cruac", "adaptation", "embed", "exploit", "affinity", "utterance", "endowment"]:
+                    # Semantic powers use <type>:<name> internally.
+                    # endowment names keep spaces, others normalize with underscores.
+                    if category == "endowment":
+                        power_name = stat.replace("_", " ").lower()
+                    else:
+                        power_name = stat.lower().replace("'", "")
+                    value = value.strip()
+                    if value == "":
+                        return None, f"{category}:{power_name}", None
+                    return None, f"{category}:{power_name}", value
                 elif category == "merit":
                     # Merit - mark explicitly as merit to avoid collisions with spells/powers
+                    # Support merit instances with slash syntax:
+                    #   +stat merit/unseen_sense/ghosts=2
+                    if "/" in stat:
+                        merit_name, instance_name = stat.split("/", 1)
+                        merit_name = merit_name.strip().lower().replace(" ", "_").replace("'", "")
+                        instance_name = instance_name.strip().lower().replace(" ", "_").replace("'", "")
+                        return None, f"merit:{merit_name}:{instance_name}", value.strip()
                     return None, f"merit:{stat}", value.strip()
                 elif category == "skill":
                     # Skill - mark explicitly as skill
@@ -337,11 +297,11 @@ class CmdStat(MuxCommand):
                 target_stat, value = args.split("=", 1)
                 target_name, stat = target_stat.split("/", 1)
                 # Convert spaces to underscores in stat names
-                stat = stat.strip().lower().replace(" ", "_")
+                stat = stat.strip().lower().replace(" ", "_").replace("-", "_")
                 return target_name.strip(), stat, value.strip()
         elif "=" in args:
             # Check if this is a specialty command
-            if args.startswith("specialty/"):
+            if lower_args.startswith("specialty/"):
                 # Format: specialty/skill=value
                 specialty_stat, value = args.split("=", 1)
                 specialty_keyword, skill = specialty_stat.split("/", 1)
@@ -349,14 +309,14 @@ class CmdStat(MuxCommand):
             else:
                 # Format: stat=value (self)
                 stat, value = args.split("=", 1)
-                stat = stat.strip().lower().replace(" ", "_")
+                stat = stat.strip().lower().replace(" ", "_").replace("-", "_")
                 value = value.strip()
                 
                 # Check for semantic power syntax FIRST (before checking empty values)
                 # This handles both setting and removal of semantic powers
                 semantic_prefixes = ["key", "ceremony", "rite", "ritual", "contract", "alembic", "bestowment", "endowment", "spell",
                                    "discipline_power", "devotion", "coil", "scale", "theban", "cruac", "gift", "adaptation",
-                                   "embed", "exploit"]
+                                   "embed", "exploit", "affinity", "utterance"]
                 if stat in semantic_prefixes:
                     # This is semantic syntax like devotion=in_vitae_veritas
                     power_type = stat
@@ -377,15 +337,21 @@ class CmdStat(MuxCommand):
                         if power_type == "endowment":
                             power_name = value.lower()  # Keep spaces for endowments
                         else:
-                            power_name = value.lower().replace(" ", "_").replace("'", "")  # Underscores for others, remove apostrophes
+                            power_name = value.lower().replace(" ", "_").replace("-", "_").replace("'", "")  # Underscores for others, remove apostrophes
                         return None, f"{power_type}:{power_name}", None  # None value signals removal
                     
                     # Setting semantic power (value is not empty and not removal)
+                    # Convenience alias: +stat contract=<name> => contract:<name>=known
+                    # (matches common player expectation for contract entry).
+                    if power_type == "contract":
+                        power_name = value.lower().replace(" ", "_").replace("-", "_").replace("'", "")
+                        return None, f"{power_type}:{power_name}", "known"
+
                     # For endowments, keep spaces; for spells and others, convert to underscores
                     if power_type == "endowment":
                         power_name = value.lower()  # Keep spaces for endowments
                     else:
-                        power_name = value.lower().replace(" ", "_").replace("'", "")  # Underscores for others, remove apostrophes
+                        power_name = value.lower().replace(" ", "_").replace("-", "_").replace("'", "")  # Underscores for others, remove apostrophes
                     return None, f"{power_type}:{power_name}", "known"  # Mark as known for individual abilities
                 
                 # Empty value means removal - return special marker (for non-semantic powers)
@@ -530,6 +496,14 @@ class CmdStat(MuxCommand):
         elif stat.startswith("attribute:"):
             force_category = "attribute"
             stat = stat[10:]  # Remove "attribute:" prefix
+
+        # Resolve common shorthand before validation (dex -> dexterity, etc).
+        resolved_stat, resolve_error = self._resolve_common_stat_alias(stat, force_category=force_category)
+        if resolve_error:
+            self.caller.msg(resolve_error)
+            return
+        if resolved_stat:
+            stat = resolved_stat
         
         # Check attributes
         if force_category == "attribute" or (force_category is None and stat in ["strength", "dexterity", "stamina", "presence", "manipulation", 
@@ -1898,10 +1872,14 @@ class CmdStat(MuxCommand):
                 self.caller.msg(f"Use |y+lookup powers|n to see available powers for {character_template}.")
                 return
         
-        # Custom stat handling (power/ability not showing up for character)
+        # Unknown stats should not be auto-created.
         if not stat_set:
-            target.db.stats["other"][stat] = value
-            stat_set = True
+            suggestion = self._suggest_stat_name(stat)
+            self.caller.msg(f"|rUnknown stat '{stat}'.|n")
+            if suggestion:
+                self.caller.msg(f"|yDid you mean:|n {suggestion}")
+            self.caller.msg("Use |w+lookup stats|n or |w+stat/list|n for valid stat names.")
+            return
         
         if stat_set:
             if stat == "template":

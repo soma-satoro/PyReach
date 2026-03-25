@@ -111,8 +111,8 @@ mental_merits = [
     Merit(
         name="Language",
         min_value=1,
-        max_value=1,
-        description="Fluency in additional language",
+        max_value=10,
+        description="Fluency in additional language (1 language per dot)",
         merit_type="mental"
     ),
     Merit(
@@ -132,8 +132,8 @@ mental_merits = [
     Merit(
         name="Multilingual",
         min_value=1,
-        max_value=1,
-        description="Conversational in two languages",
+        max_value=10,
+        description="Conversational in additional languages (2 languages per dot)",
         merit_type="mental"
     ),
     Merit(

@@ -16,6 +16,7 @@ from world.cofd.pledges import (
     SEALING_CONSEQUENCES_BASIC, SEALING_CONSEQUENCES_STRONG
 )
 from world.conditions import Condition, STANDARD_CONDITIONS
+from world.utils.permission_utils import require_approved_character
 
 
 class CmdPledge(MuxCommand):
@@ -82,6 +83,9 @@ class CmdPledge(MuxCommand):
     def func(self):
         """Execute the command."""
         caller = self.caller
+
+        if not require_approved_character(caller, "+pledge"):
+            return
         
         # Check if caller is a changeling for most operations
         template = caller.db.stats.get("other", {}).get("template", "Mortal")
