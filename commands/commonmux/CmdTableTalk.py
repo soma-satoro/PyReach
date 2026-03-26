@@ -255,9 +255,9 @@ class CmdTableTalk(PoseBreakMixin, MuxCommand):
         if not place_name:
             return
 
-        # Check if the room is an OOC Area
-        if hasattr(caller.location, 'db') and caller.location.db.roomtype == 'OOC Area':
-            return  # Don't send pose breaks in OOC Areas
+        # Don't send pose breaks in OOC areas.
+        if self._is_ooc_area(caller.location):
+            return
             
         pose_break = f"\n|y{'=' * 30}> |w{caller.name}|n |y<{'=' * 30}|n"
         

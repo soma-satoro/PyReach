@@ -7,14 +7,46 @@ class PoseBreakMixin:
     """
     A mixin to add pose breaks before commands.
     """
+    def _is_ooc_area(self, location):
+        """
+        Return True if the current location should suppress pose breaks.
+
+        Supports both Evennia tags and legacy `db.tags` storage, with
+        case-insensitive matching.
+        """
+        if not location:
+            return False
+
+        # Evennia tag handler check.
+        try:
+            if location.tags.get("ooc", category=None):
+                return True
+        except Exception:
+            pass
+
+        # Legacy/custom room tags stored on db.tags.
+        room_tags = getattr(location.db, "tags", None)
+        if room_tags:
+            if isinstance(room_tags, str):
+                if room_tags.strip().lower() == "ooc":
+                    return True
+            else:
+                try:
+                    if any(str(tag).strip().lower() == "ooc" for tag in room_tags):
+                        return True
+                except TypeError:
+                    pass
+
+        # Legacy/custom room type marker.
+        roomtype = getattr(location.db, "roomtype", "")
+        return str(roomtype).strip().lower() == "ooc area"
+
     def send_pose_break(self, exclude=None):
         caller = self.caller
         
-        # Check if the room is an OOC Area (by tag or roomtype)
-        if hasattr(caller.location, 'db'):
-            room_tags = getattr(caller.location.db, 'tags', []) or []
-            if 'ooc' in room_tags or caller.location.db.roomtype == 'OOC Area':
-                return  # Don't send pose breaks in OOC Areas
+        # Don't send pose breaks in OOC areas.
+        if self._is_ooc_area(caller.location):
+            return
             
         pose_break = f"\n|y{'=' * 30}> |w{caller.name}|n |y<{'=' * 30}|n"
         
@@ -53,13 +85,10 @@ class PoseBreakMixin:
         """
         Custom msg_contents that adds a pose break before the message.
         """
-        # Check if the room is an OOC Area (by tag or roomtype)
-        if hasattr(self.caller.location, 'db'):
-            room_tags = getattr(self.caller.location.db, 'tags', []) or []
-            if 'ooc' in room_tags or self.caller.location.db.roomtype == 'OOC Area':
-                # Call the original msg_contents without pose break
-                super().msg_contents(message, exclude=exclude, from_obj=from_obj, **kwargs)
-                return
+        if self._is_ooc_area(self.caller.location):
+            # Call the original msg_contents without pose break.
+            super().msg_contents(message, exclude=exclude, from_obj=from_obj, **kwargs)
+            return
             
         # Add the pose break
         self.send_pose_break(exclude=exclude)
