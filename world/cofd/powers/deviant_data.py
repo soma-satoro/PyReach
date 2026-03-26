@@ -1160,7 +1160,7 @@ SCAR_PREPARATION = {
         5: "As Magnitude 4, but suffer both complications."
     },
     "deviations": {
-        "Recharge": {"cost": 1, "effect": "Directed-Only. After directing an entangled Variation, you must wait (4 - Scar Resistance ÷ 2) turns to direct again."}
+        "Recharge": {"cost": 1, "effect": "Directed-Only. After directing an entangled Variation, you must wait (4 - Scar Resistance / 2) turns to direct again."}
     },
     "book": "DTR 155"
 }

@@ -1,4 +1,4 @@
-"""
+﻿"""
 Character submission command for staff approval.
 Allows players to submit their completed character for staff review.
 """
@@ -99,9 +99,9 @@ class CmdSubmit(MuxCommand):
             caller.msg("|rYou cannot submit yet. Your chargen tracker is not fully complete.|n")
             caller.msg("|wPlease resolve the following before submitting:|n")
             for item in blockers[:20]:
-                caller.msg(f"  - {item}")
+                caller.msg(f"  * {item}")
             if len(blockers) > 20:
-                caller.msg(f"  - ...and {len(blockers) - 20} more items")
+                caller.msg(f"  * ...and {len(blockers) - 20} more items")
             return
 
         # Sandbox mode can bypass staff approval workflow on submit.
@@ -413,4 +413,5 @@ class CharacterSubmitCmdSet(CmdSet):
     def at_cmdset_creation(self):
         """Add the submit command to the set."""
         self.add(CmdSubmit())
+
 

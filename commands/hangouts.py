@@ -1,4 +1,4 @@
-"""
+﻿"""
 Hangout Commands
 
 Commands for finding and traveling to designated hangout/roleplay locations.
@@ -274,7 +274,7 @@ class CmdHangouts(MuxCommand):
             elif len(matches) > 1:
                 caller.msg(f"Multiple hangouts match '{hangout_name}':")
                 for match in matches:
-                    caller.msg(f"  - {all_hangouts[match].name}")
+                    caller.msg(f"  * {all_hangouts[match].name}")
                 caller.msg("Please be more specific.")
                 return
             else:
@@ -524,3 +524,4 @@ class CmdHangouts(MuxCommand):
             return True
         
         return False
+

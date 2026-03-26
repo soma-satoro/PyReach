@@ -131,7 +131,7 @@ FULL_MOON_GIFT = {
         "gift_type": "full_moon",
         "renown": "glory",
         "rank": 5,
-        "cost": "● per turn",
+        "cost": "* per turn",
         "dice_pool": "Stamina + Survival + Purity",
         "action": "Instant",
         "duration": "-",
@@ -247,7 +247,7 @@ HALF_MOON_GIFT = {
         "gift_type": "half_moon",
         "renown": "honor",
         "rank": 4,
-        "cost": "● per dot",
+        "cost": "* per dot",
         "dice_pool": "Manipulation + Persuasion + Honor",
         "action": "Extended (10, minute per roll)",
         "duration": "1 day",
@@ -1149,7 +1149,7 @@ GIFT_OF_NATURE = {
         "dice_pool": "-",
         "action": "Instant",
         "duration": "-",
-        "description": "Spurs guided plant overgrowth across a radius of (Glory × 10) yards, which consumes corpses. Until the next sunrise, sense any heartbeat or bloodshed within the overgrowth, and regenerate lethal damage when it soaks in blood.",
+        "description": "Spurs guided plant overgrowth across a radius of (Glory x 10) yards, which consumes corpses. Until the next sunrise, sense any heartbeat or bloodshed within the overgrowth, and regenerate lethal damage when it soaks in blood.",
         "book": "WTF 2e p.129"
     },
     "knotted_paths": {
@@ -1469,7 +1469,7 @@ GIFT_OF_TECHNOLOGY = {
         "dice_pool": "Wits + Crafts + Glory vs Resolve + Primal Urge",
         "action": "Instant",
         "duration": "-",
-        "description": "Dismantles an object up to (Glory × 5) Size.",
+        "description": "Dismantles an object up to (Glory x 5) Size.",
         "book": "WTF 2e p.133-134"
     },
     "command_artifice": {
@@ -1533,7 +1533,7 @@ GIFT_OF_TECHNOLOGY_HISTORICAL = {
         "dice_pool": "Wits + Crafts + Glory vs Resolve + Primal Urge",
         "action": "Instant",
         "duration": "-",
-        "description": "Destroys an object up to (Glory × 5) Size.",
+        "description": "Destroys an object up to (Glory x 5) Size.",
         "book": "Dark Eras p.166"
     },
     "balance_the_scales": {
@@ -1557,7 +1557,7 @@ GIFT_OF_TECHNOLOGY_HISTORICAL = {
         "dice_pool": "Presence + Survival + Purity",
         "action": "Instant",
         "duration": "1 scene",
-        "description": "All flames within (Purity × 100) yards are reduced to embers.",
+        "description": "All flames within (Purity x 100) yards are reduced to embers.",
         "book": "Dark Eras p.166"
     },
     "iron_minions": {
@@ -1593,7 +1593,7 @@ GIFT_OF_WARDING = {
         "gift_type": "warding",
         "renown": "glory",
         "rank": 5,
-        "cost": "●●●●● (●)",
+        "cost": "***** (*)",
         "dice_pool": "-",
         "action": "Instant",
         "duration": "1 month",
@@ -1709,7 +1709,7 @@ GIFT_OF_CHANGE = {
         "gift_type": "change",
         "renown": "cunning",
         "rank": 5,
-        "cost": "●●●●● (○)",
+        "cost": "***** (o)",
         "dice_pool": "-",
         "action": "Instant",
         "duration": "-",

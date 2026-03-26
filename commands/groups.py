@@ -1,4 +1,4 @@
-from evennia.commands.default.muxcommand import MuxCommand
+﻿from evennia.commands.default.muxcommand import MuxCommand
 from evennia.utils import evtable
 from evennia.comms.models import ChannelDB
 from evennia.utils import create
@@ -153,7 +153,7 @@ class CmdGroups(MuxCommand):
         if merits:
             output.append("|wGroup Merits:|n")
             for merit_name, rating in merits.items():
-                dots = "•" * rating
+                dots = "-" * rating
                 output.append(f"  {merit_name}: {dots} ({rating})")
             output.append("")
         
@@ -163,7 +163,7 @@ class CmdGroups(MuxCommand):
             if totem_info and totem_info.get('name'):
                 totem_points = group.calculate_totem_points()
                 output.append("|wTotem:|n")
-                output.append(f"  {totem_info['name']} (Rank {'•' * totem_info['rank']})")
+                output.append(f"  {totem_info['name']} (Rank {'-' * totem_info['rank']})")
                 if totem_info.get('concept'):
                     output.append(f"  {totem_info['concept']}")
                 output.append(f"  {totem_points} totem points from pack members")
@@ -197,7 +197,7 @@ class CmdGroups(MuxCommand):
                 # Show first few tactics
                 display_tactics = tactics[:5]
                 for tactic in display_tactics:
-                    output.append(f"  • {tactic}")
+                    output.append(f"  * {tactic}")
                 if tactic_count > 5:
                     output.append(f"  ... and {tactic_count - 5} more")
                 output.append(f"  Use +group/tactics {group.group_id} for full list")
@@ -1006,19 +1006,19 @@ class CmdGroups(MuxCommand):
                     if investigation_tactics:
                         output.append("|wInvestigation Tactics:|n")
                         for tactic in investigation_tactics:
-                            output.append(f"  • {tactic}")
+                            output.append(f"  * {tactic}")
                         output.append("")
                     
                     if physical_tactics:
                         output.append("|wPhysical Tactics:|n")
                         for tactic in physical_tactics:
-                            output.append(f"  • {tactic}")
+                            output.append(f"  * {tactic}")
                         output.append("")
                     
                     if social_tactics:
                         output.append("|wSocial Tactics:|n")
                         for tactic in social_tactics:
-                            output.append(f"  • {tactic}")
+                            output.append(f"  * {tactic}")
                         output.append("")
                     
                     output.append(f"Total: {len(tactics)} tactics")
@@ -1442,7 +1442,7 @@ class CmdGroupMerit(MuxCommand):
             output.append("")
             
             for merit_name, merit_data in merits.items():
-                rating_range = f"{'•' * merit_data['min']} to {'•' * merit_data['max']}"
+                rating_range = f"{'-' * merit_data['min']} to {'-' * merit_data['max']}"
                 output.append(f"|y{merit_name}|n ({rating_range})")
                 output.append(f"  {merit_data['description']}")
                 if 'effects' in merit_data:
@@ -1484,7 +1484,7 @@ class CmdGroupMerit(MuxCommand):
             output.append("")
             
             for merit_name, rating in merits.items():
-                dots = "•" * rating
+                dots = "-" * rating
                 output.append(f"{merit_name}: {dots} ({rating})")
             
             self.caller.msg("\n".join(output))
@@ -1789,7 +1789,7 @@ class CmdTotem(MuxCommand):
                 output.append(f"|wBan:|n {totem_info['ban']}")
             
             output.append("")
-            output.append(f"|wRank:|n {'•' * rank} ({rank})")
+            output.append(f"|wRank:|n {'-' * rank} ({rank})")
             output.append(f"|wTotem Points:|n {totem_points}")
             output.append("")
             
@@ -1811,13 +1811,13 @@ class CmdTotem(MuxCommand):
             if totem_info.get('influence'):
                 output.append("|wInfluence:|n")
                 for inf_type, dots in totem_info['influence'].items():
-                    output.append(f"  {inf_type}: {'•' * dots} ({dots})")
+                    output.append(f"  {inf_type}: {'-' * dots} ({dots})")
                 output.append("")
             
             if totem_info.get('numina'):
                 output.append("|wNumina:|n")
                 for numen in totem_info['numina']:
-                    output.append(f"  • {numen}")
+                    output.append(f"  * {numen}")
                 max_numina = get_numina_count(totem_points)
                 output.append(f"  ({len(totem_info['numina'])}/{max_numina} numina)")
                 output.append("")

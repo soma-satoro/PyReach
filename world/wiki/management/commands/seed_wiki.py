@@ -1,4 +1,4 @@
-"""
+﻿"""
 Management command to seed initial wiki content.
 Usage: evennia seed_wiki
 """
@@ -84,9 +84,9 @@ class Command(BaseCommand):
             )
             categories[cat_data['name']] = category
             if created:
-                self.stdout.write(self.style.SUCCESS(f'  ✓ Created category: {category.name}'))
+                self.stdout.write(self.style.SUCCESS(f'  OK Created category: {category.name}'))
             else:
-                self.stdout.write(f'  - Category already exists: {category.name}')
+                self.stdout.write(f'  * Category already exists: {category.name}')
 
         self.stdout.write('\nCreating sample wiki pages...')
         
@@ -376,11 +376,12 @@ Staff should help maintain the wiki:
             )
             
             if created:
-                self.stdout.write(self.style.SUCCESS(f'  ✓ Created page: {page.title}'))
+                self.stdout.write(self.style.SUCCESS(f'  OK Created page: {page.title}'))
             else:
-                self.stdout.write(f'  - Page already exists: {page.title}')
+                self.stdout.write(f'  * Page already exists: {page.title}')
 
-        self.stdout.write(self.style.SUCCESS('\n✓ Wiki seeding complete!'))
+        self.stdout.write(self.style.SUCCESS('\nOK Wiki seeding complete!'))
         self.stdout.write('\nYou can now access the wiki at: http://your-server:4001/wiki/')
         self.stdout.write('To edit content, log in as a staff member.')
+
 

@@ -1,4 +1,4 @@
-from evennia.commands.default.muxcommand import MuxCommand
+﻿from evennia.commands.default.muxcommand import MuxCommand
 from evennia.utils import create
 from evennia.utils.evmenu import EvMenu
 from evennia.utils.evmore import EvMore
@@ -313,26 +313,26 @@ class CmdIntegrity(MuxCommand):
         output.append("  1. Roll dice based on breaking point severity (1-5 dice)")
         output.append("  2. Add modifiers based on situation (+3 to -3)")
         output.append("  3. Roll results:")
-        output.append(f"     • |gDramatic Failure:|n No damage, regain 1 Willpower!")
-        output.append(f"     • |gFailure:|n No damage taken")
-        output.append(f"     • |ySuccess:|n Roll Wyrd ({wyrd}) for mild damage (/)")
-        output.append(f"     • |rExceptional:|n Roll Wyrd ({wyrd}) for severe damage (X)")
+        output.append(f"     * |gDramatic Failure:|n No damage, regain 1 Willpower!")
+        output.append(f"     * |gFailure:|n No damage taken")
+        output.append(f"     * |ySuccess:|n Roll Wyrd ({wyrd}) for mild damage (/)")
+        output.append(f"     * |rExceptional:|n Roll Wyrd ({wyrd}) for severe damage (X)")
         output.append("  4. Damage in rightmost 3 boxes = gain Clarity Condition")
         output.append("")
         output.append("|wHealing Clarity:|n")
-        output.append("  • Spend scene with Touchstone: heal all mild OR 1 severe")
-        output.append("  • Resolve Clarity Condition: heal 1 damage")
-        output.append("  • Resolve Persistent Condition: heal 2 damage")
-        output.append("  • Command: +integrity/heal <amount> <type>")
+        output.append("  * Spend scene with Touchstone: heal all mild OR 1 severe")
+        output.append("  * Resolve Clarity Condition: heal 1 damage")
+        output.append("  * Resolve Persistent Condition: heal 2 damage")
+        output.append("  * Command: +integrity/heal <amount> <type>")
         output.append("")
         output.append("|wPerception Modifiers:|n")
         if current_level >= 5:
-            output.append(f"  • Undamaged Clarity 5+: |g+2 dice to perception rolls|n")
+            output.append(f"  * Undamaged Clarity 5+: |g+2 dice to perception rolls|n")
         elif current_level >= 3:
-            output.append(f"  • Undamaged Clarity 3-4: |y-1 die to perception rolls|n")
+            output.append(f"  * Undamaged Clarity 3-4: |y-1 die to perception rolls|n")
         else:
-            output.append(f"  • Undamaged Clarity 1-2: |r-2 dice to perception rolls|n")
-            output.append(f"  • |rDramatic failures on perception = hallucinations|n")
+            output.append(f"  * Undamaged Clarity 1-2: |r-2 dice to perception rolls|n")
+            output.append(f"  * |rDramatic failures on perception = hallucinations|n")
     
     def _show_vampire_humanity_status(self, output, current_level, bp_data):
         """Show Vampire-specific Humanity status."""
@@ -368,31 +368,31 @@ class CmdIntegrity(MuxCommand):
             output.append(f"|x(Base: {dice} {'die' if dice == 1 else 'dice'} to resist detachment)|n")
             output.append("")
             for bp in breaks:
-                output.append(f"  • {bp}")
+                output.append(f"  * {bp}")
             output.append("")
         
         output.append("|wHow Detachment Works:|n")
-        output.append("  • Facing a breaking point: Always gain 1 Beat")
-        output.append("  • Roll base dice + Touchstones - Banes + modifiers")
-        output.append("  • Dramatic Failure: Lose 1 Humanity, Jaded Condition")
-        output.append("  • Failure: Lose 1 Humanity, Bestial/Competitive/Wanton")
-        output.append("  • Success: No loss, Bestial/Competitive/Wanton")
-        output.append("  • Exceptional: No loss, Inspired Condition")
+        output.append("  * Facing a breaking point: Always gain 1 Beat")
+        output.append("  * Roll base dice + Touchstones - Banes + modifiers")
+        output.append("  * Dramatic Failure: Lose 1 Humanity, Jaded Condition")
+        output.append("  * Failure: Lose 1 Humanity, Bestial/Competitive/Wanton")
+        output.append("  * Success: No loss, Bestial/Competitive/Wanton")
+        output.append("  * Exceptional: No loss, Inspired Condition")
         output.append("")
         output.append("|wBanes:|n")
-        output.append("  • When losing Humanity, can take a Bane + Beat")
-        output.append("  • Prevents future loss from that breaking point")
-        output.append("  • Each Bane gives -1 to future rolls")
-        output.append(f"  • Maximum 3 Banes (you have {len(banes)})")
+        output.append("  * When losing Humanity, can take a Bane + Beat")
+        output.append("  * Prevents future loss from that breaking point")
+        output.append("  * Each Bane gives -1 to future rolls")
+        output.append(f"  * Maximum 3 Banes (you have {len(banes)})")
     
     def _show_werewolf_harmony_status(self, output, current_level):
         """Show Werewolf-specific Harmony status."""
         output.append("|wHow Harmony Works:|n")
-        output.append("  • Harmony measures balance between flesh and spirit")
-        output.append("  • Breaking points directly modify Harmony (no roll)")
-        output.append("  • Toward Flesh: Lowers Harmony")
-        output.append("  • Toward Spirit: Raises Harmony")
-        output.append("  • Penalties shown in breaking points list")
+        output.append("  * Harmony measures balance between flesh and spirit")
+        output.append("  * Breaking points directly modify Harmony (no roll)")
+        output.append("  * Toward Flesh: Lowers Harmony")
+        output.append("  * Toward Spirit: Raises Harmony")
+        output.append("  * Penalties shown in breaking points list")
         output.append("")
         
         if current_level <= 3:
@@ -442,19 +442,19 @@ class CmdIntegrity(MuxCommand):
         
         output.append("")
         output.append("|wHow Cover Works:|n")
-        output.append("  • Each cover identity has its own rating (like Integrity)")
-        output.append("  • Breaking points test your primary cover by default")
-        output.append("  • Roll dice based on Cover rating + modifiers")
-        output.append("  • Failure: Lose 1 Cover rating")
-        output.append("  • Dramatic Failure: Lose 1 Cover, risk Glitch, gain Beat")
-        output.append("  • Success: Cover holds")
-        output.append("  • Exceptional: Cover reinforced, gain Beat")
+        output.append("  * Each cover identity has its own rating (like Integrity)")
+        output.append("  * Breaking points test your primary cover by default")
+        output.append("  * Roll dice based on Cover rating + modifiers")
+        output.append("  * Failure: Lose 1 Cover rating")
+        output.append("  * Dramatic Failure: Lose 1 Cover, risk Glitch, gain Beat")
+        output.append("  * Success: Cover holds")
+        output.append("  * Exceptional: Cover reinforced, gain Beat")
         output.append("")
         output.append("|wManaging Covers:|n")
-        output.append("  • Use |w+cover|n to view and manage your covers")
-        output.append("  • Use |w+cover/primary <id>|n to set your active cover")
-        output.append("  • Use |w+sheet/demon|n to see covers and glitches")
-        output.append("  • Maximum covers increases with Primum")
+        output.append("  * Use |w+cover|n to view and manage your covers")
+        output.append("  * Use |w+cover/primary <id>|n to set your active cover")
+        output.append("  * Use |w+sheet/demon|n to see covers and glitches")
+        output.append("  * Maximum covers increases with Primum")
     
     def _show_mortal_integrity_status(self, output, current_level):
         """Show Mortal/Hunter-specific Integrity status."""
@@ -471,24 +471,24 @@ class CmdIntegrity(MuxCommand):
                 output.append("")
         
         output.append("|wHow Integrity Works:|n")
-        output.append("  • Breaking points trigger when you violate your morals")
-        output.append("  • Roll Resolve + Composure (+ Integrity modifiers)")
-        output.append("  • Failure: Lose 1 Integrity, gain Condition")
-        output.append("  • Dramatic Failure: Lose 1 Integrity, severe Condition, gain Beat")
-        output.append("  • Success: No loss, gain minor Condition")
-        output.append("  • Exceptional: Gain Beat and 1 Willpower")
+        output.append("  * Breaking points trigger when you violate your morals")
+        output.append("  * Roll Resolve + Composure (+ Integrity modifiers)")
+        output.append("  * Failure: Lose 1 Integrity, gain Condition")
+        output.append("  * Dramatic Failure: Lose 1 Integrity, severe Condition, gain Beat")
+        output.append("  * Success: No loss, gain minor Condition")
+        output.append("  * Exceptional: Gain Beat and 1 Willpower")
         output.append("")
         output.append("|wIntegrity Modifiers:|n")
         if current_level >= 8:
-            output.append("  • Integrity 8-10: |g+2 dice|n")
+            output.append("  * Integrity 8-10: |g+2 dice|n")
         elif current_level >= 6:
-            output.append("  • Integrity 6-7: |g+1 die|n")
+            output.append("  * Integrity 6-7: |g+1 die|n")
         elif current_level >= 4:
-            output.append("  • Integrity 4-5: No modifier")
+            output.append("  * Integrity 4-5: No modifier")
         elif current_level >= 2:
-            output.append("  • Integrity 2-3: |y-1 die|n")
+            output.append("  * Integrity 2-3: |y-1 die|n")
         else:
-            output.append("  • Integrity 1: |r-2 dice|n")
+            output.append("  * Integrity 1: |r-2 dice|n")
     
     def show_breaking_points(self):
         """Display breaking points for the character's template."""
@@ -562,7 +562,7 @@ class CmdIntegrity(MuxCommand):
                 penalty = bp.get("penalty", -1)
                 action = bp.get("action", "")
                 penalty_str = f" |r({penalty:+d} Harmony)|n" if penalty < 0 else ""
-                output.append(f"  • {action}{penalty_str}")
+                output.append(f"  * {action}{penalty_str}")
             output.append("")
             
             # Low Harmony threshold
@@ -577,7 +577,7 @@ class CmdIntegrity(MuxCommand):
                 penalty = bp.get("penalty", -1)
                 action = bp.get("action", "")
                 penalty_str = f" |r({penalty:+d} Harmony)|n" if penalty < 0 else ""
-                output.append(f"  • {action}{penalty_str}")
+                output.append(f"  * {action}{penalty_str}")
             output.append("")
             
             # Toward Spirit
@@ -589,7 +589,7 @@ class CmdIntegrity(MuxCommand):
                 penalty = bp.get("penalty", -1)
                 action = bp.get("action", "")
                 penalty_str = f" |r({penalty:+d} Harmony)|n" if penalty < 0 else ""
-                output.append(f"  • {action}{penalty_str}")
+                output.append(f"  * {action}{penalty_str}")
             output.append("")
             
             # High Harmony threshold
@@ -604,7 +604,7 @@ class CmdIntegrity(MuxCommand):
                 penalty = bp.get("penalty", -1)
                 action = bp.get("action", "")
                 penalty_str = f" |r({penalty:+d} Harmony)|n" if penalty < 0 else ""
-                output.append(f"  • {action}{penalty_str}")
+                output.append(f"  * {action}{penalty_str}")
             output.append("")
             
         elif bp_type == "descending":
@@ -624,7 +624,7 @@ class CmdIntegrity(MuxCommand):
                 
                 # List breaking points with bullets
                 for break_point in breaks:
-                    output.append(f"  • {break_point}")
+                    output.append(f"  * {break_point}")
                 
                 output.append("")
         else:
@@ -644,7 +644,7 @@ class CmdIntegrity(MuxCommand):
                 
                 # List breaking points with bullets
                 for break_point in breaks:
-                    output.append(f"  • {break_point}")
+                    output.append(f"  * {break_point}")
                 
                 output.append("")
         
@@ -1744,11 +1744,11 @@ def vampire_bane_option_menu(caller):
     text = "|y=== OPTIONAL: TAKE A BANE ===|n\n\n"
     text += "You may take a Bane to prevent future Humanity loss from this breaking point.\n\n"
     text += "|wBenefits:|n\n"
-    text += "  • Gain 1 additional Beat\n"
-    text += "  • Cannot lose Humanity from this breaking point again\n\n"
+    text += "  * Gain 1 additional Beat\n"
+    text += "  * Cannot lose Humanity from this breaking point again\n\n"
     text += "|rDrawbacks:|n\n"
-    text += f"  • -1 die penalty to all future detachment rolls (currently {num_banes}, would be {num_banes + 1})\n"
-    text += f"  • Maximum 3 Banes allowed\n\n"
+    text += f"  * -1 die penalty to all future detachment rolls (currently {num_banes}, would be {num_banes + 1})\n"
+    text += f"  * Maximum 3 Banes allowed\n\n"
     text += "Do you want to take a Bane?\n\n"
     text += "  |w1|n - Yes, take a Bane (+1 Beat, -1 future detachment)\n"
     text += "  |w2|n - No, continue without a Bane\n"
@@ -2170,3 +2170,4 @@ def _apply_clarity_condition(caller, raw_string):
     
     # Close the menu
     return None, None
+

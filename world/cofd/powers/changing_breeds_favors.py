@@ -34,7 +34,7 @@ CHANGING_BREED_FAVORS = {
     
     "echolocation": {
         "name": "Echolocation",
-        "cost": "• or •••",
+        "cost": "- or ---",
         "description": "A character with Echolocation can use sonic echoes to 'read' his immediate surroundings without actually having to see them. He can ignore all visually-based penalties such as darkness, fog, smoke or blindness.",
         "system": "One-dot version: Ignore all visually-based penalties. Three-dot version: Additionally, cannot be surprised unless asleep, and has permanent +1 bonus to Defense due to heightened awareness of incoming attacks. This Favor is free for dolphins and bats.",
         "forms": ["Primal Beast", "Dire Beast", "War-Beast"]
@@ -66,7 +66,7 @@ CHANGING_BREED_FAVORS = {
     
     "many_legged": {
         "name": "Many-Legged",
-        "cost": "••••",
+        "cost": "----",
         "description": "The scutter of dozens, if not hundreds, of not-so-tiny feet alerts a potential victim of this shapechanger that he's playing Fly to a nightmarish Spider...",
         "system": "This Favor adds +4 to the character's normal Species Factor when figuring its Speed trait, and allows the character to walk on sheer surfaces (per Wallwalking Favor). Free to creatures with many sets of legs. Restricted to insectine or arachnid beings. Sight of this invokes the Delusion with -2 penalty to witness's resistance roll.",
         "forms": ["Primal Beast", "Dire Beast", "War-Beast"]
@@ -114,7 +114,7 @@ CHANGING_BREED_FAVORS = {
     
     "size": {
         "name": "Size",
-        "cost": "••••",
+        "cost": "----",
         "description": "Many animals dwarf human beings. Others scurry in Man's shadow. Per the systems given in the World of Darkness Rulebook, a creature's Size trait determines that character's Health dots.",
         "system": "The base Size for a character's species is free. Upgrading one additional level above the base Size costs ****. Cannot be raised further without Storyteller approval. Size ranges: 1 (toad, sparrow, bat), 2 (cat, hare, crow, rat), 3 (fox, owl, hawk, coyote), 4 (dog, wolf, goat, eagle), 5 (human, large dog, leopard, hyena, python), 6 (deer, jaguar, dolphin), 7 (bear, horse, lion, alligator), 8 (tiger, grizzly bear), 9 (cattle, boar), 10 (moose, giant swine), 11 (wildebeast), 12 (bison, tiger shark), 13 (rhino, hippopotamus), 14 (Asian elephant, great white shark), 15 (African elephant, orca).",
         "forms": ["Primal Beast", "War-Beast"]
@@ -138,7 +138,7 @@ CHANGING_BREED_FAVORS = {
     
     "webbing": {
         "name": "Webbing",
-        "cost": "••••",
+        "cost": "----",
         "description": "Silky in texture and steely in toughness, these strands can support hundreds of pounds of weight. A creature with this Favor can spin massive webs involving hundreds of feet of complex material.",
         "system": "Roll Dexterity + Crafts + Feral Heart. Total successes = Structure of webbing (Durability always 3). Large/elaborate webs may be extended action. To weave character into web, contested Strength + Athletics vs. weaving roll. Trapped victim must overcome double web's Structure to break free. Unbound characters can cut/burn through (overcome Structure): blunt weapons have no effect, edged add +1 die, leverage tools add +3 dice, fire inflicts double damage in 10'x10' area per turn.",
         "forms": ["Primal Beast", "War-Beast"]
@@ -146,7 +146,7 @@ CHANGING_BREED_FAVORS = {
     
     "wings": {
         "name": "Wings",
-        "cost": "••••",
+        "cost": "----",
         "description": "This Favor's self-explanatory: if you have wings, you can fly. Most often, this Favor reflects full bone-and-muscle wings. Certain animals have loose skin that catches the air, allowing for limited flight.",
         "system": "No roll needed in Primal Beast form unless attempting difficult maneuver, hindered, or contending with severe weather (Dexterity + Athletics). In War-Beast form must make Dexterity + Athletics roll every turn to fly/glide. Cannot fly in human form, but can jump twice as far as normal due to light bone structure. Free for creatures that normally have wings, costs four dots for ones that don't.",
         "forms": ["Primal Beast", "War-Beast (difficult)"]
@@ -186,7 +186,7 @@ CHANGING_BREED_ASPECTS = {
     # B
     "bare_necessities": {
         "name": "Bare Necessities",
-        "cost": "• or •••",
+        "cost": "- or ---",
         "description": "Shapeshifters can't afford to be modest. With this Aspect, a character's clothes, pocketed possessions and anything else touching her skin effectively transforms with her.",
         "system": "One-dot: clothes and pocketed items transform with you. Three-dot: can take additional items (Size 1-2) like weapons or backpacks. Complex mechanical items may malfunction (Stamina + Feral Heart roll). Up to 4 small items (Size 1) can be carried in garment/purse/backpack.",
         "forms": ["All forms"]
@@ -196,7 +196,7 @@ CHANGING_BREED_ASPECTS = {
         "name": "Beast Magic",
         "cost": "* to ***",
         "description": "Select werebeasts pursue forbidden arts of magic. These formidable creatures employ arcane secrets and ominous tools to mimic the spells of human wizards.",
-        "system": "Can purchase specific mage spells (not Arcana). Each spell is separate Aspect. Roll Wits + Occult to cast, spend 1 Essence. Cannot buy spell with more dots than Occult Skill. Cannot combine spells or have more than one operating at once. Maximum spell level: •••. Cannot have Feral Heart higher than 3. Cannot select Spirit Gifts Aspect. Cost: • = 5 XP, •• = 15 XP, ••• = 30 XP.",
+        "system": "Can purchase specific mage spells (not Arcana). Each spell is separate Aspect. Roll Wits + Occult to cast, spend 1 Essence. Cannot buy spell with more dots than Occult Skill. Cannot combine spells or have more than one operating at once. Maximum spell level: ---. Cannot have Feral Heart higher than 3. Cannot select Spirit Gifts Aspect. Cost: - = 5 XP, -- = 15 XP, --- = 30 XP.",
         "forms": ["All forms"]
     },
     
@@ -218,7 +218,7 @@ CHANGING_BREED_ASPECTS = {
     
     "blank_burrow": {
         "name": "Blank Burrow",
-        "cost": "••••",
+        "cost": "----",
         "description": "Ducking into a hole, niche or other hiding place, a trickster literally disappears from there and reappears in another niche nearby.",
         "system": "New hiding-place must be within 50 feet of original, large and dark enough to accommodate shapechanger in current form. Spend 1 Essence to 'skip' the space. Works in any shape except War-Beast. TRICKSTERS ONLY.",
         "forms": ["Man-Guise, Primal Beast, Dire Beast, Throwback"]
@@ -351,9 +351,9 @@ CHANGING_BREED_ASPECTS = {
     
     "gross_eater": {
         "name": "Gross Eater",
-        "cost": "• or ••",
+        "cost": "- or --",
         "description": "This character will never starve to death. She can eat anything organic, living or dead.",
-        "system": "One-dot: can eat anything organic (from shrieking rodent to bio-hazardous waste to corpses to fecal matter) and gain normal nourishment. Two-dot: can derive sustenance from inorganic matter (doesn't protect from damage eating such stuff may cause—eating beer bottles prevents starvation but causes digestive trauma).",
+        "system": "One-dot: can eat anything organic (from shrieking rodent to bio-hazardous waste to corpses to fecal matter) and gain normal nourishment. Two-dot: can derive sustenance from inorganic matter (doesn't protect from damage eating such stuff may cause-eating beer bottles prevents starvation but causes digestive trauma).",
         "forms": ["All forms"]
     },
     
@@ -376,7 +376,7 @@ CHANGING_BREED_ASPECTS = {
     
     "hybrid_forms": {
         "name": "Hybrid Forms",
-        "cost": "••••",
+        "cost": "----",
         "description": "Most ferals have only three shapes: Man-Guise, War-Beast and Primal Beast. This Aspect grants two additional forms: the Throwback and the Dire Beast.",
         "system": "Grants access to Throwback and Dire Beast forms. See 'Hybrid Forms' for details about these manifestations.",
         "forms": ["Grants new forms"]
@@ -402,7 +402,7 @@ CHANGING_BREED_ASPECTS = {
     # K
     "keen_sense": {
         "name": "Keen Sense",
-        "cost": "• or ••",
+        "cost": "- or --",
         "description": "Animals live and die by their senses. With this Aspect, a single sense becomes incredibly acute.",
         "system": "One-dot: +2 bonus to reflexive perception rolls (Wits + Composure only). Two-dot: that advantage PLUS ignore up to 3 dice of distance-related penalties (sight, smell, hearing only). Always active, costs no Essence. Must be bought separately for each sense (sight, hearing, smell, taste, touch, energy awareness).",
         "forms": ["All forms"]
@@ -419,7 +419,7 @@ CHANGING_BREED_ASPECTS = {
     
     "long_life": {
         "name": "Long Life",
-        "cost": "• or ••",
+        "cost": "- or --",
         "description": "Like Old Man Possum, this character should enjoy an especially long lifespan.",
         "system": "One-dot: adds 50% to feral's usual lifespan (~40 years for most people). Two-dot: effectively doubles natural lifespan... assuming nobody cuts it short.",
         "forms": ["All forms"]
@@ -430,7 +430,7 @@ CHANGING_BREED_ASPECTS = {
         "name": "Magnificence",
         "cost": "**",
         "description": "A staggering example of his breed, this feral seems more like a totem spirit than an actual beast. His fur or scales shine, his eyes glow; an aura of sublime presence surrounds him at all times.",
-        "system": "Add +4 bonus to Social rolls where werebeast makes powerful impression—only when in animal shapes. People and animals instinctively revere character.",
+        "system": "Add +4 bonus to Social rolls where werebeast makes powerful impression-only when in animal shapes. People and animals instinctively revere character.",
         "forms": ["Primal Beast", "War-Beast", "Dire Beast"]
     },
     
@@ -444,7 +444,7 @@ CHANGING_BREED_ASPECTS = {
     
     "mimic": {
         "name": "Mimic",
-        "cost": "• or •••",
+        "cost": "- or ---",
         "description": "Nature's imposters can impersonate another creature's voice, coloration or scent. Using this trick, a feral can do the same.",
         "system": "One-dot: mimic single element (appearance, sound OR scent). Two dots: two elements. Three dots: all three. Roll Wits + Animal Ken + Feral Heart to succeed. Can mimic human (specific impersonation requires additional Wits + Subterfuge + Feral Heart roll). Lasts 2 turns per Feral Heart dot. To uncover: contested Wits + Subterfuge (good light gives +3 to spot appearance). Works in any form for sounds/scents. Cannot dramatically change appearance (hyena could pass for dog, but not person/bird/lizard).",
         "forms": ["Varies"]
@@ -537,7 +537,7 @@ CHANGING_BREED_ASPECTS = {
     "sense_of_familiarity": {
         "name": "Sense of Familiarity",
         "cost": "**",
-        "description": "By employing this trick—an extension of the Delusion—a feral can engage in strange, even supernatural, activity without drawing unwanted attention. Potential witnesses either don't notice or convince themselves it fits the natural order.",
+        "description": "By employing this trick-an extension of the Delusion-a feral can engage in strange, even supernatural, activity without drawing unwanted attention. Potential witnesses either don't notice or convince themselves it fits the natural order.",
         "system": "Running around in animal form: roll Wits + Subterfuge - bystander's Resolve. Success = nobody detects anything strange. Overtly supernatural actions: same roll - highest Resolve. Success = feral doesn't provoke strong/fearful reaction (may become dreamlike fascination or rationalized). Must activate (not reflexive). If presence damages environment (rhino in mall): spend 1 Essence. Stealthy beast (crow, cat): no Essence cost. Violent/extreme actions cannot be obscured. Gift for tricksters, not cloak for murderers.",
         "forms": ["Primal Beast", "Dire Beast", "War-Beast"]
     },
@@ -554,13 +554,13 @@ CHANGING_BREED_ASPECTS = {
         "name": "Shadow Bond",
         "cost": "***",
         "description": "Most ferals, unlike their cousins the Uratha, are creatures of this world. Most... but not all. This Aspect allows a werebeast to cross through the spiritual Gauntlet, reaching the Shadow.",
-        "system": "Must be at spiritual locus. Enter trance or gaze into reflective surface, fade to Shadow in ~30 seconds. Roll Intelligence + Presence + Feral Heart. Spend 1 Essence = instant trip; otherwise 10 turns. During crossing, immune to attacks from either side. Modifiers: dense urban -3, suburb/town -2, small town/village -1, wilderness +0, daylight -2, ••-••• locus +1, ••••+ locus +2, reflective surface +1. Smells odd to other ferals afterward.",
+        "system": "Must be at spiritual locus. Enter trance or gaze into reflective surface, fade to Shadow in ~30 seconds. Roll Intelligence + Presence + Feral Heart. Spend 1 Essence = instant trip; otherwise 10 turns. During crossing, immune to attacks from either side. Modifiers: dense urban -3, suburb/town -2, small town/village -1, wilderness +0, daylight -2, ------ locus +1, ----+ locus +2, reflective surface +1. Smells odd to other ferals afterward.",
         "forms": ["All forms"]
     },
     
     "skin_double": {
         "name": "Skin Double",
-        "cost": "••••",
+        "cost": "----",
         "description": "An infamous trick among hyenas, cats and foxes, this dreadful gift allows a shapechanger to kill a person and assume his identity. First, the feral stalks and downs her prey, harming his skin as little as possible. Using terrible rites, she skins the body (sometimes while victim still lives), then prepares the hide with her own blood, urine, tears, saliva and sweat.",
         "system": "Donning skin becomes almost-perfect likeness. Probably Harmony violation. Spend 1 Essence to adopt persona. Spend another each time removing/replacing skin (2 points per shift) to maintain charade even with physical differences. All disguise rolls receive 4 bonus successes. Some flaw reveals animal nature (paw foot, eye sheen, tendency to eat raw meat). Perception roll may notice something wrong. Eerie and powerful. Should never displace/impersonate player characters (except with player's covert agreement for fun roleplay).",
         "forms": ["All forms"]
@@ -585,7 +585,7 @@ CHANGING_BREED_ASPECTS = {
     "spinebite": {
         "name": "Spinebite",
         "cost": "*****",
-        "description": "Cats are brutally efficient killers—among the best in the natural world. When going for the kill, cats often go for the neck in an effort to sever the spinal cord or tear out the windpipe.",
+        "description": "Cats are brutally efficient killers-among the best in the natural world. When going for the kill, cats often go for the neck in an effort to sever the spinal cord or tear out the windpipe.",
         "system": "Spend 1 Willpower, make attack roll at target's exposed neck (suffer -3 dice penalty for targeted attack). Success = all damage to neck is aggravated. Neck torn open, arteries likely cut. Powerful, nasty attack. Once per scene. Must have long sharp claws, teeth or talons.",
         "forms": ["Primal Beast", "War-Beast"]
     },
@@ -602,14 +602,14 @@ CHANGING_BREED_ASPECTS = {
         "name": "Spirit Gift",
         "cost": "*+",
         "description": "Feral werebeasts are creatures of the mortal realm; even so, a handful of them (usually Wind-Dancers or other mystics) interact with the spirits of Nature. At times, these entities offer Gifts, arcane blessings that confer otherworldly powers.",
-        "system": "Can select Gifts from Werewolf: The Forsaken, provided character has at least 1 dot in Language (First Tongue) and working relationship with spirit realm. Each dot purchases single Gift of that rating; Gifts over ••• cost 2 dots each. Cannot purchase if have Beast Magic Aspect. Spirits are jealous.",
+        "system": "Can select Gifts from Werewolf: The Forsaken, provided character has at least 1 dot in Language (First Tongue) and working relationship with spirit realm. Each dot purchases single Gift of that rating; Gifts over --- cost 2 dots each. Cannot purchase if have Beast Magic Aspect. Spirits are jealous.",
         "forms": ["All forms"]
     },
     
     "spirit_secrets": {
         "name": "Spirit Secrets",
         "cost": "***",
-        "description": "Some tricksters can mimic the power of spirit powers—in game terms, Numina. Crows, spiders and hares love to steal such secrets; several creation myths are based on such thefts in ancient times.",
+        "description": "Some tricksters can mimic the power of spirit powers-in game terms, Numina. Crows, spiders and hares love to steal such secrets; several creation myths are based on such thefts in ancient times.",
         "system": "Must find, stalk and trick spirit into giving up secret. Pay Willpower or Essence cost as Numen would, make Wits + Intelligence roll to understand trick. Not all Numina make sense for shapechanger (Storyteller discretion). Possibilities: Animal Control, Blast (elemental surge), Harrow, Gauntlet Breach, Materialize (conjure spirits), Phantasm, Terrify, Wilds Sense. Each Numen costs 3 Aspect dots.",
         "forms": ["All forms"]
     },
@@ -617,7 +617,7 @@ CHANGING_BREED_ASPECTS = {
     "spirit_sight": {
         "name": "Spirit Sight",
         "cost": "**",
-        "description": "Tradition holds that certain animals—often crows, larks, hares and horses—guard the passage to the Otherworld. Wind-Dancer mystics continue that tradition.",
+        "description": "Tradition holds that certain animals-often crows, larks, hares and horses-guard the passage to the Otherworld. Wind-Dancer mystics continue that tradition.",
         "system": "Roll Intelligence + Occult + Feral Heart. Success = spot area of spiritual power or disturbance (generally ghosts, although malignant spirits may be involved). Can peer past Gauntlet and recognize heart of matter. Circumstances modify roll per Shadow Bond Aspect chart.",
         "forms": ["All forms"]
     },
@@ -648,9 +648,9 @@ CHANGING_BREED_ASPECTS = {
     
     "swarm_flock_form": {
         "name": "Swarm/Flock Form",
-        "cost": "••••",
+        "cost": "----",
         "description": "In a hideous spill of legs and bodies, the feral breaks apart into dozens or hundreds of tiny bats, rats or, worst of all, insects... The swarm shares a hive mind and common Health trait.",
-        "system": "Requires Composure + Feral Heart roll. Almost instantaneous. Costs 1 Essence to scatter, another to re-form. If too little Essence left, trapped in scattered state. No defense against mental/spiritual assaults. Normal humans/animals suffer Delusion with -2 penalty. Supernatural characters roll Composure + mystical defense or get rattled (cannot act until after next turn). Familiarity breeds contempt—startling power works only once on given victim. Attack hitting most/all creatures affects feral normally. Almost impossible to hit all at once without explosion/flood/collapse.",
+        "system": "Requires Composure + Feral Heart roll. Almost instantaneous. Costs 1 Essence to scatter, another to re-form. If too little Essence left, trapped in scattered state. No defense against mental/spiritual assaults. Normal humans/animals suffer Delusion with -2 penalty. Supernatural characters roll Composure + mystical defense or get rattled (cannot act until after next turn). Familiarity breeds contempt-startling power works only once on given victim. Attack hitting most/all creatures affects feral normally. Almost impossible to hit all at once without explosion/flood/collapse.",
         "forms": ["Primal Beast"]
     },
     
@@ -682,7 +682,7 @@ CHANGING_BREED_ASPECTS = {
     "tell": {
         "name": "Tell",
         "cost": "-*",
-        "description": "A tell is an identifying characteristic—physical or psychological—that betrays a feral's identity to anyone perceptive enough to pick up on it.",
+        "description": "A tell is an identifying characteristic-physical or psychological-that betrays a feral's identity to anyone perceptive enough to pick up on it.",
         "system": "Could be lazy eye manifesting in all forms, tendency to sneeze when nervous, heavy musk or stink of offal. Character meeting werebeast for first time gets reflexive Wits + Composure roll (-2 dice). Success = notices characteristic. If meets again in altered form, another roll to notice tell. Second success = may make connection. Failed second roll allowed again if someone calls attention to it. Tell is immediate perception, doesn't linger after shapechanger gone.",
         "forms": ["All forms"]
     },
@@ -691,14 +691,14 @@ CHANGING_BREED_ASPECTS = {
         "name": "Territory Bond",
         "cost": "*** to *****",
         "description": "A wise beast knows her territory. With this Aspect, a werebeast becomes so attuned to her homelands that she can literally move her world.",
-        "system": "Three-dot: intuitive sense of home (recognize by scent/taste, find way back from great distance, sense when something wrong if within 100 miles—Wits + Composure + Feral Heart). Reflexive, costs no Essence. Four-dot: spy on domain. Within 10 miles, spend 1 Willpower, roll Wits + Composure + Feral Heart for flashes of information. Five-dot: turn land to purpose. Spend 2 Willpower, usual roll, alter landscape (mists rise, sounds echo, trails disappear/shift, winds/weather shift, roots trip, etc.). Contested roll vs. trespasser's Wits + Composure + Survival to determine if invaders lost.",
+        "system": "Three-dot: intuitive sense of home (recognize by scent/taste, find way back from great distance, sense when something wrong if within 100 miles-Wits + Composure + Feral Heart). Reflexive, costs no Essence. Four-dot: spy on domain. Within 10 miles, spend 1 Willpower, roll Wits + Composure + Feral Heart for flashes of information. Five-dot: turn land to purpose. Spend 2 Willpower, usual roll, alter landscape (mists rise, sounds echo, trails disappear/shift, winds/weather shift, roots trip, etc.). Contested roll vs. trespasser's Wits + Composure + Survival to determine if invaders lost.",
         "forms": ["All forms"]
     },
     
     "tiger_heart": {
         "name": "Tiger Heart",
         "cost": "*",
-        "description": "When this feral goes Berserk, people die. A player who rolls this character's Resolve + Composure to avoid a Berserk fit first reduces his dice pool by –1.",
+        "description": "When this feral goes Berserk, people die. A player who rolls this character's Resolve + Composure to avoid a Berserk fit first reduces his dice pool by -1.",
         "system": "Reduce dice pool by -1 when rolling Resolve + Composure to avoid Berserk fit. Won't rabbit run unless about to die (maybe not even then). To run away before that point, must spend 1 Willpower to overcome urge to kill. (See also Hare Heart Aspect.)",
         "forms": ["All forms"]
     },
@@ -754,7 +754,7 @@ CHANGING_BREED_ASPECTS = {
     
     "unspeakable": {
         "name": "Unspeakable",
-        "cost": "••• or •••••",
+        "cost": "--- or -----",
         "description": "Hideous beyond description, this creature drives people screaming with her mere presence. She might be a shambling twisted mockery of a beast, or an animal so ferocious that even the most strong-hearted mortals flee.",
         "system": "Three-dot: add 1 automatic success to intimidate/frighten attempts, lower Delusion resistance dice pool by -1. Five-dot: add 2 automatic successes, lower Delusion pool by -2. Applies only to War and animal forms (probably no beauty queen in human form either).",
         "forms": ["Primal Beast", "War-Beast", "Dire Beast"]

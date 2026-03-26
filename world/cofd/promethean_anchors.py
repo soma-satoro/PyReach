@@ -17,18 +17,18 @@ ELPIDES = {
         "name": "Drive",
         "description": "Someone with drive makes the impossible possible. When she has a goal in mind, she never stops for anything short of accomplishing her goals, crushing her enemies, or setting things right. The only thing she can't do is fail.",
         "witness": "Someone continuing onwards when all reason and common sense says she should stop.",
-        "act": "Much the same as witnessing — the bar for 'impossible' is raised much higher for Prometheans though, and it's encouraged that this be a suitably awesome moment if the player wants to reach for it."
+        "act": "Much the same as witnessing - the bar for 'impossible' is raised much higher for Prometheans though, and it's encouraged that this be a suitably awesome moment if the player wants to reach for it."
     },
     "empathy": {
         "name": "Empathy",
-        "description": "More than merely understanding that other people feel, having Empathy as Elpis means one day being able to sympathize — to feel what someone feels, to know what it's like. That's something pretty far off for most Created.",
+        "description": "More than merely understanding that other people feel, having Empathy as Elpis means one day being able to sympathize - to feel what someone feels, to know what it's like. That's something pretty far off for most Created.",
         "witness": "A doctor consoling a terminal patient. Overhearing two friends talking about something serious. An event that shows these people have a connection.",
-        "act": "Not just saying 'I feel for you' — that's mimicry, not empathy. To act on her Elpis, the Promethean must understand what the other person is going through, relate it to her own events, and follow through."
+        "act": "Not just saying 'I feel for you' - that's mimicry, not empathy. To act on her Elpis, the Promethean must understand what the other person is going through, relate it to her own events, and follow through."
     },
     "fear": {
         "name": "Fear",
-        "description": "Fear is a natural response to things — not just a human response, but a living response all the same. The Created usually know their limits, but that's not the same as fear.",
-        "witness": "Being scared or startled doesn't do the trick. Terror is what really draws forth the fear response — dreadful anticipation.",
+        "description": "Fear is a natural response to things - not just a human response, but a living response all the same. The Created usually know their limits, but that's not the same as fear.",
+        "witness": "Being scared or startled doesn't do the trick. Terror is what really draws forth the fear response - dreadful anticipation.",
         "act": "Everyone gets scared. Prometheans in particular know about dread and anxiety. To truly master fear, a Promethean fear for her life, her Pilgrimage, or the life of another."
     },
     "fury": {
@@ -39,7 +39,7 @@ ELPIDES = {
     },
     "inspiration": {
         "name": "Inspiration",
-        "description": "Humans create. They see the natural state of the world and they seek to alter it — for convenience, for utility, or for beauty. Inspiration is seeing or experiencing something and being moved to action.",
+        "description": "Humans create. They see the natural state of the world and they seek to alter it - for convenience, for utility, or for beauty. Inspiration is seeing or experiencing something and being moved to action.",
         "witness": "The Promethean might act as a muse, leading people to create stories, art, or to make some sort of change in their lives.",
         "act": "The Promethean takes inspiration from her circumstances, from a human being, or from a throngmate and creates something."
     },
@@ -52,7 +52,7 @@ ELPIDES = {
     "love": {
         "name": "Love",
         "description": "A connection deeper than any other, Love is regarded as a remarkable power in nearly every human society for good reason.",
-        "witness": "The Promethean has to look at two people that are together, know they love each other, and most importantly, know why — witnessing some act of affection that's not phoned in or obligated.",
+        "witness": "The Promethean has to look at two people that are together, know they love each other, and most importantly, know why - witnessing some act of affection that's not phoned in or obligated.",
         "act": "Building a connection to someone strong enough to be called 'love' is almost impossible thanks to Disquiet, but there's nothing that says it has to be requited love. The Promethean just has to have someone she cares about above all else, someone she'd die for. Sometimes it comes to that."
     },
     "sorrow": {
@@ -64,7 +64,7 @@ ELPIDES = {
     "pain": {
         "name": "Pain",
         "description": "In some very specific cases, pain is good. It's necessary to sacrifice to achieve something, and sacrifice hurts. A lot of things hurt, but they're for the best. Understanding and accepting that pain isn't always a thing to be avoided is critical to these Prometheans.",
-        "witness": "Unfortunately, no small amount of humanity is willing to inflict pain on others, but this is about sacrifice — the party being hurt has to be willing to take that pain for some greater good.",
+        "witness": "Unfortunately, no small amount of humanity is willing to inflict pain on others, but this is about sacrifice - the party being hurt has to be willing to take that pain for some greater good.",
         "act": "A Promethean must know true agony and know it furthers some cause that matters to her. Leaving a loved one to stave off Disquiet or withstanding torture to protect someone are both examples of fulfilling the Pain Elpis. Torment doesn't count for the purposes of this Elpis, even if she intentionally induces it."
     }
 }
@@ -117,8 +117,8 @@ TORMENTS = {
         "act": "Take an action that brings you closer to what you're passionate about, even if it's dangerous or doesn't make sense."
     },
     "naive": {
-        "name": "Naïve",
-        "description": "A Naïve Promethean lacks simple concepts like 'personal space' and 'subtlety.' Despite her best efforts, she finds herself constantly upsetting someone or falling for some trick.",
+        "name": "Naive",
+        "description": "A Naive Promethean lacks simple concepts like 'personal space' and 'subtlety.' Despite her best efforts, she finds herself constantly upsetting someone or falling for some trick.",
         "act": "The Promethean's lack of understanding of human society causes a setback for her or the throng."
     }
 }

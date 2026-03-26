@@ -1,4 +1,4 @@
-"""
+﻿"""
 Hunter: The Vigil 
 Complete listing of all tactics from Hunter the Vigil 2nd Edition
 including requirements, dice pools, and book references.
@@ -359,7 +359,7 @@ def format_secondary_pools(pools):
     for pool_data in pools:
         actors = f"({pool_data['min_actors']}/{pool_data['max_actors']})"
         note = f" [{pool_data['note']}]" if 'note' in pool_data else ""
-        formatted.append(f"  - {pool_data['pool']} {actors}{note}")
+        formatted.append(f"  * {pool_data['pool']} {actors}{note}")
     
     return "\n".join(formatted)
 
@@ -411,4 +411,5 @@ BOOK_ABBREVIATIONS = {
     "HTV 2e": "Hunter: The Vigil 2nd Edition",
     "TTF": "Tooth and Nail (The Hunt supplement)"
 }
+
 

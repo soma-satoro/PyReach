@@ -805,7 +805,7 @@ DEMON_EXPLOITS = {
     },
     "behind_the_curtain": {
         "name": "Behind the Curtain",
-        "cost": "●●",
+        "cost": "**",
         "pool": "Intelligence + Computer + Primum",
         "description": "Travel from God-Machine Infrastructure to other Infrastructure anywhere in the world.",
         "source": "DTD 161"
@@ -826,7 +826,7 @@ DEMON_EXPLOITS = {
     },
     "context_matters": {
         "name": "Context Matters",
-        "cost": "●●/●●●●●",
+        "cost": "**/*****",
         "pool": "Presence + Persuasion + Primum",
         "description": "Ease compromise risks by providing at least five witnesses with an alibi or explanation.",
         "source": "FoH 111"
@@ -847,7 +847,7 @@ DEMON_EXPLOITS = {
     },
     "demon_car": {
         "name": "Demon Car",
-        "cost": "●+",
+        "cost": "*+",
         "pool": "Strength + Drive + Primum",
         "description": "Merge your demonic form with any vehicle.",
         "source": "FoH 111"
@@ -868,14 +868,14 @@ DEMON_EXPLOITS = {
     },
     "disintegrate": {
         "name": "Disintegrate",
-        "cost": "●(●)",
+        "cost": "*(*)",
         "pool": "Strength + Brawl + Primum",
         "description": "Disintegrate an object.",
         "source": "DTD 163"
     },
     "echoing_death": {
         "name": "Echoing Death",
-        "cost": "●●",
+        "cost": "**",
         "pool": "Strength + Brawl + Primum",
         "description": "Strike someone dead and, in so doing, undo their previous actions within the last few minutes.",
         "source": "DTD 163"
@@ -903,7 +903,7 @@ DEMON_EXPLOITS = {
     },
     "eye_for_an_eye": {
         "name": "Eye for an Eye",
-        "cost": "● (●/attack)",
+        "cost": "* (*/attack)",
         "pool": "Strength + Medicine + Primum - Damage",
         "description": "Take the wounds out of a target and transfuse them as a brawling or throwing attack.",
         "source": "Iface 97"
@@ -917,7 +917,7 @@ DEMON_EXPLOITS = {
     },
     "four_minutes_ago": {
         "name": "Four Minutes Ago",
-        "cost": "●●",
+        "cost": "**",
         "pool": "Intelligence + Stealth + Primum",
         "description": "Retroactively leave the scene four minutes ago.",
         "source": "DTD 166"
@@ -931,7 +931,7 @@ DEMON_EXPLOITS = {
     },
     "halo": {
         "name": "Halo",
-        "cost": "●●",
+        "cost": "**",
         "pool": "Presence + Medicine + Primum",
         "description": "Create a balming, healing, soporific light.",
         "source": "DTD 167"
@@ -945,14 +945,14 @@ DEMON_EXPLOITS = {
     },
     "hellhounds": {
         "name": "Hellhounds",
-        "cost": "●/Size",
+        "cost": "*/Size",
         "pool": "Intelligence + Animal Ken + Primum",
         "description": "Twist an animal into a cryptid servant that needs Aether to survive longer than a scene.",
         "source": "DTD 167"
     },
     "incendiary": {
         "name": "Incendiary",
-        "cost": "● (●/turn)",
+        "cost": "* (*/turn)",
         "pool": "Strength + Science + Primum",
         "description": "Throw fire. Literally throw it.",
         "source": "DTD 168"
@@ -966,7 +966,7 @@ DEMON_EXPLOITS = {
     },
     "living_installation": {
         "name": "Living Installation",
-        "cost": "●●",
+        "cost": "**",
         "pool": "Intelligence + Medicine + Primum",
         "description": "Install a gadget into a living being.",
         "source": "FoH 112"
@@ -980,7 +980,7 @@ DEMON_EXPLOITS = {
     },
     "merge": {
         "name": "Merge",
-        "cost": "●/demon",
+        "cost": "*/demon",
         "pool": "Strength + Occult + Primum",
         "description": "Funnel demonic form abilities into one demon, who becomes an amalgam creature.",
         "source": "DTD 169"
@@ -994,7 +994,7 @@ DEMON_EXPLOITS = {
     },
     "newtons_nightmares": {
         "name": "Newton's Nightmares",
-        "cost": "●●●",
+        "cost": "***",
         "pool": "Intelligence + Science + Primum",
         "description": "Amplify, reduce, or redirect the effects of gravity, friction or inertia.",
         "source": "FoH 112"
@@ -1008,7 +1008,7 @@ DEMON_EXPLOITS = {
     },
     "play_on_words": {
         "name": "Play on Words",
-        "cost": "●●",
+        "cost": "**",
         "pool": "Presence + Expression + Primum",
         "description": "Actualize a spoken word's double meaning.",
         "source": "DTD 170"
@@ -1022,14 +1022,14 @@ DEMON_EXPLOITS = {
     },
     "rain_of_blood": {
         "name": "Rain of Blood",
-        "cost": "●●●",
+        "cost": "***",
         "pool": "Strength + Occult + Primum",
         "description": "Cause a plague of unnatural inclement weather, which may induce stigmatics.",
         "source": "DtD 172"
     },
     "raise_dead": {
         "name": "Raise Dead",
-        "cost": "●/day",
+        "cost": "*/day",
         "pool": "Presence + Medicine + Primum",
         "description": "Resurrect a dead human whose soul has not been annihilated or moved on.",
         "source": "DTD 172"
@@ -1043,7 +1043,7 @@ DEMON_EXPLOITS = {
     },
     "reality_enforcement": {
         "name": "Reality Enforcement",
-        "cost": "●●●",
+        "cost": "***",
         "pool": "Presence + Academics + Primum",
         "description": "Disconnect beings related to the God-Machine from the occult principles that enable their supernatural powers.",
         "source": "DTD 173"
@@ -1064,7 +1064,7 @@ DEMON_EXPLOITS = {
     },
     "sermon": {
         "name": "Sermon",
-        "cost": "●/speech",
+        "cost": "*/speech",
         "pool": "Presence + Persuasion + Primum",
         "description": "Dictate the morals and ethics of your audience and elicit their devotion.",
         "source": "DTD 175"
@@ -1106,14 +1106,14 @@ DEMON_EXPLOITS = {
     },
     "stop": {
         "name": "Stop",
-        "cost": "●●",
+        "cost": "**",
         "pool": "Intelligence + Science + Primum",
         "description": "Stops time for a moment, creating a space where the demon can move and use Embeds, but nothing else can move or be harmed.",
         "source": "FoH 115"
     },
     "summon": {
         "name": "Summon",
-        "cost": "●/day",
+        "cost": "*/day",
         "pool": "Presence + Streetwise + Primum",
         "description": "Initiate circumstances that will bring somebody you know to you.",
         "source": "DTD 177"
@@ -1127,7 +1127,7 @@ DEMON_EXPLOITS = {
     },
     "swift_resolution": {
         "name": "Swift Resolution",
-        "cost": "●●●",
+        "cost": "***",
         "pool": "Intelligence + Academics + Primum",
         "description": "Instantly decide a conflict or sequence of events in favor of the most likely probability.",
         "source": "DTD 178"
@@ -1141,35 +1141,35 @@ DEMON_EXPLOITS = {
     },
     "two_places_at_once": {
         "name": "Two Places at Once",
-        "cost": "●●●",
+        "cost": "***",
         "pool": "Presence + Science + Primum",
         "description": "Entangle two separate areas that the demon has visited in the past day into a single disorienting space.",
         "source": "FoH 116"
     },
     "ultimatum": {
         "name": "Ultimatum",
-        "cost": "●●",
+        "cost": "**",
         "pool": "Intelligence + Science + Primum vs Resolve",
         "description": "Task an individual with a single commandment, on pain of deadly transmutation.",
         "source": "FoH 116"
     },
     "urban_legend": {
         "name": "Urban Legend",
-        "cost": "●/roll",
+        "cost": "*/roll",
         "pool": "Intelligence + Expression + Primum",
         "description": "Actualizes the cast of an urban legend as flimsy actors who can be used as facades.",
         "source": "FoH 117"
     },
     "visions_of_heaven_and_hell": {
         "name": "Visions of Heaven and Hell",
-        "cost": "●●",
+        "cost": "**",
         "pool": "Presence + Intimidation + Primum vs Resolve + Tolerance",
         "description": "Projects a dramatic vision of either divine judgment and triumph or agony and terror.",
         "source": "FoH 118"
     },
     "walls_of_jericho": {
         "name": "Walls of Jericho",
-        "cost": "●●●",
+        "cost": "***",
         "pool": "Strength + Intimidation + Primum",
         "description": "Briefly strips the benefits of Defense, Armor and concealment from present foes.",
         "source": "FoH 119"

@@ -230,7 +230,7 @@ THEBAN_RANK_1 = {
         "rank": 1,
         "target_number": 5,
         "opposition": "-",
-        "sacrament": "●, apple",
+        "sacrament": "*, apple",
         "description": "Infuse a fruit with Vitae. A human who eats the fruit suffers a breaking point, but distributes bonus dots between Intelligence and Wits and can safely perceive supernatural beings on sight for a matter of days.",
         "book": "Secrets of the Covenants p.194"
     },
@@ -902,7 +902,7 @@ KHAIBIT_DEVOTIONS = {
         "bloodline": "khaibit",
         "prerequisites": "-",
         "xp_cost": "-",
-        "cost": "(●)",
+        "cost": "(*)",
         "description": "You can see in total darkness and can't be blinded by injury or supernatural imposition. Spend Vitae to perceive beings in Twilight for one scene, during which you can't be possessed by strix.",
         "book": "Onyx Path blog"
     },
@@ -912,7 +912,7 @@ KHAIBIT_DEVOTIONS = {
         "bloodline": "khaibit",
         "prerequisites": "Obfuscate:2",
         "xp_cost": 2,
-        "cost": "●●●",
+        "cost": "***",
         "description": "Grasp a shadow large enough to contain you and don it, becoming darkness yourself. You're treated as a being in Twilight, able to touch (and be touched by) anything else in Twilight. Half your Speed and, whenever you're hurt, take an extra two lethal damage in this state. The Ba offers no protection against fire or sunlight.",
         "book": "Onyx Path blog"
     },
@@ -920,9 +920,9 @@ KHAIBIT_DEVOTIONS = {
         "name": "Iteru",
         "type": "devotion",
         "bloodline": "khaibit",
-        "prerequisites": "Celerity ••",
+        "prerequisites": "Celerity --",
         "xp_cost": 2,
-        "cost": "●",
+        "cost": "*",
         "description": "Slip reflexively into a shadow and back out of any contiguous shadow. Once per scene, using the Iteru can grant the rote quality to a Dodge.",
         "book": "Onyx Path blog"
     },
@@ -932,7 +932,7 @@ KHAIBIT_DEVOTIONS = {
         "bloodline": "khaibit",
         "prerequisites": "Vigor:2",
         "xp_cost": 2,
-        "cost": "●+",
+        "cost": "*+",
         "description": "Coat an object in frozen darkness. Add Blood Potency to its Durability and Vitae spent to its Structure. Coated weapons add one to their weapon rating against physical targets, and apply a weapon rating equal to your Blood Potency to the noncorporeal. You can wield a coated object at a distance through the Tyet, even while immaterial through the Ba.",
         "book": "Onyx Path blog"
     },
@@ -942,7 +942,7 @@ KHAIBIT_DEVOTIONS = {
         "bloodline": "khaibit",
         "prerequisites": "Vigor:2",
         "xp_cost": 2,
-        "cost": "●+",
+        "cost": "*+",
         "description": "Expel darkness out for your Blood Potency times Vitae spent, in yards. You can shape the cloud of shadow, including preexisting shadows within the space of the cloud.",
         "book": "Onyx Path blog"
     }
@@ -956,7 +956,7 @@ NOSOI_DEVOTIONS = {
         "bloodline": "nosoi",
         "prerequisites": "-",
         "xp_cost": "-",
-        "cost": "●",
+        "cost": "*",
         "description": "Contest Manipulation + Medicine + Protean vs Stamina + Supernatural Tolerance to infect a mortal with your blood sickness.",
         "book": "Night Horrors: Shunned by the Moon p.32"
     },
@@ -966,7 +966,7 @@ NOSOI_DEVOTIONS = {
         "bloodline": "nosoi",
         "prerequisites": "Obfuscate:2",
         "xp_cost": 1,
-        "cost": "●",
+        "cost": "*",
         "description": "Use Touch of Shadow to mask the symptoms of a blood sickness.",
         "book": "Night Horrors: Shunned by the Moon p.32"
     },
@@ -976,7 +976,7 @@ NOSOI_DEVOTIONS = {
         "bloodline": "nosoi",
         "prerequisites": "Protean:3",
         "xp_cost": 1,
-        "cost": "●/bug",
+        "cost": "*/bug",
         "description": "Requires Swarm Form. Bud off intelligent, loyal insect servants.",
         "book": "Night Horrors: Shunned by the Moon p.32"
     }
@@ -990,7 +990,7 @@ SCIONS_DEVOTIONS = {
         "bloodline": "scions",
         "prerequisites": "-",
         "xp_cost": "-",
-        "cost": "●",
+        "cost": "*",
         "description": "Touch hands with the surface of your city to see through its eyes. This is required to use other Scion Devotions in a particular city.",
         "book": "Night Horrors: Shunned by the Moon p.44"
     },
@@ -1000,7 +1000,7 @@ SCIONS_DEVOTIONS = {
         "bloodline": "scions",
         "prerequisites": "Auspex:3",
         "xp_cost": 1,
-        "cost": "(●)",
+        "cost": "(*)",
         "description": "Roll Wits + Empathy + Auspex to search your city for clues of wrongdoing by a touched subject. Use for free once each scene.",
         "book": "Night Horrors: Shunned by the Moon p.44"
     },
@@ -1010,13 +1010,13 @@ SCIONS_DEVOTIONS = {
         "bloodline": "scions",
         "prerequisites": "Auspex:5",
         "xp_cost": 3,
-        "cost": "●●",
+        "cost": "**",
         "description": "Walk barefoot through your city and contest Intelligence + Occult + Auspex vs Resolve + Tolerance to seek and impede quarry.",
         "book": "Night Horrors: Shunned by the Moon p.44"
     }
 }
 
-# Lidérc (Siphon) Bloodline Devotions
+# Liderc (Siphon) Bloodline Devotions
 LIDERC_DEVOTIONS = {
     "the_give_and_take": {
         "name": "The Give-and-Take",
@@ -1024,7 +1024,7 @@ LIDERC_DEVOTIONS = {
         "bloodline": "liderc",
         "prerequisites": "Celerity or Vigor:3",
         "xp_cost": 1,
-        "cost": "●●",
+        "cost": "**",
         "description": "Gift a feeding vessel with two dots of your Physical Disciplines for a night, but steal any Willpower they recover from Vice.",
         "book": "Night Horrors: Shunned by the Moon p.27"
     },
@@ -1034,7 +1034,7 @@ LIDERC_DEVOTIONS = {
         "bloodline": "liderc",
         "prerequisites": "Majesty:2",
         "xp_cost": 1,
-        "cost": "○",
+        "cost": "o",
         "description": "Use exceptional success to provoke emotion to psychically drain Vitae from a victim's will.",
         "book": "Night Horrors: Shunned by the Moon p.27"
     },
@@ -1044,7 +1044,7 @@ LIDERC_DEVOTIONS = {
         "bloodline": "liderc",
         "prerequisites": "Obfuscate:4",
         "xp_cost": 2,
-        "cost": "●",
+        "cost": "*",
         "description": "By feeding on a sleeping victim, conflate yourself with their ideal, inflicting yourself as a temporary Vice.",
         "book": "Night Horrors: Shunned by the Moon p.27"
     },
@@ -1054,7 +1054,7 @@ LIDERC_DEVOTIONS = {
         "bloodline": "liderc",
         "prerequisites": "Majesty:2",
         "xp_cost": 1,
-        "cost": "○",
+        "cost": "o",
         "description": "Pledge yourself to a consenting vessel. They gain your Majesty in fawning Social Merits, and you recover Willpower from rousing their passion, but cannot target anyone else with Siphon.",
         "book": "Night Horrors: Shunned by the Moon p.27"
     }
@@ -1068,7 +1068,7 @@ VARDYVLE_DEVOTIONS = {
         "bloodline": "vardyvle",
         "prerequisites": "Protean:2, Obfuscate:1",
         "xp_cost": 1,
-        "cost": "●/feature",
+        "cost": "*/feature",
         "description": "Copy features from the appearance of a vessel for a night.",
         "book": "Night Horrors: Shunned by the Moon p.49"
     }

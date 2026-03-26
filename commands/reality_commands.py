@@ -544,7 +544,7 @@ class CmdLocus(MuxCommand):
     when in the Shadow.
     
     Locus Levels: 1-5
-    Essence Generation: Level × 3 per day
+    Essence Generation: Level x 3 per day
     
     Examples:
       +locus

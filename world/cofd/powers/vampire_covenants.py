@@ -21,7 +21,7 @@ MAJOR_COVENANTS = {
         "name": "Circle of the Crone",
         "nickname": "Acolytes",
         "description": "The Mother's Army venerates female divinity, painful change, and the old ways remixed for the modern world.",
-        "advantage": "Crúac",
+        "advantage": "Cruac",
         "full_description": "The Circle of the Crone practices ancient blood sorcery and pagan spirituality, worshipping the dark mother goddess and embracing transformation through pain and sacrifice.",
         "book": "VTR 2e 35"
     },
@@ -248,7 +248,7 @@ HISTORICAL_COVENANTS = {
         "name": "Fir'awn",
         "era": "Abbasid Caliphate 832 CE",
         "description": "Apostates and pagans who seek wisdom in old and strange ways.",
-        "advantage": "Crúac",
+        "advantage": "Cruac",
         "book": "DE2 140"
     },
     "jaliniyya": {
@@ -264,7 +264,7 @@ HISTORICAL_COVENANTS = {
         "name": "Circles of Mor",
         "era": "Britannia 400-500 CE",
         "description": "Cells of vicious eldritch predators practicing rites of power and cruelty.",
-        "advantage": "Crúac",
+        "advantage": "Cruac",
         "book": "DE2 110"
     },
     "legion_of_the_green": {

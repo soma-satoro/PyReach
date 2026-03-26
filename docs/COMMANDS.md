@@ -427,6 +427,8 @@ Unified mystery and investigation system for players and staff.
   - `+mystery/grant <char>=<id>/<clue>` - Grant clue to character
   - `+mystery/revoke <char>=<id>/<clue>` - Revoke clue
   - `+mystery/discoveries <id> [char]` - View discoveries
+- **Tutorial:**
+  - `help mystery_tutorial` - Step-by-step staff setup and testing walkthrough
 
 ---
 

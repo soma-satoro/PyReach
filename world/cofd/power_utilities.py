@@ -312,7 +312,7 @@ def handle_semantic_power(character, power_type, power_name, value, caller):
         if spell_data:
             arcana_name = spell_data['arcana'].title()
             spell_level = spell_data['level']
-            dots_str = "●" * spell_level
+            dots_str = "*" * spell_level
             return True, f"Set {character.name} to know {spell_data['name']} ({arcana_name} {dots_str})."
         else:
             return True, f"Set {character.name} to know {power_name.replace('_', ' ').title()} (spell)."
@@ -405,7 +405,7 @@ def handle_semantic_power(character, power_type, power_name, value, caller):
             # Add rank info for rites
             elif power_type == "rite" and 'rank' in power_data:
                 rank = power_data['rank']
-                rank_dots = "●" * rank
+                rank_dots = "*" * rank
                 prereqs = power_data.get('prerequisites')
                 prereq_str = f" - Requires: {prereqs}" if prereqs else ""
                 return True, f"Set {character.name} to know {power_data['name']} (Rank {rank_dots} {display_type}){prereq_str}."

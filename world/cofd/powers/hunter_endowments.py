@@ -1453,7 +1453,7 @@ INK = {
 }
 
 # ============================================================================
-# RITES DU CHEVAL (Les Mystères)
+# RITES DU CHEVAL (Les Mysteres)
 # ============================================================================
 
 RITES_DU_CHEVAL = {
@@ -1483,7 +1483,7 @@ RITES_DU_CHEVAL = {
         "conspiracy": "Les Mysteres",
         "description": "Attack target with an elemental (fire, water, etc) effect. 1L for every success.",
         "cost": "1 Willpower",
-        "dice_pool": "Resolve + Occult + Les Mystères Status vs Resolve + Stamina",
+        "dice_pool": "Resolve + Occult + Les Mysteres Status vs Resolve + Stamina",
         "book": "SpSl 155",
         "tags": ["attack", "elemental"]
     },

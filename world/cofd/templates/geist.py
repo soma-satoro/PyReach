@@ -89,7 +89,7 @@ def render_geist_sheet(character, caller, force_ascii=False):
     if force_ascii:
         filled_char, empty_char = "*", "-"
     else:
-        filled_char, empty_char = "●", "○"
+        filled_char, empty_char = "*", "o"
     
     def format_dots(value, max_value):
         """Format dots for display"""
@@ -414,7 +414,7 @@ def set_geist_stat_value(character, stat, value, caller):
         valid_merits = geist_config.get("remembrance_merits", [])
         
         if value_lower not in valid_skills + valid_merits:
-            error_msg = f"Invalid remembrance trait. Must be a valid skill or merit (≤3 dots).\n"
+            error_msg = f"Invalid remembrance trait. Must be a valid skill or merit (<=3 dots).\n"
             error_msg += f"Valid skills: {', '.join(valid_skills)}\n"
             error_msg += f"Valid merits: {', '.join(valid_merits)}"
             return False, error_msg

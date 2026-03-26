@@ -34,7 +34,7 @@ LEGACY_VIRTUES = {
     "justice": {
         "name": "Justice",
         "description": "The innocent must be protected and atrocities and cruelties must be punished. The cost is negligible; justice must be given for those who cannot acquire it themselves.",
-        "willpower_condition": "The character does The Right Thing™ regardless of how it may set that character back.",
+        "willpower_condition": "The character does The Right Thing(TM) regardless of how it may set that character back.",
         "other_names": ["Condemnatory", "Righteous"],
         "possessed_by": ["Critics", "Judges", "Parents", "Role-Models"]
     },

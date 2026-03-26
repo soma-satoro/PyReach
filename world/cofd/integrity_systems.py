@@ -65,7 +65,7 @@ VAMPIRE_BREAKING_POINTS = {
     4: {
         "dice": 2,
         "breaks": [
-            "Learning a dot of Crúac",
+            "Learning a dot of Cruac",
             "Impassioned violence.",
             "Spending a year or more in torpor.",
             "Surviving a century.",

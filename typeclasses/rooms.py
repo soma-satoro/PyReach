@@ -83,6 +83,11 @@ class Room(DefaultRoom):
         desc = self.get_display_desc(looker)
         if desc:
             appearance_parts.append(desc)
+
+        # Uncovered mystery clues in this room
+        clue_section = self.get_display_mystery_clues(looker)
+        if clue_section:
+            appearance_parts.append(clue_section)
             
         # Places section
         places = self.get_display_places(looker)
@@ -214,6 +219,100 @@ class Room(DefaultRoom):
                 
         return formatted_desc
 
+    def _clue_matches_room(self, clue):
+        """
+        Determine if a discovered clue should be displayed in this room.
+
+        Uses location hints first, then object/social hints against room contents.
+        """
+        room_key = (self.key or "").strip().lower()
+        room_tags = set()
+        raw_tags = getattr(self.db, "tags", None) or []
+        for tag in raw_tags:
+            room_tags.add(str(tag).strip().lower())
+
+        location_hints = {
+            str(h).strip().lower() for h in (clue.get("location_hints", []) or []) if str(h).strip()
+        }
+        if location_hints:
+            if room_key in location_hints:
+                return True
+            if room_tags & location_hints:
+                return True
+
+        content_keys = set()
+        for obj in self.contents:
+            key = (getattr(obj, "key", "") or "").strip().lower()
+            if key:
+                content_keys.add(key)
+        for ex in self.exits:
+            key = (getattr(ex, "key", "") or "").strip().lower()
+            if key:
+                content_keys.add(key)
+
+        object_hints = {
+            str(h).strip().lower() for h in (clue.get("object_hints", []) or []) if str(h).strip()
+        }
+        if object_hints and (content_keys & object_hints):
+            return True
+
+        social_hints = {
+            str(h).strip().lower() for h in (clue.get("social_hints", []) or []) if str(h).strip()
+        }
+        if social_hints and (content_keys & social_hints):
+            return True
+
+        return False
+
+    def get_display_mystery_clues(self, looker, **kwargs):
+        """
+        Show uncovered clues relevant to this room for the current looker.
+        """
+        if not looker or not hasattr(looker, "mysteries"):
+            return ""
+
+        discovered = looker.mysteries.get_all()
+        if not discovered:
+            return ""
+
+        from evennia.scripts.models import ScriptDB
+
+        rows = []
+        seen = set()
+        for mystery_id, clue_ids in discovered.items():
+            try:
+                script_id = int(mystery_id)
+            except (TypeError, ValueError):
+                continue
+            try:
+                mystery = ScriptDB.objects.get(id=script_id)
+            except ScriptDB.DoesNotExist:
+                continue
+            if not hasattr(mystery, "db") or not getattr(mystery.db, "clues", None):
+                continue
+
+            for clue_id in clue_ids or []:
+                clue = mystery.db.clues.get(clue_id, {})
+                if not clue:
+                    continue
+                if not self._clue_matches_room(clue):
+                    continue
+                clue_key = (mystery.id, clue_id)
+                if clue_key in seen:
+                    continue
+                seen.add(clue_key)
+                rows.append((mystery.db.title or "Unknown Mystery", clue.get("name", "Unknown Clue")))
+
+        if not rows:
+            return ""
+
+        lines = ["", "|yUncovered Leads Here:|n"]
+        for mystery_title, clue_name in rows[:8]:
+            lines.append(f"  * {clue_name} |x({mystery_title})|n")
+        if len(rows) > 8:
+            lines.append(f"  ... and {len(rows) - 8} more.")
+        return "\n".join(lines)
+
     def get_display_places(self, looker, **kwargs):
         """
         Get the places section display.
@@ -309,18 +408,18 @@ class Room(DefaultRoom):
                 if left_shortdesc:
                     # Truncate to 36 characters max
                     if len(left_shortdesc) > 36:
-                        left_desc_text = f"  - {left_shortdesc[:28]}..."
+                        left_desc_text = f"  * {left_shortdesc[:28]}..."
                     else:
-                        left_desc_text = f"  - {left_shortdesc}"
+                        left_desc_text = f"  * {left_shortdesc}"
                 
                 # Format right shortdesc
                 right_desc_text = ""
                 if right_shortdesc:
                     # Truncate to 36 characters max
                     if len(right_shortdesc) > 36:
-                        right_desc_text = f"  - {right_shortdesc[:28]}..."
+                        right_desc_text = f"  * {right_shortdesc[:28]}..."
                     else:
-                        right_desc_text = f"  - {right_shortdesc}"
+                        right_desc_text = f"  * {right_shortdesc}"
                 
                 # Combine shortdesc columns with proper spacing
                 desc_line = f"{left_desc_text:<40}{right_desc_text}"
@@ -398,12 +497,9 @@ class Room(DefaultRoom):
                 matched_abbrev = cardinal_directions[exit_name]
             
             if is_cardinal:
-                # Get the destination name
-                dest_name = "Unknown"
-                if exit_obj.destination:
-                    dest_name = exit_obj.destination.get_display_name(looker)
-                
-                directions.append(f"{dest_name} <{matched_abbrev}>")
+                # Display the exit itself, not the destination room name.
+                exit_display = exit_obj.get_display_name(looker)
+                directions.append(f"{exit_display} <{matched_abbrev}>")
                     
         if not directions:
             return ""
@@ -1275,7 +1371,7 @@ class ChargenRoom(Room):
         lines.append(f"  |wObsessions:|n   {obs_color}{obs_count}/{obs_expected}|n")
         if mage_data['obsessions']:
             for obs in mage_data['obsessions']:
-                lines.append(f"    - {obs}")
+                lines.append(f"    * {obs}")
         
         # Praxes
         prax_count = mage_data['praxes_count']
@@ -1284,7 +1380,7 @@ class ChargenRoom(Room):
         lines.append(f"  |wPraxes:|n       {prax_color}{prax_count}/{prax_expected}|n  (1 per Gnosis)")
         if mage_data['praxes']:
             for prax in mage_data['praxes']:
-                lines.append(f"    - {prax.replace('_', ' ').title()}")
+                lines.append(f"    * {prax.replace('_', ' ').title()}")
         
         # Nimbus
         nimbus_status = '|gok!|n' if mage_data['has_immediate_nimbus'] else '|rx|n'
@@ -1365,7 +1461,7 @@ class ChargenRoom(Room):
             # Display variations
             lines.append(f"    |c(At least half from Clade or Universal)|n")
             for var in var_list:
-                lines.append(f"    - {var}")
+                lines.append(f"    * {var}")
         else:
             lines.append(f"    |yNo variations set yet|n")
         
@@ -1382,7 +1478,7 @@ class ChargenRoom(Room):
                 scar_list.append(f"{display_name} {magnitude}")
             
             for scar in scar_list:
-                lines.append(f"    - {scar}")
+                lines.append(f"    * {scar}")
         else:
             lines.append(f"    |yNo scars set yet|n")
         
@@ -1399,7 +1495,7 @@ class ChargenRoom(Room):
         lines.append(f"  |wLoyalty:|n      {loyalty} ({loyalty_color}{loyalty_count}/{loyalty_needed}|n Touchstones)")
         if loyalty_ts:
             for ts in loyalty_ts:
-                lines.append(f"    - {ts}")
+                lines.append(f"    * {ts}")
         elif loyalty_needed > 0:
             lines.append(f"    |y(Use +bio/touchstone to add)|n")
         
@@ -1412,7 +1508,7 @@ class ChargenRoom(Room):
         lines.append(f"  |wConviction:|n   {conviction} ({conviction_color}{conviction_count}/{conviction_needed}|n Touchstones)")
         if conviction_ts:
             for ts in conviction_ts:
-                lines.append(f"    - {ts}")
+                lines.append(f"    * {ts}")
         elif conviction_needed > 0:
             lines.append(f"    |y(Use +bio/touchstone to add)|n")
         
@@ -1483,7 +1579,7 @@ class ChargenRoom(Room):
             lines.append(f"  |wCeremonies:|n   {ceremony_count}")
             for ceremony in geist_data['ceremonies']:
                 ceremony_name = ceremony.replace('ceremony:', '').replace('_', ' ').title()
-                lines.append(f"    - {ceremony_name}")
+                lines.append(f"    * {ceremony_name}")
         
         # Synergy
         synergy = geist_data['synergy']
@@ -1549,7 +1645,7 @@ class ChargenRoom(Room):
         if geist_data['remembrance_trait']:
             lines.append(f"  |wRemembrance Trait:|n {trait_status}  {geist_data['remembrance_trait']}")
         else:
-            lines.append(f"  |wRemembrance Trait:|n {trait_status}  |y(Skill or Merit ≤3)|n")
+            lines.append(f"  |wRemembrance Trait:|n {trait_status}  |y(Skill or Merit <=3)|n")
         
         # Crisis Point
         crisis_status = '|gok!|n' if geist_data['has_crisis_point'] else '|rx|n'
@@ -1609,9 +1705,9 @@ class ChargenRoom(Room):
         lines.append(f"  |wEmbeds/Exploits:|n {ee_color}{total}/{avail}|n  (1 must be from Incarnation) {favored_status}")
         if demon_data['embeds'] or demon_data['exploits']:
             for e in demon_data['embeds']:
-                lines.append(f"    - Embed: {e.replace('_', ' ').title()}")
+                lines.append(f"    * Embed: {e.replace('_', ' ').title()}")
             for ex in demon_data['exploits']:
-                lines.append(f"    - Exploit: {ex.replace('_', ' ').title()}")
+                lines.append(f"    * Exploit: {ex.replace('_', ' ').title()}")
         else:
             lines.append(f"    |y(Use +stat embed:<name>=known or exploit:<name>=known)|n")
         
@@ -1691,7 +1787,7 @@ class ChargenRoom(Room):
         lines.append(f"  |wTactics:|n      {tactics_color}{tactics_count}/{expected_tactics}|n  (cell favored tactics)")
         if tactics:
             for tactic in tactics:
-                lines.append(f"    - {tactic.replace('_', ' ').title()}")
+                lines.append(f"    * {tactic.replace('_', ' ').title()}")
         else:
             lines.append(f"    |y(Use +stat tactics=<tactic1,tactic2,tactic3>)|n")
         
@@ -1719,7 +1815,7 @@ class ChargenRoom(Room):
             if endowments:
                 for endowment in endowments:
                     endowment_name = endowment.replace('endowment:', '').replace('_', ' ').title()
-                    lines.append(f"    - {endowment_name}")
+                    lines.append(f"    * {endowment_name}")
             else:
                 lines.append(f"    |y(Use +stat endowment:<name>=known)|n")
     
@@ -1790,7 +1886,7 @@ class ChargenRoom(Room):
         if mummy_data['affinities']:
             for affinity in mummy_data['affinities']:
                 affinity_name = affinity.replace('affinity:', '').replace('_', ' ').title()
-                lines.append(f"    - {affinity_name}")
+                lines.append(f"    * {affinity_name}")
         
         # Utterances
         utterances_count = mummy_data['utterances_count']
@@ -1806,7 +1902,7 @@ class ChargenRoom(Room):
             for utterance in mummy_data['utterances']:
                 if 'dreams' not in utterance.lower():
                     utterance_name = utterance.replace('utterance:', '').replace('_', ' ').title()
-                    lines.append(f"    - {utterance_name}")
+                    lines.append(f"    * {utterance_name}")
         
         # Memory and Sekhem
         memory = mummy_data['memory']
@@ -1914,11 +2010,11 @@ class ChargenRoom(Room):
         
         # Pilgrimage Questions reminder
         lines.append(f"\n  |cPilgrimage Questions:|n |y(Use +bio to answer)|n")
-        lines.append(f"    - What sort of human do you want to be?")
-        lines.append(f"    - How have humans taught you to fear and hate?")
-        lines.append(f"    - How did you split with your creator?")
-        lines.append(f"    - What keeps you on the Pilgrimage?")
-        lines.append(f"    - What would you give up to become human?")
+        lines.append(f"    * What sort of human do you want to be?")
+        lines.append(f"    * How have humans taught you to fear and hate?")
+        lines.append(f"    * How did you split with your creator?")
+        lines.append(f"    * What keeps you on the Pilgrimage?")
+        lines.append(f"    * What would you give up to become human?")
     
     def _add_mortalplus_display(self, lines, mortalplus_data, divider_color):
         """Add Mortal+ template-specific chargen information to the display."""
@@ -2091,7 +2187,7 @@ class ChargenRoom(Room):
             malison_list = [m.replace('malison:', '').replace('_', ' ').title() for m in dhampir_data['malisons']]
             lines.append(f"  |wMalisons:|n     {len(malison_list)} (3 merit dots each)")
             for malison in malison_list:
-                lines.append(f"    - {malison}")
+                lines.append(f"    * {malison}")
     
     def _add_wolfblooded_display(self, lines, wolfblooded_data, divider_color):
         """Add Wolf-Blooded-specific chargen information."""
@@ -2119,7 +2215,7 @@ class ChargenRoom(Room):
         if merit_count > 0:
             lines.append(f"  |wPsychic Merits:|n {merit_count} merits ({merit_dots} dots total)")
             for merit in psychic_data['psychic_merits']:
-                lines.append(f"    - {merit}")
+                lines.append(f"    * {merit}")
         else:
             lines.append(f"  |wPsychic Merits:|n |yNone purchased yet|n")
             lines.append(f"    |c(Purchase psychic merits like Telepathy, Telekinesis, etc.)|n")
@@ -2162,7 +2258,7 @@ class ChargenRoom(Room):
         if plain_data['plain_merits']:
             lines.append(f"  |wPlain Merits:|n  {len(plain_data['plain_merits'])}")
             for merit in plain_data['plain_merits']:
-                lines.append(f"    - {merit}")
+                lines.append(f"    * {merit}")
     
     def _add_lostboy_display(self, lines, lostboy_data, divider_color):
         """Add Lost Boy (Delta Protocol) chargen information."""
@@ -2185,7 +2281,7 @@ class ChargenRoom(Room):
         if lostboy_data['protocol_merits']:
             lines.append(f"  |wAugmentations:|n {len(lostboy_data['protocol_merits'])}")
             for merit in lostboy_data['protocol_merits']:
-                lines.append(f"    - {merit}")
+                lines.append(f"    * {merit}")
         
         lines.append(f"\n    |rWarning: Requires Serum or suffers withdrawal|n")
     
@@ -2270,16 +2366,16 @@ class ChargenRoom(Room):
         # Type-specific features
         if subtype == 'blood_bather':
             lines.append(f"\n  |cBlood Bather Aspects:|n")
-            lines.append(f"    - Bathed in Life (ritual heals damage, maintains youth)")
-            lines.append(f"    - Sacrificial Secrets (+6 starting XP)")
-            lines.append(f"    - Strong Immune System (immune to natural disease)")
+            lines.append(f"    * Bathed in Life (ritual heals damage, maintains youth)")
+            lines.append(f"    * Sacrificial Secrets (+6 starting XP)")
+            lines.append(f"    * Strong Immune System (immune to natural disease)")
             lines.append(f"    |rIntegrity starts at 5 (not 7)|n")
         
         elif subtype in ['body_thief', 'mystical_thief', 'psychic_thief']:
             lines.append(f"\n  |cBody Thief Aspects:|n")
-            lines.append(f"    - Borrowed Prowess (keeps Mental/Social, takes Physical)")
-            lines.append(f"    - Steal Sense (borrow victim's sense for +2 bonus)")
-            lines.append(f"    - Unobtrusive (fade into crowds, +Sekhem to blend)")
+            lines.append(f"    * Borrowed Prowess (keeps Mental/Social, takes Physical)")
+            lines.append(f"    * Steal Sense (borrow victim's sense for +2 bonus)")
+            lines.append(f"    * Unobtrusive (fade into crowds, +Sekhem to blend)")
         
         elif subtype == 'eternal':
             # Relic
@@ -2290,15 +2386,15 @@ class ChargenRoom(Room):
                 lines.append(f"  |wRelic:|n        |rx|n  |y(Get Relic merit, 1 free)|n")
             
             lines.append(f"\n  |cEternal Aspects:|n")
-            lines.append(f"    - Appraisal (detect powers/curses in objects)")
-            lines.append(f"    - Consequence Free (shunt Conditions to anchor)")
-            lines.append(f"    - Vital Shell (cannot die while anchor exists)")
+            lines.append(f"    * Appraisal (detect powers/curses in objects)")
+            lines.append(f"    * Consequence Free (shunt Conditions to anchor)")
+            lines.append(f"    * Vital Shell (cannot die while anchor exists)")
         
         elif subtype == 'reborn':
             lines.append(f"\n  |cReborn Aspects:|n")
-            lines.append(f"    - Dreams of Lives Unlived (fated visions)")
-            lines.append(f"    - Solid Integrity (+2 to breaking points)")
-            lines.append(f"    - Untrained Ease (no unskilled penalties)")
+            lines.append(f"    * Dreams of Lives Unlived (fated visions)")
+            lines.append(f"    * Solid Integrity (+2 to breaking points)")
+            lines.append(f"    * Untrained Ease (no unskilled penalties)")
         
         # Investment (Mummy Cult)
         if immortal_data['has_investment']:
@@ -2344,7 +2440,7 @@ class ChargenRoom(Room):
         if proximus_data['blessings']:
             for blessing in proximus_data['blessings'][:5]:  # Show first 5
                 blessing_name = blessing.replace('blessing:', '').replace('_', ' ').title()
-                lines.append(f"    - {blessing_name}")
+                lines.append(f"    * {blessing_name}")
             if len(proximus_data['blessings']) > 5:
                 lines.append(f"    ... and {len(proximus_data['blessings']) - 5} more")
         
@@ -2378,7 +2474,7 @@ class ChargenRoom(Room):
         if sleepwalker_data['sleepwalker_merits']:
             lines.append(f"  |wSleepwalker Merits:|n {len(sleepwalker_data['sleepwalker_merits'])}")
             for merit in sleepwalker_data['sleepwalker_merits']:
-                lines.append(f"    - {merit}")
+                lines.append(f"    * {merit}")
         else:
             lines.append(f"  |wSleepwalker Merits:|n |yNone purchased yet|n")
             lines.append(f"    |c(Can assist mages with rituals)|n")
@@ -2431,7 +2527,7 @@ class ChargenRoom(Room):
         if faetouched_data['contracts']:
             for contract in faetouched_data['contracts']:
                 contract_name = contract.replace('contract:', '').replace('_', ' ').title()
-                lines.append(f"    - {contract_name}")
+                lines.append(f"    * {contract_name}")
         
         # Court Goodwill (for Court Contracts)
         if faetouched_data['court_goodwill']:
@@ -2444,20 +2540,20 @@ class ChargenRoom(Room):
         if faetouched_data['faetouched_merits']:
             lines.append(f"  |wFae-Touched Merits:|n {len(faetouched_data['faetouched_merits'])}")
             for merit in faetouched_data['faetouched_merits']:
-                lines.append(f"    - {merit}")
+                lines.append(f"    * {merit}")
         
         # Starting Conditions (warnings)
         lines.append(f"\n  |rStarting Conditions:|n")
-        lines.append(f"    - Madness (Hedge exposure)")
-        lines.append(f"    - Arcadian Dreams")
-        lines.append(f"    - Hedge Addiction")
+        lines.append(f"    * Madness (Hedge exposure)")
+        lines.append(f"    * Arcadian Dreams")
+        lines.append(f"    * Hedge Addiction")
         
         # Limitations
         lines.append(f"\n  |cLimitations:|n")
-        lines.append(f"    - Cannot use Loopholes in Contracts")
-        lines.append(f"    - Must be taught Contracts (cannot learn alone)")
-        lines.append(f"    - Cannot auto-gain seeming benefits")
-        lines.append(f"    - Cannot enter own dreams naturally")
+        lines.append(f"    * Cannot use Loopholes in Contracts")
+        lines.append(f"    * Must be taught Contracts (cannot learn alone)")
+        lines.append(f"    * Cannot auto-gain seeming benefits")
+        lines.append(f"    * Cannot enter own dreams naturally")
     
     def get_display_desc(self, looker, **kwargs):
         """
@@ -3194,7 +3290,7 @@ class ChargenRoom(Room):
         lines.append(f"  |wObsessions:|n   {obs_color}{obs_count}/{obs_expected}|n")
         if mage_data['obsessions']:
             for obs in mage_data['obsessions']:
-                lines.append(f"    - {obs}")
+                lines.append(f"    * {obs}")
         
         # Praxes
         prax_count = mage_data['praxes_count']
@@ -3203,7 +3299,7 @@ class ChargenRoom(Room):
         lines.append(f"  |wPraxes:|n       {prax_color}{prax_count}/{prax_expected}|n  (1 per Gnosis)")
         if mage_data['praxes']:
             for prax in mage_data['praxes']:
-                lines.append(f"    - {prax.replace('_', ' ').title()}")
+                lines.append(f"    * {prax.replace('_', ' ').title()}")
         
         # Nimbus
         nimbus_status = '|gok!|n' if mage_data['has_immediate_nimbus'] else '|rx|n'
@@ -3284,7 +3380,7 @@ class ChargenRoom(Room):
             # Display variations
             lines.append(f"    |c(At least half from Clade or Universal)|n")
             for var in var_list:
-                lines.append(f"    - {var}")
+                lines.append(f"    * {var}")
         else:
             lines.append(f"    |yNo variations set yet|n")
         
@@ -3301,7 +3397,7 @@ class ChargenRoom(Room):
                 scar_list.append(f"{display_name} {magnitude}")
             
             for scar in scar_list:
-                lines.append(f"    - {scar}")
+                lines.append(f"    * {scar}")
         else:
             lines.append(f"    |yNo scars set yet|n")
         
@@ -3318,7 +3414,7 @@ class ChargenRoom(Room):
         lines.append(f"  |wLoyalty:|n      {loyalty} ({loyalty_color}{loyalty_count}/{loyalty_needed}|n Touchstones)")
         if loyalty_ts:
             for ts in loyalty_ts:
-                lines.append(f"    - {ts}")
+                lines.append(f"    * {ts}")
         elif loyalty_needed > 0:
             lines.append(f"    |y(Use +bio/touchstone to add)|n")
         
@@ -3331,7 +3427,7 @@ class ChargenRoom(Room):
         lines.append(f"  |wConviction:|n   {conviction} ({conviction_color}{conviction_count}/{conviction_needed}|n Touchstones)")
         if conviction_ts:
             for ts in conviction_ts:
-                lines.append(f"    - {ts}")
+                lines.append(f"    * {ts}")
         elif conviction_needed > 0:
             lines.append(f"    |y(Use +bio/touchstone to add)|n")
         
@@ -3402,7 +3498,7 @@ class ChargenRoom(Room):
             lines.append(f"  |wCeremonies:|n   {ceremony_count}")
             for ceremony in geist_data['ceremonies']:
                 ceremony_name = ceremony.replace('ceremony:', '').replace('_', ' ').title()
-                lines.append(f"    - {ceremony_name}")
+                lines.append(f"    * {ceremony_name}")
         
         # Synergy
         synergy = geist_data['synergy']
@@ -3468,7 +3564,7 @@ class ChargenRoom(Room):
         if geist_data['remembrance_trait']:
             lines.append(f"  |wRemembrance Trait:|n {trait_status}  {geist_data['remembrance_trait']}")
         else:
-            lines.append(f"  |wRemembrance Trait:|n {trait_status}  |y(Skill or Merit ≤3)|n")
+            lines.append(f"  |wRemembrance Trait:|n {trait_status}  |y(Skill or Merit <=3)|n")
         
         # Crisis Point
         crisis_status = '|gok!|n' if geist_data['has_crisis_point'] else '|rx|n'
@@ -3528,9 +3624,9 @@ class ChargenRoom(Room):
         lines.append(f"  |wEmbeds/Exploits:|n {ee_color}{total}/{avail}|n  (1 must be from Incarnation) {favored_status}")
         if demon_data['embeds'] or demon_data['exploits']:
             for e in demon_data['embeds']:
-                lines.append(f"    - Embed: {e.replace('_', ' ').title()}")
+                lines.append(f"    * Embed: {e.replace('_', ' ').title()}")
             for ex in demon_data['exploits']:
-                lines.append(f"    - Exploit: {ex.replace('_', ' ').title()}")
+                lines.append(f"    * Exploit: {ex.replace('_', ' ').title()}")
         else:
             lines.append(f"    |y(Use +stat embed:<name>=known or exploit:<name>=known)|n")
         
@@ -3610,7 +3706,7 @@ class ChargenRoom(Room):
         lines.append(f"  |wTactics:|n      {tactics_color}{tactics_count}/{expected_tactics}|n  (cell favored tactics)")
         if tactics:
             for tactic in tactics:
-                lines.append(f"    - {tactic.replace('_', ' ').title()}")
+                lines.append(f"    * {tactic.replace('_', ' ').title()}")
         else:
             lines.append(f"    |y(Use +stat tactics=<tactic1,tactic2,tactic3>)|n")
         
@@ -3638,7 +3734,7 @@ class ChargenRoom(Room):
             if endowments:
                 for endowment in endowments:
                     endowment_name = endowment.replace('endowment:', '').replace('_', ' ').title()
-                    lines.append(f"    - {endowment_name}")
+                    lines.append(f"    * {endowment_name}")
             else:
                 lines.append(f"    |y(Use +stat endowment:<name>=known)|n")
     
@@ -3709,7 +3805,7 @@ class ChargenRoom(Room):
         if mummy_data['affinities']:
             for affinity in mummy_data['affinities']:
                 affinity_name = affinity.replace('affinity:', '').replace('_', ' ').title()
-                lines.append(f"    - {affinity_name}")
+                lines.append(f"    * {affinity_name}")
         
         # Utterances
         utterances_count = mummy_data['utterances_count']
@@ -3725,7 +3821,7 @@ class ChargenRoom(Room):
             for utterance in mummy_data['utterances']:
                 if 'dreams' not in utterance.lower():
                     utterance_name = utterance.replace('utterance:', '').replace('_', ' ').title()
-                    lines.append(f"    - {utterance_name}")
+                    lines.append(f"    * {utterance_name}")
         
         # Memory and Sekhem
         memory = mummy_data['memory']
@@ -3833,11 +3929,11 @@ class ChargenRoom(Room):
         
         # Pilgrimage Questions reminder
         lines.append(f"\n  |cPilgrimage Questions:|n |y(Use +bio to answer)|n")
-        lines.append(f"    - What sort of human do you want to be?")
-        lines.append(f"    - How have humans taught you to fear and hate?")
-        lines.append(f"    - How did you split with your creator?")
-        lines.append(f"    - What keeps you on the Pilgrimage?")
-        lines.append(f"    - What would you give up to become human?")
+        lines.append(f"    * What sort of human do you want to be?")
+        lines.append(f"    * How have humans taught you to fear and hate?")
+        lines.append(f"    * How did you split with your creator?")
+        lines.append(f"    * What keeps you on the Pilgrimage?")
+        lines.append(f"    * What would you give up to become human?")
     
     def _add_mortalplus_display(self, lines, mortalplus_data, divider_color):
         """Add Mortal+ template-specific chargen information to the display."""
@@ -4010,7 +4106,7 @@ class ChargenRoom(Room):
             malison_list = [m.replace('malison:', '').replace('_', ' ').title() for m in dhampir_data['malisons']]
             lines.append(f"  |wMalisons:|n     {len(malison_list)} (3 merit dots each)")
             for malison in malison_list:
-                lines.append(f"    - {malison}")
+                lines.append(f"    * {malison}")
     
     def _add_wolfblooded_display(self, lines, wolfblooded_data, divider_color):
         """Add Wolf-Blooded-specific chargen information."""
@@ -4038,7 +4134,7 @@ class ChargenRoom(Room):
         if merit_count > 0:
             lines.append(f"  |wPsychic Merits:|n {merit_count} merits ({merit_dots} dots total)")
             for merit in psychic_data['psychic_merits']:
-                lines.append(f"    - {merit}")
+                lines.append(f"    * {merit}")
         else:
             lines.append(f"  |wPsychic Merits:|n |yNone purchased yet|n")
             lines.append(f"    |c(Purchase psychic merits like Telepathy, Telekinesis, etc.)|n")
@@ -4081,7 +4177,7 @@ class ChargenRoom(Room):
         if plain_data['plain_merits']:
             lines.append(f"  |wPlain Merits:|n  {len(plain_data['plain_merits'])}")
             for merit in plain_data['plain_merits']:
-                lines.append(f"    - {merit}")
+                lines.append(f"    * {merit}")
     
     def _add_lostboy_display(self, lines, lostboy_data, divider_color):
         """Add Lost Boy (Delta Protocol) chargen information."""
@@ -4104,7 +4200,7 @@ class ChargenRoom(Room):
         if lostboy_data['protocol_merits']:
             lines.append(f"  |wAugmentations:|n {len(lostboy_data['protocol_merits'])}")
             for merit in lostboy_data['protocol_merits']:
-                lines.append(f"    - {merit}")
+                lines.append(f"    * {merit}")
         
         lines.append(f"\n    |rWarning: Requires Serum or suffers withdrawal|n")
     
@@ -4189,16 +4285,16 @@ class ChargenRoom(Room):
         # Type-specific features
         if subtype == 'blood_bather':
             lines.append(f"\n  |cBlood Bather Aspects:|n")
-            lines.append(f"    - Bathed in Life (ritual heals damage, maintains youth)")
-            lines.append(f"    - Sacrificial Secrets (+6 starting XP)")
-            lines.append(f"    - Strong Immune System (immune to natural disease)")
+            lines.append(f"    * Bathed in Life (ritual heals damage, maintains youth)")
+            lines.append(f"    * Sacrificial Secrets (+6 starting XP)")
+            lines.append(f"    * Strong Immune System (immune to natural disease)")
             lines.append(f"    |rIntegrity starts at 5 (not 7)|n")
         
         elif subtype in ['body_thief', 'mystical_thief', 'psychic_thief']:
             lines.append(f"\n  |cBody Thief Aspects:|n")
-            lines.append(f"    - Borrowed Prowess (keeps Mental/Social, takes Physical)")
-            lines.append(f"    - Steal Sense (borrow victim's sense for +2 bonus)")
-            lines.append(f"    - Unobtrusive (fade into crowds, +Sekhem to blend)")
+            lines.append(f"    * Borrowed Prowess (keeps Mental/Social, takes Physical)")
+            lines.append(f"    * Steal Sense (borrow victim's sense for +2 bonus)")
+            lines.append(f"    * Unobtrusive (fade into crowds, +Sekhem to blend)")
         
         elif subtype == 'eternal':
             # Relic
@@ -4209,15 +4305,15 @@ class ChargenRoom(Room):
                 lines.append(f"  |wRelic:|n        |rx|n  |y(Get Relic merit, 1 free)|n")
             
             lines.append(f"\n  |cEternal Aspects:|n")
-            lines.append(f"    - Appraisal (detect powers/curses in objects)")
-            lines.append(f"    - Consequence Free (shunt Conditions to anchor)")
-            lines.append(f"    - Vital Shell (cannot die while anchor exists)")
+            lines.append(f"    * Appraisal (detect powers/curses in objects)")
+            lines.append(f"    * Consequence Free (shunt Conditions to anchor)")
+            lines.append(f"    * Vital Shell (cannot die while anchor exists)")
         
         elif subtype == 'reborn':
             lines.append(f"\n  |cReborn Aspects:|n")
-            lines.append(f"    - Dreams of Lives Unlived (fated visions)")
-            lines.append(f"    - Solid Integrity (+2 to breaking points)")
-            lines.append(f"    - Untrained Ease (no unskilled penalties)")
+            lines.append(f"    * Dreams of Lives Unlived (fated visions)")
+            lines.append(f"    * Solid Integrity (+2 to breaking points)")
+            lines.append(f"    * Untrained Ease (no unskilled penalties)")
         
         # Investment (Mummy Cult)
         if immortal_data['has_investment']:
@@ -4263,7 +4359,7 @@ class ChargenRoom(Room):
         if proximus_data['blessings']:
             for blessing in proximus_data['blessings'][:5]:  # Show first 5
                 blessing_name = blessing.replace('blessing:', '').replace('_', ' ').title()
-                lines.append(f"    - {blessing_name}")
+                lines.append(f"    * {blessing_name}")
             if len(proximus_data['blessings']) > 5:
                 lines.append(f"    ... and {len(proximus_data['blessings']) - 5} more")
         
@@ -4297,7 +4393,7 @@ class ChargenRoom(Room):
         if sleepwalker_data['sleepwalker_merits']:
             lines.append(f"  |wSleepwalker Merits:|n {len(sleepwalker_data['sleepwalker_merits'])}")
             for merit in sleepwalker_data['sleepwalker_merits']:
-                lines.append(f"    - {merit}")
+                lines.append(f"    * {merit}")
         else:
             lines.append(f"  |wSleepwalker Merits:|n |yNone purchased yet|n")
             lines.append(f"    |c(Can assist mages with rituals)|n")
@@ -4350,7 +4446,7 @@ class ChargenRoom(Room):
         if faetouched_data['contracts']:
             for contract in faetouched_data['contracts']:
                 contract_name = contract.replace('contract:', '').replace('_', ' ').title()
-                lines.append(f"    - {contract_name}")
+                lines.append(f"    * {contract_name}")
         
         # Court Goodwill (for Court Contracts)
         if faetouched_data['court_goodwill']:
@@ -4363,20 +4459,20 @@ class ChargenRoom(Room):
         if faetouched_data['faetouched_merits']:
             lines.append(f"  |wFae-Touched Merits:|n {len(faetouched_data['faetouched_merits'])}")
             for merit in faetouched_data['faetouched_merits']:
-                lines.append(f"    - {merit}")
+                lines.append(f"    * {merit}")
         
         # Starting Conditions (warnings)
         lines.append(f"\n  |rStarting Conditions:|n")
-        lines.append(f"    - Madness (Hedge exposure)")
-        lines.append(f"    - Arcadian Dreams")
-        lines.append(f"    - Hedge Addiction")
+        lines.append(f"    * Madness (Hedge exposure)")
+        lines.append(f"    * Arcadian Dreams")
+        lines.append(f"    * Hedge Addiction")
         
         # Limitations
         lines.append(f"\n  |cLimitations:|n")
-        lines.append(f"    - Cannot use Loopholes in Contracts")
-        lines.append(f"    - Must be taught Contracts (cannot learn alone)")
-        lines.append(f"    - Cannot auto-gain seeming benefits")
-        lines.append(f"    - Cannot enter own dreams naturally")
+        lines.append(f"    * Cannot use Loopholes in Contracts")
+        lines.append(f"    * Must be taught Contracts (cannot learn alone)")
+        lines.append(f"    * Cannot auto-gain seeming benefits")
+        lines.append(f"    * Cannot enter own dreams naturally")
     
     def get_display_desc(self, looker, **kwargs):
         """

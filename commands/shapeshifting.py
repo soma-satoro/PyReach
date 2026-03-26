@@ -1,4 +1,4 @@
-"""
+﻿"""
 Shapeshifting system for Werewolf: The Forsaken and Changing Breeds characters.
 
 This module implements shapeshifting for:
@@ -359,7 +359,7 @@ class CmdShift(MuxCommand):
         if form_data.get("special_abilities"):
             lines.append("|wSpecial Abilities:|n")
             for ability in form_data["special_abilities"]:
-                lines.append(f"  • {ability}")
+                lines.append(f"  * {ability}")
             lines.append("")
         
         # Show if this is the current form
@@ -708,4 +708,5 @@ def can_modify_stats_while_shifted(character):
         return False, f"You cannot modify stats while in {form_display} form. Use +shift {base_form_name} to return to {base_form_display} form first."
     
     return True, ""
+
 

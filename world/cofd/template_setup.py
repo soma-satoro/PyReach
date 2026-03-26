@@ -1,4 +1,4 @@
-"""
+﻿"""
 Template System Setup for Chronicles of Darkness.
 Handles initial installation and configuration of the template system.
 """
@@ -141,7 +141,7 @@ def generate_template_documentation():
             for field, validation in template.field_validations.items():
                 valid_values = validation.get('valid_values', [])
                 if valid_values:
-                    doc += f"  - {field}: {', '.join(valid_values)}\n"
+                    doc += f"  * {field}: {', '.join(valid_values)}\n"
         
         doc += "\n"
     

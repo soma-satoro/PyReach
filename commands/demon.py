@@ -1,4 +1,4 @@
-"""
+﻿"""
 Demonic Form Management for Demon Characters
 
 This module handles the creation and display of demonic forms for Demon: The Descent characters.
@@ -275,10 +275,10 @@ class CmdDemon(MuxCommand):
                 self.caller.msg("Use |w+demon/desc <description>|n to describe your form.")
                 self.caller.msg("")
                 self.caller.msg("|wStarting Traits (Chargen):|n")
-                self.caller.msg("  • 3 Modifications")
-                self.caller.msg("  • 2 Technologies")
-                self.caller.msg("  • 1 Propulsion")
-                self.caller.msg("  • 1 Process")
+                self.caller.msg("  * 3 Modifications")
+                self.caller.msg("  * 2 Technologies")
+                self.caller.msg("  * 1 Propulsion")
+                self.caller.msg("  * 1 Process")
             else:
                 self.caller.msg(f"|y{target.name} hasn't defined their demonic form yet.|n")
             return
@@ -318,7 +318,7 @@ class CmdDemon(MuxCommand):
         output.append(f"|wModifications ({mods_count}/{max_mods}):|n")
         if demon_form.get('modifications'):
             for mod in demon_form['modifications']:
-                output.append(f"  • {mod}")
+                output.append(f"  * {mod}")
         else:
             output.append("  None yet")
         output.append("")
@@ -328,7 +328,7 @@ class CmdDemon(MuxCommand):
         output.append(f"|wTechnologies ({techs_count}/{max_techs}):|n")
         if demon_form.get('technologies'):
             for tech in demon_form['technologies']:
-                output.append(f"  • {tech}")
+                output.append(f"  * {tech}")
         else:
             output.append("  None yet")
         output.append("")
@@ -338,7 +338,7 @@ class CmdDemon(MuxCommand):
         output.append(f"|wPropulsion ({prop_count}/{max_prop}):|n")
         if demon_form.get('propulsion'):
             for prop in demon_form['propulsion']:
-                output.append(f"  • {prop}")
+                output.append(f"  * {prop}")
         else:
             output.append("  None yet")
         output.append("")
@@ -348,7 +348,7 @@ class CmdDemon(MuxCommand):
         output.append(f"|wProcess ({proc_count}/{max_proc}):|n")
         if demon_form.get('process'):
             for proc in demon_form['process']:
-                output.append(f"  • {proc}")
+                output.append(f"  * {proc}")
         else:
             output.append("  None yet")
         output.append("")
@@ -360,22 +360,23 @@ class CmdDemon(MuxCommand):
             output.append("")
             output.append("|wPrimum Bonuses:|n")
             if primum >= 3:
-                output.append("  |g✓|n Primum 3: 4th Modification")
+                output.append("  |gOK|n Primum 3: 4th Modification")
             else:
-                output.append("  |x○|n Primum 3: 4th Modification (not yet)")
+                output.append("  |xo|n Primum 3: 4th Modification (not yet)")
             
             if primum >= 6:
-                output.append("  |g✓|n Primum 6: 3rd Technology")
+                output.append("  |gOK|n Primum 6: 3rd Technology")
             else:
-                output.append("  |x○|n Primum 6: 3rd Technology (not yet)")
+                output.append("  |xo|n Primum 6: 3rd Technology (not yet)")
             
             if primum >= 10:
-                output.append("  |g✓|n Primum 10: 2nd Process")
+                output.append("  |gOK|n Primum 10: 2nd Process")
             else:
-                output.append("  |x○|n Primum 10: 2nd Process (not yet)")
+                output.append("  |xo|n Primum 10: 2nd Process (not yet)")
         
         output.append("")
         output.append(footer(78, char="="))
         
         text = "\n".join(output)
         EvMore(self.caller, text, always_page=False, session=self.session, justify_kwargs=False, exit_on_lastpage=True)
+

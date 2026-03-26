@@ -1,4 +1,4 @@
-"""
+﻿"""
 Unified Mystery Investigation System
 
 This system combines player investigation commands and staff mystery management
@@ -9,6 +9,10 @@ used throughout the PyReach codebase.
 import secrets
 from evennia.commands.default.muxcommand import MuxCommand
 from typeclasses.mysteries import MysteryManager, Mystery, ClueObject
+from world.mystery_templates import (
+    list_templates as list_mystery_template_names,
+    create_mystery_from_template,
+)
 from world.utils.permission_utils import (
     check_mystery_permission,
     format_permission_error,
@@ -136,6 +140,12 @@ class CmdMystery(MuxCommand):
         
         # Player commands (no permission check needed)
         player_switches = {
+            "info": self.view_mystery,
+            "focus": self.show_focus,
+            "follow": self.follow_mystery,
+            "unfollow": self.unfollow_mystery,
+            "leads": self.show_progress,
+            "scan": self.search_for_clues,
             "progress": self.show_progress,
             "examine": self.examine_for_clues,
             "search": self.search_for_clues,
@@ -240,21 +250,31 @@ class CmdMystery(MuxCommand):
             self.caller.msg("No mysteries are available for your character.")
             return
 
-        headers = ["ID", "Title", "Category", "Difficulty", "Your Progress"]
+        followed_ids = set()
+        if hasattr(self.caller, "mysteries"):
+            followed_ids = set(self.caller.mysteries.get_followed_ids())
+
+        # Show followed mysteries first, then alphabetical
+        accessible_mysteries.sort(
+            key=lambda m: (0 if m.id in followed_ids else 1, (m.db.title or "").lower())
+        )
+
+        headers = ["ID", "Title", "Status"]
         rows = []
         for mystery in accessible_mysteries:
-            discovered_clues = mystery.get_discovered_clues(self.caller)
-            total_clues = len(mystery.db.clues)
-            progress = f"{len(discovered_clues)}/{total_clues}"
+            title = (mystery.db.title or "")[:25]
+            if mystery.id in followed_ids:
+                title = f"* {title}"
             rows.append((
                 mystery.id,
-                (mystery.db.title or "")[:25],
-                mystery.db.category or "",
-                f"{mystery.db.difficulty}/5",
-                progress
+                title,
+                (mystery.db.status or "active").title(),
             ))
         table = format_simple_table(headers, rows)
-        self.caller.msg(f"\n{header('Active Mysteries')}\n{table}")
+        self.caller.msg(
+            f"\n{header('Active Mysteries')}\n{table}\n"
+            "Use +mystery/info <id> for details. * = following"
+        )
     
     def view_mystery(self):
         """View details of a specific mystery and the character's progress."""
@@ -313,6 +333,63 @@ class CmdMystery(MuxCommand):
                 output.append("|yNext Steps:|n You may need to discover more clues before new ones become available.")
         
         self.caller.msg("\n".join(output))
+
+    def show_focus(self):
+        """Show current investigation tracking summary for the caller."""
+        if not hasattr(self.caller, "mysteries"):
+            self.caller.msg("Mystery tracking is not available on this character.")
+            return
+
+        discovered_total = self.caller.mysteries.total_clue_count()
+        mystery_count = self.caller.mysteries.mystery_count()
+        followed = self.caller.mysteries.get_followed_ids()
+
+        self.caller.msg(
+            "\n".join(
+                [
+                    header("Investigation Focus"),
+                    f"Clues discovered: {discovered_total}",
+                    f"Mysteries engaged: {mystery_count}",
+                    f"Mysteries followed: {len(followed)}",
+                ]
+            )
+        )
+
+    def follow_mystery(self):
+        """Follow a mystery to pin it at the top of your list."""
+        if not self.args:
+            self.caller.msg("Usage: +mystery/follow <mystery_id>")
+            return
+        if not hasattr(self.caller, "mysteries"):
+            self.caller.msg("Mystery tracking is not available on this character.")
+            return
+
+        mystery = self._get_mystery(self.args.strip())
+        if not mystery:
+            return
+
+        if self.caller.mysteries.follow(mystery.id):
+            self.caller.msg(f"You are now following '{mystery.db.title}'.")
+        else:
+            self.caller.msg(f"You're already following '{mystery.db.title}'.")
+
+    def unfollow_mystery(self):
+        """Stop following a mystery."""
+        if not self.args:
+            self.caller.msg("Usage: +mystery/unfollow <mystery_id>")
+            return
+        if not hasattr(self.caller, "mysteries"):
+            self.caller.msg("Mystery tracking is not available on this character.")
+            return
+
+        mystery = self._get_mystery(self.args.strip())
+        if not mystery:
+            return
+
+        if self.caller.mysteries.unfollow(mystery.id):
+            self.caller.msg(f"You stopped following '{mystery.db.title}'.")
+        else:
+            self.caller.msg(f"You were not following '{mystery.db.title}'.")
     
     def show_progress(self):
         """Show investigation progress across all mysteries."""
@@ -322,8 +399,23 @@ class CmdMystery(MuxCommand):
             return
         
         output = ["|cYour Investigation Progress:|n"]
-        
+
+        target_mystery_id = None
+        if self.args:
+            try:
+                target_mystery_id = int(self.args.strip())
+            except ValueError:
+                self.caller.msg("Mystery ID must be a number.")
+                return
+
         for mystery_id, clue_ids in mystery_clues.items():
+            if target_mystery_id is not None:
+                try:
+                    current_mystery_id = int(mystery_id)
+                except (TypeError, ValueError):
+                    continue
+                if current_mystery_id != target_mystery_id:
+                    continue
             mystery = self._get_mystery(str(mystery_id))
             if mystery:
                 total_clues = len(mystery.db.clues)
@@ -334,7 +426,11 @@ class CmdMystery(MuxCommand):
                 output.append(f"  Progress: {discovered_count}/{total_clues} clues ({percentage}%)")
                 output.append(f"  Category: {mystery.db.category}")
                 output.append("")
-        
+
+        if len(output) == 1 and target_mystery_id is not None:
+            self.caller.msg(f"You have no discovered clues in mystery {target_mystery_id}.")
+            return
+
         self.caller.msg("\n".join(output))
     
     def examine_for_clues(self):
@@ -602,20 +698,21 @@ class CmdMystery(MuxCommand):
         
         # Check if the caller has discovered this clue in this mystery
         mystery_clues = getattr(self.caller.db, 'mystery_clues', {})
-        if mystery_id not in mystery_clues:
+        clue_bucket = mystery_clues.get(mystery_id) or mystery_clues.get(str(mystery_id))
+        if not clue_bucket:
             self.caller.msg(f"You haven't discovered any clues in mystery '{mystery.db.title}'.")
             return
         
         # Find the specific clue by name
         found_clue = None
-        for clue_id in mystery_clues[mystery_id]:
+        for clue_id in clue_bucket:
             clue = mystery.db.clues.get(clue_id, {})
             if clue.get('name', '').lower() == clue_name.lower():
                 found_clue = (clue_id, clue)
                 break
         
         if not found_clue:
-            available_clues = [mystery.db.clues[cid]['name'] for cid in mystery_clues[mystery_id]]
+            available_clues = [mystery.db.clues[cid]['name'] for cid in clue_bucket if cid in mystery.db.clues]
             self.caller.msg(f"You don't have a clue named '{clue_name}' in mystery '{mystery.db.title}'.")
             self.caller.msg(f"Your discovered clues: {', '.join(available_clues)}")
             return
@@ -690,7 +787,7 @@ class CmdMystery(MuxCommand):
     def list_mysteries_staff(self):
         """List all mysteries (staff view)."""
         category = self.args.strip() if self.args else None
-        mysteries = MysteryManager.get_active_mysteries()
+        mysteries = [m for m in Mystery.objects.filter_family() if m.db.title]
         
         if category:
             mysteries = [m for m in mysteries if m.db.category == category]
@@ -711,7 +808,7 @@ class CmdMystery(MuxCommand):
                 mystery.db.status or ""
             ))
         table = format_simple_table(headers, rows)
-        self.caller.msg(f"\n{header('Active Mysteries (Staff View)')}\n{table}")
+        self.caller.msg(f"\n{header('All Mysteries (Staff View)')}\n{table}")
     
     def view_mystery_staff(self):
         """View detailed mystery information (staff view)."""
@@ -755,6 +852,8 @@ class CmdMystery(MuxCommand):
                 output.append(f"    Discovered by: {discovered_count} character(s)")
                 output.append(f"    Tags: {tags}")
                 output.append(f"    Prerequisites: {prereqs}")
+                leads = ", ".join(clue.get('leads_to', [])) if clue.get('leads_to') else "None"
+                output.append(f"    Leads To: {leads}")
                 output.append("")
         else:
             output.append("|yClues:|n None")
@@ -1110,10 +1209,7 @@ class CmdMystery(MuxCommand):
         # Get default skill for this method
         if method_type in method_skills:
             if method_type == 'examine':
-                # Special case: Resolve + Composure (both attributes)
-                resolve_val = self._get_attribute_value('resolve')
-                composure_val = self._get_attribute_value('composure')
-                # Return composure as the "skill" since we'll add resolve + composure
+                # Special case: Resolve + Composure (both are attributes)
                 return 'resolve', 'composure', 'mental'
             else:
                 attribute, skill, skill_category = method_skills[method_type]
@@ -1134,7 +1230,9 @@ class CmdMystery(MuxCommand):
                     skill_category = "physical"
                 elif skill in ['animal_ken', 'empathy', 'expression', 'intimidation', 'persuasion', 'socialize', 'streetwise', 'subterfuge']:
                     skill_category = "social"
-        return attribute, skill, skill_category
+                else:
+                    skill_category = "mental"
+                return attribute, skill, skill_category
         
         # Default fallback
         return 'wits', 'investigation', 'mental'
@@ -1161,13 +1259,11 @@ class CmdMystery(MuxCommand):
                     return physical_attrs.get(attribute, 1)
                 elif attribute in social_attrs:
                     return social_attrs.get(attribute, 1)
-        else:
-                    # Try to get wits as default from mental
-                    return mental_attrs.get("wits", 1)
         
         # Check for individual attribute storage (very legacy)
-        if hasattr(self.caller.db, attribute):
-            return getattr(self.caller.db, attribute, 1)
+        value = getattr(self.caller.db, attribute, None)
+        if value is not None:
+            return value
         
         # Final fallback - return 1
         return 1
@@ -1719,7 +1815,7 @@ class CmdMystery(MuxCommand):
                 output.append(f"\n|w{char_name}:|n")
                 for clue_id in clue_ids:
                     clue = mystery.db.clues.get(clue_id, {})
-                    output.append(f"  - {clue.get('name', 'Unknown')}")
+                    output.append(f"  * {clue.get('name', 'Unknown')}")
             
             self.caller.msg("\n".join(output))
     
@@ -1800,11 +1896,48 @@ class CmdMystery(MuxCommand):
     
     def list_templates(self):
         """List mystery templates."""
-        self.caller.msg("Mystery templates functionality not yet implemented.")
+        names = list_mystery_template_names()
+        if not names:
+            self.caller.msg("No mystery templates are available.")
+            return
+        self.caller.msg(
+            "\n".join(
+                [
+                    header("Mystery Templates"),
+                    "Use: +mystery/template <template_name> = [custom_title]",
+                    f"Available: {', '.join(sorted(names))}",
+                ]
+            )
+        )
     
     def create_from_template(self):
         """Create mystery from template."""
-        self.caller.msg("Template creation functionality not yet implemented.")
+        if not self.args:
+            self.caller.msg("Usage: +mystery/template <template_name> = [custom_title]")
+            return
+
+        if "=" in self.args:
+            template_name, custom_title = [x.strip() for x in self.args.split("=", 1)]
+            custom_title = custom_title or None
+        else:
+            template_name = self.args.strip()
+            custom_title = None
+
+        mystery = create_mystery_from_template(
+            template_name=template_name,
+            created_by=self.caller.id,
+            custom_title=custom_title,
+        )
+        if not mystery:
+            available = ", ".join(sorted(list_mystery_template_names()))
+            self.caller.msg(
+                f"Unknown template '{template_name}'. Available templates: {available}"
+            )
+            return
+
+        self.caller.msg(
+            f"|gCreated mystery from template:|n {mystery.db.title} (ID: {mystery.id})"
+        )
     
     def edit_clue_object(self):
         """Edit a clue object's properties."""
@@ -1882,3 +2015,4 @@ class CmdMystery(MuxCommand):
 
         clue_obj.delete()
         self.caller.msg(f"|gDeleted clue object:|n {obj_name}")
+

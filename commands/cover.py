@@ -35,7 +35,7 @@ class CmdCover(MuxCommand):
         +xp/spend cover:<id>=<new rating>
         
         Example: +xp/spend cover:1=8
-        Cost: (new rating - current rating) × 3 XP per dot
+        Cost: (new rating - current rating) x 3 XP per dot
     """
     
     key = "+cover"

@@ -1,4 +1,4 @@
-from evennia.commands.default.muxcommand import MuxCommand
+﻿from evennia.commands.default.muxcommand import MuxCommand
 from evennia.utils import evtable
 import difflib
 from world.cofd.stat_dictionary import (
@@ -1260,7 +1260,7 @@ class CmdStat(MuxCommand):
             
             self.caller.msg(f"Set {len(tactics_list)} favored tactics for your cell:")
             for tactic in tactics_list:
-                self.caller.msg(f"  - {tactic}")
+                self.caller.msg(f"  * {tactic}")
             self.caller.msg("Your cell gains 8-again when performing these tactics.")
             stat_set = True
         
@@ -2418,7 +2418,7 @@ class CmdStat(MuxCommand):
                         if spell_data:
                             spell_level = spell_data['level']
                             arcana_name = spell_data['arcana'].title()
-                            dots_str = "●" * spell_level
+                            dots_str = "*" * spell_level
                             spell_display = f"{spell_data['name']} ({arcana_name} {dots_str})"
                         else:
                             spell_display = f"{spell_key.replace('_', ' ').title()} (Unknown)"

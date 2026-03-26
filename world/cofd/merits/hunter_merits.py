@@ -92,10 +92,10 @@ hunter_merits = [
         prerequisite="survival:3"
     ),
     Merit(
-        name="Séance Devotee",
+        name="Seance Devotee",
         min_value=1,
         max_value=5,
-        description="Know a person per dot of the merit who is willing to help conduct a séance with you",
+        description="Know a person per dot of the merit who is willing to help conduct a seance with you",
         merit_type="social",
         prerequisite="occult:2"
     ),

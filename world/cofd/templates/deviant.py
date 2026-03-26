@@ -68,8 +68,8 @@ def render_deviant_sheet(character, caller, force_ascii=False):
         List of formatted output lines or None if no deviant data
     """
     # Determine dot style
-    filled_char = "*" if force_ascii else "●"
-    empty_char = "-" if force_ascii else "○"
+    filled_char = "*" if force_ascii else "*"
+    empty_char = "-" if force_ascii else "o"
     
     from world.utils.formatting import footer
 

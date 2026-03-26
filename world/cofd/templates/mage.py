@@ -184,8 +184,8 @@ def render_mage_sheet(character, caller, force_ascii=False):
             filled = "*" * value
             empty = "-" * (max_value - value)
         else:
-            filled = "●" * value
-            empty = "○" * (max_value - value)
+            filled = "*" * value
+            empty = "o" * (max_value - value)
         return filled + empty
     
     from world.utils.formatting import sheet_section_header, footer
@@ -440,7 +440,7 @@ def set_mage_stat_value(character, stat, value, caller):
         
         spell_level = spell_data['level']
         arcana_name = spell_data['arcana'].title()
-        dots_str = "●" * spell_level
+        dots_str = "*" * spell_level
         return True, f"Added praxis: {spell_data['name']} ({arcana_name} {dots_str}){xp_message}"
         
     else:

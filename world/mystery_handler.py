@@ -91,3 +91,87 @@ class MysteryHandler:
             int: Total count of discovered clues
         """
         return sum(len(clues) for clues in self._clues.values())
+
+    @property
+    def _followed(self):
+        """Get followed mystery IDs, initializing storage if needed."""
+        followed = self.obj.attributes.get("mystery_followed", default=None)
+        if followed is None:
+            self.obj.attributes.add("mystery_followed", [])
+            return []
+        return list(followed or [])
+
+    def get_followed_ids(self):
+        """
+        Get followed mystery IDs.
+
+        Returns:
+            list[int]: Followed mystery IDs as integers when possible.
+        """
+        out = []
+        for mystery_id in self._followed:
+            try:
+                out.append(int(mystery_id))
+            except (TypeError, ValueError):
+                continue
+        return out
+
+    def is_following(self, mystery_id):
+        """
+        Check if the character is following a mystery.
+
+        Args:
+            mystery_id: Mystery ID to check
+
+        Returns:
+            bool: True if followed
+        """
+        try:
+            mystery_id = int(mystery_id)
+        except (TypeError, ValueError):
+            return False
+        return mystery_id in self.get_followed_ids()
+
+    def follow(self, mystery_id):
+        """
+        Follow a mystery.
+
+        Args:
+            mystery_id: Mystery ID to follow
+
+        Returns:
+            bool: True if newly followed, False if already followed or invalid
+        """
+        try:
+            mystery_id = int(mystery_id)
+        except (TypeError, ValueError):
+            return False
+
+        followed = self.get_followed_ids()
+        if mystery_id in followed:
+            return False
+        followed.append(mystery_id)
+        self.obj.attributes.add("mystery_followed", followed)
+        return True
+
+    def unfollow(self, mystery_id):
+        """
+        Unfollow a mystery.
+
+        Args:
+            mystery_id: Mystery ID to unfollow
+
+        Returns:
+            bool: True if removed, False if not followed or invalid
+        """
+        try:
+            mystery_id = int(mystery_id)
+        except (TypeError, ValueError):
+            return False
+
+        followed = self.get_followed_ids()
+        if mystery_id not in followed:
+            return False
+        followed.remove(mystery_id)
+        self.obj.attributes.add("mystery_followed", followed)
+        return True

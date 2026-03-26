@@ -1,4 +1,4 @@
-"""
+﻿"""
 Template Administration Commands for Chronicles of Darkness.
 Provides admin commands for managing character templates using Python dictionaries.
 """
@@ -286,7 +286,7 @@ class CmdTemplate(MuxCommand):
         self.caller.msg(f"|rError installing template:|n Could not find module '{module_name}' in any expected location.")
         self.caller.msg(f"|yTried paths:|n")
         for variant in module_variations:
-            self.caller.msg(f"  - {variant}")
+            self.caller.msg(f"  * {variant}")
         self.caller.msg(f"|yTip:|n Make sure the template file exists in world/cofd/templates/ and is imported in __init__.py")
     
     def uninstall_template(self, template_name, force=False):
@@ -475,7 +475,7 @@ class CmdTemplate(MuxCommand):
             self.caller.msg(f"   Inactive: {TemplateDefinition.objects.filter(is_active=False).count()}")
             if db_templates.exists():
                 for tpl in db_templates[:5]:  # Show first 5
-                    self.caller.msg(f"   - {tpl.name} ({tpl.display_name}) [Active: {tpl.is_active}]")
+                    self.caller.msg(f"   * {tpl.name} ({tpl.display_name}) [Active: {tpl.is_active}]")
                 if db_templates.count() > 5:
                     self.caller.msg(f"   ... and {db_templates.count() - 5} more")
         except Exception as e:
@@ -507,7 +507,7 @@ class CmdTemplate(MuxCommand):
             if builtin_templates:
                 for name, template_data in builtin_templates.items():
                     display_name = template_data.get('display_name', 'Unknown')
-                    self.caller.msg(f"   - {name}: {display_name}")
+                    self.caller.msg(f"   * {name}: {display_name}")
             else:
                 self.caller.msg(f"|r   WARNING: No built-in templates found!|n")
                 self.caller.msg(f"|y   This means templates are not registering during import.|n")
@@ -542,7 +542,7 @@ class CmdTemplate(MuxCommand):
         if import_results['failed']:
             self.caller.msg("\n   |rFailed imports:|n")
             for module_name, error in import_results['failed']:
-                self.caller.msg(f"   - {module_name}: {error[:80]}")
+                self.caller.msg(f"   * {module_name}: {error[:80]}")
         
         # Check 5: Recommendations
         self.caller.msg("\n|w5. Recommendations:|n")

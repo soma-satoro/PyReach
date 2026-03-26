@@ -103,7 +103,7 @@ from evennia.settings_default import OPTIONS_ACCOUNT_DEFAULT as _DEFAULT_OPTIONS
 OPTIONS_ACCOUNT_DEFAULT = _DEFAULT_OPTIONS.copy()
 OPTIONS_ACCOUNT_DEFAULT.update({
     "UNICODE_DOTS": (
-        "Display character sheet stats as Unicode dots (●●●○○) instead of numbers",
+        "Display character sheet stats as Unicode dots (***oo) instead of numbers",
         "Boolean",  # Option class type
         False       # Default value (numeric display)
     ),

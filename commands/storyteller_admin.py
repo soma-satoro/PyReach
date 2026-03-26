@@ -78,10 +78,10 @@ without needing full staff permissions. They have access to specialized tools
 for creating engaging roleplay experiences.
 
 |yStoryteller Permissions:|n
-• |wMystery System|n - Create and manage investigation mysteries
-• |wNPC Management|n - Create, control, and manage NPCs
-• |wStory Tools|n - Access to various storytelling commands
-• |wBuilding Access|n - Limited building permissions in designated areas
+- |wMystery System|n - Create and manage investigation mysteries
+- |wNPC Management|n - Create, control, and manage NPCs
+- |wStory Tools|n - Access to various storytelling commands
+- |wBuilding Access|n - Limited building permissions in designated areas
 
 |yCommands Available:|n
   |w+storyteller|n - List all current storytellers
@@ -92,10 +92,10 @@ for creating engaging roleplay experiences.
 
 |yFor Storytellers:|n
 Once you have the Storyteller flag, you can use:
-• |w+mystery|n commands to create investigations
-• |w+npc|n commands to manage NPCs
-• |w+clueobj|n commands to place discoverable clues
-• Various other storytelling tools
+- |w+mystery|n commands to create investigations
+- |w+npc|n commands to manage NPCs
+- |w+clueobj|n commands to place discoverable clues
+- Various other storytelling tools
 
 |yNote:|n Only Admins can grant or remove Storyteller flags.
         """
@@ -292,10 +292,10 @@ Once you have the Storyteller flag, you can use:
         if has_storyteller or has_staff:
             output.append("")
             output.append("|yAvailable Commands:|n")
-            output.append("• +mystery - Create and manage investigation mysteries")
-            output.append("• +npc - Create and control NPCs")
-            output.append("• +clueobj - Place discoverable clue objects")
-            output.append("• Various other storytelling tools")
+            output.append("- +mystery - Create and manage investigation mysteries")
+            output.append("- +npc - Create and control NPCs")
+            output.append("- +clueobj - Place discoverable clue objects")
+            output.append("- Various other storytelling tools")
         
         self.caller.msg("\n".join(output))
     def show_storyteller_who(self):

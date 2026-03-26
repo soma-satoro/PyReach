@@ -89,7 +89,7 @@ KREWE_MERITS = {
     'Good Time Management': {
         'min': 1,
         'max': 1,
-        'prerequisites': ['Academics •• or Science ••'],
+        'prerequisites': ['Academics 2 or Science 2'],
         'description': 'Make extended action rolls in half the necessary time. Krewe actions cost one less Effort, to a minimum of one Effort',
         'source': 'GTS 2e 86'
     },
@@ -202,7 +202,7 @@ CULT_MERITS = {
     'Forbidden Rites': {
         'min': 1,
         'max': 5,
-        'prerequisites': ['Ritual Sorcerer', 'Library (Occult) ••', 'Sorcerous Knowledge'],
+        'prerequisites': ['Ritual Sorcerer', 'Library (Occult) 2', 'Sorcerous Knowledge'],
         'description': 'As the supernatural Merit. Cultists led by a sorcerer may perform the rites as cult actions',
         'source': 'MTC 2e 117'
     },
@@ -354,15 +354,15 @@ EXAMPLE_MYSTERY_CULTS = {
             1: 'Politics Specialty in Bureaucracy',
             2: 'Language Merit (Aramaic)',
             3: 'Two dots between Contacts, Allies, Resources, or Retainers',
-            4: 'Thief of Fate (•••) Merit',
-            5: 'Three dots of Resources plus one Resources ••••• purchase per month from cult coffers'
+            4: 'Thief of Fate (4) Merit',
+            5: 'Three dots of Resources plus one Resources 5 purchase per month from cult coffers'
         }
     },
     'Sisters of the Machine Gun, Brothers of the Bomb': {
         'description': 'Fight against the God-Machine with repurposed artifacts and technology',
         'benefits': {
             1: 'Occult Specialty in The God-Machine',
-            2: 'Contacts • (Brothers and Sisters)',
+            2: 'Contacts - (Brothers and Sisters)',
             3: 'Can repurpose holy artifacts into weapons that hurt spirits and ghosts',
             4: 'Three dots in Retainers (wards and students)',
             5: 'Modified Encyclopedic Knowledge Merit relating to the God-Machine'
@@ -398,7 +398,7 @@ CELL_TACTICS = {
         'type': 'investigation'
     },
     'Identification': {
-        'requirements': 'Occult •• (Primary)',
+        'requirements': 'Occult 2 (Primary)',
         'primary_pool': 'Intelligence + Occult vs. Manipulation + Subterfuge + Potency',
         'secondary_pools': [
             'Wits + Investigation (0/3)',
@@ -410,7 +410,7 @@ CELL_TACTICS = {
         'type': 'investigation'
     },
     'Monster Lore': {
-        'requirements': 'A specific type of monster, Relevant Social Merit •• (Secondary)',
+        'requirements': 'A specific type of monster, Relevant Social Merit 2 (Secondary)',
         'primary_pool': 'Intelligence + Occult',
         'secondary_pools': [
             'Presence or Manipulation + Socialize (0/3)',
@@ -422,7 +422,7 @@ CELL_TACTICS = {
         'type': 'investigation'
     },
     'Profiling': {
-        'requirements': 'Investigation ••, Empathy •• (Primary), Skill rolled •• (Secondary)',
+        'requirements': 'Investigation 2, Empathy 2 (Primary), Skill rolled 2 (Secondary)',
         'primary_pool': 'Intelligence + Investigation vs. Wits + Subterfuge or Investigation + Potency',
         'secondary_pools': [
             'Presence or Manipulation + Persuasion (0/2)',
@@ -492,7 +492,7 @@ CELL_TACTICS = {
         'type': 'physical'
     },
     'Harvest': {
-        'requirements': 'Occult •• (Any), Specialty related to the target\'s type (Any)',
+        'requirements': 'Occult 2 (Any), Specialty related to the target\'s type (Any)',
         'primary_pool': 'Dexterity + Medicine vs. Strength + Athletics or Brawl + Potency',
         'secondary_pools': [
             'Strength + Brawl (1/3)',
@@ -514,7 +514,7 @@ CELL_TACTICS = {
         'type': 'physical'
     },
     'Lure': {
-        'requirements': 'Occult •• (Any), Enticing agent',
+        'requirements': 'Occult 2 (Any), Enticing agent',
         'primary_pool': 'Wits + Composure vs. Wits + Composure + Potency',
         'secondary_pools': [
             'Presence + Persuasion or Subterfuge (1)',

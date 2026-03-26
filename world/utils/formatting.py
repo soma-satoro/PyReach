@@ -236,7 +236,7 @@ def format_simple_table(headers, rows, use_theme=True, max_width=78):
             val = str(cells[i]) if i < len(cells) else ""
             clean = ANSIString(val).clean()
             if len(clean) > w:
-                val = clean[: w - 1] + "…"
+                val = clean[: w - 1] + "..."
                 clean = val
             padded = " " + val.ljust(w)
             if cell_style:

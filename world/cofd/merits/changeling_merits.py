@@ -94,7 +94,7 @@ changeling_merits = [
         name="Elemental Warrior",
         min_value=1,
         max_value=5,
-        description="Choose one physical element. (•) Wind Cuts to the Bone: Exceptional success on elemental attack on threshold of three instead of five. (••) Defensive Flurry: Dodging adds half Wyrd (rounded down) as bonus dice and can apply against Firearms. (•••) Hungry Leaping Flames: Spend Glamour to make elemental attack, increasing range by ten yards and potentially wreaking environmental effects. (••••) Antaean Endurance: While immersed in or fortified on element, add half Wyrd as temporary Health and bonus dice to resist fatigue, poison, unconsciousness. (•••••) Wrath of Titans: Spend Glamour to inflict Blinded, Deafened, or Knocked Down Tilts with strikes for the scene",
+        description="Choose one physical element. (-) Wind Cuts to the Bone: Exceptional success on elemental attack on threshold of three instead of five. (--) Defensive Flurry: Dodging adds half Wyrd (rounded down) as bonus dice and can apply against Firearms. (---) Hungry Leaping Flames: Spend Glamour to make elemental attack, increasing range by ten yards and potentially wreaking environmental effects. (----) Antaean Endurance: While immersed in or fortified on element, add half Wyrd as temporary Health and bonus dice to resist fatigue, poison, unconsciousness. (-----) Wrath of Titans: Spend Glamour to inflict Blinded, Deafened, or Knocked Down Tilts with strikes for the scene",
         merit_type="style",
         prerequisite="[dexterity:3,wits:3],[brawl:2,firearms:2,weaponry:2],elemental_weapon_or_primal_glory_or_elemental_seeming"
     ),
@@ -102,7 +102,7 @@ changeling_merits = [
         name="Enchanting Performance",
         min_value=1,
         max_value=3,
-        description="(•) Limerick: Hurl an insult and roll Presence + Expression - Composure to penalize a target's Social rolls on others by your successes for the scene. (••) Poem: When you open a Door by an expressive performance, spend Glamour to open another. (•••) Sonnet: Spend Glamour to deliver a performance with an Expression roll, taking the rote quality. Success renders an audience member Inspired",
+        description="(-) Limerick: Hurl an insult and roll Presence + Expression - Composure to penalize a target's Social rolls on others by your successes for the scene. (--) Poem: When you open a Door by an expressive performance, spend Glamour to open another. (---) Sonnet: Spend Glamour to deliver a performance with an Expression roll, taking the rote quality. Success renders an audience member Inspired",
         merit_type="style",
         prerequisite="presence:3,expression:3"
     ),
@@ -150,7 +150,7 @@ changeling_merits = [
         name="Gentrified Bearing",
         min_value=2,
         max_value=2,
-        description="Your character was molded in the image of her Keeper, stole some essential spark of its fire, or learned to emulate its otherness. Regardless of how she obtained this mixed blessing, hobgoblins tend to mistake her for a True Fae — if only for a moment. When dealing with hobgoblins, Intimidation rolls add the character's Wyrd rating in dice, to a maximum of +5. While most hobgoblins don't look too closely at a True Fae, a wise changeling shows caution with her demands. Even a successful ruse is unlikely to fool the same creature twice.",
+        description="Your character was molded in the image of her Keeper, stole some essential spark of its fire, or learned to emulate its otherness. Regardless of how she obtained this mixed blessing, hobgoblins tend to mistake her for a True Fae - if only for a moment. When dealing with hobgoblins, Intimidation rolls add the character's Wyrd rating in dice, to a maximum of +5. While most hobgoblins don't look too closely at a True Fae, a wise changeling shows caution with her demands. Even a successful ruse is unlikely to fool the same creature twice.",
         merit_type="changeling",
         prerequisite="wyrd:2"
     ),
@@ -182,7 +182,7 @@ changeling_merits = [
         name="Hedge Brawler",
         min_value=2,
         max_value=2,
-        description="Your character is adept at fighting within the Hedge. You may take a dice penalty on a violent action designated for Hedgespinning between −1 and −3 to gain that number of extra successes if the action is successful. You can only use these successes for shaping Hedge details; this can't turn a normal success into an exceptional one.",
+        description="Your character is adept at fighting within the Hedge. You may take a dice penalty on a violent action designated for Hedgespinning between -1 and -3 to gain that number of extra successes if the action is successful. You can only use these successes for shaping Hedge details; this can't turn a normal success into an exceptional one.",
         merit_type="changeling",
         prerequisite="brawl:2"
     ),
@@ -206,7 +206,7 @@ changeling_merits = [
         name="Hedge Duelist",
         min_value=1,
         max_value=3,
-        description="These maneuvers work in the Hedge. (•) Thousand Falling Leaves: Half your normal damage on an attack to inflict -1 Defense on the target. (••) Emerald Shield: Receive 2/0 magical Armor. (•••) Bite Like Thorns: Add a foe's wound penalties as bonus attack dice",
+        description="These maneuvers work in the Hedge. (-) Thousand Falling Leaves: Half your normal damage on an attack to inflict -1 Defense on the target. (--) Emerald Shield: Receive 2/0 magical Armor. (---) Bite Like Thorns: Add a foe's wound penalties as bonus attack dice",
         merit_type="style",
         prerequisite="[presence:2,manipulation:2],[brawl:2,weaponry:2],social_skill:2"
     ),
@@ -334,7 +334,7 @@ changeling_merits = [
         name="Token",
         min_value=1,
         max_value=10,
-        description="Your character or motley has one or more tokens — mystical items suffused with the power and danger of Faerie. Perhaps she made off with her Keeper's most prized possession as she fled out of spite, or found that twigs from the Hedge caught in her clothes became magical matchsticks upon her escape. Perhaps she traded away her name for an enchanted mirror at a Goblin Market. Perhaps she took the riding crop as a trophy when she killed the Huntsman, and now she's driven to hunt her own kind. Whatever the case, choose one or more tokens with a total dot rating equal to her rating in this Merit. She may have more than five dots in this Merit, but no single token may have a rating higher than five. You can purchase an oath-forged token by adding one dot to its effective rating; thus, you can't purchase a five-dot oath-forged token with this Merit. You can purchase a stolen token at an effective rating of one dot lower than the token's rating.",
+        description="Your character or motley has one or more tokens - mystical items suffused with the power and danger of Faerie. Perhaps she made off with her Keeper's most prized possession as she fled out of spite, or found that twigs from the Hedge caught in her clothes became magical matchsticks upon her escape. Perhaps she traded away her name for an enchanted mirror at a Goblin Market. Perhaps she took the riding crop as a trophy when she killed the Huntsman, and now she's driven to hunt her own kind. Whatever the case, choose one or more tokens with a total dot rating equal to her rating in this Merit. She may have more than five dots in this Merit, but no single token may have a rating higher than five. You can purchase an oath-forged token by adding one dot to its effective rating; thus, you can't purchase a five-dot oath-forged token with this Merit. You can purchase a stolen token at an effective rating of one dot lower than the token's rating.",
         merit_type="changeling",
         prerequisite="changeling"
     ),

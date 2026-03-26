@@ -64,7 +64,7 @@ geist_merits = [
         name="Retribution",
         min_value=1,
         max_value=5,
-        description="These maneuvers must be made while avenging harm done to those you feel responsible for. The Vengeful take 8-Again to Retribution maneuvers. (•) Unerring Pursuit: When tracking or pursuing guilty parties, gain +2 bonus to Speed and relevant rolls. (••) And Taking Names: Deal +2 damage with non-combat actions such as traps and car crashes. When making all-out attack, convert attack bonus into half its dice in bonus weapon rating, even unarmed. (•••) Fight Through: +2 General Armor. (••••) Eye for an Eye: Your first strike on a guilty party inflicts one Condition or Tilt they had inflicted on those you cared for. (•••••) Guns Blazing: Make all-out attacks without sacrificing Defense, and may double all-out bonus by sacrificing Defense",
+        description="These maneuvers must be made while avenging harm done to those you feel responsible for. The Vengeful take 8-Again to Retribution maneuvers. (-) Unerring Pursuit: When tracking or pursuing guilty parties, gain +2 bonus to Speed and relevant rolls. (--) And Taking Names: Deal +2 damage with non-combat actions such as traps and car crashes. When making all-out attack, convert attack bonus into half its dice in bonus weapon rating, even unarmed. (---) Fight Through: +2 General Armor. (----) Eye for an Eye: Your first strike on a guilty party inflicts one Condition or Tilt they had inflicted on those you cared for. (-----) Guns Blazing: Make all-out attacks without sacrificing Defense, and may double all-out bonus by sacrificing Defense",
         merit_type="style",
         prerequisite="geist"
     ),

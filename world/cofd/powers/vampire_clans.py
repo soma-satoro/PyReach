@@ -199,9 +199,9 @@ ALL_BLOODLINES = {
         "name": "Penumbrae",
         "parent_clan": "Circle of the Crone",
         "description": "Acolyte psychonauts who read visions in the skein of the Blood.",
-        "disciplines": ["Auspex", "Celerity", "Crúac", "Vigor"],
-        "gifts": "Crúac Rites",
-        "bane": "Dots of Crúac deepen states of torpor",
+        "disciplines": ["Auspex", "Celerity", "Cruac", "Vigor"],
+        "gifts": "Cruac Rites",
+        "bane": "Dots of Cruac deepen states of torpor",
         "book": "NH-SB 37"
     },
     "scions_of_the_first_city": {

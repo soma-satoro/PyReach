@@ -1,4 +1,4 @@
-"""
+﻿"""
 Pledge command for Changeling: The Lost 2nd Edition.
 
 This command handles all pledge types: Sealing, Oath, and Bargain.
@@ -239,13 +239,13 @@ class CmdPledge(MuxCommand):
         if pledge.benefits:
             output.append(f"\n|wBenefits:|n")
             for key, value in pledge.benefits.items():
-                output.append(f"  - {value}")
+                output.append(f"  * {value}")
         
         # Consequences
         if pledge.consequences:
             output.append(f"\n|wConsequences for Breaking:|n")
             for key, value in pledge.consequences.items():
-                output.append(f"  - {value}")
+                output.append(f"  * {value}")
         
         # Strengthened (for sealings)
         if pledge.pledge_type == PLEDGE_TYPE_SEALING:
@@ -799,3 +799,4 @@ class CmdPledge(MuxCommand):
                     pass
         
         caller.msg(f"|g{message}|n")
+

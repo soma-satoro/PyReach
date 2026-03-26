@@ -132,8 +132,8 @@ class MissingPersonTemplate(MysteryTemplate):
         )
         
         clue_3 = self.add_clue(
-            "Digital Trail",
-            "Phone records, social media, or other digital evidence of their activities.",
+            "Paper and Digital Trail",
+            "Phone records, letters, account activity, or other traces of their recent movements.",
             tags=["critical"]
         )
         
@@ -223,47 +223,52 @@ class OccultMysteryTemplate(MysteryTemplate):
         )
         
         # Restrict to supernatural templates
-        self.access_restrictions['allowed_templates'] = ['vampire', 'werewolf', 'mage', 'changeling', 'mummy', 'demon']
+        self.access_restrictions['allowed_templates'] = [
+            'vampire', 'werewolf', 'mage', 'changeling', 'mummy', 'demon', 'hunter', 'geist'
+        ]
 
 
-class CorporateConspiracyTemplate(MysteryTemplate):
-    """Template for corporate espionage and conspiracy investigations."""
+class SectConspiracyTemplate(MysteryTemplate):
+    """Template for sect, covenant, or order conspiracy investigations."""
     
     def __init__(self):
         super().__init__(
-            title="Corporate Conspiracy",
-            description="Investigate corporate malfeasance, insider trading, or business-related crimes that affect the community.",
-            category="crime",
+            title="Sect Conspiracy",
+            description=(
+                "Investigate covert influence, resource laundering, and backroom alliances "
+                "between factions in the supernatural community."
+            ),
+            category="political",
             difficulty=3
         )
         
         clue_0 = self.add_clue(
-            "Financial Irregularities",
-            "Suspicious financial transactions or accounting discrepancies.",
+            "Resource Irregularities",
+            "Suspicious use of havens, influence, boons, or funds tied to a hidden agenda.",
             tags=["incomplete"]
         )
         
         clue_1 = self.add_clue(
-            "Insider Information",
-            "Someone with inside knowledge of the corporation's activities.",
+            "Insider Testimony",
+            "Someone inside the faction hierarchy provides partial but valuable information.",
             tags=["critical"]
         )
         
         clue_2 = self.add_clue(
-            "Document Trail",
-            "Paper or digital documents that reveal the scope of the conspiracy.",
+            "Ledger and Correspondence Trail",
+            "Letters, ledgers, and encrypted notes reveal the conspiracy's operational scope.",
             tags=["incomplete"]
         )
         
         clue_3 = self.add_clue(
-            "Key Players",
-            "Identification of the main conspirators and their roles.",
+            "Power Brokers",
+            "Identification of the key conspirators and what each one gains from the plot.",
             tags=["critical"]
         )
         
         clue_4 = self.add_clue(
-            "Evidence of Crimes",
-            "Concrete proof of illegal activities that could be used in court.",
+            "Proof of Breach",
+            "Concrete proof of acts that violate local laws, compacts, or sect doctrine.",
             tags=["critical"]
         )
         
@@ -284,7 +289,7 @@ class CorporateConspiracyTemplate(MysteryTemplate):
         self.add_revelation(
             "conspiracy_exposed",
             [3, 4],
-            "The full scope of the corporate conspiracy is revealed, showing how deep the corruption goes and who can be trusted."
+            "The full scope of the faction conspiracy is revealed, exposing the sponsor, beneficiaries, and vulnerable points."
         )
 
 
@@ -354,7 +359,7 @@ class HistoricalMysteryTemplate(MysteryTemplate):
 MYSTERY_TEMPLATES = {
     'missing_person': MissingPersonTemplate,
     'occult': OccultMysteryTemplate,
-    'corporate_conspiracy': CorporateConspiracyTemplate,
+    'sect_conspiracy': SectConspiracyTemplate,
     'historical': HistoricalMysteryTemplate,
 }
 

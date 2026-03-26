@@ -1215,7 +1215,7 @@ class CmdExperience(MuxCommand):
                 logger.log_experience(-cost, f"Rite: {rite_data['name']}")
                 
                 # Show rank info
-                rank_dots = "●" * rite_data['rank']
+                rank_dots = "*" * rite_data['rank']
                 self.caller.msg(f"|gSpent {cost} XP to learn the {rite_data['name']} rite (Rank {rank_dots}).|n")
                 if prereq_msg:
                     self.caller.msg(f"|y{prereq_msg}|n")

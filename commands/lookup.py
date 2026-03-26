@@ -1,4 +1,4 @@
-from evennia.commands.default.muxcommand import MuxCommand
+﻿from evennia.commands.default.muxcommand import MuxCommand
 from evennia.server.models import ServerConfig
 from world.cofd.lookup_data import (
     LOOKUP_DATA, 
@@ -1035,18 +1035,18 @@ class CmdLookup(MuxCommand):
             "supernatural": "|r", "fighting": "|R", "style": "|g"
         }
         type_symbols = {
-            "mental": "◆",      # Diamond for mental
-            "physical": "■",    # Square for physical
-            "social": "●",      # Circle for social
-            "supernatural": "★", # Star for supernatural
-            "fighting": "⚔",    # Swords for fighting
-            "style": "◈"        # Diamond in square for style
+            "mental": "*",      # Diamond for mental
+            "physical": "#",    # Square for physical
+            "social": "*",      # Circle for social
+            "supernatural": "*", # Star for supernatural
+            "fighting": "x",    # Swords for fighting
+            "style": "*"        # Diamond in square for style
         }
         
         # Display merits
         for merit in sorted(filtered_merits, key=lambda m: (m.merit_type, m.name)):
             color = type_colors.get(merit.merit_type, "|w")
-            symbol = type_symbols.get(merit.merit_type, "○")
+            symbol = type_symbols.get(merit.merit_type, "o")
             
             if merit.min_value == merit.max_value:
                 dots = f"({merit.min_value})"
@@ -1062,8 +1062,8 @@ class CmdLookup(MuxCommand):
         
         # Add legend for symbols and colors
         msg += "|wMerit Type Legend:|n\n"
-        msg += "  |c◆ Mental|n (Cyan)        |y■ Physical|n (Yellow)      |m● Social|n (Magenta)\n"
-        msg += "  |r★ Supernatural|n (Red)  |R⚔ Fighting|n (Bright Red)  |g◈ Style|n (Green)\n\n"
+        msg += "  |c* Mental|n (Cyan)        |y# Physical|n (Yellow)      |m* Social|n (Magenta)\n"
+        msg += "  |r* Supernatural|n (Red)  |Rx Fighting|n (Bright Red)  |g* Style|n (Green)\n\n"
         
         msg += self.format_footer("Chronicles of Darkness Reference")
         self.caller.msg(msg)
@@ -1128,7 +1128,7 @@ class CmdLookup(MuxCommand):
         
         # Display rated disciplines first (Celerity, Resilience, Vigor)
         if powers_by_level["rated"]:
-            output.append("|rRated Disciplines (• to •••••)|n")
+            output.append("|rRated Disciplines (- to -----)|n")
             for power_key, power_data in sorted(powers_by_level["rated"], key=lambda x: x[1]['name']):
                 power_name = power_data['name']
                 cost = power_data['cost']
@@ -1144,7 +1144,7 @@ class CmdLookup(MuxCommand):
         for level in range(1, 6):
             level_powers = powers_by_level[level]
             if level_powers:
-                dots = "●" * level
+                dots = "*" * level
                 if discipline:
                     output.append(f"|r{discipline.title()} {dots}|n")
                 else:
@@ -1212,13 +1212,13 @@ class CmdLookup(MuxCommand):
                     if isinstance(power_level, str) and '-' in str(power_level):
                         msg += f"|cDiscipline:|n {discipline_name} (Rated {power_level})\n"
                     else:
-                        dots = "●" * power_level
+                        dots = "*" * power_level
                         msg += f"|cDiscipline:|n {discipline_name} {dots}\n"
             
             if is_coil:  # Coils just show level
                 power_level = power_data.get('level')
                 if power_level:
-                    dots = "●" * power_level
+                    dots = "*" * power_level
                     msg += f"|cLevel:|n {dots}\n"
         
         # Cost (Vitae/Willpower)
@@ -1306,7 +1306,7 @@ class CmdLookup(MuxCommand):
             for level in range(1, 6):
                 level_coils = coils_by_level[level]
                 if level_coils:
-                    dots = "●" * level
+                    dots = "*" * level
                     output.append(f"|r{mystery.title()} {dots}|n")
                     
                     for coil_key, coil_data in sorted(level_coils, key=lambda x: x[1]['name']):
@@ -1370,7 +1370,7 @@ class CmdLookup(MuxCommand):
         for level in range(1, 6):
             level_powers = powers_by_level[level]
             if level_powers:
-                dots = "●" * level
+                dots = "*" * level
                 output.append(f"|r{discipline_name} {dots}|n")
                 
                 for power_key, power_data in sorted(level_powers, key=lambda x: x[1]['name']):
@@ -1478,7 +1478,7 @@ class CmdLookup(MuxCommand):
             for scale_key, scale_data in sorted_scales:
                 rank = scale_data.get('rank', '-')
                 if isinstance(rank, int):
-                    dots = "●" * rank
+                    dots = "*" * rank
                     output.append(f"|y{scale_data['name']}|n - Rank: {dots}")
                 else:
                     output.append(f"|y{scale_data['name']}|n - Rank: {rank}")
@@ -1523,7 +1523,7 @@ class CmdLookup(MuxCommand):
                 self.caller.msg("|cValid ranks:|n 1, 2, 3, 4, 5")
                 return
             
-            dots = "●" * rank
+            dots = "*" * rank
             title = f"|wTheban Sorcery - Rank {dots}|n"
             output = [title, "", "|cLancea et Sanctum Divine Miracles|n", ""]
             
@@ -1545,7 +1545,7 @@ class CmdLookup(MuxCommand):
             for rank_num in range(1, 6):
                 rank_miracles = get_theban_by_rank(rank_num)
                 if rank_miracles:
-                    dots = "●" * rank_num
+                    dots = "*" * rank_num
                     output.append(f"|rRank {dots}:|n")
                     output.append(f"  {len(rank_miracles)} miracles available")
                     output.append(f"  |gView all:|n +lookup theban {rank_num}")
@@ -1566,7 +1566,7 @@ class CmdLookup(MuxCommand):
                 self.caller.msg("|cValid ranks:|n 1, 2, 3, 4, 5")
                 return
             
-            dots = "●" * rank
+            dots = "*" * rank
             title = f"|wCruac - Rank {dots}|n"
             output = [title, "", "|cCircle of the Crone Blood Sorcery|n", ""]
             
@@ -1586,7 +1586,7 @@ class CmdLookup(MuxCommand):
             for rank_num in range(1, 6):
                 rank_rites = get_cruac_by_rank(rank_num)
                 if rank_rites:
-                    dots = "●" * rank_num
+                    dots = "*" * rank_num
                     output.append(f"|rRank {dots}:|n")
                     output.append(f"  {len(rank_rites)} rites available")
                     output.append(f"  |gView all:|n +lookup cruac {rank_num}")
@@ -1617,7 +1617,7 @@ class CmdLookup(MuxCommand):
         # Rank
         rank = power_data.get('rank', '-')
         if isinstance(rank, int):
-            dots = "●" * rank
+            dots = "*" * rank
             msg += f"|cRank:|n {dots}\n"
         else:
             msg += f"|cRank:|n {rank}\n"
@@ -1697,7 +1697,7 @@ class CmdLookup(MuxCommand):
         for level in range(1, 6):
             level_spells = spells_by_level[level]
             if level_spells:
-                dots = "●" * level
+                dots = "*" * level
                 output.append(f"|c{arcana.title() if arcana else 'Level'} {dots}|n")
                 
                 for spell_key, spell_data in sorted(level_spells, key=lambda x: x[1]['name']):
@@ -1729,7 +1729,7 @@ class CmdLookup(MuxCommand):
         # Arcana and level
         arcana_name = spell_data['arcana'].title()
         spell_level = spell_data['level']
-        dots = "●" * spell_level
+        dots = "*" * spell_level
         msg += f"|cArcana:|n {arcana_name} {dots}\n"
         
         # Secondary arcana if present
@@ -2443,7 +2443,7 @@ class CmdLookup(MuxCommand):
             for pool_data in secondary_pools:
                 actors = f"({pool_data['min_actors']}-{pool_data['max_actors']} actors)"
                 note = f" [{pool_data['note']}]" if 'note' in pool_data else ""
-                msg += f"  • {pool_data['pool']} {actors}{note}\n"
+                msg += f"  * {pool_data['pool']} {actors}{note}\n"
         
         # Special notes
         if tactic_data.get('special'):
@@ -2506,7 +2506,7 @@ class CmdLookup(MuxCommand):
         
         msg += "|wStatus Benefits:|n\n"
         for level in sorted(compact_data['status_benefits'].keys()):
-            dots = "•" * level
+            dots = "-" * level
             benefit = compact_data['status_benefits'][level]
             msg += f"  |y{dots}|n - {benefit}\n"
         
@@ -2563,7 +2563,7 @@ class CmdLookup(MuxCommand):
         
         msg += "|wStatus Benefits:|n\n"
         for level in sorted(conspiracy_data['status_benefits'].keys()):
-            dots = "•" * level
+            dots = "-" * level
             benefit = conspiracy_data['status_benefits'][level]
             msg += f"  |y{dots}|n - {benefit}\n"
         
@@ -2748,7 +2748,7 @@ class CmdLookup(MuxCommand):
         for rank in range(1, 6):
             rank_gifts = gifts_by_rank[rank]
             if rank_gifts:
-                dots = "●" * rank
+                dots = "*" * rank
                 output.append(f"|yRank {dots}|n")
                 
                 for gift_key, gift_data in sorted(rank_gifts, key=lambda x: x[1]['name']):
@@ -2777,7 +2777,7 @@ class CmdLookup(MuxCommand):
         
         # Rank
         rank = gift_data['rank']
-        dots = "●" * rank if isinstance(rank, int) else rank
+        dots = "*" * rank if isinstance(rank, int) else rank
         msg += f"|cRank:|n {dots}\n"
         
         # Cost
@@ -3019,7 +3019,7 @@ class CmdLookup(MuxCommand):
         for rank in range(1, 6):
             rank_powers = powers_by_rank[rank]
             if rank_powers:
-                dots = "●" * rank
+                dots = "*" * rank
                 output.append(f"|yRank {dots}|n")
                 
                 for power_key, power_data in rank_powers:
@@ -3196,7 +3196,7 @@ class CmdLookup(MuxCommand):
         
         msg += f"|wEntitlement Blessings:|n\n"
         for blessing in entitlement_data['blessings']:
-            msg += f"  • {blessing}\n"
+            msg += f"  * {blessing}\n"
         
         msg += f"\n|cSource:|n {entitlement_data['book']}\n"
         msg += f"|cSet on Character:|n |y+stat entitlement={entitlement_key}|n\n\n"
@@ -3698,7 +3698,7 @@ class CmdLookup(MuxCommand):
         if magnitude_effects:
             msg += f"|wMagnitude Effects:|n\n"
             for magnitude in sorted(magnitude_effects.keys()):
-                msg += f"  |y{'●' * magnitude}{'○' * (5 - magnitude)}|n {magnitude_effects[magnitude]}\n"
+                msg += f"  |y{'*' * magnitude}{'o' * (5 - magnitude)}|n {magnitude_effects[magnitude]}\n"
             msg += "\n"
         
         # Show deviations if any
@@ -3742,7 +3742,7 @@ class CmdLookup(MuxCommand):
         if magnitude_effects:
             msg += f"|wMagnitude Effects:|n\n"
             for magnitude in sorted(magnitude_effects.keys()):
-                msg += f"  |r{'●' * magnitude}{'○' * (5 - magnitude)}|n {magnitude_effects[magnitude]}\n"
+                msg += f"  |r{'*' * magnitude}{'o' * (5 - magnitude)}|n {magnitude_effects[magnitude]}\n"
             msg += "\n"
         
         # Show deviations if any
@@ -5260,7 +5260,7 @@ class CmdLookup(MuxCommand):
         for rank in range(1, 6):
             rank_gifts = gifts_by_rank[rank]
             if rank_gifts:
-                dots = "●" * rank
+                dots = "*" * rank
                 msg += f"|g{dots}|n ({len(rank_gifts)} gifts)\n"
                 
                 for gift_key, gift_data in sorted(rank_gifts, key=lambda x: x[1]['name']):
@@ -5291,7 +5291,7 @@ class CmdLookup(MuxCommand):
         
         # Show rank as dots
         rank = gift_data['rank']
-        dots = "●" * rank + "○" * (5 - rank)
+        dots = "*" * rank + "o" * (5 - rank)
         msg += f"|cRank:|n {dots} ({rank})\n"
         
         msg += f"|cCost:|n {gift_data['cost']}\n"
@@ -5314,7 +5314,7 @@ class CmdLookup(MuxCommand):
         if rank:
             # Filter by rank
             rites = RITES_BY_RANK.get(rank, {})
-            title = f"Werewolf Rites - Rank {'●' * rank}"
+            title = f"Werewolf Rites - Rank {'*' * rank}"
         elif category:
             # Filter by category
             if category in RITES_BY_CATEGORY:
@@ -5341,7 +5341,7 @@ class CmdLookup(MuxCommand):
         for rank in range(1, 6):
             rank_rites = rites_by_rank[rank]
             if rank_rites:
-                dots = "●" * rank
+                dots = "*" * rank
                 msg += f"|g{dots}|n ({len(rank_rites)} rites)\n"
                 
                 for rite_key, rite_data in sorted(rank_rites, key=lambda x: x[1]['name']):
@@ -5380,7 +5380,7 @@ class CmdLookup(MuxCommand):
         
         # Show rank as dots
         rank = rite_data['rank']
-        dots = "●" * rank + "○" * (5 - rank)
+        dots = "*" * rank + "o" * (5 - rank)
         msg += f"|cRank:|n {dots} ({rank})\n"
         
         # Prerequisites
@@ -5412,4 +5412,5 @@ class CmdLookup(MuxCommand):
         msg += f"\n|gSet on Character:|n |y+stat rite={rite_key}|n\n"
         
         self.caller.msg(msg)
+
 

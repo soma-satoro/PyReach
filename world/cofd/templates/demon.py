@@ -112,7 +112,7 @@ def render_demon_form_sheet(character, caller, force_ascii=False):
     if force_ascii:
         filled_char, empty_char = "*", "-"
     else:
-        filled_char, empty_char = "●", "○"
+        filled_char, empty_char = "*", "o"
     
     from world.utils.formatting import sheet_section_header, footer
 

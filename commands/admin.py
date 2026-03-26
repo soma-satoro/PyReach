@@ -736,9 +736,9 @@ class CmdConfigOOCIC(MuxCommand):
         
         color_names = [valid_colors[c] for c in normalized_colors]
         caller.msg(f"Set theme colors to: {', '.join(color_names)}")
-        caller.msg(f"  Header/Footer: |{normalized_colors[0]}████|n {color_names[0]}")
-        caller.msg(f"  Header Text: |{normalized_colors[1]}████|n {color_names[1]}")
-        caller.msg(f"  Dividers: |{normalized_colors[2]}████|n {color_names[2]}")
+        caller.msg(f"  Header/Footer: |{normalized_colors[0]}####|n {color_names[0]}")
+        caller.msg(f"  Header Text: |{normalized_colors[1]}####|n {color_names[1]}")
+        caller.msg(f"  Dividers: |{normalized_colors[2]}####|n {color_names[2]}")
         caller.msg("\nTheme affects: rooms, +roster, who, +census, +lookup, and other formatted displays.")
 
     def handle_equipment_config(self):
@@ -1096,9 +1096,9 @@ class CmdConfigOOCIC(MuxCommand):
             
             caller.msg("Current theme colors:")
             if len(colors) >= 3:
-                caller.msg(f"  Header/Footer: |{colors[0]}████|n {color_map.get(colors[0], colors[0])}")
-                caller.msg(f"  Header Text: |{colors[1]}████|n {color_map.get(colors[1], colors[1])}")
-                caller.msg(f"  Dividers: |{colors[2]}████|n {color_map.get(colors[2], colors[2])}")
+                caller.msg(f"  Header/Footer: |{colors[0]}####|n {color_map.get(colors[0], colors[0])}")
+                caller.msg(f"  Header Text: |{colors[1]}####|n {color_map.get(colors[1], colors[1])}")
+                caller.msg(f"  Dividers: |{colors[2]}####|n {color_map.get(colors[2], colors[2])}")
             else:
                 caller.msg(f"  {theme_colors} (invalid format)")
         else:

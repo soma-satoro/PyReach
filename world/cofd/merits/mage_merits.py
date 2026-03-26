@@ -30,7 +30,7 @@ mage_merits = [
         name="Between the Ticks",
         min_value=2,
         max_value=2,
-        description="Your character has perceived the depths of Time, and thus can act with the utmost precision, performing an action perfectly for ideal timing, or ideal efficiency. With this Merit, once per scene you can subtract –1 from your character's Initiative for the turn to add a die to her action for the turn, or subtract a die from her action to add +1 to her Initiative.",
+        description="Your character has perceived the depths of Time, and thus can act with the utmost precision, performing an action perfectly for ideal timing, or ideal efficiency. With this Merit, once per scene you can subtract -1 from your character's Initiative for the turn to add a die to her action for the turn, or subtract a die from her action to add +1 to her Initiative.",
         merit_type="supernatural",
         prerequisite="wits:3,time:1"
     ),
@@ -46,7 +46,7 @@ mage_merits = [
         name="Consilium Status",
         min_value=1,
         max_value=5,
-        description="This Merit grants all the advantages of the Status Merit, except it applies to the city's Consilium. This affords certain protections and advantages under the Lex Magica. Your character's position affords her certain access to her Consilium's stores. She can access Artifacts, Imbued Items, mentors, libraries, Grimoires, and other magical resources. Consider your character's Status dots as Resources for the purpose of procuring these magical resources. The Orders are both global organizations and locally compartmentalized. If a character uses Order Status in a Caucus other than her home one, reduce her effective rating in this Merit by –1 if the Caucus is a member of the same Consilium or Assembly, –2 if it is a member of the same Convocation, and –3 if it is unrelated.",
+        description="This Merit grants all the advantages of the Status Merit, except it applies to the city's Consilium. This affords certain protections and advantages under the Lex Magica. Your character's position affords her certain access to her Consilium's stores. She can access Artifacts, Imbued Items, mentors, libraries, Grimoires, and other magical resources. Consider your character's Status dots as Resources for the purpose of procuring these magical resources. The Orders are both global organizations and locally compartmentalized. If a character uses Order Status in a Caucus other than her home one, reduce her effective rating in this Merit by -1 if the Caucus is a member of the same Consilium or Assembly, -2 if it is a member of the same Convocation, and -3 if it is unrelated.",
         merit_type="social",
         prerequisite="awakened"
     ),
@@ -78,7 +78,7 @@ mage_merits = [
         name="Egregore",
         min_value=1,
         max_value=5,
-        description="This Merit reflects a deeper inclusion into Mysterium secrets than the Mysterium Status Merit normally grants. Mystery Initiation opens the doors to the communal experience of living magic the Mysterium calls the egregore. Mysteriorum Arche (•): In a teamwork spellcasting roll in which the character is participating, she does not suffer the –3 penalty to contribute without the necessary Arcanum rating, and adds an automatic success if a full participant. Mysteriorum Anima (••): Your character's full Mysterium Status applies to all Mysterium Caucuses, not just her local one. Mysteriorum Barathrum (•••): She does not require physical access to any Library held by her cabal or Mysterium Caucus, and once per chapter may gain the Informed Condition regarding the local Mysterium's membership. Mysteriorum Calamitas (••••): The first magical tool your character uses in a spell counts as a Dedicated Magical Tool. Mysteriorum Focus (•••••): When she's in an Order Sanctum, she's considered to have a Medium sympathetic connection to all members of the Order.",
+        description="This Merit reflects a deeper inclusion into Mysterium secrets than the Mysterium Status Merit normally grants. Mystery Initiation opens the doors to the communal experience of living magic the Mysterium calls the egregore. Mysteriorum Arche (-): In a teamwork spellcasting roll in which the character is participating, she does not suffer the -3 penalty to contribute without the necessary Arcanum rating, and adds an automatic success if a full participant. Mysteriorum Anima (--): Your character's full Mysterium Status applies to all Mysterium Caucuses, not just her local one. Mysteriorum Barathrum (---): She does not require physical access to any Library held by her cabal or Mysterium Caucus, and once per chapter may gain the Informed Condition regarding the local Mysterium's membership. Mysteriorum Calamitas (----): The first magical tool your character uses in a spell counts as a Dedicated Magical Tool. Mysteriorum Focus (-----): When she's in an Order Sanctum, she's considered to have a Medium sympathetic connection to all members of the Order.",
         merit_type="supernatural",
         prerequisite="mysterium_status:1"
     ),
@@ -150,7 +150,7 @@ mage_merits = [
         name="Lex Magica",
         min_value=2,
         max_value=2,
-        description="The laws of the Pentacle are symbolic concepts designed by people who make symbols real. A théarch acting in an official, titled capacity gains certain advantages with this Merit: First, add her Silver Ladder Status or Consilium Status (whichever she's acting with) to her Doors when a character attempts to outmaneuver her socially. Second, characters cannot use Willpower to increase dice pools on Social actions or magic which would influence her behavior. Lastly, your character may use her Silver Ladder Status or Consilium Status (whichever is higher) as a Yantra in spells directly enforcing the Lex Magica's laws. The dice bonus for the Yantra is half the Merit dots used, rounded up.",
+        description="The laws of the Pentacle are symbolic concepts designed by people who make symbols real. A thearch acting in an official, titled capacity gains certain advantages with this Merit: First, add her Silver Ladder Status or Consilium Status (whichever she's acting with) to her Doors when a character attempts to outmaneuver her socially. Second, characters cannot use Willpower to increase dice pools on Social actions or magic which would influence her behavior. Lastly, your character may use her Silver Ladder Status or Consilium Status (whichever is higher) as a Yantra in spells directly enforcing the Lex Magica's laws. The dice bonus for the Yantra is half the Merit dots used, rounded up.",
         merit_type="supernatural",
         prerequisite="silver_ladder_status:1"
     ),
@@ -166,7 +166,7 @@ mage_merits = [
         name="Masque",
         min_value=1,
         max_value=5,
-        description="The Guardians must adopt Masques, personas, in order to detach from the grim necessities of their work and stay in cover. Their ancient practices allow these Masques to become different people almost entirely. Adopting a Masque requires spending a point of Willpower, which cannot be replenished so long as the character maintains the identity. Shedding a Masque requires a full minute to get 'out of character.' Identity (•): Choose a Virtue and Vice different than that of your character. While in the Masque, your character benefits from those traits instead of her own. Competency (••): Choose Skill Specialties equal to the Masque Merit dots. Your character uses those Specialties instead of her own while in the Masque. Diffusion (•••): Choose a new Signature Nimbus. While in the Masque, your character uses that Nimbus instead of her own. The Code (••••): Choose two Acts of Hubris your character would normally suffer. While in the Masque, your character does not risk Wisdom for those acts. Immersion (•••••): Choose up to five Merit dots. When your character dons her Masque, she gains access to these Merits.",
+        description="The Guardians must adopt Masques, personas, in order to detach from the grim necessities of their work and stay in cover. Their ancient practices allow these Masques to become different people almost entirely. Adopting a Masque requires spending a point of Willpower, which cannot be replenished so long as the character maintains the identity. Shedding a Masque requires a full minute to get 'out of character.' Identity (-): Choose a Virtue and Vice different than that of your character. While in the Masque, your character benefits from those traits instead of her own. Competency (--): Choose Skill Specialties equal to the Masque Merit dots. Your character uses those Specialties instead of her own while in the Masque. Diffusion (---): Choose a new Signature Nimbus. While in the Masque, your character uses that Nimbus instead of her own. The Code (----): Choose two Acts of Hubris your character would normally suffer. While in the Masque, your character does not risk Wisdom for those acts. Immersion (-----): Choose up to five Merit dots. When your character dons her Masque, she gains access to these Merits.",
         merit_type="style",
         prerequisite="guardians_of_the_veil_status:1"
     ),
@@ -206,7 +206,7 @@ mage_merits = [
         name="Prelacy",
         min_value=1,
         max_value=4,
-        description="A successful Seer who has served her patron Exarch well can cast spells in his name. She hears the Tyrants' voices in her sleep. She understands their demands directly. A black iron portal forms deep within her Oneiros, and her daimon, the Goetia representing her drive to further herself, becomes twisted by the Exarch's agenda. Chosen Vessel (•): your character gains the Persistent Mystery Commands Condition. Sword (••): The character may use the patron Exarch's symbolism as a patron Yantra in spellcasting, worth half her Prelacy dots in dice (round up). Crown (•••): The character gains an Attainment based on her Exarch's symbolism. Temple (••••): If one of your character's soul stones is incorporated into a Demesne, the Demesne becomes a Supernal Verge keyed to her Exarch. Drawback: Once the Exarchs have given a command, they expect it to be carried out without delay. The character may only earn Arcane Beats from their other Obsessions in a chapter when they have already earned one for following the one granted by Mystery Commands.",
+        description="A successful Seer who has served her patron Exarch well can cast spells in his name. She hears the Tyrants' voices in her sleep. She understands their demands directly. A black iron portal forms deep within her Oneiros, and her daimon, the Goetia representing her drive to further herself, becomes twisted by the Exarch's agenda. Chosen Vessel (-): your character gains the Persistent Mystery Commands Condition. Sword (--): The character may use the patron Exarch's symbolism as a patron Yantra in spellcasting, worth half her Prelacy dots in dice (round up). Crown (---): The character gains an Attainment based on her Exarch's symbolism. Temple (----): If one of your character's soul stones is incorporated into a Demesne, the Demesne becomes a Supernal Verge keyed to her Exarch. Drawback: Once the Exarchs have given a command, they expect it to be carried out without delay. The character may only earn Arcane Beats from their other Obsessions in a chapter when they have already earned one for following the one granted by Mystery Commands.",
         merit_type="style",
         prerequisite="seers_of_the_throne_status:3"
     ),
@@ -214,7 +214,7 @@ mage_merits = [
         name="Sanctum",
         min_value=1,
         max_value=5,
-        description="Your character has a Sanctum, in which she can safely practice her art away from prying eyes. This might be a dark cave, an apartment, a pocket dimension, or any other secure location she can claim. This Merit must be tied to a Safe Place Merit, and similarly can be shared within a cabal. Add her Merit dots to her Gnosis within the Sanctum for determining spell control. She can leave the Sanctum and retain those benefits on previously cast spells. But if she's exceeded her Gnosis and adds any additional, controlled spells, the benefit goes away and she must Reach as if she'd cast each of those spells without the benefit. For an additional three dots (which do not count toward the 1–5 limit), your character's Sanctum includes a Demesne.",
+        description="Your character has a Sanctum, in which she can safely practice her art away from prying eyes. This might be a dark cave, an apartment, a pocket dimension, or any other secure location she can claim. This Merit must be tied to a Safe Place Merit, and similarly can be shared within a cabal. Add her Merit dots to her Gnosis within the Sanctum for determining spell control. She can leave the Sanctum and retain those benefits on previously cast spells. But if she's exceeded her Gnosis and adds any additional, controlled spells, the benefit goes away and she must Reach as if she'd cast each of those spells without the benefit. For an additional three dots (which do not count toward the 1-5 limit), your character's Sanctum includes a Demesne.",
         merit_type="supernatural",
         prerequisite="safe_place:1"
     ),
@@ -230,7 +230,7 @@ mage_merits = [
         name="Techne",
         min_value=2,
         max_value=2,
-        description="Your character uses Libertine practices in order to use cultural magical styles, sciences, and art forms as magical tools. Pick a focus for your character — for example, computer networking. Your character treats the focus as an Order tool for the Free Council as long as she includes it during spellcasting, and may further treat the presence of Sleepers engaging in the focus as a separate Order tool, as long as the spell is not obvious. If all mages casting a spell under the teamwork rules have this Merit representing the same focus, the leader's spellcasting roll gains 8-Again. This Merit may be bought multiple times to represent different fields of study.",
+        description="Your character uses Libertine practices in order to use cultural magical styles, sciences, and art forms as magical tools. Pick a focus for your character - for example, computer networking. Your character treats the focus as an Order tool for the Free Council as long as she includes it during spellcasting, and may further treat the presence of Sleepers engaging in the focus as a separate Order tool, as long as the spell is not obvious. If all mages casting a spell under the teamwork rules have this Merit representing the same focus, the leader's spellcasting roll gains 8-Again. This Merit may be bought multiple times to represent different fields of study.",
         merit_type="supernatural",
         prerequisite="free_council_status:1"
     ),
@@ -262,7 +262,7 @@ mage_merits = [
         name="Cognoscente",
         min_value=2,
         max_value=2,
-        description="Your character has perfected the art of scribing grimoires. Anyone casting from his tomes may do so without the doubled ritual casting time. He may also imprint his own signature nimbus into the rote imago when scribing the spell. Doing so causes the rote to show his own nimbus instead of hiding the caster's. Once per story, gain +2 to a Social roll that relies on this fame and enjoy the benefits of Occultation •••",
+        description="Your character has perfected the art of scribing grimoires. Anyone casting from his tomes may do so without the doubled ritual casting time. He may also imprint his own signature nimbus into the rote imago when scribing the spell. Doing so causes the rote to show his own nimbus instead of hiding the caster's. Once per story, gain +2 to a Social roll that relies on this fame and enjoy the benefits of Occultation ---",
         merit_type="supernatural",
         prerequisite="prime:3,[academics:2,occult:2]"
     ),

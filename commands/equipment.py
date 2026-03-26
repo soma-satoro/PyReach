@@ -607,7 +607,7 @@ class CmdBuy(MuxCommand):
             for key, item in sorted(by_availability[availability], key=lambda x: x[1]['name']):
                 # Check if character can afford
                 can_afford, _ = can_purchase_equipment(self.caller, key)
-                afford_indicator = "|g✓|n" if can_afford else "|r✗|n"
+                afford_indicator = "|gOK|n" if can_afford else "|rX|n"
                 
                 # Add item details
                 if item['type'] == 'weapon':
@@ -992,7 +992,7 @@ class CmdBuyConfig(MuxCommand, DeveloperMixin):
         output.append("  +buyconfig/reset                    - Reset to defaults")
         output.append(section_header("Resource Modes", width=78))
         output.append("  |wPool:|n Gain points each period; spend on items; can save up.")
-        output.append("  |wAbsolute:|n Buy any item Availability ≤ Resources merit; purchase limits apply.")
+        output.append("  |wAbsolute:|n Buy any item Availability <= Resources merit; purchase limits apply.")
         output.append(section_header("Examples", width=78))
         output.append("  +buyconfig/mode pool  +buyconfig/period 30  +buyconfig/bonus contacts 1")
         output.append(footer(width=78, char="="))

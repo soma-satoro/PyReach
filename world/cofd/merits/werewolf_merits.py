@@ -264,7 +264,7 @@ pack_merits = [
         name="Directed Rage",
         min_value=3,
         max_value=5,
-        description="Packs have found a way to direct their Rage-filled members anger at foes rather than friends. At ••• packmates suffering Wasu-Im act as if they were one step closer to harmony 5 for control time. At •••• Characters in Basu-Im may roll Resolve + Composure to prioritize attacking non-pack members. At ••••• Characters won't Target or pursue packmates so long as they aren't a threat and roll Resolve + Composure to ignore innocents",
+        description="Packs have found a way to direct their Rage-filled members anger at foes rather than friends. At --- packmates suffering Wasu-Im act as if they were one step closer to harmony 5 for control time. At ---- Characters in Basu-Im may roll Resolve + Composure to prioritize attacking non-pack members. At ----- Characters won't Target or pursue packmates so long as they aren't a threat and roll Resolve + Composure to ignore innocents",
         merit_type="supernatural",
         prerequisite=""
     ),
@@ -272,7 +272,7 @@ pack_merits = [
         name="Magnanimous Totem",
         min_value=2,
         max_value=4,
-        description="Wolf Blooded may take up to 5 dots in the Totem merit. Humans at ••• may take 1 dot of Totem, at •••• they may take up to 5",
+        description="Wolf Blooded may take up to 5 dots in the Totem merit. Humans at --- may take 1 dot of Totem, at ---- they may take up to 5",
         merit_type="supernatural",
         prerequisite=""
     ),
@@ -416,7 +416,7 @@ style_merits = [
         name="Favored Form",
         min_value=1,
         max_value=5,
-        description="You rely on one non-Hishu form more than others. For each dot in this Style, penalize one non-Social Attribute by one dot for an unchosen form. (•) Physical Skill: Favored form achieves exceptional success on threshold of three for chosen Skill. (••) Attribute: Favored form enhances chosen Attribute (except Manipulation) by additional dot. (•••) Facet: Favored form achieves exceptional success on threshold of three for chosen Facet. (••••) Attribute: Choose second Attribute for favored form to enhance by additional dot. (•••••) Advanced Skill: Favored form can roll chosen Skill actions twice, taking best result",
+        description="You rely on one non-Hishu form more than others. For each dot in this Style, penalize one non-Social Attribute by one dot for an unchosen form. (-) Physical Skill: Favored form achieves exceptional success on threshold of three for chosen Skill. (--) Attribute: Favored form enhances chosen Attribute (except Manipulation) by additional dot. (---) Facet: Favored form achieves exceptional success on threshold of three for chosen Facet. (----) Attribute: Choose second Attribute for favored form to enhance by additional dot. (-----) Advanced Skill: Favored form can roll chosen Skill actions twice, taking best result",
         merit_type="style",
         prerequisite="primal_urge:1"
     ),
@@ -424,7 +424,7 @@ style_merits = [
         name="Tactical Shifting",
         min_value=1,
         max_value=5,
-        description="These maneuvers require reflexive shapeshifting. (•) Springloading: Shift to smaller form at top of round for +2 Initiative and +5 Speed that turn. (••) Broaden: When you shift to larger form, non-Dodging characters in close range take difference in Size as bashing, must roll Dexterity + Athletics or be Knocked Down. (•••) Fluid Movement: When you shift to smaller form, penalize attacks against you by difference in Size that turn. (••••) Suck It Up: Shift to larger form when hit to ignore one point of non-aggravated damage from attack. (•••••) Crush: When you shift to larger form in grapple, inflict difference in Size as lethal damage",
+        description="These maneuvers require reflexive shapeshifting. (-) Springloading: Shift to smaller form at top of round for +2 Initiative and +5 Speed that turn. (--) Broaden: When you shift to larger form, non-Dodging characters in close range take difference in Size as bashing, must roll Dexterity + Athletics or be Knocked Down. (---) Fluid Movement: When you shift to smaller form, penalize attacks against you by difference in Size that turn. (----) Suck It Up: Shift to larger form when hit to ignore one point of non-aggravated damage from attack. (-----) Crush: When you shift to larger form in grapple, inflict difference in Size as lethal damage",
         merit_type="style",
         prerequisite="wits:3,dexterity:3,athletics:2"
     ),
@@ -432,7 +432,7 @@ style_merits = [
         name="Uma Suguthkuth",
         min_value=1,
         max_value=5,
-        description="A secret werewolf-killing art specific to the Lodge of Garm. Requires unarmed attacks or three-dot Garmir fetish weapon. (•) Essence Spasm: Spend Essence when damaging  victim suffers Primal Urge as Initiative penalty and loses 10-Again when rolling Primal Urge for scene. (••) Primal Wound: Spend Essence when damaging  victim can only regenerate as per Primal Urge 1 for one turn. (•••) Flense Shape: Spend Essence when damaging werewolf not in Death Rage, victim rolls Stamina + Resolve penalized by Primal Urge. Failure in Gauru reduces turns before Death Rage, failure in other forms forces shape change. (••••) Essence Bleed: Add Essence Bleed Tilt as option to inflict with called Brawl attack to head or Weaken the Prey in Urshul. Lasts three turns, victim spends Essence to no benefit. (•••••) Jaws of Garm: Spend Essence when damaging grappled werewolf who already suffers aggravated damage. Deal victim's Primal Urge in additional damage",
+        description="A secret werewolf-killing art specific to the Lodge of Garm. Requires unarmed attacks or three-dot Garmir fetish weapon. (-) Essence Spasm: Spend Essence when damaging  victim suffers Primal Urge as Initiative penalty and loses 10-Again when rolling Primal Urge for scene. (--) Primal Wound: Spend Essence when damaging  victim can only regenerate as per Primal Urge 1 for one turn. (---) Flense Shape: Spend Essence when damaging werewolf not in Death Rage, victim rolls Stamina + Resolve penalized by Primal Urge. Failure in Gauru reduces turns before Death Rage, failure in other forms forces shape change. (----) Essence Bleed: Add Essence Bleed Tilt as option to inflict with called Brawl attack to head or Weaken the Prey in Urshul. Lasts three turns, victim spends Essence to no benefit. (-----) Jaws of Garm: Spend Essence when damaging grappled werewolf who already suffers aggravated damage. Deal victim's Primal Urge in additional damage",
         merit_type="style",
         prerequisite="lodge:garm,strength:3,brawl:4"
     ),

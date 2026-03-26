@@ -551,11 +551,11 @@ range_types = {
 # Availability definitions
 availability_costs = {
     0: "Free/No cost",
-    1: "• (1 Resources dot or appropriate Social Merit)",
-    2: "•• (2 Resources dots or appropriate Social Merit)", 
-    3: "••• (3 Resources dots or appropriate Social Merit)",
-    4: "•••• (4 Resources dots or appropriate Social Merit)",
-    5: "••••• (5 Resources dots or appropriate Social Merit)"
+    1: "* (1 Resources dot or appropriate Social Merit)",
+    2: "** (2 Resources dots or appropriate Social Merit)", 
+    3: "*** (3 Resources dots or appropriate Social Merit)",
+    4: "**** (4 Resources dots or appropriate Social Merit)",
+    5: "***** (5 Resources dots or appropriate Social Merit)"
 }
 
 # ========================================

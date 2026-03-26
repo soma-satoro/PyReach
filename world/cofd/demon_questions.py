@@ -61,7 +61,7 @@ def format_demon_questions_display(character):
         question = question_data["question"]
         answer = character.db.demon_questions.get(key, "<not answered>")
         
-        output.append(f"|c• {question}|n")
+        output.append(f"|c- {question}|n")
         output.append(f"  {answer}")
         output.append("")
     

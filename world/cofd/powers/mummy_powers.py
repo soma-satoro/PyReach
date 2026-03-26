@@ -29,7 +29,7 @@ MUMMY_AFFINITIES = {
     "pillar_of_destiny": {
         "name": "Pillar of Destiny",
         "pillar": "All",
-        "description": "Generally have good fortune, spend ○ to ignore supernatural ill fortune",
+        "description": "Generally have good fortune, spend o to ignore supernatural ill fortune",
         "source": "BoLD p57"
     },
     
@@ -55,7 +55,7 @@ MUMMY_AFFINITIES = {
     "death_mask": {
         "name": "Death Mask",
         "pillar": "Ab",
-        "description": "Hide the Sahu, costs ○ if used during Epic Utterance, can reduce spread of Sybaris",
+        "description": "Hide the Sahu, costs o if used during Epic Utterance, can reduce spread of Sybaris",
         "source": "MtC2e p124"
     },
     "divine_countenance": {
@@ -67,7 +67,7 @@ MUMMY_AFFINITIES = {
     "red_chains_of_sacrifice": {
         "name": "Red Chains of Sacrifice",
         "pillar": "Ab",
-        "description": "Spend ○ to shift the target of an attack to a cultist or someone unaware of the danger nearby",
+        "description": "Spend o to shift the target of an attack to a cultist or someone unaware of the danger nearby",
         "source": "BoLD p57"
     },
     "soulsight": {
@@ -85,7 +85,7 @@ MUMMY_AFFINITIES = {
     "voice_of_conscience": {
         "name": "Voice of Conscience",
         "pillar": "Ab",
-        "description": "Add Ab to Social rolls to appeal to target's Virtue, can spend ○ if successful to open all Doors at once",
+        "description": "Add Ab to Social rolls to appeal to target's Virtue, can spend o if successful to open all Doors at once",
         "source": "MtC2e p125"
     },
     
@@ -105,7 +105,7 @@ MUMMY_AFFINITIES = {
     "chariot_of_judgment": {
         "name": "Chariot of Judgment",
         "pillar": "Ba",
-        "description": "Spend ○ to make a vehicle into a moving weapon",
+        "description": "Spend o to make a vehicle into a moving weapon",
         "source": "MtC2e p125"
     },
     "coax_the_flames_of_brilliance": {
@@ -129,7 +129,7 @@ MUMMY_AFFINITIES = {
     "swift_as_the_sun": {
         "name": "Swift As The Sun",
         "pillar": "Ba",
-        "description": "Gain Defense against firearms attacks, double speed and can triple instead by spending ○ for a scene. Can spend o to make a non-Utterance-non-attack Instant action Reflexive instead",
+        "description": "Gain Defense against firearms attacks, double speed and can triple instead by spending o for a scene. Can spend o to make a non-Utterance-non-attack Instant action Reflexive instead",
         "source": "MtC2e p126"
     },
     "thousand_paths_serve_the_pharaoh": {
@@ -173,7 +173,7 @@ MUMMY_AFFINITIES = {
     "guardian_wrath": {
         "name": "Guardian Wrath",
         "pillar": "Ka",
-        "description": "Add Ka to unarmed attacks, which also become Lethal. Can spend ○ once/scene to inflict Arm Wrack, Leg Wrack or Blinded on melee hit",
+        "description": "Add Ka to unarmed attacks, which also become Lethal. Can spend o once/scene to inflict Arm Wrack, Leg Wrack or Blinded on melee hit",
         "source": "MtC2e p127"
     },
     "living_monolith": {
@@ -185,13 +185,13 @@ MUMMY_AFFINITIES = {
     "rest_beneath_the_turquoise_trees": {
         "name": "Rest Beneath The Turquoise Trees",
         "pillar": "Ka",
-        "description": "Characters in your presence recover from fatigue faster, regain an additional willpower when they would do so, provide a Ka penalty to those searching for them and with a touch and a ○ treat someone as weightless as long as you have no ill intent against them",
+        "description": "Characters in your presence recover from fatigue faster, regain an additional willpower when they would do so, provide a Ka penalty to those searching for them and with a touch and a o treat someone as weightless as long as you have no ill intent against them",
         "source": "BoLD p58"
     },
     "retributive_curse": {
         "name": "Retributive Curse",
         "pillar": "Ka",
-        "description": "Reflexively spend ○ to make a target's next roll a Blighted Action, or do so at no cost if target damaged you. Rolls to harm you while defenseless are Blighted. When you die, aggressors are Cursed",
+        "description": "Reflexively spend o to make a target's next roll a Blighted Action, or do so at no cost if target damaged you. Rolls to harm you while defenseless are Blighted. When you die, aggressors are Cursed",
         "source": "MtC2e p127"
     },
     "towering_perspective": {
@@ -223,7 +223,7 @@ MUMMY_AFFINITIES = {
     "familiar_face": {
         "name": "Familiar Face",
         "pillar": "Ren",
-        "description": "Spend ○ to improve impression rating with a mortal by Ren for a scene",
+        "description": "Spend o to improve impression rating with a mortal by Ren for a scene",
         "source": "MtC2e p127"
     },
     "godsight": {
@@ -235,7 +235,7 @@ MUMMY_AFFINITIES = {
     "radiant_life_force": {
         "name": "Radiant Life Force",
         "pillar": "Ren",
-        "description": "Add Ren to Medicine and can stabilize subjects with a touch. Living beings heal twice as fast near you and your cultists heal 1B/turn, if you wish it. Can spend ○ as an action to end a supernatural or mental condition on yourself",
+        "description": "Add Ren to Medicine and can stabilize subjects with a touch. Living beings heal twice as fast near you and your cultists heal 1B/turn, if you wish it. Can spend o as an action to end a supernatural or mental condition on yourself",
         "source": "MtC2e p128"
     },
     "scroll_of_flayed_truths": {
@@ -247,7 +247,7 @@ MUMMY_AFFINITIES = {
     "soul_threads": {
         "name": "Soul Threads",
         "pillar": "Ren",
-        "description": "Spend ○ to monitor the state and location of those you see in the current scene, up to 2x Ren targets. For the rest of the story, add Ren to rolls to avoid notice of subjects and add Ren to rolls to reach the subject",
+        "description": "Spend o to monitor the state and location of those you see in the current scene, up to 2x Ren targets. For the rest of the story, add Ren to rolls to avoid notice of subjects and add Ren to rolls to reach the subject",
         "source": "MtC2e p128"
     },
     "verdigris_chains_of_deceit": {
@@ -267,7 +267,7 @@ MUMMY_AFFINITIES = {
     "beast_soul_fury": {
         "name": "Beast Soul Fury",
         "pillar": "Sheut",
-        "description": "Use higher or Wits or Dexterity for defense, impart a Sheut penalty to influence your mind, take a Sheut bonus to see through illusions and spend ○ in combat to ambush your foes",
+        "description": "Use higher or Wits or Dexterity for defense, impart a Sheut penalty to influence your mind, take a Sheut bonus to see through illusions and spend o in combat to ambush your foes",
         "source": "BoLD p58"
     },
     "by_steps_unseen": {
@@ -325,7 +325,7 @@ MUMMY_AFFINITIES = {
         "name": "Amulet of the Envoy",
         "pillar": "Maa-Kep",
         "guild": "Maa-Kep",
-        "description": "Can craft amulet that gives +2 to Streetwise and Subterfuge, and alerts wearer when a member of a different guild is nearby. Others must spend ○ the first time they try to attack you each scene. Can spend ○ once per scene to inflict Mute on a subject you can see",
+        "description": "Can craft amulet that gives +2 to Streetwise and Subterfuge, and alerts wearer when a member of a different guild is nearby. Others must spend o the first time they try to attack you each scene. Can spend o once per scene to inflict Mute on a subject you can see",
         "source": "MtC2e p129"
     },
     "nexus_of_the_soul": {
@@ -371,7 +371,7 @@ MUMMY_AFFINITIES = {
         "name": "Master of the Written Word",
         "pillar": "Sesha-Hebsu",
         "guild": "Sesha-Hebsu",
-        "description": "May make your writing invisible until a ritual is enacted. May spend o to provide sincere warnings that should be obeyed. Can spend ○ as instant action to copy any text",
+        "description": "May make your writing invisible until a ritual is enacted. May spend o to provide sincere warnings that should be obeyed. Can spend o as instant action to copy any text",
         "source": "MtC2e p130"
     },
     "loremasters_guile": {
@@ -401,7 +401,7 @@ MUMMY_AFFINITIES = {
         "name": "Blazing Zeal",
         "pillar": "Su-Menent",
         "guild": "Su-Menent",
-        "description": "When nearby your cultists are immune to fear and gain +2 to rolls to resist supernatural effects. May spend ○ as an action to cause mortals to flee in fear for turns equal to defining pillar",
+        "description": "When nearby your cultists are immune to fear and gain +2 to rolls to resist supernatural effects. May spend o as an action to cause mortals to flee in fear for turns equal to defining pillar",
         "source": "MtC2e p130"
     },
     
@@ -440,7 +440,7 @@ MUMMY_AFFINITIES = {
         "name": "As Whispers In The Night",
         "pillar": "Akhem-Urtu",
         "guild": "Akhem-Urtu",
-        "description": "If your nature is revealed, give false information. Spend ○ to Blight an action to know you. Spend ○ if you know the name of someone pursuing you to obstruct them",
+        "description": "If your nature is revealed, give false information. Spend o to Blight an action to know you. Spend o if you know the name of someone pursuing you to obstruct them",
         "source": "BoLD p59"
     },
     
@@ -465,14 +465,14 @@ MUMMY_AFFINITIES = {
         "name": "Flesh-Splitting Canker Rejuvenation",
         "pillar": "Maar-Kherit",
         "guild": "Maar-Kherit",
-        "description": "Heal faster and with ○, turn lethal damage into armor or healing physical tilts",
+        "description": "Heal faster and with o, turn lethal damage into armor or healing physical tilts",
         "source": "BoLD p60"
     },
     "harvest_of_profane_fecundity": {
         "name": "Harvest of Profane Fecundity",
         "pillar": "Maar-Kherit",
         "guild": "Maar-Kherit",
-        "description": "See and identify diseases and parasites. Spend ○ to either heal with a touch or inflict a grave illness",
+        "description": "See and identify diseases and parasites. Spend o to either heal with a touch or inflict a grave illness",
         "source": "BoLD p60"
     },
     
@@ -481,14 +481,14 @@ MUMMY_AFFINITIES = {
         "name": "Ominous Harbinger",
         "pillar": "Wadjet-Itja",
         "guild": "Wadjet-Itja",
-        "description": "Gain the Omen Sensitivity Merit. Spend ○ to see a mortal's death and gain their years if you hasten that death indirectly",
+        "description": "Gain the Omen Sensitivity Merit. Spend o to see a mortal's death and gain their years if you hasten that death indirectly",
         "source": "BoLD p60"
     },
     "tricksters_wager": {
         "name": "Trickster's Wager",
         "pillar": "Wadjet-Itja",
         "guild": "Wadjet-Itja",
-        "description": "You add your pillar to all rolls to gamble and cheat, blight any attempts to cheat, and spend ○ to turn the stake into years of life",
+        "description": "You add your pillar to all rolls to gamble and cheat, blight any attempts to cheat, and spend o to turn the stake into years of life",
         "source": "BoLD p60"
     },
 }

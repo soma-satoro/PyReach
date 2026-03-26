@@ -152,7 +152,7 @@ WOLF_RITES = {
         "rite_type": "wolf",
         "rank": 4,
         "prerequisites": None,
-        "cost": "● per dot",
+        "cost": "* per dot",
         "description": "Create a fetish by binding a spirit within an item.",
         "book": "WTF 2e 141"
     },
@@ -170,7 +170,7 @@ WOLF_RITES = {
         "rite_type": "wolf",
         "rank": 4,
         "prerequisites": None,
-        "cost": "●●●",
+        "cost": "***",
         "description": "Hurl beings out of Twilight for at least an hour.",
         "book": "WTF 2e 141-142"
     },
@@ -188,7 +188,7 @@ WOLF_RITES = {
         "rite_type": "wolf",
         "rank": 5,
         "prerequisites": None,
-        "cost": "● per pack",
+        "cost": "* per pack",
         "description": "Join packs together mystically for a month or until a shared quarry is brought low.",
         "book": "WTF 2e 142"
     },
@@ -197,7 +197,7 @@ WOLF_RITES = {
         "rite_type": "wolf",
         "rank": 5,
         "prerequisites": None,
-        "cost": "●●●●●",
+        "cost": "*****",
         "description": "One werewolf is singled out of the pack until sunrise. Her claws and teeth deal aggravated damage to Uratha.",
         "book": "WTF 2e 142"
     },
@@ -206,7 +206,7 @@ WOLF_RITES = {
         "rite_type": "wolf",
         "rank": 5,
         "prerequisites": "Iron Master",
-        "cost": "●●●●●",
+        "cost": "*****",
         "description": "Spirits destroy records of a recent supernatural event.",
         "book": "WTF 2e 142"
     }
@@ -266,7 +266,7 @@ PACK_RITES = {
         "rite_type": "pack",
         "rank": 2,
         "prerequisites": None,
-        "cost": "● per 10 subjects",
+        "cost": "* per 10 subjects",
         "description": "Contain a spirit of lightning to render your legion Indomitable so long as they remain silent and you spend no Essence, after which you release a berserker rage.",
         "book": "DEC 80"
     },
@@ -275,7 +275,7 @@ PACK_RITES = {
         "rite_type": "pack",
         "rank": 2,
         "prerequisites": None,
-        "cost": "●+ per court",
+        "cost": "*+ per court",
         "description": "Feed participating spirit courts with Essence, after which they suffer -5 to Reach for up to a season.",
         "book": "DE 165"
     },
@@ -365,7 +365,7 @@ PACK_RITES = {
         "rite_type": "pack",
         "rank": 5,
         "prerequisites": "Fire-Touched",
-        "cost": "● x 10",
+        "cost": "* x 10",
         "description": "Inflict a penalty to non-packmates in the Shadow, and attacks and abilities used against packmates are also penalised.",
         "book": "NH-SM 20"
     },

@@ -46,9 +46,9 @@ def test_special_character_processing():
         result = process_special_characters(input_text)
         
         if result == expected:
-            print(f"✓ Test {i+1} passed")
+            print(f"OK Test {i+1} passed")
         else:
-            print(f"✗ Test {i+1} failed")
+            print(f"X Test {i+1} failed")
             print(f"  Input: {repr(input_text)}")
             print(f"  Expected: {repr(expected)}")
             print(f"  Got: {repr(result)}")

@@ -102,7 +102,7 @@ WOLFBLOODED_TELLS = {
         "boon": ("The familiar is a smart example of its type, but doesn't exhibit unnatural intelligence. It is loyal to "
                 "the Wolf-Blooded. If a spirit, the familiar is a Hursih. If an animal, it can be anything up to the size "
                 "of a small dog. It's not hostile to the Wolf-Blooded, but doesn't always help her. When the Wolf-Blooded "
-                "takes damage, the first point is instead dealt to the familiar — unless that would kill the creature."),
+                "takes damage, the first point is instead dealt to the familiar - unless that would kill the creature."),
         "book": "Signs of the Moon"
     },
     "fuck_ugly": {
@@ -238,7 +238,7 @@ WOLFBLOODED_TELLS = {
     },
     "spirit_double": {
         "name": "Spirit Double",
-        "description": ("When under stress, or frustration — or sometimes just at random — the Wolf-Blooded doesn't sleep. "
+        "description": ("When under stress, or frustration - or sometimes just at random - the Wolf-Blooded doesn't sleep. "
                        "Instead, her spirit leaves her body and runs around causing mischief and violence, as if her id were "
                        "in control. Her spirit runs wild any time the character falls asleep with half of her total Willpower "
                        "or less. In the morning, she's sore and achy, but often fulfilled. She wakes with only fuzzy memories "
