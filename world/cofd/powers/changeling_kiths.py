@@ -16,10 +16,10 @@ ALL_KITHS = {'artist': {'name': 'Artist',
                            'ink-veins, pigment streaks, or tool-callused hands. Freeholds rely on them for inspired '
                            'creation but learn quickly not to interrupt their process at the wrong moment.',
             'blessing': 'Tools of the Trade: choose Crafts or Expression and an art Specialty. When using that '
-                        'Specialty, three successes count as an exceptional success; by spending 1 Glamour, your tools '
-                        'and materials manifest for a scene and grant bonus dice equal to Wyrd (maximum +5) on '
-                        "relevant creation rolls. This blessing models the Artist's compulsive preparedness: tools "
-                        'appear when inspiration hits, and technical focus spikes under pressure.',
+                        'Specialty, three successes count as an exceptional success; by spending 1 Glamour, the '
+                        "character's tools and materials manifest for a scene and grant bonus dice equal to Wyrd "
+                        "(maximum +5) on relevant creation rolls. This blessing models the Artist's compulsive "
+                        'preparedness: tools appear when inspiration hits, and technical focus spikes under pressure.',
             'book': 'CTL 2e 51'},
  'bright_one': {'name': 'Bright One',
                 'skill': 'Socialize',
@@ -32,10 +32,11 @@ ALL_KITHS = {'artist': {'name': 'Artist',
                                'exactly the right second. In modern freeholds, they are both magnetic social anchors '
                                'and dangerous emotional accelerants.',
                 'blessing': 'Flare: when using Socialize to become the center of attention, three successes count as '
-                            'exceptional. By spending 1 Glamour, you intensify your glow to blinding brilliance for a '
-                            'turn; visible enemies who can see you take bashing damage and suffer a -2 penalty on '
-                            'Physical and Mental actions. Used well, it turns social spotlight into battlefield '
-                            'control, punishing enemies who underestimate presence as a weapon.',
+                            "exceptional. By spending 1 Glamour, the character intensify the character's glow to "
+                            'blinding brilliance for a turn; visible enemies who can see the character take bashing '
+                            'damage and suffer a -2 penalty on Physical and Mental actions. Used well, it turns social '
+                            'spotlight into battlefield control, punishing enemies who underestimate presence as a '
+                            'weapon.',
                 'book': 'CTL 2e 52'},
  'chatelaine': {'name': 'Chatelaine',
                 'skill': 'Empathy',
@@ -49,9 +50,10 @@ ALL_KITHS = {'artist': {'name': 'Artist',
                                'control, and self-worth remain tangled themes in their lives.',
                 'blessing': "Will That Be All?: when using Empathy to read a target's immediate desires, three "
                             'successes count as exceptional. Spend 1 Glamour and roll Manipulation + Socialize to '
-                            "temporarily use one other character's Social Merits as if your own for the scene, with "
-                            'events remembered as though that target used them. It captures how a Chatelaine survives '
-                            'through systems, protocol, and borrowed status rather than raw authority.',
+                            "temporarily use one other character's Social Merits as if the character's own for the "
+                            'scene, with events remembered as though that target used them. It captures how a '
+                            'Chatelaine survives through systems, protocol, and borrowed status rather than raw '
+                            'authority.',
                 'book': 'CTL 2e 52'},
  'gristlegrinder': {'name': 'Gristlegrinder',
                     'skill': 'Brawl',
@@ -64,12 +66,12 @@ ALL_KITHS = {'artist': {'name': 'Artist',
                                    'what they will or will not eat follow them through every court. The kindest among '
                                    'them work hard to prove they are more than the role Arcadia carved into their '
                                    'jaws.',
-                    'blessing': 'To Serve Man: when grappling to feed, three Brawl successes count as exceptional. You '
-                                'can make lethal bite attacks without grappling first, and by spending 1 Glamour and '
-                                'rolling Stamina + Survival you may swallow smaller targets whole; those inside take '
-                                'ongoing lethal damage and must inflict major internal harm to escape. The blessing '
-                                'makes hunger tactically concrete, combining close-quarters lethality with terrifying '
-                                'control once a target is seized.',
+                    'blessing': 'To Serve Man: when grappling to feed, three Brawl successes count as exceptional. The '
+                                'character can make lethal bite attacks without grappling first, and by spending 1 '
+                                'Glamour and rolling Stamina + Survival the character may swallow smaller targets '
+                                'whole; those inside take ongoing lethal damage and must inflict major internal harm '
+                                'to escape. The blessing makes hunger tactically concrete, combining close-quarters '
+                                'lethality with terrifying control once a target is seized.',
                     'book': 'CTL 2e 53'},
  'helldiver': {'name': 'Helldiver',
                'skill': 'Larceny',
@@ -99,11 +101,11 @@ ALL_KITHS = {'artist': {'name': 'Artist',
                                 'often through perfect patience. What matters is the chase, the strike, and never '
                                 'surrendering the trail.',
                  'blessing': 'Pounce: choose Investigation or Survival; when using the chosen Skill to track fae '
-                             'beings, three successes count as exceptional. If a target can meet your gaze, spend 1 '
-                             'Glamour and contest Presence + Wyrd against Composure + Tolerance to inflict either '
-                             'Insensate or Frightened, and your unarmed attacks against that prey become lethal. '
-                             'Pounce blends predatory fear and finishing force, making first contact and eye-line '
-                             'positioning crucial to success.',
+                             "beings, three successes count as exceptional. If a target can meet the character's gaze, "
+                             'spend 1 Glamour and contest Presence + Wyrd against Composure + Tolerance to inflict '
+                             "either Insensate or Frightened, and the character's unarmed attacks against that prey "
+                             'become lethal. Pounce blends predatory fear and finishing force, making first contact '
+                             'and eye-line positioning crucial to success.',
                  'book': 'CTL 2e 54'},
  'leechfinger': {'name': 'Leechfinger',
                  'skill': 'Medicine',
@@ -117,9 +119,10 @@ ALL_KITHS = {'artist': {'name': 'Artist',
                                 'length.',
                  'blessing': "Sap the Vital Spark: when using Medicine to assess a target's health, three successes "
                              'count as exceptional. By maintaining physical contact for a full turn and spending 1 '
-                             'Glamour, you deal bashing damage and heal yourself by downgrading damage; against '
-                             'changelings, both inflicted and healed amounts double. Sap mechanics reinforce the '
-                             "kith's duality: predation and restoration share the same touch and the same moral risk.",
+                             'Glamour, the character deal bashing damage and heal themself by downgrading damage; '
+                             'against changelings, both inflicted and healed amounts double. Sap mechanics reinforce '
+                             "the kith's duality: predation and restoration share the same touch and the same moral "
+                             'risk.',
                  'book': 'CTL 2e 55'},
  'mirrorskin': {'name': 'Mirrorskin',
                 'skill': 'Stealth',
@@ -132,10 +135,11 @@ ALL_KITHS = {'artist': {'name': 'Artist',
                                'with frightening ease. Their hardest work is often not becoming someone else, but '
                                'deciding who they are when nobody is watching.',
                 'blessing': 'Mercurial Visage: when using Stealth while disguised, three successes count as '
-                            'exceptional. Spend 1 Glamour and roll Wits + Subterfuge + Wyrd to reshape your Mask into '
-                            'a new composite identity; for an additional Glamour you can reshape your mien as well, '
-                            'with supernatural detection resolved by Clash of Wills. Mercurial Visage is strongest in '
-                            'social infiltration chronicles where identity itself becomes terrain.',
+                            "exceptional. Spend 1 Glamour and roll Wits + Subterfuge + Wyrd to reshape the character's "
+                            'Mask into a new composite identity; for an additional Glamour the character can reshape '
+                            "the character's mien as well, with supernatural detection resolved by Clash of Wills. "
+                            'Mercurial Visage is strongest in social infiltration chronicles where identity itself '
+                            'becomes terrain.',
                 'book': 'CTL 2e 55'},
  'nightsinger': {'name': 'Nightsinger',
                  'skill': 'Expression',
@@ -150,9 +154,9 @@ ALL_KITHS = {'artist': {'name': 'Artist',
                  'blessing': 'Siren Song: when singing or composing with Expression, three successes count as '
                              'exceptional. Spend 1 Glamour and roll Presence + Expression + Wyrd contested by '
                              "listeners' Composure + Tolerance; those who fail become Swooned and rooted in place "
-                             'while your song continues, unless disrupted by counter-magic, heavy harm, or blocked '
-                             'hearing. Siren Song rewards control of line of hearing and scene pacing, often ending '
-                             'fights before blows are traded.',
+                             "while the character's song continues, unless disrupted by counter-magic, heavy harm, or "
+                             'blocked hearing. Siren Song rewards control of line of hearing and scene pacing, often '
+                             'ending fights before blows are traded.',
                  'book': 'CTL 2e 56'},
  'notary': {'name': 'Notary',
             'skill': 'Politics',
@@ -164,10 +168,10 @@ ALL_KITHS = {'artist': {'name': 'Artist',
                            'as strategic assets in oath-driven politics. A single clause remembered at the right '
                            'moment can save a motley or doom a monarch.',
             'blessing': 'Abatement: when negotiating, reading, or interpreting fae pledges with Politics, three '
-                        'successes count as exceptional. Once per chapter, if you officiate a pledge, you may negate '
-                        'its Glamour cost entirely and thereafter recite its exact terms from perfect memory for as '
-                        'long as the pledge persists. Abatement can shift entire pledge economies in a chronicle, '
-                        'especially where formal bargains drive politics.',
+                        'successes count as exceptional. Once per chapter, if the character officiate a pledge, the '
+                        'character may negate its Glamour cost entirely and thereafter recite its exact terms from '
+                        'perfect memory for as long as the pledge persists. Abatement can shift entire pledge '
+                        'economies in a chronicle, especially where formal bargains drive politics.',
             'book': 'CTL 2e 57'},
  'playmate': {'name': 'Playmate',
               'skill': 'Persuasion',
@@ -179,11 +183,11 @@ ALL_KITHS = {'artist': {'name': 'Artist',
                              'generosity. Their blessing makes them precious in any crisis, but the personal cost can '
                              'be devastating. Motley bonds frequently become the first place they relearn chosen, '
                              'healthy attachment.',
-              'blessing': 'Coeur Loyal: when using Persuasion to make someone like you or your allies, three successes '
-                          'count as exceptional. By touching a target and spending 1 Glamour, you instantly heal their '
-                          'bashing or lethal wounds and take equivalent mild or severe Clarity damage yourself, '
-                          'potentially to the point of self-loss. Coeur Loyal offers extreme triage power, but the '
-                          'Clarity cost keeps the blessing tragic and narratively sharp.',
+              'blessing': "Coeur Loyal: when using Persuasion to make someone like the character or the character's "
+                          'allies, three successes count as exceptional. By touching a target and spending 1 Glamour, '
+                          'the character instantly heal their bashing or lethal wounds and take equivalent mild or '
+                          'severe Clarity damage themself, potentially to the point of self-loss. Coeur Loyal offers '
+                          'extreme triage power, but the Clarity cost keeps the blessing tragic and narratively sharp.',
               'book': 'CTL 2e 57'},
  'snowskin': {'name': 'Snowskin',
               'skill': 'Subterfuge',
@@ -194,11 +198,11 @@ ALL_KITHS = {'artist': {'name': 'Artist',
                              'survived by freezing affect and narrowing trust to what could not betray them. That '
                              'strategy remains effective, but socially isolating, after escape. Behind the cold '
                              'presentation, many hide fierce loyalty to the few they finally allow close.',
-              'blessing': 'Heart of Ice: when using Subterfuge to hide your feelings, three successes count as '
-                          'exceptional. Spend 1 Glamour and roll Presence + Intimidation + Wyrd contested by Composure '
-                          '+ Tolerance to inflict Shaken and impose social penalties among changelings, freezing a '
-                          'target out with public disdain. Heart of Ice weaponizes social exclusion, making reputation '
-                          'damage as dangerous as physical harm in changeling courts.',
+              'blessing': "Heart of Ice: when using Subterfuge to hide the character's feelings, three successes count "
+                          'as exceptional. Spend 1 Glamour and roll Presence + Intimidation + Wyrd contested by '
+                          'Composure + Tolerance to inflict Shaken and impose social penalties among changelings, '
+                          'freezing a target out with public disdain. Heart of Ice weaponizes social exclusion, making '
+                          'reputation damage as dangerous as physical harm in changeling courts.',
               'book': 'CTL 2e 58'},
  'absinthial': {'name': 'Absinthial',
                 'skill': 'Crafts',
@@ -209,14 +213,13 @@ ALL_KITHS = {'artist': {'name': 'Artist',
                                'and hallucination. Absinthials were made to brew dreams into impossible absinthe, and '
                                'many escaped while their Keepers were incapacitated by ecstatic visions. In mortal '
                                'life they often become obsessive brewers, exacting hosts, and volatile aesthetes who '
-                               'treat criticism as an existential insult. Storytellers can foreground this kith by '
-                               'presenting scenes where its role, trauma, and social reputation all matter at once.',
+                               'treat criticism as an existential insult.',
                 'blessing': "Green Fairy's Curse: once per scene, spend 1 Glamour and touch a target, then roll "
-                            'Presence + Crafts + Wyrd contested by Composure + Tolerance. On success, your victim is '
-                            'overwhelmed by intoxicating visions and rendered Insensate; when the effect ends, they '
-                            'stagger back with the Confused Condition as dream and waking reality untangle. Green '
-                            "Fairy's Curse combines social contact with incapacitating control, making touch-range "
-                            'setup and timing critical.',
+                            "Presence + Crafts + Wyrd contested by Composure + Tolerance. On success, the character's "
+                            'victim is overwhelmed by intoxicating visions and rendered Insensate; when the effect '
+                            'ends, they stagger back with the Confused Condition as dream and waking reality untangle. '
+                            "Green Fairy's Curse combines social contact with incapacitating control, making "
+                            'touch-range setup and timing critical.',
                 'book': 'Kith 88'},
  'climacteric': {'name': 'Climacteric',
                  'skill': 'Investigation',
@@ -227,14 +230,13 @@ ALL_KITHS = {'artist': {'name': 'Artist',
                                 'both priceless tactical assets and dangerous beacons for Huntsmen. Climacterics once '
                                 'managed weather and time cues for Arcadian pageantry, from candlelit nightfall to '
                                 'staged dawns. Freeholds value their strategic timing but often fear the attention '
-                                'their powers attract from Huntsmen and old enemies. Storytellers can foreground this '
-                                'kith by presenting scenes where its role, trauma, and social reputation all matter at '
-                                'once.',
-                 'blessing': 'En Prise: whenever anyone rolls Initiative and you are present, you may spend 1 Glamour '
-                             'to choose one other character to act at the top of the order without rolling. You cannot '
-                             'choose yourself, but you can decisively shape the first beat of a conflict and force the '
-                             'scene to begin on your terms. En Prise excels in initiative economies, enabling decisive '
-                             'openers without requiring the Climacteric to act first personally.',
+                                'their powers attract from Huntsmen and old enemies.',
+                 'blessing': 'En Prise: whenever anyone rolls Initiative and the character is present, the character '
+                             'may spend 1 Glamour to choose one other character to act at the top of the order without '
+                             'rolling. The character cannot choose themself, but the character can decisively shape '
+                             "the first beat of a conflict and force the scene to begin on the character's terms. En "
+                             'Prise excels in initiative economies, enabling decisive openers without requiring the '
+                             'Climacteric to act first personally.',
                  'book': 'Kith 88'},
  'concubus': {'name': 'Concubus',
               'skill': 'Empathy',
@@ -245,14 +247,14 @@ ALL_KITHS = {'artist': {'name': 'Artist',
                              'Gentry dreams that no one else can truly understand. Concubi endured nocturnal intimacy '
                              'with alien minds and long daylight isolation, leaving them uniquely skilled but deeply '
                              'scarred oneiromancers. Many become therapists, courtesans, or dream-guardians for other '
-                             'Lost despite suspicion from harder-line courts. Storytellers can foreground this kith by '
-                             'presenting scenes where its role, trauma, and social reputation all matter at once.',
-              'blessing': 'Valerian and Violence: when you gain Dream Infiltrator by sleeping beside a dreamer and '
-                          'working in their Bastion, you can remove one suitable non-persistent mental Condition with '
-                          'a successful paradigm shift. Persistent healing is possible through repeated nights, '
-                          'repeated access, and sustained oneiromantic intervention, making you one of the strongest '
-                          'long-term dream healers in the freehold. Valerian and Violence is long-horizon healing '
-                          'through dream access, rewarding sustained consent-based oneiromancy scenes.',
+                             'Lost despite suspicion from harder-line courts.',
+              'blessing': 'Valerian and Violence: when the character gains Dream Infiltrator by sleeping beside a '
+                          'dreamer and working in their Bastion, the character can remove one suitable non-persistent '
+                          'mental Condition with a successful paradigm shift. Persistent healing is possible through '
+                          'repeated nights, repeated access, and sustained oneiromantic intervention, making the '
+                          'character one of the strongest long-term dream healers in the freehold. Valerian and '
+                          'Violence is long-horizon healing through dream access, rewarding sustained consent-based '
+                          'oneiromancy scenes.',
               'book': 'Kith 89'},
  'draconic': {'name': 'Draconic',
               'skill': 'Brawl/Weaponry',
@@ -262,15 +264,13 @@ ALL_KITHS = {'artist': {'name': 'Artist',
                              'motley they become fierce, loyal guardians of people, places, and treasured things they '
                              'call home. Draconics were shaped as guardian beasts for hoards, towers, and favored '
                              'captives, and many still organize their lives around territory and protection. They can '
-                             'seem overwhelming at first contact, but are fiercely loyal once trust is earned. '
-                             'Storytellers can foreground this kith by presenting scenes where its role, trauma, and '
-                             'social reputation all matter at once.',
-              'blessing': 'None Dare Resist: while your mien is revealed, you may spend extra Glamour to roar, '
-                          'posture, or otherwise assert dominance and inflict fear on everyone who can perceive you. '
-                          'You can also spend Glamour to take wing and fly briefly at supernatural speed, including '
-                          'devastating aerial charges, before gliding safely down when the blessing ends. None Dare '
-                          'Resist turns revealed mien into area fear pressure while adding short-burst aerial mobility '
-                          'for tactical spikes.',
+                             'seem overwhelming at first contact, but are fiercely loyal once trust is earned.',
+              'blessing': "None Dare Resist: while the character's mien is revealed, the character may spend extra "
+                          'Glamour to roar, posture, or otherwise assert dominance and inflict fear on everyone who '
+                          'can perceive the character. The character can also spend Glamour to take wing and fly '
+                          'briefly at supernatural speed, including devastating aerial charges, before gliding safely '
+                          'down when the blessing ends. None Dare Resist turns revealed mien into area fear pressure '
+                          'while adding short-burst aerial mobility for tactical spikes.',
               'book': 'Kith 90'},
  'flowering': {'name': 'Flowering',
                'skill': 'Socialize',
@@ -281,14 +281,13 @@ ALL_KITHS = {'artist': {'name': 'Artist',
                               "freehold's health or quietly bend it toward personal obsession. Flowerings were trained "
                               'to beautify others and can struggle with depersonalization after escape. Their scent '
                               'and social pull create dependency quickly, making them either stabilizing confidantes '
-                              'or subtle court-poisoners depending on intent. Storytellers can foreground this kith by '
-                              'presenting scenes where its role, trauma, and social reputation all matter at once.',
-               'blessing': 'Seductive Fragrance: spend 1 Glamour and roll Presence + Empathy to release your signature '
-                           'fae perfume for the scene. Others in your presence contest with Composure + Tolerance; '
-                           'those who fail gain Leveraged regarding you, and with another Glamour during the same '
-                           'scene you may inflict Frightened, Reckless, or Swooned on a Leveraged target. Seductive '
-                           'Fragrance creates scene-long leverage webs that can be escalated into targeted emotional '
-                           'conditions.',
+                              'or subtle court-poisoners depending on intent.',
+               'blessing': 'Seductive Fragrance: spend 1 Glamour and roll Presence + Empathy to release the '
+                           "character's signature fae perfume for the scene. Others in the character's presence "
+                           'contest with Composure + Tolerance; those who fail gain Leveraged regarding the character, '
+                           'and with another Glamour during the same scene the character may inflict Frightened, '
+                           'Reckless, or Swooned on a Leveraged target. Seductive Fragrance creates scene-long '
+                           'leverage webs that can be escalated into targeted emotional conditions.',
                'book': 'Kith 90'},
  'ghostheart': {'name': 'Ghostheart',
                 'skill': 'Perception',
@@ -299,14 +298,13 @@ ALL_KITHS = {'artist': {'name': 'Artist',
                                "the restless dead. Ghosthearts handled Arcadia's dead and returned with unusual "
                                'comfort around spirits and memory. Courts that shun them usually regret it, because a '
                                "Ghostheart's Twilight network can harass enemies, gather intelligence, and defend "
-                               'territory. Storytellers can foreground this kith by presenting scenes where its role, '
-                               'trauma, and social reputation all matter at once.',
+                               'territory.',
                 'blessing': 'Friends in Strange Places: begin play with three additional dots of Retainers represented '
-                            'by loyal or bound ghosts, each with chosen starting Numina from the allowed list. You may '
-                            'invest further Allies to expand those relationships, making your supernatural support '
-                            'network one of your defining strengths in both investigation and defense. Friends in '
-                            'Strange Places front-loads supernatural support through ghost retainers and customized '
-                            'utility.',
+                            'by loyal or bound ghosts, each with chosen starting Numina from the allowed list. The '
+                            "character may invest further Allies to expand those relationships, making the character's "
+                            "supernatural support network one of the character's defining strengths in both "
+                            'investigation and defense. Friends in Strange Places front-loads supernatural support '
+                            'through ghost retainers and customized utility.',
                 'book': 'Kith 91'},
  'moonborn': {'name': 'Moonborn',
               'skill': 'Empathy/Intimidation',
@@ -316,14 +314,13 @@ ALL_KITHS = {'artist': {'name': 'Artist',
                              'while others become dangerous bridge-burners who spread the same chaos once carved into '
                              'their own hearts. Moonborn were emotional test subjects kept in constant Bedlam, making '
                              'attachment and regulation lifelong battles. Many become protectors of new escapees, '
-                             'while others externalize that trauma and spread chaos in return. Storytellers can '
-                             'foreground this kith by presenting scenes where its role, trauma, and social reputation '
-                             'all matter at once.',
+                             'while others externalize that trauma and spread chaos in return.',
               'blessing': 'Full Moon Catharsis: once per chapter, spend 1 Glamour and roll Manipulation + Expression '
                           'to trigger mass emotional destabilization in up to Wyrd targets, contested by Composure + '
-                          'Tolerance. Those who fail gain one chosen emotional Condition, letting you weaponize your '
-                          'own remembered overwhelm as a controlled outburst. Full Moon Catharsis converts personal '
-                          'trauma memory into controlled mass emotional disruption once per chapter.',
+                          'Tolerance. Those who fail gain one chosen emotional Condition, letting the character '
+                          "weaponize the character's own remembered overwhelm as a controlled outburst. Full Moon "
+                          'Catharsis converts personal trauma memory into controlled mass emotional disruption once '
+                          'per chapter.',
               'book': 'Kith 92'},
  'uttervoice': {'name': 'Uttervoice',
                 'skill': 'Intimidation',
@@ -333,14 +330,13 @@ ALL_KITHS = {'artist': {'name': 'Artist',
                                'intimacy when ordinary communication can turn into collateral damage. Uttervoices were '
                                'forged from creative frustration into sonic weapons for fae warfare. Their social '
                                'lives are often marked by restraint, fear of collateral harm, and resentment at being '
-                               'reduced to a voice that hurts. Storytellers can foreground this kith by presenting '
-                               'scenes where its role, trauma, and social reputation all matter at once.',
+                               'reduced to a voice that hurts.',
                 'blessing': 'Scream of Agony: spend 1 Glamour and unleash a scream contested by Presence + Wyrd versus '
                             "listeners' Composure + Tolerance, dealing bashing damage on failure and potentially "
-                            'lethal on your exceptional success. You can sustain the scream by spending actions and '
-                            'Glamour, and the force can shatter weak glass and trigger accidentally on certain '
-                            'supernatural Presence rolls. Scream of Agony is high-collateral sonic force; positioning '
-                            'and ally safety are as important as raw output.',
+                            "lethal on the character's exceptional success. The character can sustain the scream by "
+                            'spending actions and Glamour, and the force can shatter weak glass and trigger '
+                            'accidentally on certain supernatural Presence rolls. Scream of Agony is high-collateral '
+                            'sonic force; positioning and ally safety are as important as raw output.',
                 'book': 'Kith 92'},
  'delver': {'name': 'Delver',
             'skill': 'Investigation',
@@ -350,15 +346,13 @@ ALL_KITHS = {'artist': {'name': 'Artist',
                            'maintain hard-earned solidarity through coded vibration speech carried through the earth '
                            'itself. Delvers mined impossible wealth and secrets in isolation, often giving up pieces '
                            'of self in the process. Their underground communication culture and patience make them '
-                           'excellent investigators, smugglers, and long-game operators. Storytellers can foreground '
-                           'this kith by presenting scenes where its role, trauma, and social reputation all matter at '
-                           'once.',
+                           'excellent investigators, smugglers, and long-game operators.',
             'blessing': 'Tappingspeak: spend 1 Glamour to send encrypted tapped messages through earth-connected '
                         'surfaces to declared recipients within Wyrd miles, with instinctive understanding for '
                         'intended listeners. Other Delvers can intercept and decode; non-Delvers generally need '
-                        'supernatural means, while you may spend Glamour and roll Investigation to decode intercepted '
-                        'messages. Tappingspeak enables secure low-visibility coordination across distance, especially '
-                        'when spoken channels are compromised.',
+                        'supernatural means, while the character may spend Glamour and roll Investigation to decode '
+                        'intercepted messages. Tappingspeak enables secure low-visibility coordination across '
+                        'distance, especially when spoken channels are compromised.',
             'book': 'Kith 93'},
  'glimmerwisp': {'name': 'Glimmerwisp',
                  'skill': 'Persuasion',
@@ -369,8 +363,7 @@ ALL_KITHS = {'artist': {'name': 'Artist',
                                 'exactly what should be confronted. Glimmerwisps were veils over atrocity, trained to '
                                 'redirect attention and normalize the intolerable. After escape, some use that skill '
                                 'for triage and de-escalation, while others slip into enabling violence behind a '
-                                'perfumed haze. Storytellers can foreground this kith by presenting scenes where its '
-                                'role, trauma, and social reputation all matter at once.',
+                                'perfumed haze.',
                  'blessing': 'Concealing Mist: spend 1 Glamour to fill a room or nearby open area with perfumed haze '
                              'and roll Manipulation + Persuasion + Wyrd, contested by Resolve + Composure. Characters '
                              'who lose cannot perceive wrongdoing or shameful acts by others within the mist, and the '
@@ -385,13 +378,13 @@ ALL_KITHS = {'artist': {'name': 'Artist',
                             'and infuriating allies, often tolerated because they can produce miracles under '
                             'impossible deadlines. Gremlins embody perfectionism so extreme that destruction becomes a '
                             'necessary step in creation. They are brilliant under pressure, but their intolerance for '
-                            'flaws can strain every relationship around them. Storytellers can foreground this kith by '
-                            'presenting scenes where its role, trauma, and social reputation all matter at once.',
+                            'flaws can strain every relationship around them.',
              'blessing': 'Nightmare at 20,000 Feet: once per scene, spend 1 Glamour to convert an extended action into '
                          'an instant action, provided the work includes meaningful dismantling or destructive '
-                         "teardown. This reflects your kith's paradoxical genius - destruction as acceleration - and "
-                         'is especially potent in high-pressure repair or sabotage scenes. Nightmare at 20,000 Feet '
-                         'compresses time by coupling destruction with rapid execution in critical moments.',
+                         "teardown. This reflects the character's kith's paradoxical genius - destruction as "
+                         'acceleration - and is especially potent in high-pressure repair or sabotage scenes. '
+                         'Nightmare at 20,000 Feet compresses time by coupling destruction with rapid execution in '
+                         'critical moments.',
              'book': 'Kith 94'},
  'manikin': {'name': 'Manikin',
              'skill': 'Socialize',
@@ -401,9 +394,7 @@ ALL_KITHS = {'artist': {'name': 'Artist',
                             'theft, then leverage social adaptability to make any role, costume, setting, or audience '
                             'accept them as natural. Manikins survived as living display forms, props, and facades for '
                             "someone else's masterpiece. Their social advantage is effortless presentability, "
-                            'especially in spaces where appearance matters more than substance. Storytellers can '
-                            'foreground this kith by presenting scenes where its role, trauma, and social reputation '
-                            'all matter at once.',
+                            'especially in spaces where appearance matters more than substance.',
              'blessing': "Gold From Straw: spend 1 Glamour and roll Presence + Crafts to conceal an object's flaws for "
                          'one scene, granting up to +5 on related social rolls. In social maneuvering, this can raise '
                          'impression an extra step when presentation matters, without truly improving function - only '
@@ -418,13 +409,13 @@ ALL_KITHS = {'artist': {'name': 'Artist',
                            'society they are brilliant negotiators and dangerous curators of false inevitability. '
                            'Oculi are non-clairvoyant persuaders who narrow options until their preferred path feels '
                            'inevitable. In court politics they can be kingmakers, grifters, or saboteurs depending on '
-                           'who is paying attention. Storytellers can foreground this kith by presenting scenes where '
-                           'its role, trauma, and social reputation all matter at once.',
+                           'who is paying attention.',
             'blessing': 'Amaurosis Fugax: spend 1 Glamour and roll Presence + Persuasion + Wyrd contested by Resolve + '
-                        'Tolerance to obscure all practical routes except the one you present. Whether the effect is '
-                        'literal visual clouding or cognitive narrowing, your target is guided physically and mentally '
-                        'toward your chosen destination or option. Amaurosis Fugax narrows choices into inevitability, '
-                        'making route control and negotiation framing highly potent.',
+                        'Tolerance to obscure all practical routes except the one the character present. Whether the '
+                        "effect is literal visual clouding or cognitive narrowing, the character's target is guided "
+                        "physically and mentally toward the character's chosen destination or option. Amaurosis Fugax "
+                        'narrows choices into inevitability, making route control and negotiation framing highly '
+                        'potent.',
             'book': 'Kith 95'},
  'polychromatic': {'name': 'Polychromatic',
                    'skill': 'Empathy',
@@ -435,13 +426,13 @@ ALL_KITHS = {'artist': {'name': 'Artist',
                                   'overwhelm entire rooms when they choose to shine. Polychromatics were emotional '
                                   'regulators in volatile Arcadian gatherings, prized for safe beauty and '
                                   'de-escalation. They remain powerful mediators whose visual affect can either soothe '
-                                  'conflict or overwhelm resistance. Storytellers can foreground this kith by '
-                                  'presenting scenes where its role, trauma, and social reputation all matter at once.',
+                                  'conflict or overwhelm resistance.',
                    'blessing': 'Prismatic Heart: once per chapter, spend 1 Glamour to unleash a luminous surge of '
-                               'color through your mien. Everyone else in the scene must spend Willpower or gain '
-                               'Swooned, and Swooned characters suffer an additional penalty when resisting your '
-                               'Empathy actions for the rest of the scene. Prismatic Heart is a scene-level emotional '
-                               'overwhelm tool that strongly amplifies follow-up Empathy actions.',
+                               "color through the character's mien. Everyone else in the scene must spend Willpower or "
+                               'gain Swooned, and Swooned characters suffer an additional penalty when resisting the '
+                               "character's Empathy actions for the rest of the scene. Prismatic Heart is a "
+                               'scene-level emotional overwhelm tool that strongly amplifies follow-up Empathy '
+                               'actions.',
                    'book': 'Kith 96'},
  'veneficus': {'name': 'Veneficus',
                'skill': 'Survival',
@@ -451,13 +442,12 @@ ALL_KITHS = {'artist': {'name': 'Artist',
                               'intention; comfort, confession, cure, and sabotage all emerge from the same practiced '
                               'hands. Venefici blur medicine and poison through culinary alchemy, and many show care '
                               'through feeding rituals. Their kitchens can heal, bind, expose, or betray, often with '
-                              'the same ingredient list. Storytellers can foreground this kith by presenting scenes '
-                              'where its role, trauma, and social reputation all matter at once.',
+                              'the same ingredient list.',
                'blessing': "Waste Not, Want Not: spend 1 Glamour reflexively to invert a plant's nature, making a "
-                           'toxic plant edible or an edible one toxic. In play, this lets you rapidly adapt field '
-                           'resources, alter social rituals around food, and turn ordinary ingredients into protective '
-                           'medicine or subtle threat. Waste Not, Want Not is a fast polarity inversion that turns '
-                           'ingredient context into tactical advantage.',
+                           'toxic plant edible or an edible one toxic. In play, this lets the character rapidly adapt '
+                           'field resources, alter social rituals around food, and turn ordinary ingredients into '
+                           'protective medicine or subtle threat. Waste Not, Want Not is a fast polarity inversion '
+                           'that turns ingredient context into tactical advantage.',
                'book': 'Kith 97'},
  'witchtooth': {'name': 'Witchtooth',
                 'skill': 'Intimidation',
@@ -467,15 +457,13 @@ ALL_KITHS = {'artist': {'name': 'Artist',
                                'disorientation, and often become fierce, rough-edged mentors to those they judge '
                                'resilient enough to learn. Witchtooths channel the authority of wild and abandoned '
                                'places, harvesting fear as readily as Glamour. They guard autonomy fiercely, but often '
-                               'become hard teachers for those they deem worth preparing. Storytellers can foreground '
-                               'this kith by presenting scenes where its role, trauma, and social reputation all '
-                               'matter at once.',
+                               'become hard teachers for those they deem worth preparing.',
                 'blessing': 'Nibble, Nibble, Little Mouse: spend 1 Glamour and roll Resolve + Intimidation to reshape '
                             'up to one square mile of local terrain into a frightening or misleading configuration for '
-                            'Wyrd turns. Survival actions in that area suffer penalties, allowing you to control '
-                            'atmosphere, pursuit, and territorial pressure during conflict scenes. Nibble, Nibble, '
-                            'Little Mouse reshapes terrain expectation and pursuit outcomes over a meaningful local '
-                            'footprint.',
+                            'Wyrd turns. Survival actions in that area suffer penalties, allowing the character to '
+                            'control atmosphere, pursuit, and territorial pressure during conflict scenes. Nibble, '
+                            'Nibble, Little Mouse reshapes terrain expectation and pursuit outcomes over a meaningful '
+                            'local footprint.',
                 'book': 'Kith 97'},
  'bricoleur': {'name': 'Bricoleur',
                'skill': 'Crafts/Expression',
@@ -485,14 +473,12 @@ ALL_KITHS = {'artist': {'name': 'Artist',
                               'exhausting in ordinary conversation, and quietly dangerous whenever identity, memory, '
                               'or narrative can be rewritten by intent. Bricoleurs survive by linking symbols into '
                               'living myths, turning scraps into systems and words into leverage. Their nonlinear '
-                              'genius wins crises and starts arguments in equal measure. Storytellers can foreground '
-                              'this kith by presenting scenes where its role, trauma, and social reputation all matter '
-                              'at once.',
+                              'genius wins crises and starts arguments in equal measure.',
                'blessing': 'Creatio Ex Nihilo: with a thematically appropriate symbolic item, spend 1 Glamour and roll '
-                           'Wits + Persuasion to alter a core truth about yourself for days equal to Wyrd. Others '
-                           'accept the new myth as real while it lasts, and rumors persist that your fetch mirrors the '
-                           'transformation in permanent ways. Creatio Ex Nihilo is identity myth-engineering; the '
-                           'symbolic component keeps it narratively grounded and costly.',
+                           'Wits + Persuasion to alter a core truth about themself for days equal to Wyrd. Others '
+                           "accept the new myth as real while it lasts, and rumors persist that the character's fetch "
+                           'mirrors the transformation in permanent ways. Creatio Ex Nihilo is identity '
+                           'myth-engineering; the symbolic component keeps it narratively grounded and costly.',
                'book': 'Kith 98'},
  'cloakskin': {'name': 'Cloakskin',
                'skill': 'Social',
@@ -502,13 +488,12 @@ ALL_KITHS = {'artist': {'name': 'Artist',
                               'recognition, trust, and intimacy are perpetually unstable currencies. Cloakskins are '
                               'unseen by most mortals under the Mask and often become nomadic by necessity. They crave '
                               'ordinary human contact while living in an economy of invisibility, aliases, and '
-                              'distance. Storytellers can foreground this kith by presenting scenes where its role, '
-                              'trauma, and social reputation all matter at once.',
-               'blessing': 'Now You See Me: spend 1 Glamour and roll Presence + Stealth + Wyrd to vanish from sight '
-                           'for a scene, hiding even from cameras. You remain detectable by sound, touch, and scent, '
-                           'but sight-based detection fails outright while other sense-based attempts suffer heavy '
-                           'penalties. Now You See Me hard-counters visual detection and recording, emphasizing '
-                           'multisensory counterplay instead.',
+                              'distance.',
+               'blessing': 'Now the character See Me: spend 1 Glamour and roll Presence + Stealth + Wyrd to vanish '
+                           'from sight for a scene, hiding even from cameras. The character remain detectable by '
+                           'sound, touch, and scent, but sight-based detection fails outright while other sense-based '
+                           'attempts suffer heavy penalties. Now the character See Me hard-counters visual detection '
+                           'and recording, emphasizing multisensory counterplay instead.',
                'book': 'Kith 98'},
  'doppelganger': {'name': 'Doppelganger',
                   'skill': 'Empathy',
@@ -518,13 +503,12 @@ ALL_KITHS = {'artist': {'name': 'Artist',
                                  'itself and can turn every room into a soft paranoia spiral. Doppelgangers weaponize '
                                  'partial familiarity rather than perfect imitation, stealing trust through tiny '
                                  'echoes of someone else. Their power is most dangerous when social certainty is '
-                                 'already fragile. Storytellers can foreground this kith by presenting scenes where '
-                                 'its role, trauma, and social reputation all matter at once.',
+                                 'already fragile.',
                   'blessing': "Sea-Witch's Bargain: spend 1 Glamour and roll Presence + Empathy + Wyrd contested by "
                               'Resolve + Tolerance to steal a physical or auditory trait for days equal to Wyrd. The '
-                              'target loses that trait until duration ends or they complete your declared task to win '
-                              "it back early. Sea-Witch's Bargain ties trait theft to task economy, creating social "
-                              'quests as part of power resolution.',
+                              "target loses that trait until duration ends or they complete the character's declared "
+                              "task to win it back early. Sea-Witch's Bargain ties trait theft to task economy, "
+                              'creating social quests as part of power resolution.',
                   'book': 'Kith 99'},
  'lethipomp': {'name': 'Lethipomp',
                'skill': 'Empathy',
@@ -533,13 +517,12 @@ ALL_KITHS = {'artist': {'name': 'Artist',
                               'grief, shame, and guilt at steep cost, collecting intimate suffering that can later '
                               'erupt outward as reenacted trauma. Lethipomps absorb emotion from memory and can offer '
                               'relief at a cost few fully grasp. Their therapeutic potential is real, but so is their '
-                              'capacity to curate pain as social currency. Storytellers can foreground this kith by '
-                              'presenting scenes where its role, trauma, and social reputation all matter at once.',
+                              'capacity to curate pain as social currency.',
                'blessing': 'Waters of Lethe: spend 1 Glamour and roll Composure + Empathy + Wyrd contested by the '
                            'target to absorb emotions tied to a known memory. The target becomes temporarily Lethargic '
-                           'while you bear an appropriate emotional Condition and may Incite Bedlam to recreate '
-                           'elements of what you absorbed. Waters of Lethe trades emotional burden transfer for '
-                           'temporary impairment and possible Bedlam reenactment fallout.',
+                           'while the character bear an appropriate emotional Condition and may Incite Bedlam to '
+                           'recreate elements of what the character absorbed. Waters of Lethe trades emotional burden '
+                           'transfer for temporary impairment and possible Bedlam reenactment fallout.',
                'book': 'Kith 99'},
  'lullescent': {'name': 'Lullescent',
                 'skill': 'Stealth',
@@ -549,13 +532,12 @@ ALL_KITHS = {'artist': {'name': 'Artist',
                                'feared informants, court servants, and quiet political threats in any freehold. '
                                'Lullescents were denied voice and made into listening instruments, then escaped by '
                                'weaponizing what they overheard. Their hearing and patience make them prized aides and '
-                               'feared blackmail risks. Storytellers can foreground this kith by presenting scenes '
-                               'where its role, trauma, and social reputation all matter at once.',
+                               'feared blackmail risks.',
                 'blessing': 'Song of Silence: spend 1 Glamour to invoke echolocation for navigation, distance '
                             'judgment, and object location without line of sight. With a successful Wits + Occult + '
-                            'Wyrd roll, you can also reveal magically hidden entities or objects, potentially '
-                            'triggering a Clash of Wills against active concealment. Song of Silence gives non-visual '
-                            'mapping plus anti-concealment pressure through Clash-capable echolocation.',
+                            'Wyrd roll, the character can also reveal magically hidden entities or objects, '
+                            'potentially triggering a Clash of Wills against active concealment. Song of Silence gives '
+                            'non-visual mapping plus anti-concealment pressure through Clash-capable echolocation.',
                 'book': 'Kith 100'},
  'riddleseeker': {'name': 'Riddleseeker',
                   'skill': 'Investigation',
@@ -565,13 +547,12 @@ ALL_KITHS = {'artist': {'name': 'Artist',
                                  'unfinished puzzles, hoarded answers, and dangerous questions no one else dares ask. '
                                  'Riddleseekers treated knowledge as survival in Arcadia and still chase meaning '
                                  'compulsively. They can end conflict through wit, but their curiosity often drags '
-                                 'them toward dangerous truths. Storytellers can foreground this kith by presenting '
-                                 'scenes where its role, trauma, and social reputation all matter at once.',
+                                 'them toward dangerous truths.',
                   'blessing': 'Neck Riddle: spend 1 Glamour and roll Wits + Expression + Wyrd to force a conflict '
-                              'toward riddle-resolution instead of immediate escalation. If your target cannot answer '
-                              'within limited guesses, they must release the conflict until scene end, creating '
-                              'tactical breathing room through wit, ritual, and symbolic authority. Neck Riddle '
-                              'transforms direct conflict into constrained puzzle arbitration with temporary '
+                              "toward riddle-resolution instead of immediate escalation. If the character's target "
+                              'cannot answer within limited guesses, they must release the conflict until scene end, '
+                              'creating tactical breathing room through wit, ritual, and symbolic authority. Neck '
+                              'Riddle transforms direct conflict into constrained puzzle arbitration with temporary '
                               'disengagement stakes.',
                   'book': 'Kith 100'},
  'sideromancer': {'name': 'Sideromancer',
@@ -582,14 +563,13 @@ ALL_KITHS = {'artist': {'name': 'Artist',
                                  'specializing in promises, debts, and consequences that follow pledges like gravity. '
                                  'Sideromancers read Wyrd turbulence through chosen divinatory forms, seeking '
                                  'certainty in obligation and consequence. Their forecasts are strongest in immediate '
-                                 'pledge-economies, not distant prophecy. Storytellers can foreground this kith by '
-                                 'presenting scenes where its role, trauma, and social reputation all matter at once.',
-                  'blessing': 'Panomancy: spend 1 Glamour and perform at least five minutes of your chosen divination, '
-                              'then roll Wits + Occult + Wyrd to ask yes-or-no questions about imminent promises, '
-                              'obligations, debts, or payments involving you as a primary party. This power is '
-                              'intentionally short-horizon; pushing farther risks dramatic failure. Panomancy is '
-                              'strongest for immediate pledge/debt decisions, not distant forecasting, and punishes '
-                              'overreach harshly.',
+                                 'pledge-economies, not distant prophecy.',
+                  'blessing': "Panomancy: spend 1 Glamour and perform at least five minutes of the character's chosen "
+                              'divination, then roll Wits + Occult + Wyrd to ask yes-or-no questions about imminent '
+                              'promises, obligations, debts, or payments involving the character as a primary party. '
+                              'This power is intentionally short-horizon; pushing farther risks dramatic failure. '
+                              'Panomancy is strongest for immediate pledge/debt decisions, not distant forecasting, '
+                              'and punishes overreach harshly.',
                   'book': 'Kith 101'},
  'spiegelbild': {'name': 'Spiegelbild',
                  'skill': 'Persuasion',
@@ -599,14 +579,13 @@ ALL_KITHS = {'artist': {'name': 'Artist',
                                 'turn ordinary reflective surfaces into dangerous confessionals where image and '
                                 'honesty become bargaining chips. Spiegelbilder live between reflection and '
                                 'refraction, compelled toward truth but skilled in framing it. They are invaluable '
-                                'confidants and deeply unsafe secret-keepers. Storytellers can foreground this kith by '
-                                'presenting scenes where its role, trauma, and social reputation all matter at once.',
+                                'confidants and deeply unsafe secret-keepers.',
                  'blessing': 'Mirror, Mirror on the Wall: spend 1 Glamour and roll Wits + Composure to enter '
                              'mirror-space through a reflective surface, then observe and listen from within it for '
-                             'the scene. While present you are bound to truthful answers if questioned, unless you '
-                             'also successfully conceal your presence with a contested stealth roll. Mirror, Mirror on '
-                             'the Wall grants remote observation with truth-binding risk while inside reflective '
-                             'space.',
+                             'the scene. While present the character is bound to truthful answers if questioned, '
+                             "unless the character also successfully conceal the character's presence with a contested "
+                             'stealth roll. Mirror, Mirror on the Wall grants remote observation with truth-binding '
+                             'risk while inside reflective space.',
                  'book': 'Kith 102'},
  'asclepian': {'name': 'Asclepian',
                'skill': 'Medicine',
@@ -616,14 +595,13 @@ ALL_KITHS = {'artist': {'name': 'Artist',
                               'what should be beyond saving, though their miracles often leave permanent uncanny '
                               'additions behind. Asclepians practiced impossible salvage medicine in places where '
                               'ethics and biology were optional. Freeholds court them aggressively because they can '
-                              'stabilize the unsalvageable with whatever is at hand. Storytellers can foreground this '
-                              'kith by presenting scenes where its role, trauma, and social reputation all matter at '
-                              'once.',
+                              'stabilize the unsalvageable with whatever is at hand.',
                'blessing': 'Grafting: spend 1 Glamour and roll Intelligence + Medicine to perform emergency surgery '
-                           'using available materials, from flowers and wire to engine parts and ritual scraps. You '
-                           'can stabilize the dying, heal beyond normal limits, and resolve suitable persistent '
-                           'physical Conditions, but grafts remain permanent until painfully removed. Grafting permits '
-                           'impossible emergency intervention and persistent-condition fixes at visible bodily cost.',
+                           'using available materials, from flowers and wire to engine parts and ritual scraps. The '
+                           'character can stabilize the dying, heal beyond normal limits, and resolve suitable '
+                           'persistent physical Conditions, but grafts remain permanent until painfully removed. '
+                           'Grafting permits impossible emergency intervention and persistent-condition fixes at '
+                           'visible bodily cost.',
                'book': 'Kith 103'},
  'bridgeguard': {'name': 'Bridgeguard',
                  'skill': 'Intimidation',
@@ -633,13 +611,12 @@ ALL_KITHS = {'artist': {'name': 'Artist',
                                 'standing visibly defiant precisely when everyone else has already begun to retreat. '
                                 'Bridgeguards were forged in unwinnable scenarios until outnumbered became their '
                                 'comfort zone. They excel at choosing terrain, anchoring retreats, and making costly '
-                                'stands matter. Storytellers can foreground this kith by presenting scenes where its '
-                                'role, trauma, and social reputation all matter at once.',
+                                'stands matter.',
                  'blessing': 'Against the Odds: when outnumbered, spend 1 Glamour and roll Composure + Intimidation to '
                              'gain a Defense bonus from successes and ignore multi-attacker Defense reduction for the '
-                             'scene. The blessing requires no action, making you exceptionally effective at sudden '
-                             'holds, retreats, and last-stand maneuvers. Against the Odds converts being outnumbered '
-                             'into defensive superiority and stable front-line endurance.',
+                             'scene. The blessing requires no action, making the character exceptionally effective at '
+                             'sudden holds, retreats, and last-stand maneuvers. Against the Odds converts being '
+                             'outnumbered into defensive superiority and stable front-line endurance.',
                  'book': 'Kith 104'},
  'librorum': {'name': 'Librorum',
               'skill': 'Intimidation',
@@ -649,13 +626,12 @@ ALL_KITHS = {'artist': {'name': 'Artist',
                              'making them indispensable investigators and deeply difficult people to deceive or '
                              'dislodge. Librorum guarded and retrieved dangerous knowledge under direct fae '
                              'supervision. Their escapes often included stolen archives, making them hunted assets and '
-                             'strategic liabilities. Storytellers can foreground this kith by presenting scenes where '
-                             'its role, trauma, and social reputation all matter at once.',
+                             'strategic liabilities.',
               'blessing': 'Stolen Knowledge: once per chapter, spend 1 Glamour and roll Intelligence + Occult + Wyrd '
                           'after brief meditative recall. Allocate successes as temporary Library or Language Merit '
                           'dots, or as Repository value, representing specific remembered volumes and cataloged '
-                          "secrets taken from your Keeper's hidden collections. Stolen Knowledge turns meditation into "
-                          'temporary scholarly infrastructure exactly when needed.',
+                          "secrets taken from the character's Keeper's hidden collections. Stolen Knowledge turns "
+                          'meditation into temporary scholarly infrastructure exactly when needed.',
               'book': 'Kith 104'},
  'liminal': {'name': 'Liminal',
              'skill': 'Survival/Streetwise',
@@ -664,9 +640,7 @@ ALL_KITHS = {'artist': {'name': 'Artist',
                             'transitions better than most Lost, often helping others escape through technicality and '
                             'timing while turning crossings into binding social and mystical battlegrounds. Liminals '
                             'are threshold specialists who enforce conditions at borders literal and symbolic. They '
-                            'are often the hidden reason a route opened - or closed - at the exact wrong moment. '
-                            'Storytellers can foreground this kith by presenting scenes where its role, trauma, and '
-                            'social reputation all matter at once.',
+                            'are often the hidden reason a route opened - or closed - at the exact wrong moment.',
              'blessing': 'Line in the Sand: while physically on a threshold, declare crossing conditions and spend 1 '
                          'Glamour to roll Resolve + Intimidation + Wyrd contested by Composure + Tolerance. Those who '
                          'fail are not physically blocked, but crossing in violation inflicts the Lost Condition and '
@@ -680,14 +654,12 @@ ALL_KITHS = {'artist': {'name': 'Artist',
                            'carry adaptive Arcadian design in their blood, letting them retune themselves after injury '
                            'and reconfigure capability around immediate survival needs. Reborn survived repeated '
                            'teardown-and-rebuild cycles that stripped everything but core identity. Their adaptive '
-                           'self-retuning reflects both hard resilience and lingering body-memory of being remade. '
-                           'Storytellers can foreground this kith by presenting scenes where its role, trauma, and '
-                           'social reputation all matter at once.',
+                           'self-retuning reflects both hard resilience and lingering body-memory of being remade.',
             'blessing': 'Retune: after taking lethal damage, spend 1 Glamour and roll Intelligence + Occult to '
                         'temporarily move Skill dots from one Skill to another for the scene, capped by Wyrd limits. '
-                        'Once per chapter, you may spend 1 Willpower dot to make a similar redistribution permanent '
-                        'instead. Retune offers dynamic skill redistribution under injury pressure, including rare '
-                        'permanent reconfiguration options.',
+                        'Once per chapter, the character may spend 1 Willpower dot to make a similar redistribution '
+                        'permanent instead. Retune offers dynamic skill redistribution under injury pressure, '
+                        'including rare permanent reconfiguration options.',
             'book': 'Kith 105'},
  'stoneflesh': {'name': 'Stoneflesh',
                 'skill': 'Intimidation',
@@ -697,13 +669,12 @@ ALL_KITHS = {'artist': {'name': 'Artist',
                                'with calm inevitability and refusing to move once they decide where the line is. '
                                'Stoneflesh were engineered for endurance and often become social pillars after escape. '
                                'Their calm persistence can read as kindness or intimidation depending on who is '
-                               'confronting them. Storytellers can foreground this kith by presenting scenes where its '
-                               'role, trauma, and social reputation all matter at once.',
+                               'confronting them.',
                 'blessing': 'Obdurate Skin: spend 1 Glamour and roll Stamina + Athletics + Wyrd, then divide successes '
                             'between Armor, Resolve, and Composure for the scene. This allows flexible defense against '
-                            'both physical and social pressure, reinforcing your role as anchor under sustained '
-                            'assault or intimidation. Obdurate Skin flexibly allocates resilience across armor and '
-                            'mental steadiness for scene-long durability.',
+                            "both physical and social pressure, reinforcing the character's role as anchor under "
+                            'sustained assault or intimidation. Obdurate Skin flexibly allocates resilience across '
+                            'armor and mental steadiness for scene-long durability.',
                 'book': 'Kith 106'},
  'wisewitch': {'name': 'Wisewitch',
                'skill': 'Persuasion',
@@ -712,14 +683,12 @@ ALL_KITHS = {'artist': {'name': 'Artist',
                               'warning-givers, hedge mystics, and disciplined dealmakers whose authority extends '
                               'beyond fae circles into spirit and angelic negotiations. Wisewitches carry marks from '
                               "contact with a Keeper's Title and read power-lines others ignore. They are rare "
-                              'dealmakers where fae, spirit, and angelic obligations intersect. Storytellers can '
-                              'foreground this kith by presenting scenes where its role, trauma, and social reputation '
-                              'all matter at once.',
-               'blessing': 'Keen Bargains: you can form pledges with spirits and angels not of fae kind, expanding '
-                           'your diplomatic and ritual reach far beyond ordinary changeling boundaries. In chronicles '
-                           "heavy on cross-supernatural politics, this blessing can make a Wisewitch the freehold's "
-                           'most valuable intermediary. Keen Bargains broadens pledge diplomacy beyond fae, enabling '
-                           'high-value cross-splat negotiations.',
+                              'dealmakers where fae, spirit, and angelic obligations intersect.',
+               'blessing': 'Keen Bargains: the character can form pledges with spirits and angels not of fae kind, '
+                           "expanding the character's diplomatic and ritual reach far beyond ordinary changeling "
+                           'boundaries. In chronicles heavy on cross-supernatural politics, this blessing can make a '
+                           "Wisewitch the freehold's most valuable intermediary. Keen Bargains broadens pledge "
+                           'diplomacy beyond fae, enabling high-value cross-splat negotiations.',
                'book': 'Kith 106'},
  'airtouched': {'name': 'Airtouched',
                 'skill': 'Athletics',
@@ -729,13 +698,12 @@ ALL_KITHS = {'artist': {'name': 'Artist',
                                'drift over fragile surfaces that should never hold a human body. Airtouched were '
                                'shaped through distance and atmospheric isolation, leaving profound attachment hunger '
                                'and avoidance side by side. Their movement style reflects that liminal separation from '
-                               'ground and crowd. Storytellers can foreground this kith by presenting scenes where its '
-                               'role, trauma, and social reputation all matter at once.',
-                'blessing': 'The Drift: spend 1 Glamour to invoke almost weightless movement, letting you cross water, '
-                            'snow, and fragile surfaces without breaking through or leaving clear traces. Treat your '
-                            'weight as only ounces for practical movement effects, and apply penalties to tracking '
-                            'attempts based on your Wyrd. The Drift enables improbable traversal and tracking '
-                            'suppression by re-defining effective weight.',
+                               'ground and crowd.',
+                'blessing': 'The Drift: spend 1 Glamour to invoke almost weightless movement, letting the character '
+                            'cross water, snow, and fragile surfaces without breaking through or leaving clear traces. '
+                            "Treat the character's weight as only ounces for practical movement effects, and apply "
+                            "penalties to tracking attempts based on the character's Wyrd. The Drift enables "
+                            'improbable traversal and tracking suppression by re-defining effective weight.',
                 'book': 'Kith 107'},
  'chalomot': {'name': 'Chalomot',
               'skill': 'Empathy',
@@ -744,13 +712,12 @@ ALL_KITHS = {'artist': {'name': 'Artist',
                              'with practiced predatory confidence, guiding oneiromancers through hostile spaces and '
                              'unraveling layered sleeping defenses that can trap the unprepared for entire stories. '
                              'Chalomot mapped Dreaming Roads and Bastion seams until dream logic felt more real than '
-                             'waking continuity. They remain elite navigators of oneiric risk and entrapment. '
-                             'Storytellers can foreground this kith by presenting scenes where its role, trauma, and '
-                             'social reputation all matter at once.',
+                             'waking continuity. They remain elite navigators of oneiric risk and entrapment.',
               'blessing': 'Dreamtread: spend 1 Glamour to gain a bonus to dreamweaving rolls equal to half Wyrd '
-                          '(minimum 1) for the rest of the scene. You may spend extra Glamour to share this benefit '
-                          'with allied oneiromancers in the same Bastion, enabling coordinated dream operations. '
-                          'Dreamtread is a multiplier for coordinated oneiromancy teams operating in the same Bastion.',
+                          '(minimum 1) for the rest of the scene. The character may spend extra Glamour to share this '
+                          'benefit with allied oneiromancers in the same Bastion, enabling coordinated dream '
+                          'operations. Dreamtread is a multiplier for coordinated oneiromancy teams operating in the '
+                          'same Bastion.',
               'book': 'Kith 107'},
  'chevalier': {'name': 'Chevalier',
                'skill': 'Persuasion/Intimidation',
@@ -759,14 +726,13 @@ ALL_KITHS = {'artist': {'name': 'Artist',
                               'treat movement as identity, form deep attachments to chosen rides, and fight with '
                               'greatest confidence when saddle, cockpit, handlebars, or reins are in hand. Chevaliers '
                               'embody rider-steed bond myths across both animal and machine forms. Their identity is '
-                              'inseparable from mobility, loyalty, and the politics of who gets carried to safety. '
-                              'Storytellers can foreground this kith by presenting scenes where its role, trauma, and '
-                              'social reputation all matter at once.',
-               'blessing': "Rider's Call: spend 1 Glamour to designate a touched mount or vehicle as your Noble Steed, "
-                           'then later spend Glamour reflexively to call it to you across realms if physically '
-                           'possible. Sapient steeds can refuse, contested claims can trigger Clash of Wills, and your '
-                           "steed senses your danger when you are compromised. Rider's Call formalizes steed bond "
-                           'logistics across distance and crises, with consent and clash safeguards.',
+                              'inseparable from mobility, loyalty, and the politics of who gets carried to safety.',
+               'blessing': "Rider's Call: spend 1 Glamour to designate a touched mount or vehicle as the character's "
+                           'Noble Steed, then later spend Glamour reflexively to call it to the character across '
+                           'realms if physically possible. Sapient steeds can refuse, contested claims can trigger '
+                           "Clash of Wills, and the character's steed senses the character's danger when the character "
+                           "is compromised. Rider's Call formalizes steed bond logistics across distance and crises, "
+                           'with consent and clash safeguards.',
                'book': 'Kith 107'},
  'farwalker': {'name': 'Farwalker',
                'skill': 'Survival',
@@ -775,14 +741,12 @@ ALL_KITHS = {'artist': {'name': 'Artist',
                               'Farwalkers map danger, locate routes, and make shelter where there should be none, '
                               'serving as dependable trailblazers through wilderness, Hedge, and contested '
                               "no-man's-land. Farwalkers learned border patrol and route endurance as a way of life. "
-                              'They are often the first to find escapees and the last to abandon a bad trail. '
-                              'Storytellers can foreground this kith by presenting scenes where its role, trauma, and '
-                              'social reputation all matter at once.',
+                              'They are often the first to find escapees and the last to abandon a bad trail.',
                'blessing': 'Home Away from Home: spend Glamour in wild terrain to create a temporary one-dot Safe '
-                           'Place for a day, sized by half your Wyrd and expandable with extra Glamour. In the Hedge, '
-                           'this instead reduces local Hedge hostility and can project one feature of your own Hollow '
-                           'into the shelter. Home Away from Home creates reliable temporary shelter and can project '
-                           'hollow utility into the field.',
+                           "Place for a day, sized by half the character's Wyrd and expandable with extra Glamour. In "
+                           'the Hedge, this instead reduces local Hedge hostility and can project one feature of the '
+                           "character's own Hollow into the shelter. Home Away from Home creates reliable temporary "
+                           'shelter and can project hollow utility into the field.',
                'book': 'Kith 108'},
  'flickerflash': {'name': 'Flickerflash',
                   'skill': 'Athletics',
@@ -792,13 +756,12 @@ ALL_KITHS = {'artist': {'name': 'Artist',
                                  'loyalties by proving repeatedly - and sometimes recklessly - that no one will ever '
                                  'catch them again. Flickerflashes are restlessness made flesh, using speed as both '
                                  'survival strategy and emotional regulation. Many keep scorecards of rescues and '
-                                 'deliveries as proof of loyalty. Storytellers can foreground this kith by presenting '
-                                 'scenes where its role, trauma, and social reputation all matter at once.',
-                  'blessing': 'Instantaneous Velocity: spend 1 Glamour reflexively to triple your Speed before '
-                              'applying any other modifiers, producing sudden inhuman acceleration. This blessing '
-                              'defines your chase profile, supports rapid repositioning, and can turn a losing pursuit '
-                              'into a blur of tactical initiative. Instantaneous Velocity is pure tempo control, '
-                              'deciding chases before many opponents can react.',
+                                 'deliveries as proof of loyalty.',
+                  'blessing': "Instantaneous Velocity: spend 1 Glamour reflexively to triple the character's Speed "
+                              'before applying any other modifiers, producing sudden inhuman acceleration. This '
+                              "blessing defines the character's chase profile, supports rapid repositioning, and can "
+                              'turn a losing pursuit into a blur of tactical initiative. Instantaneous Velocity is '
+                              'pure tempo control, deciding chases before many opponents can react.',
                   'book': 'Kith 110'},
  'levinquick': {'name': 'Levinquick',
                 'skill': 'Computer',
@@ -807,14 +770,13 @@ ALL_KITHS = {'artist': {'name': 'Artist',
                                'future-focused by habit, using infrastructure itself as route and refuge while fearing '
                                'stillness as a warning sign of recapture. Levinquicks are products of electric '
                                'modernity, perpetually in motion across digital and physical networks. Stillness feels '
-                               'like capture to them, even in safety. Storytellers can foreground this kith by '
-                               'presenting scenes where its role, trauma, and social reputation all matter at once.',
+                               'like capture to them, even in safety.',
                 'blessing': 'Lightning Walk: by touching a land-connected telecom device, spending 3 Glamour, and '
-                            'rolling Wits + Athletics + Wyrd, you dissolve into the grid and reappear at another known '
-                            'connected device within Wyrd miles. Extra Glamour can carry companions, while unwilling '
-                            'transport may trigger Clash of Wills and moral consequences. Lightning Walk provides '
-                            'high-cost, high-reach infrastructure transit with real ethical implications for unwilling '
-                            'riders.',
+                            'rolling Wits + Athletics + Wyrd, the character dissolve into the grid and reappear at '
+                            'another known connected device within Wyrd miles. Extra Glamour can carry companions, '
+                            'while unwilling transport may trigger Clash of Wills and moral consequences. Lightning '
+                            'Walk provides high-cost, high-reach infrastructure transit with real ethical implications '
+                            'for unwilling riders.',
                 'book': 'Kith 110'},
  'swarmflight': {'name': 'Swarmflight',
                  'skill': 'Stealth',
@@ -824,13 +786,13 @@ ALL_KITHS = {'artist': {'name': 'Artist',
                                 'scattering under stress and reforming only when threat or panic has passed. '
                                 'Swarmflights disassemble identity into many moving parts, then reassemble when threat '
                                 'recedes. Their perspective is distributed, watchful, and difficult for enemies to pin '
-                                'down. Storytellers can foreground this kith by presenting scenes where its role, '
-                                'trauma, and social reputation all matter at once.',
-                 'blessing': 'Swarm Form: spend 1 Glamour to dissolve into your chosen swarm type, acting as a single '
-                             'distributed body with shared senses and area effects. You gain strong resistance to many '
-                             'personal attacks, can hinder and panic those in your area, and in suitable forms may '
-                             'inflict lethal swarm attacks before reassembling. Swarm Form trades singular '
-                             'vulnerability for distributed pressure, area disruption, and selective lethality.',
+                                'down.',
+                 'blessing': "Swarm Form: spend 1 Glamour to dissolve into the character's chosen swarm type, acting "
+                             'as a single distributed body with shared senses and area effects. The character gains '
+                             'strong resistance to many personal attacks, can hinder and panic those in the '
+                             "character's area, and in suitable forms may inflict lethal swarm attacks before "
+                             'reassembling. Swarm Form trades singular vulnerability for distributed pressure, area '
+                             'disruption, and selective lethality.',
                  'book': 'Kith 110'},
  'swimmerskin': {'name': 'Swimmerskin',
                  'skill': 'Brawl',
@@ -839,14 +801,12 @@ ALL_KITHS = {'artist': {'name': 'Artist',
                                 'between worlds as fluidly as between air and water, carrying strong ties to kinship, '
                                 'predation, beauty, danger, and the irresistible pull of the depths. Swimmerskins draw '
                                 'from global aquatic myth lineages and often build social power through ports and '
-                                'river communities. Their waters are both refuge and hunting ground. Storytellers can '
-                                'foreground this kith by presenting scenes where its role, trauma, and social '
-                                'reputation all matter at once.',
-                 'blessing': "The Selkie's Skin: you always breathe both air and water, and by spending 1 Glamour you "
-                             'may reflexively shift to an aquatic lower form suited for powerful swimming. While '
-                             'transformed, you move through water at double Speed and ignore underwater penalties for '
-                             "weapons and complex actions. The Selkie's Skin grants seamless amphibious superiority "
-                             'and underwater task normalcy on demand.',
+                                'river communities. Their waters are both refuge and hunting ground.',
+                 'blessing': "The Selkie's Skin: the character always breathe both air and water, and by spending 1 "
+                             'Glamour the character may reflexively shift to an aquatic lower form suited for powerful '
+                             'swimming. While transformed, the character move through water at double Speed and ignore '
+                             "underwater penalties for weapons and complex actions. The Selkie's Skin grants seamless "
+                             'amphibious superiority and underwater task normalcy on demand.',
                  'book': 'Kith 111'},
  'bearskin': {'name': 'Bearskin',
               'skill': 'Intimidation/Weaponry',
@@ -855,14 +815,12 @@ ALL_KITHS = {'artist': {'name': 'Artist',
                              'unmatched defenders of chosen causes, but many struggle with guilt, identity, and the '
                              'urge to surrender themselves completely to a cause worth dying for. Bearskins were '
                              'conscripted into endless fae wars where loyalty was manufactured through attrition. '
-                             'After escape, they often bind themselves to causes with dangerous totality. Storytellers '
-                             'can foreground this kith by presenting scenes where its role, trauma, and social '
-                             'reputation all matter at once.',
-              'blessing': 'Dulce et Decorum Est: when an opponent yields in violence or you successfully coerce them, '
-                          'spend 1 Glamour to replace one of their Aspirations with one of yours until story end. If '
-                          'unfulfilled, their original Aspiration returns, highlighting your capacity to conscript '
-                          'conviction itself. Dulce et Decorum est alters Aspiration economy to conscript motive, not '
-                          'just body.',
+                             'After escape, they often bind themselves to causes with dangerous totality.',
+              'blessing': 'Dulce et Decorum Est: when an opponent yields in violence or the character successfully '
+                          'coerce them, spend 1 Glamour to replace one of their Aspirations with one of the '
+                          "character's until story end. If unfulfilled, their original Aspiration returns, "
+                          "highlighting the character's capacity to conscript conviction itself. Dulce et Decorum est "
+                          'alters Aspiration economy to conscript motive, not just body.',
               'book': 'Kith 111'},
  'beastcaller': {'name': 'Beastcaller',
                  'skill': 'Animal Ken',
@@ -871,14 +829,12 @@ ALL_KITHS = {'artist': {'name': 'Artist',
                                 'solace in those bonds, but risk identity bleed and ethical collapse when beasts '
                                 'become both companions and disposable combat bodies. Beastcallers were handlers of '
                                 'goblin war-fauna and still navigate blurred lines between partnership and possession. '
-                                'Their greatest strength and greatest ethical risk are often the same bond. '
-                                'Storytellers can foreground this kith by presenting scenes where its role, trauma, '
-                                'and social reputation all matter at once.',
+                                'Their greatest strength and greatest ethical risk are often the same bond.',
                  'blessing': 'Night Rider: spend 1 Glamour and succeed on Presence + Animal Ken + Wyrd to possess a '
-                             'goblin beast for turns equal to Wyrd. Damage to the beast echoes onto your own body, and '
-                             'if the host dies while possessed you snap back with aggravated harm, making this power '
-                             'potent but costly. Night Rider creates potent remote force projection while reflecting '
-                             'host-body harm back to the user.',
+                             "goblin beast for turns equal to Wyrd. Damage to the beast echoes onto the character's "
+                             'own body, and if the host dies while possessed the character snap back with aggravated '
+                             'harm, making this power potent but costly. Night Rider creates potent remote force '
+                             'projection while reflecting host-body harm back to the user.',
                  'book': 'Kith 112'},
  'cyclopean': {'name': 'Cyclopean',
                'skill': 'Investigation',
@@ -887,14 +843,12 @@ ALL_KITHS = {'artist': {'name': 'Artist',
                               'Cyclopeans often bear lasting injuries from service, yet become steadfast protectors, '
                               'trackers, and front-line anchors for those they claim as kin. Cyclopeans were made to '
                               'be monumental, terrifying, and indispensable, often at the cost of lasting injury. They '
-                              'frequently become visible protectors whose presence deters escalation. Storytellers can '
-                              'foreground this kith by presenting scenes where its role, trauma, and social reputation '
-                              'all matter at once.',
+                              'frequently become visible protectors whose presence deters escalation.',
                'blessing': "Smell the Blood: once per scene, spend 1 Glamour to identify an enemy's vulnerabilities, "
                            'reducing penalties for targeted attacks and upgrading bashing to lethal on those strikes. '
-                           'This turns your immense presence into surgical brutality when a confrontation must end '
-                           'quickly. Smell the Blood improves called-shot lethality and rewards precision from an '
-                           'otherwise brute profile.',
+                           "This turns the character's immense presence into surgical brutality when a confrontation "
+                           'must end quickly. Smell the Blood improves called-shot lethality and rewards precision '
+                           'from an otherwise brute profile.',
                'book': 'Kith 112'},
  'plaguesmith': {'name': 'Plaguesmith',
                  'skill': 'Medicine',
@@ -904,13 +858,12 @@ ALL_KITHS = {'artist': {'name': 'Artist',
                                 "intrusive fear, and the persistent dread of becoming someone else's weapon again. "
                                 'Plaguesmiths were cultivated as bioweapons and carry strict personal boundaries to '
                                 'avoid repeating that role. Their healing skill and infectious threat coexist in '
-                                'uneasy balance. Storytellers can foreground this kith by presenting scenes where its '
-                                'role, trauma, and social reputation all matter at once.',
+                                'uneasy balance.',
                  'blessing': 'Plague of Arcadia: on touch, spend 1 Glamour and roll Strength + Medicine + Wyrd '
                              'contested by Stamina + Tolerance to infect a target with a grave supernatural disease. '
                              'Symptoms can be fantastical and title-themed, recovery is demanding, and the condition '
                              'can inflict recurring aggravated damage over time. Plague of Arcadia is severe, '
-                             'slow-burn pressure with storyteller-facing symptom design hooks.',
+                             'slow-burn pressure with flexible symptom design hooks.',
                  'book': 'Kith 113'},
  'razorhand': {'name': 'Razorhand',
                'skill': 'Brawl',
@@ -920,13 +873,12 @@ ALL_KITHS = {'artist': {'name': 'Artist',
                               'struggle to heal despite carrying weaponized bodies they can never truly set aside. '
                               'Razorhands were physically weaponized for pruning, punishment, and spectacle. Many now '
                               'channel that precision into craft or defense while fearing accidental harm to those '
-                              'they love. Storytellers can foreground this kith by presenting scenes where its role, '
-                              'trauma, and social reputation all matter at once.',
+                              'they love.',
                'blessing': 'Sakin: spend 1 Glamour to transform one hand into a 1L blade weapon for the scene, using '
                            'Brawl and unarmed styles; spend an additional Glamour for the off-hand as well. Cosmetic '
-                           'form varies, but you cannot be disarmed short of limb removal, making your body a '
-                           'permanent armory. Sakin makes the body an always-available weapon platform resistant to '
-                           'conventional disarm tactics.',
+                           'form varies, but the character cannot be disarmed short of limb removal, making the '
+                           "character's body a permanent armory. Sakin makes the body an always-available weapon "
+                           'platform resistant to conventional disarm tactics.',
                'book': 'Kith 114'},
  'sandharrowed': {'name': 'Sandharrowed',
                   'skill': 'Survival',
@@ -936,8 +888,7 @@ ALL_KITHS = {'artist': {'name': 'Artist',
                                  'using moving grit and choking force to trap opponents who underestimate them. '
                                  'Sandharrowed survived Arcadian deserts by mastering scarcity, abrasion, and '
                                  'relentless weather. They bring that adaptability to every environment and weaponize '
-                                 'terrain control naturally. Storytellers can foreground this kith by presenting '
-                                 'scenes where its role, trauma, and social reputation all matter at once.',
+                                 'terrain control naturally.',
                   'blessing': 'Enveloping Sands: once per scene, before a Brawl or Weaponry attack, spend 1 Glamour; '
                               'on a successful hit, a sand pillar erupts and inflicts Immobilized on the target. The '
                               'pillar has fixed Durability and provides cover while confining them, creating immediate '
@@ -951,14 +902,12 @@ ALL_KITHS = {'artist': {'name': 'Artist',
                              'battlefield charisma with occult fate-marking, granting resolve to allies and unraveling '
                              'enemies with declarations that land like sacred judgment. Valkyries were forced to '
                              'choose fates on battlefields designed as mythic theater. They carry that authority into '
-                             'modern conflicts through morale shaping and selective doom. Storytellers can foreground '
-                             'this kith by presenting scenes where its role, trauma, and social reputation all matter '
-                             'at once.',
+                             'modern conflicts through morale shaping and selective doom.',
               'blessing': 'Chooser of the Slain: a limited number of times per scene, spend 1 Glamour and roll Wits + '
                           'Occult + Wyrd contested by Resolve + Tolerance to bless or curse a perceived target. On '
-                          'success, you apply Inspired or Steadfast to allies, or Frightened or Reckless to foes. '
-                          'Chooser of the Slain offers limited but repeatable morale-state assignment to allies and '
-                          'enemies.',
+                          'success, the character apply Inspired or Steadfast to allies, or Frightened or Reckless to '
+                          'foes. Chooser of the Slain offers limited but repeatable morale-state assignment to allies '
+                          'and enemies.',
               'book': 'Kith 115'},
  'venombite': {'name': 'Venombite',
                'skill': 'Brawl',
@@ -967,14 +916,12 @@ ALL_KITHS = {'artist': {'name': 'Artist',
                               'mundane until they strike; then personal grievance becomes precise biological warfare '
                               'delivered with the intimacy of a bite, grasp, or close-quarters hit. Venombites distill '
                               'quiet resentments into lethal close-quarters toxin. Their menace lies in appearing '
-                              'ordinary until one committed strike changes everything. Storytellers can foreground '
-                              'this kith by presenting scenes where its role, trauma, and social reputation all matter '
-                              'at once.',
+                              'ordinary until one committed strike changes everything.',
                'blessing': 'Deadly Bite: once per scene, before a Brawl attack, spend 1 Glamour to infuse the strike '
-                           "with your kith's toxin. On success, the attack deals lethal damage and inflicts a grave "
-                           'Poisoned effect in addition to normal harm, translating old resentment into immediate '
-                           'physiological collapse. Deadly Bite front-loads lethal and poison effects into a single '
-                           'close-range success each scene.',
+                           "with the character's kith's toxin. On success, the attack deals lethal damage and inflicts "
+                           'a grave Poisoned effect in addition to normal harm, translating old resentment into '
+                           'immediate physiological collapse. Deadly Bite front-loads lethal and poison effects into a '
+                           'single close-range success each scene.',
                'book': 'Kith 116'},
  'apoptosome': {'name': 'Apoptosome',
                 'skill': 'Miscellaneous',
@@ -984,13 +931,12 @@ ALL_KITHS = {'artist': {'name': 'Artist',
                                'with perfect recall of prior defeat patterns and a brutal knack for making old enemies '
                                'bleed with them. Apoptosomes endured endless death-and-return cycles in isolated '
                                'kill-mazes, accruing combat memory as scar tissue. They often read disagreement as '
-                               'imminent threat and retaliate preemptively. Storytellers can foreground this kith by '
-                               'presenting scenes where its role, trauma, and social reputation all matter at once.',
-                'blessing': 'Sparagmos: in conflict with someone who has hurt you before, spend 1 Glamour to deal '
-                            'immediate aggravated damage to that foe. For the remainder of the scene, every time those '
-                            'returning enemies damage you, both they and you suffer an additional aggravated point, '
-                            'escalating the violence through shared ruin. Sparagmos escalates reciprocal aggravated '
-                            'harm, favoring short brutal exchanges over attrition.',
+                               'imminent threat and retaliate preemptively.',
+                'blessing': 'Sparagmos: in conflict with someone who has hurt the character before, spend 1 Glamour to '
+                            'deal immediate aggravated damage to that foe. For the remainder of the scene, every time '
+                            'those returning enemies damage the character, both they and the character suffer an '
+                            'additional aggravated point, escalating the violence through shared ruin. Sparagmos '
+                            'escalates reciprocal aggravated harm, favoring short brutal exchanges over attrition.',
                 'book': 'Kith 116'},
  'becquerel': {'name': 'Becquerel',
                'skill': 'Stealth',
@@ -999,14 +945,12 @@ ALL_KITHS = {'artist': {'name': 'Artist',
                               'spectacular bursts through the Hedge and carry a dangerous touch that burns flesh in '
                               'patterns reminiscent of fallout and irradiated shadow. Becquerels emerged from '
                               'nuclear-era dread, styled as shadowy radiance and lingering burn. Their touch is feared '
-                              'for what it does to bodies and what it symbolizes culturally. Storytellers can '
-                              'foreground this kith by presenting scenes where its role, trauma, and social reputation '
-                              'all matter at once.',
-               'blessing': 'Nuclear Shadow: when you successfully grapple, spend 1 Glamour to burn the target as a '
-                           'supernatural heat-shadow effect that resembles radiation injury to mundane scans. Each '
-                           'turn you maintain the hold, you may apply Stunned or Poisoned, making prolonged contact '
-                           'increasingly devastating. Nuclear Shadow applies thematic burn plus ongoing tilt pressure '
-                           'while maintaining grapple control.',
+                              'for what it does to bodies and what it symbolizes culturally.',
+               'blessing': 'Nuclear Shadow: when the character successfully grapple, spend 1 Glamour to burn the '
+                           'target as a supernatural heat-shadow effect that resembles radiation injury to mundane '
+                           'scans. Each turn the character maintain the hold, the character may apply Stunned or '
+                           'Poisoned, making prolonged contact increasingly devastating. Nuclear Shadow applies '
+                           'thematic burn plus ongoing tilt pressure while maintaining grapple control.',
                'book': 'Kith 117'},
  'blightbent': {'name': 'Blightbent',
                 'skill': 'Disease/Poison',
@@ -1016,13 +960,12 @@ ALL_KITHS = {'artist': {'name': 'Artist',
                                'finding ordinary social reintegration painfully difficult and physically complicated. '
                                'Blightbent survived toxic labor by becoming toxic themselves, and reintegration is '
                                'often physically and socially punishing. They carry industrial memory as both '
-                               'resilience and stigma. Storytellers can foreground this kith by presenting scenes '
-                               'where its role, trauma, and social reputation all matter at once.',
-                'blessing': 'Brimstone: after a successful grapple, spend 1 Glamour to inflict Poisoned through your '
-                            'caustic touch. Combined with your natural resistance profile and contamination narrative, '
-                            'this lets you function as both hazard specialist and close-range threat in environments '
-                            'most kiths would avoid entirely. Brimstone converts successful close contact into '
-                            'immediate poisoning, reinforcing contamination identity.',
+                               'resilience and stigma.',
+                'blessing': 'Brimstone: after a successful grapple, spend 1 Glamour to inflict Poisoned through the '
+                            "character's caustic touch. Combined with the character's natural resistance profile and "
+                            'contamination narrative, this lets the character function as both hazard specialist and '
+                            'close-range threat in environments most kiths would avoid entirely. Brimstone converts '
+                            'successful close contact into immediate poisoning, reinforcing contamination identity.',
                 'book': 'Kith 117'},
  'enkrateia': {'name': 'Enkrateia',
                'skill': 'Empathy/Persuasion/Subterfuge',
@@ -1031,14 +974,12 @@ ALL_KITHS = {'artist': {'name': 'Artist',
                               'dispassionate de-escalators with precise situational analysis, often indispensable in '
                               'freehold politics where everyone else runs too hot and too proud. Enkrateia served as '
                               'advisors and mediators where Keepers wanted reason without accountability. In '
-                              'freeholds, they excel when emotions outrun strategy. Storytellers can foreground this '
-                              'kith by presenting scenes where its role, trauma, and social reputation all matter at '
-                              'once.',
-               'blessing': 'Eloquent Analysis: during extended Investigation, you begin losing dice only after the '
-                           'third successive roll, representing exceptional composure under pressure and methodical '
-                           'reasoning. This makes you especially strong in tense social inquiries, layered '
-                           'conspiracies, and drawn-out evidence synthesis scenes. Eloquent Analysis extends effective '
-                           'investigation streak length before dice attrition begins.',
+                              'freeholds, they excel when emotions outrun strategy.',
+               'blessing': 'Eloquent Analysis: during extended Investigation, the character begin losing dice only '
+                           'after the third successive roll, representing exceptional composure under pressure and '
+                           'methodical reasoning. This makes the character especially strong in tense social '
+                           'inquiries, layered conspiracies, and drawn-out evidence synthesis scenes. Eloquent '
+                           'Analysis extends effective investigation streak length before dice attrition begins.',
                'book': 'Kith 118'},
  'gravewight': {'name': 'Gravewight',
                 'skill': 'Empathy/Intimidation',
@@ -1047,14 +988,12 @@ ALL_KITHS = {'artist': {'name': 'Artist',
                                'than theatrical, carrying grave-sense, ghost attention, and unnerving calm around '
                                'mortality that others read as either comfort or threat. Gravewights performed '
                                'death-work close to chthonic powers and returned with unusual composure around '
-                               'mortality. Their presence attracts ghosts and obligations in equal measure. '
-                               'Storytellers can foreground this kith by presenting scenes where its role, trauma, and '
-                               'social reputation all matter at once.',
-                'blessing': 'Charnel Sight: spend 1 Glamour to see and hear ghosts lingering in Twilight, while your '
-                            'broader presence naturally attracts liminal dead and other in-between entities. In '
-                            'practice this grants investigation leverage, social complication, and constant contact '
-                            'with voices most people never hear. Charnel Sight is equal parts sensory expansion and '
-                            'narrative magnet for liminal entities.',
+                               'mortality. Their presence attracts ghosts and obligations in equal measure.',
+                'blessing': 'Charnel Sight: spend 1 Glamour to see and hear ghosts lingering in Twilight, while the '
+                            "character's broader presence naturally attracts liminal dead and other in-between "
+                            'entities. In practice this grants investigation leverage, social complication, and '
+                            'constant contact with voices most people never hear. Charnel Sight is equal parts sensory '
+                            'expansion and narrative magnet for liminal entities.',
                 'book': 'Kith 119'},
  'shadowsoul': {'name': 'Shadowsoul',
                 'skill': 'Subterfuge',
@@ -1063,13 +1002,11 @@ ALL_KITHS = {'artist': {'name': 'Artist',
                                'affinities, thrive in concealment and ambiguity, and often endure lingering frailties '
                                'tied to daylight, scrutiny, and prolonged exposure. Shadowsouls were shaped by '
                                'nocturnal courts and punished with daylight frailties. They thrive in concealment and '
-                               'mirror-work while carrying resentment toward imposed darkness. Storytellers can '
-                               'foreground this kith by presenting scenes where its role, trauma, and social '
-                               'reputation all matter at once.',
+                               'mirror-work while carrying resentment toward imposed darkness.',
                 'blessing': 'Nightblind: gain natural affinity with Mirror in addition to existing regalia affinities, '
-                            'and once per scene on an exceptional attack success you may inflict temporary Blindness '
-                            'by touch. The blessing rewards ambush, precision, and decisive openings rather than '
-                            'prolonged stand-up brawling. Nightblind combines strong mundane deceit support with '
+                            'and once per scene on an exceptional attack success the character may inflict temporary '
+                            'Blindness by touch. The blessing rewards ambush, precision, and decisive openings rather '
+                            'than prolonged stand-up brawling. Nightblind combines strong mundane deceit support with '
                             'targeted scene-limited sensory denial.',
                 'book': 'Kith 119'},
  'telluric': {'name': 'Telluric',
@@ -1079,9 +1016,7 @@ ALL_KITHS = {'artist': {'name': 'Artist',
                              'with deep travel instinct, courier talent, and complicated intimacy patterns - craving '
                              'connection while reflexively casting themselves as distant and untouchable. Tellurics '
                              'were set in Arcadian skies as distant ornaments and navigational assets. They are seen '
-                             'easily, known poorly, and often lonely even in company. Storytellers can foreground this '
-                             'kith by presenting scenes where its role, trauma, and social reputation all matter at '
-                             'once.',
+                             'easily, known poorly, and often lonely even in company.',
               'blessing': 'Burn Bright: spend 1 Glamour to hurl a starflame projectile using Dexterity + Athletics, '
                           'dealing torch-sized supernatural fire with candle-level heat profile. The attack provides '
                           'reliable ranged pressure and thematic spectacle, especially in chases, escapes, and '
@@ -1095,14 +1030,12 @@ ALL_KITHS = {'artist': {'name': 'Artist',
                                 'intent. Whisperwisps are consummate manipulators of truth and lies, often operating '
                                 "at arm's length from courts they advise, exploit, undermine, or quietly protect. "
                                 'Whisperwisps were built for surveillance, interrogation, and covert disruption. They '
-                                'are exceptional manipulators of disclosure, and rarely show their full hand. '
-                                'Storytellers can foreground this kith by presenting scenes where its role, trauma, '
-                                'and social reputation all matter at once.',
+                                'are exceptional manipulators of disclosure, and rarely show their full hand.',
                  'blessing': 'Forked Tongue: choose Stealth or Persuasion at character generation; rolls with that '
-                             'Skill gain both 9-again and a bonus equal to Wyrd. Combined with your truth-vs-falsehood '
-                             'exceptional thresholds, this creates an unusually strong toolkit for espionage, '
-                             'confidence games, and social pressure operations. Forked Tongue supercharges one '
-                             'selected social or stealth channel with both bonus and reroll edge.',
+                             "Skill gain both 9-again and a bonus equal to Wyrd. Combined with the character's "
+                             'truth-vs-falsehood exceptional thresholds, this creates an unusually strong toolkit for '
+                             'espionage, confidence games, and social pressure operations. Forked Tongue supercharges '
+                             'one selected social or stealth channel with both bonus and reroll edge.',
                  'book': 'Kith 120'},
  'antiquarian': {'name': 'Antiquarian',
                  'skill': 'Empathy',
@@ -1132,8 +1065,8 @@ ALL_KITHS = {'artist': {'name': 'Artist',
                             'social identities among Lost. Tales of predators like the Geryo reinforce both their '
                             'caution and their ferocity.',
              'blessing': 'Goblin Kin: when using Subterfuge to detect spoken or written trickery, three successes '
-                         'count as exceptional success. Each chapter, choose one Goblin Contract you know; that '
-                         'Contract does not incur Goblin Debt when invoked, and this benefit rotates until all '
+                         'count as exceptional success. Each chapter, choose one Goblin Contract the character know; '
+                         'that Contract does not incur Goblin Debt when invoked, and this benefit rotates until all '
                          'eligible Goblin Contracts have been selected. Goblin Kin supports rotational versatility and '
                          "encourages regular use of the kith's broader Goblin Contract toolkit.",
              'book': 'CTL JS 47 / DE2 69'},
@@ -1148,7 +1081,7 @@ ALL_KITHS = {'artist': {'name': 'Artist',
                           'margins for safety. They often trust trees and thorns faster than people.',
            'blessing': 'Fade into the Foliage: in wooded areas (including the Hedge), Survival rolls for tracking and '
                        'pathfinding treat three successes as exceptional success. If unobserved for one turn, spend 1 '
-                       'Glamour to conceal yourself behind substantial foliage; remain perfectly hidden while still, '
+                       'Glamour to conceal themself behind substantial foliage; remain perfectly hidden while still, '
                        'and add Wyrd to Stealth when moving. Fade into the Foliage turns terrain into defense, '
                        'rewarding patience, sight-line control, and woodland positioning.',
            'book': 'DE2 70'},
@@ -1161,11 +1094,12 @@ ALL_KITHS = {'artist': {'name': 'Artist',
                          'were tied to monumental ambition, from city projects to reputational contests among courts. '
                          'Their influence can be benevolent inspiration or coercive pressure dressed as encouragement. '
                          'Either way, they leave marks on culture larger than themselves.',
-          'blessing': 'Tyranny of Ideas: once per session, interact with other Lost as though your Mantle or court '
-                      'Goodwill were one dot higher. By spending 1 Glamour and making an appropriate social roll '
-                      "against a human target, you grant bonus dice to that target's creation roll and let three "
-                      'successes count as exceptional success for the resulting work. Tyranny of Ideas creates '
-                      'indirect power by amplifying mortal creators rather than harvesting glamour from their output.',
+          'blessing': "Tyranny of Ideas: once per session, interact with other Lost as though the character's Mantle "
+                      'or court Goodwill were one dot higher. By spending 1 Glamour and making an appropriate social '
+                      "roll against a human target, the character grant bonus dice to that target's creation roll and "
+                      'let three successes count as exceptional success for the resulting work. Tyranny of Ideas '
+                      'creates indirect power by amplifying mortal creators rather than harvesting glamour from their '
+                      'output.',
           'book': 'DE2 70'},
  'nymph': {'name': 'Nymph',
            'skill': 'Athletics',
@@ -1192,10 +1126,11 @@ ALL_KITHS = {'artist': {'name': 'Artist',
                                 'and execution can be split with ruthless precision. They thrive on identifying the '
                                 'one weakness that turns a superior foe into prey. Victory, for them, is proof of '
                                 'preparation rather than brute force.',
-                 'blessing': 'Know Your Enemy: when using Occult to outsmart an adversary, three successes count as '
-                             'exceptional success. Spend 1 Glamour to learn one existing frailty, ban, or bane; spend '
-                             '3 Glamour to impose a temporary one for the chapter, but you accept the same weakness '
-                             'for that duration. Paired Cleverquicks may split costs and share outcomes.',
+                 'blessing': "Know the character's Enemy: when using Occult to outsmart an adversary, three successes "
+                             'count as exceptional success. Spend 1 Glamour to learn one existing frailty, ban, or '
+                             'bane; spend 3 Glamour to impose a temporary one for the chapter, but the character '
+                             'accept the same weakness for that duration. Paired Cleverquicks may split costs and '
+                             'share outcomes.',
                  'book': 'DE2 368'}}
 
 
