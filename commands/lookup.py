@@ -3078,6 +3078,7 @@ class CmdLookup(MuxCommand):
         "favors": "Court of shrewd bargains and vast networks",
         "shady_deals": "Court of dirty jobs, cold logic, and necessary evils",
         "high_tide": "Court of strong wills and implacable forces of nature",
+        "ebb_tide": "Court of calm after the storm",
         "low_tide": "Court of unearthed secrets and gentle persistence",
         "flood_tide": "Court of perpetual engagement and tireless planning",
     }

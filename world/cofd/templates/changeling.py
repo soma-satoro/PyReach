@@ -14,7 +14,7 @@ CHANGELING_SEEMINGS = [
 CHANGELING_COURTS = [
     "spring", "summer", "autumn", "winter", "courtless",
     "morning", "day", "night", "barter", "coins", "favors", "shady_deals",
-    "high_tide", "low_tide", "flood_tide"
+    "high_tide", "low_tide", "flood_tide", "ebb_tide"
 ]
 
 # Valid kiths for Changeling characters (2nd Edition)

@@ -117,7 +117,7 @@ ALL_COURTS = {
             "4": "Automatically succeed on attempts to break through mundane barriers or otherwise deal with inanimate impediments.",
             "5": "Enemies of lower Wyrd than your character take a two-die penalty to attacks against her.",
         },
-        "book": "CTL 2e p.161"
+        "book": "CTL 2e p.287"
     },
     "low_tide": {
         "name": "Low Tide",
@@ -130,7 +130,7 @@ ALL_COURTS = {
             "4": "All clues your character turns up in an investigation gain an additional element (p. 195).",
             "5": "Another character with a Leveraged Condition (p. 342) that your character inflicted must capitulate to two of her demands before they can resolve it.",
         },
-        "book": "CTL 2e p.161"
+        "book": "CTL 2e p.288"
     },
     "flood_tide": {
         "name": "Flood Tide",
@@ -143,7 +143,20 @@ ALL_COURTS = {
             "4": "Once per chapter, you may reroll a mundane roll that uses a Finesse Attribute and choose which result to keep.",
             "5": "Once per chapter, you may spend a Willpower point in place of Glamour to use portaling (p. 109)",
         },
-        "book": "CTL 2e p.161"
+        "book": "CTL 2e p.288"
+    },
+    "ebb_tide": {
+        "name": "Court of Ebb Tide",
+        "description": "With the tide on its way out, the beaches fall again. Families spread their blankets further, children adorn their castles with drizzles of wet sand. It’s the calm after the storm, now that the waves aren’t so tall. When the Court of Ebb Tide rules, quiet reigns. Though the Court of Tides doesn’t always hew to the seasons, Ebb Tide Queens often take to their thrones in the latest part of the summer, when cool breezes on the heels of hot ones signal autumn’s approach, and when some quality of the sunset from mid-August on flls tourists with nostalgia for the summer even as they’re still on vacation. Ebb Tide courtiers are often matter-of-fact, approaching bargains and proposals with a skeptical eye. Many changelings join this court when they frst escape Arcadia. The sense of summer just out of reach reminds them of the lives they once led, and offers hope that they’ll return to those lives when the tide returns, even though that’s rarely the case.",
+        "mantle_benefits": {
+            "0": "The Mantle of an Ebb Tide courtier evokes a feeling of calm. The sound of waves lapping gently on the shore follows them. Your character gains a Glamour point whenever he successfully talks an individual down from a fght.",
+            "1": "Gain bonus dice equal to your character’s Mantle dots on mundane rolls to persuade someone based on shared past experiences.",
+            "2": "Gain bonus dice equal to your character’s Mantle dots on mundane rolls to defuse a tense group situation.",
+            "3": "Once per chapter, you may reroll a mundane roll to negotiate a deal or pledge and choose which result to keep.",
+            "4": "Increase your character’s effective Composure by one when using it to contest mundane or supernatural attempts to make your character lose her cool.",
+            "5": "Enemies take a penalty equal to your character’s Mantle dots to their Initiative bonuses.",
+        },
+        "book": "CTL 2e p.288"
     },
     "coins": {
         "name": "Court of Coins",
@@ -157,7 +170,7 @@ ALL_COURTS = {
             "5": "Once per scene, you may spend a Willpower point to learn the current heart's desire of any character present.",
 
         },
-        "book": "CTL 2e p.161"
+        "book": "CTL 2e p.291"
     },
     "barter": {
         "name": "Court of Barter",
@@ -170,7 +183,7 @@ ALL_COURTS = {
             "4": "Once per chapter, when the Storyteller spends your Goblin Debt to impose a Condition, you may replace the Condition with another of the same general type (mental, physical, emotional, etc.).",
             "5": "Once per chapter, you may ask the Storyteller if someone your character is dealing with has left a loophole or catch that could disadvantage him in a deal.",
         },
-        "book": "CTL 2e p.161"
+        "book": "CTL 2e p.291"
     },
     "favors": {
         "name": "Court of Favors",
@@ -183,7 +196,7 @@ ALL_COURTS = {
             "4": "Once per chapter, you may accept a point of Goblin Debt to pawn off an obligation from a bargain onto another changeling without being personally involved.",
             "5": "Once per chapter, you may reroll any mundane action that would pay off a favor your character owes and choose which result to keep.",
         },
-        "book": "CTL 2e p.161"
+        "book": "CTL 2e p.292"
     },
     "shady_deals": {
         "name": "Court of Shady Deals",
@@ -196,7 +209,7 @@ ALL_COURTS = {
             "4": "You may spend a Willpower point to ignore all the effects of the Oathbreaker Condition for one turn.",
             "5": "Once per chapter, you may reroll a surprise attack roll and choose which result to keep.",
         },
-        "book": "CTL 2e p.161"
+        "book": "CTL 2e p.292"
     },
 }
 
