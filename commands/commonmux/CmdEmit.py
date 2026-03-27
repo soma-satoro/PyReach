@@ -25,8 +25,8 @@ class CmdEmit(PoseBreakMixin, MuxCommand):
     This will be understood only by those who know the language.
     """
 
-    key = "@emit"
-    aliases = ["\\\\"]
+    key = "emit"
+    aliases = ["@emit", "\\\\"]
     locks = "cmd:all()"
     help_category = "Roleplaying Tools"
 
@@ -51,7 +51,7 @@ class CmdEmit(PoseBreakMixin, MuxCommand):
         # Check if there's a language-tagged speech and set speaking language
         if "~" in processed_args or 'language' in self.switches:
             speaking_language = caller.get_speaking_language()
-            if not speaking_language:
+            if speaking_language == "English":
                 caller.msg("You need to set a speaking language first with +language <language>")
                 return
 
@@ -95,9 +95,9 @@ class CmdEmit(PoseBreakMixin, MuxCommand):
                 )
                 
                 if receiver == caller or has_universal or speaking_language in receiver.get_languages():
-                    receiver.msg(msg_understand)
+                    receiver.msg(f"{msg_understand} (in {speaking_language})")
                 else:
-                    receiver.msg(msg_not_understand)
+                    receiver.msg(f"({msg_not_understand})")
         else:
             # Handle mixed language content
             for receiver in filtered_receivers:
@@ -121,9 +121,9 @@ class CmdEmit(PoseBreakMixin, MuxCommand):
                         
                         speaking_language = caller.get_speaking_language()
                         if receiver == caller or has_universal or (speaking_language and speaking_language in receiver.get_languages()):
-                            parts.append(f'"{msg_understand}"')
+                            parts.append(f'"{msg_understand}" (in {speaking_language})')
                         else:
-                            parts.append(f'"{msg_not_understand}"')
+                            parts.append(f"({msg_not_understand})")
                         
                         current_pos = match.end()
                     

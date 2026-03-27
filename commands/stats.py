@@ -1,4 +1,4 @@
-﻿from evennia.commands.default.muxcommand import MuxCommand
+from evennia.commands.default.muxcommand import MuxCommand
 from evennia.utils import evtable
 import difflib
 from world.cofd.stat_dictionary import (
@@ -40,6 +40,18 @@ class CmdStat(MuxCommand):
         - Legacy colon syntax is still supported for backward compatibility.
         - Unknown stats are rejected (no silent custom-stat creation).
         - Stat shorthand is supported for common attributes/skills (`dex`, `str`, `inv`, etc.).
+    Staff override:
+        +stat/staff <player>=<stat or category>[:instance]/<value>
+
+    Staff examples:
+        +stat/staff Soma=dexterity/4
+        +stat/staff Soma=contract/Light-Shy
+        +stat/staff Soma=template/Changeling
+        +stat/staff Soma=Unseen Sense:Ghosts/2
+        +stat/staff Soma=specialty:occult/forbidden tomes
+        +stat/staff Soma=merit:unseen_sense:ghosts/2
+        +stat/staff Soma=court/Spring
+        +stat/staff Soma=seeming/Fairest
     """
     
     key = "+stat"
@@ -73,7 +85,7 @@ class CmdStat(MuxCommand):
     def func(self):
         """Execute the command"""
         # Switches that are exempt from chargen room requirement
-        exempt_switches = ['list']
+        exempt_switches = ['list', 'staff']
         
         # Check if command requires chargen room
         # /list is exempt, but all stat modification commands require chargen room
@@ -107,6 +119,8 @@ class CmdStat(MuxCommand):
         
         if switch == "list":
             self.list_stats()
+        elif switch == "staff":
+            self.set_stat_staff()
         elif switch == "remove":
             self.remove_stat()
         elif switch == "favored":
@@ -126,6 +140,127 @@ class CmdStat(MuxCommand):
         else:
             self.caller.msg("Invalid switch. See help for usage.")
     
+    def set_stat_staff(self):
+        """
+        Staff override to set stats on any player, bypassing chargen room
+        and approval restrictions.
+
+        Syntax: +stat/staff <player>=<stat or category>[:instance]/<value>
+
+        The first '=' separates the player name from the rest.
+        The last '/' in the remainder separates the stat from the value.
+        Colons within the stat portion denote instances (e.g. specialty:occult,
+        merit:unseen_sense:ghosts, Unseen Sense:Ghosts).
+        """
+        from world.utils.permission_utils import check_staff_permission
+        if not check_staff_permission(self.caller):
+            self.caller.msg("|rOnly staff can use +stat/staff.|n")
+            return
+
+        args = self.args.strip()
+        if not args or "=" not in args:
+            self.caller.msg("Usage: +stat/staff <player>=<stat or category>[:instance]/<value>")
+            self.caller.msg("Examples:")
+            self.caller.msg("  +stat/staff Soma=dexterity/4")
+            self.caller.msg("  +stat/staff Soma=contract/Light-Shy")
+            self.caller.msg("  +stat/staff Soma=template/Changeling")
+            self.caller.msg("  +stat/staff Soma=Unseen Sense:Ghosts/2")
+            self.caller.msg("  +stat/staff Soma=specialty:occult/forbidden tomes")
+            return
+
+        player_name, remainder = args.split("=", 1)
+        player_name = player_name.strip()
+        remainder = remainder.strip()
+
+        if not player_name or not remainder:
+            self.caller.msg("Usage: +stat/staff <player>=<stat or category>[:instance]/<value>")
+            return
+
+        # Find the target player
+        target = search_character(self.caller, player_name)
+        if not target:
+            return
+
+        # Split remainder on the last '/' to get stat and value
+        if "/" not in remainder:
+            self.caller.msg("Usage: +stat/staff <player>=<stat>/<value>")
+            self.caller.msg("You must provide a value after a '/' separator.")
+            return
+
+        last_slash = remainder.rfind("/")
+        stat_part = remainder[:last_slash].strip()
+        value_part = remainder[last_slash + 1:].strip()
+
+        if not stat_part:
+            self.caller.msg("No stat specified.")
+            return
+
+        # Reconstruct as the internal format that set_stat expects:
+        # <stat>=<value>  (with target wired directly)
+        # We'll rewrite self.args and invoke set_stat, but we need to
+        # bypass chargen and approval checks. The cleanest approach is to
+        # temporarily inject the target and call set_stat's internals.
+
+        # Normalize the stat part: handle the various prefix syntaxes
+        # The stat_part can be:
+        #   "dexterity"                 -> attribute
+        #   "contract"                  -> semantic power (value is power name)
+        #   "template"                  -> template change
+        #   "specialty:occult"          -> specialty
+        #   "merit:unseen_sense:ghosts" -> instanced merit
+        #   "Unseen Sense:Ghosts"       -> instanced merit (natural name)
+        #   "court"                     -> bio field
+        #   "contract/specific_name"    -> should not happen (/ is value separator)
+
+        # Handle specialty:skill -> specialty/skill conversion
+        stat_lower = stat_part.lower().strip()
+        if stat_lower.startswith("specialty:"):
+            skill_name = stat_part.split(":", 1)[1].strip()
+            rewritten_args = f"specialty/{skill_name.lower().replace(' ', '_')}={value_part}"
+        elif ":" in stat_part:
+            # Colon syntax for instanced stats (merit:name:instance, or NaturalName:Instance)
+            # Pass through as-is, the existing parser handles colons
+            rewritten_args = f"{stat_part}={value_part}"
+        else:
+            # Simple stat name
+            rewritten_args = f"{stat_part}={value_part}"
+
+        # Save original state
+        original_args = self.args
+        original_switches = self.switches
+
+        # Temporarily override self.args and clear switches so set_stat runs cleanly
+        self.args = rewritten_args
+        self.switches = []
+
+        # Store a flag so set_stat knows this is a staff override
+        self._staff_override = True
+        self._staff_target = target
+
+        try:
+            self.set_stat()
+        finally:
+            # Restore original state
+            self.args = original_args
+            self.switches = original_switches
+            self._staff_override = False
+            self._staff_target = None
+
+    def _remove_stat_staff(self, target, stat):
+        """Staff removal of a stat on a target character, bypassing permission checks."""
+        from world.cofd.stat_utilities import remove_stat_from_character
+
+        if not target.db.stats:
+            self.caller.msg(f"{target.name} has no stats set.")
+            return
+
+        success, message = remove_stat_from_character(target, stat, self.caller)
+        self.caller.msg(message)
+
+        if success and target != self.caller:
+            stat_display = stat.replace('_', ' ').title()
+            target.msg(f"|y[Staff] {self.caller.name} has removed your stat: {stat_display}|n")
+
     def _get_template_powers(self, template):
         """Get the list of available powers for a specific template (all powers for validation)."""
         if not template:
@@ -295,6 +430,8 @@ class CmdStat(MuxCommand):
             else:
                 # Format: name/stat=value
                 target_stat, value = args.split("=", 1)
+                if "/" not in target_stat:
+                    return None, None, None
                 target_name, stat = target_stat.split("/", 1)
                 # Convert spaces to underscores in stat names
                 stat = stat.strip().lower().replace(" ", "_").replace("-", "_")
@@ -379,6 +516,8 @@ class CmdStat(MuxCommand):
     
     def set_stat(self):
         """Set a stat value"""
+        staff_override = getattr(self, '_staff_override', False)
+
         target_name, stat, value = self.parse_target_stat(self.args)
         
         if not stat:
@@ -395,12 +534,16 @@ class CmdStat(MuxCommand):
         
         # If value is None, this is a removal request
         if value is None:
-            # Redirect to remove_stat
-            self.remove_stat_direct(target_name, stat)
+            if staff_override:
+                self._remove_stat_staff(self._staff_target, stat)
+            else:
+                self.remove_stat_direct(target_name, stat)
             return
         
         # Determine target
-        if target_name:
+        if staff_override:
+            target = self._staff_target
+        elif target_name:
             # Setting for someone else - requires staff or NPC control permissions
             target = search_character(self.caller, target_name)
             if not target:
@@ -561,7 +704,7 @@ class CmdStat(MuxCommand):
         # Check derived stats (should not be set directly by players)
         elif stat in ["health", "willpower", "speed", "defense", "initiative"]:
             # Only staff can directly set derived stats
-            if not self.caller.check_permstring("Builder"):
+            if not staff_override and not self.caller.check_permstring("Builder"):
                 self.caller.msg(f"|r{stat.title()} is a derived stat and cannot be set directly.|n")
                 self.caller.msg(f"|wDerived stats are automatically calculated from your attributes.|n")
                 self.caller.msg(f"To update {stat}, modify the relevant attributes (Strength, Dexterity, Stamina, etc.)")
@@ -998,17 +1141,18 @@ class CmdStat(MuxCommand):
         # Check template (staff only, or self if not approved)
         elif stat == "template":
             # Check permissions: staff can always change templates, players can change their own if not approved
-            if target != self.caller:
-                # Changing someone else's template - requires staff
-                if not self.caller.check_permstring("Builder"):
-                    self.caller.msg("Only staff can set template for other characters.")
-                    return
-            else:
-                # Changing own template - allowed if not approved, staff always allowed
-                if target.db.approved and not self.caller.check_permstring("Builder"):
-                    self.caller.msg("Your character is approved. Only staff can change your template now.")
-                    self.caller.msg("Contact staff if you need a template change.")
-                    return
+            if not staff_override:
+                if target != self.caller:
+                    # Changing someone else's template - requires staff
+                    if not self.caller.check_permstring("Builder"):
+                        self.caller.msg("Only staff can set template for other characters.")
+                        return
+                else:
+                    # Changing own template - allowed if not approved, staff always allowed
+                    if target.db.approved and not self.caller.check_permstring("Builder"):
+                        self.caller.msg("Your character is approved. Only staff can change your template now.")
+                        self.caller.msg("Contact staff if you need a template change.")
+                        return
             
             # Validate template based on legacy mode
             from commands.CmdLegacy import is_legacy_mode
@@ -1582,11 +1726,12 @@ class CmdStat(MuxCommand):
                 
                 if merit:
                     
-                    # Check if character is approved
-                    can_modify, error_msg = check_merit_approved_status(target, stat, self.caller)
-                    if not can_modify:
-                        self.caller.msg(error_msg)
-                        return
+                    # Check if character is approved (staff override bypasses)
+                    if not staff_override:
+                        can_modify, error_msg = check_merit_approved_status(target, stat, self.caller)
+                        if not can_modify:
+                            self.caller.msg(error_msg)
+                            return
                     
                     # For unapproved characters and NPCs, allow merit setting
                     if not isinstance(value, int):
@@ -1971,6 +2116,11 @@ class CmdStat(MuxCommand):
             
             # Mark stats as modified so Evennia persists the changes
             target.db.stats = target.db.stats
+
+            # Notify the target player if staff override was used
+            if staff_override and target != self.caller:
+                stat_display = stat.replace('_', ' ').title()
+                target.msg(f"|y[Staff] {self.caller.name} has modified your stat: {stat_display} -> {value}|n")
     
     def _calculate_power_pools_fallback(self, target, stat, value):
         """Fallback method to calculate power pools when the typeclass method isn't available"""

@@ -5,6 +5,7 @@ from evennia.utils.search import search_object
 from world.utils.formatting import header, footer, divider, section_header, format_stat
 from world.utils.ansi_utils import wrap_ansi
 from evennia.utils.ansi import ANSIString
+from collections.abc import Mapping
 
 # This dictionary should be populated with all available languages
 class CmdLanguage(MuxCommand):
@@ -38,9 +39,12 @@ class CmdLanguage(MuxCommand):
     locks = "cmd:all()"
     help_category = "Roleplaying Tools"
 
+    LANGUAGE_SOURCE = "language"
+    MULTILINGUAL_SOURCE = "multilingual"
+
     def _extract_merit_dots(self, merit_data):
         """Extract numeric dots from merit storage."""
-        if isinstance(merit_data, dict):
+        if isinstance(merit_data, Mapping):
             for key in ("dots", "perm"):
                 if key in merit_data:
                     try:
@@ -52,44 +56,159 @@ class CmdLanguage(MuxCommand):
             return merit_data
         return 0
 
-    def _calculate_language_points(self, target):
-        """
-        Calculate language slots from Language and Multilingual merits.
+    def _is_free_language(self, language, native_language):
+        """English and native language are always free."""
+        return language == "English" or (native_language != "English" and language == native_language)
 
-        - Language: 1 language per dot
-        - Multilingual: 2 languages per dot
-        Supports instanced merits (e.g. language:italian, multilingual:french_italian).
-        """
-        stats = getattr(target.db, "stats", {}) or {}
-        merits = stats.get("merits", {}) or {}
-        points = 0
+    def _parse_language_source(self, raw_source):
+        """Normalize language source aliases."""
+        source = (raw_source or "").strip().lower().replace(" ", "_")
+        if source in ("", "lang", "language", "readwrite", "read_write", "literacy"):
+            return self.LANGUAGE_SOURCE
+        if source in ("multilingual", "multi", "conversation", "conversational"):
+            return self.MULTILINGUAL_SOURCE
+        return None
 
-        if not isinstance(merits, dict):
-            return 0
+    def _parse_add_language_args(self):
+        """
+        Parse add args as:
+          +language/add <language>
+          +language/add <language>/multilingual
+        """
+        raw = (self.args or "").strip()
+        if not raw:
+            return None, None
+
+        if "/" not in raw:
+            return raw.title(), self.LANGUAGE_SOURCE
+
+        lang_part, source_part = raw.rsplit("/", 1)
+        source = self._parse_language_source(source_part)
+        if not source:
+            # Treat entire input as language if slash wasn't a source suffix.
+            return raw.title(), self.LANGUAGE_SOURCE
+        return lang_part.strip().title(), source
+
+    def _get_language_proficiencies(self, target, languages, native_language):
+        """
+        Return and normalize per-language source mapping.
+
+        Stored as target.db.language_proficiencies:
+          { "Spanish": "language"|"multilingual", ... }
+        """
+        prof = getattr(target.db, "language_proficiencies", None) or {}
+        if isinstance(prof, Mapping):
+            prof = dict(prof)
+        else:
+            prof = {}
+
+        changed = False
+        valid_languages = set(languages)
+
+        # Keep only currently known languages.
+        for lang in list(prof.keys()):
+            if lang not in valid_languages:
+                del prof[lang]
+                changed = True
+
+        # Ensure all known languages have a source.
+        for lang in languages:
+            if self._is_free_language(lang, native_language):
+                if prof.get(lang) != self.LANGUAGE_SOURCE:
+                    prof[lang] = self.LANGUAGE_SOURCE
+                    changed = True
+                continue
+            source = self._parse_language_source(prof.get(lang))
+            if source is None:
+                # Backward compatibility: legacy additions default to full Language literacy.
+                prof[lang] = self.LANGUAGE_SOURCE
+                changed = True
+
+        if changed:
+            target.db.language_proficiencies = prof
+        return prof
+
+    def _iter_merit_entries(self, merits):
+        """
+        Yield (merit_key, merit_data) pairs from supported merit layouts.
+
+        Supports both:
+        - flat: merits[merit_key] = merit_data
+        - nested: merits[category][merit_key] = merit_data
+        """
+        if not isinstance(merits, Mapping):
+            return
 
         for merit_key, merit_data in merits.items():
             if not isinstance(merit_key, str):
                 continue
-            base_key = merit_key.split(":", 1)[0].lower()
+
+            # Flat merit layout
+            if isinstance(merit_data, (int, float)) or (
+                isinstance(merit_data, Mapping) and any(k in merit_data for k in ("dots", "perm"))
+            ):
+                yield merit_key, merit_data
+                continue
+
+            # Nested merit layout by category
+            if isinstance(merit_data, Mapping):
+                for nested_key, nested_data in merit_data.items():
+                    if not isinstance(nested_key, str):
+                        continue
+                    if isinstance(nested_data, (int, float)) or (
+                        isinstance(nested_data, Mapping) and any(k in nested_data for k in ("dots", "perm"))
+                    ):
+                        yield nested_key, nested_data
+
+    def _calculate_language_point_breakdown(self, target):
+        """Return (language_points, multilingual_points)."""
+        stats = getattr(target.db, "stats", {}) or {}
+        merits = stats.get("merits", {}) or {}
+        language_points = 0
+        multilingual_points = 0
+
+        if not isinstance(merits, Mapping):
+            return 0, 0
+
+        for merit_key, merit_data in self._iter_merit_entries(merits):
+            normalized_key = merit_key.strip().lower().replace(" ", "_")
+            if normalized_key.startswith("merit:"):
+                normalized_key = normalized_key.split(":", 1)[1]
+            base_key = normalized_key.split(":", 1)[0]
             dots = self._extract_merit_dots(merit_data)
             if dots <= 0:
                 continue
             if base_key == "language":
-                points += dots
+                language_points += dots
             elif base_key == "multilingual":
-                points += dots * 2
+                multilingual_points += dots * 2
 
-        return points
+        return language_points, multilingual_points
 
-    def _count_used_language_slots(self, languages, native_language):
-        """Count non-free languages (excluding English and native)."""
-        used_languages = len(languages)
-        if "English" in languages:
-            used_languages -= 1
-        if native_language in languages and native_language != "English":
-            used_languages -= 1
-        return max(0, used_languages)
-    
+    def _calculate_language_points(self, target):
+        """Return total language points from both merits."""
+        language_points, multilingual_points = self._calculate_language_point_breakdown(target)
+        return language_points + multilingual_points
+
+    def _count_used_language_slots(self, languages, native_language, proficiencies):
+        """
+        Count used points by source for non-free languages.
+
+        Returns:
+            tuple[int, int]: (used_language_points, used_multilingual_points)
+        """
+        used_language = 0
+        used_multilingual = 0
+        for lang in languages:
+            if self._is_free_language(lang, native_language):
+                continue
+            source = self._parse_language_source(proficiencies.get(lang))
+            if source == self.MULTILINGUAL_SOURCE:
+                used_multilingual += 1
+            else:
+                used_language += 1
+        return used_language, used_multilingual
+
     def func(self):
         """Execute command."""
         if "check" in self.switches:
@@ -177,6 +296,8 @@ class CmdLanguage(MuxCommand):
         """Display the character's known languages and current speaking language."""
         languages = self.caller.get_languages()
         current = self.caller.get_speaking_language()
+        native_language = self.caller.db.native_language or "English"
+        proficiencies = self._get_language_proficiencies(self.caller, languages, native_language)
         
         output = [
             header("Languages", width=78),
@@ -196,37 +317,31 @@ class CmdLanguage(MuxCommand):
             current if current else "None"
         ])
 
+        # Literacy breakdown
+        read_write_languages = [lang for lang in languages if self._parse_language_source(proficiencies.get(lang)) != self.MULTILINGUAL_SOURCE]
+        conversational_languages = [lang for lang in languages if self._parse_language_source(proficiencies.get(lang)) == self.MULTILINGUAL_SOURCE]
+        output.extend([
+            section_header("Read/Write Languages", width=78),
+            ", ".join(read_write_languages) if read_write_languages else "None",
+            section_header("Conversational Languages", width=78),
+            ", ".join(conversational_languages) if conversational_languages else "None",
+        ])
+
         # Merit points section
-        language_merit_points = self._calculate_language_points(self.caller)
-        native_language = self.caller.db.native_language or "English"  # Default to English if not set
-        
-        # Calculate total available language points from Language merit (1-5 dots)
-        for category in merits:
-            category_merits = merits[category]
-            for merit_name, merit_data in category_merits.items():
-                if merit_name.lower() == 'language':
-                    # Language merit: each dot gives 1 language point
-                    dots = merit_data.get('perm', 0)
-                    language_merit_points += dots
-
-        if language_merit_points > 0:
-            # Calculate used languages, excluding English and native language
-            used_languages = self._count_used_language_slots(languages, native_language)
-            
-            points_remaining = language_merit_points - used_languages
-
-            output.extend([
-                section_header("Merit Points", width=78),
-                f"Total points: {language_merit_points} (from Language and Multilingual merits)",
-                f"Native language: {native_language}",
-                f"Languages used: {used_languages}",
-                f"Points remaining: {points_remaining}"
-            ])
-        else:
-            output.extend([
-                section_header("Merit Points", width=78),
-                f"Native language: {native_language}"
-            ])
+        language_points, multilingual_points = self._calculate_language_point_breakdown(self.caller)
+        total_points = language_points + multilingual_points
+        used_language, used_multilingual = self._count_used_language_slots(languages, native_language, proficiencies)
+        used_languages = used_language + used_multilingual
+        points_remaining = total_points - used_languages
+        output.extend([
+            section_header("Merit Points", width=78),
+            f"Total points: {total_points} (from Language and Multilingual merits)",
+            f"Language points: {language_points} total, {max(0, language_points - used_language)} remaining",
+            f"Multilingual points: {multilingual_points} total, {max(0, multilingual_points - used_multilingual)} remaining",
+            f"Native language: {native_language}",
+            f"Languages used: {used_languages}",
+            f"Points remaining: {points_remaining}"
+        ])
         
         output.append(footer(78))
         
@@ -246,46 +361,61 @@ class CmdLanguage(MuxCommand):
     def add_language(self):
         """Add a new language to the character."""
         if not self.args:
-            self.caller.msg("Usage: +language/add <language>")
+            self.caller.msg("Usage: +language/add <language>[/multilingual]")
             return
 
-        language = self.args.strip().title()
+        language, source = self._parse_add_language_args()
+        if not language:
+            self.caller.msg("Usage: +language/add <language>[/multilingual]")
+            return
+
         if language not in AVAILABLE_LANGUAGES.values():
             self.caller.msg(f"'{language}' is not a valid language. Use +languages/all to see available languages.")
             return
 
         languages = self.caller.get_languages()
+        native_language = self.caller.db.native_language or "English"
+        proficiencies = self._get_language_proficiencies(self.caller, languages, native_language)
+        language_points, multilingual_points = self._calculate_language_point_breakdown(self.caller)
+        used_language, used_multilingual = self._count_used_language_slots(languages, native_language, proficiencies)
+
         if language in languages:
-            self.caller.msg(f"You already know {language}.")
+            existing_source = self._parse_language_source(proficiencies.get(language)) or self.LANGUAGE_SOURCE
+
+            # Allow upgrading an existing conversational language to read/write.
+            if existing_source == self.MULTILINGUAL_SOURCE and source == self.LANGUAGE_SOURCE:
+                if used_language >= language_points:
+                    self.caller.msg("You don't have enough Language points remaining to upgrade this language to read/write.")
+                    return
+                proficiencies[language] = self.LANGUAGE_SOURCE
+                self.caller.db.language_proficiencies = proficiencies
+                self.caller.msg(
+                    f"Upgraded {language} to Language (read/write). "
+                    "Its Multilingual point has been refunded."
+                )
+                return
+
+            if existing_source == self.LANGUAGE_SOURCE:
+                self.caller.msg(f"You already know {language} as a read/write language.")
+            else:
+                self.caller.msg(f"You already know {language} as a conversational language.")
             return
 
-        # Get native language
-        native_language = self.caller.db.native_language or "English"
-
-        # Calculate current language points used
-        used_languages = len(languages)
-        if "English" in languages:
-            used_languages -= 1  # English is always free
-        if native_language in languages and native_language != "English":
-            used_languages -= 1  # Native language is free
-
-        # Check if they have enough points
-        language_merit_points = self._calculate_language_points(self.caller)
-
-        if used_languages >= language_merit_points:
-            self.caller.msg("You don't have enough language points remaining.")
+        if source == self.MULTILINGUAL_SOURCE and used_multilingual >= multilingual_points:
+            self.caller.msg("You don't have enough Multilingual points remaining.")
+            return
+        if source == self.LANGUAGE_SOURCE and used_language >= language_points:
+            self.caller.msg("You don't have enough Language points remaining.")
             return
 
         # Add the language
         languages.append(language)
         self.caller.db.languages = languages
+        proficiencies[language] = source
+        self.caller.db.language_proficiencies = proficiencies
         
-        # Calculate points used for display
-        points_used = used_languages + 1  # +1 for the new language
-        if language == native_language:
-            points_used -= 1  # Don't count if it's the native language
-        
-        self.caller.msg(f"You have learned {language}. ({points_used}/{language_merit_points} additional languages used)")
+        source_label = "Language (read/write)" if source == self.LANGUAGE_SOURCE else "Multilingual (conversational)"
+        self.caller.msg(f"You have learned {language} via {source_label}.")
 
     def do_set_languages(self):
         """
@@ -342,6 +472,12 @@ class CmdLanguage(MuxCommand):
             
         # Set the languages
         target.db.languages = new_languages
+        native_language = target.db.native_language or "English"
+        proficiencies = self._get_language_proficiencies(target, new_languages, native_language)
+        for lang in new_languages:
+            if lang not in proficiencies:
+                proficiencies[lang] = self.LANGUAGE_SOURCE
+        target.db.language_proficiencies = proficiencies
         
         self.caller.msg(f"Set {target.name}'s languages to: {', '.join(new_languages)}")
         target.msg(f"Your known languages have been set to: {', '.join(new_languages)}")
@@ -442,10 +578,14 @@ class CmdLanguage(MuxCommand):
             return
 
         # Check if this is a staff removing language from another player
+        is_staff = (
+            self.caller.check_permstring("builders")
+            or self.caller.check_permstring("admin")
+            or self.caller.check_permstring("staff")
+        )
+
         if "=" in self.args:
-            if not (self.caller.check_permstring("builders") or 
-                    self.caller.check_permstring("admin") or 
-                    self.caller.check_permstring("staff")):
+            if not is_staff:
                 self.caller.msg("You don't have permission to set languages.")
                 return
             
@@ -460,6 +600,10 @@ class CmdLanguage(MuxCommand):
             target = self.caller
             language = self.args
 
+        if target == self.caller and self.caller.db.approved and not is_staff:
+            self.caller.msg("Approved characters cannot remove languages. You can still add languages if you have points.")
+            return
+
         language = language.strip()
         
         # Can't remove English
@@ -469,6 +613,8 @@ class CmdLanguage(MuxCommand):
 
         # Get current languages
         current_languages = target.get_languages()
+        native_language = target.db.native_language or "English"
+        proficiencies = self._get_language_proficiencies(target, current_languages, native_language)
         
         # Try to find the proper case version
         found = False
@@ -477,6 +623,8 @@ class CmdLanguage(MuxCommand):
                 if proper_lang in current_languages:
                     current_languages.remove(proper_lang)
                     target.db.languages = current_languages
+                    proficiencies.pop(proper_lang, None)
+                    target.db.language_proficiencies = proficiencies
                     
                     # If they were speaking the removed language, reset to English
                     if target.get_speaking_language() == proper_lang:
@@ -522,6 +670,8 @@ class CmdLanguage(MuxCommand):
         target = matches[0]
         languages = target.get_languages()
         current = target.get_speaking_language()
+        native_language = target.db.native_language or "English"
+        proficiencies = self._get_language_proficiencies(target, languages, native_language)
         
         output = [
             header(f"{target.name}'s Languages", width=78),
@@ -541,37 +691,30 @@ class CmdLanguage(MuxCommand):
             current if current else "None"
         ])
 
+        read_write_languages = [lang for lang in languages if self._parse_language_source(proficiencies.get(lang)) != self.MULTILINGUAL_SOURCE]
+        conversational_languages = [lang for lang in languages if self._parse_language_source(proficiencies.get(lang)) == self.MULTILINGUAL_SOURCE]
+        output.extend([
+            section_header("Read/Write Languages", width=78),
+            ", ".join(read_write_languages) if read_write_languages else "None",
+            section_header("Conversational Languages", width=78),
+            ", ".join(conversational_languages) if conversational_languages else "None",
+        ])
+
         # Merit points section
-        language_merit_points = self._calculate_language_points(target)
-        native_language = target.db.native_language or "English"  # Default to English if not set
-        
-        # Calculate total available language points from Language merit (1-5 dots)
-        for category in merits:
-            category_merits = merits[category]
-            for merit_name, merit_data in category_merits.items():
-                if merit_name.lower() == 'language':
-                    # Language merit: each dot gives 1 language point
-                    dots = merit_data.get('perm', 0)
-                    language_merit_points += dots
-
-        if language_merit_points > 0:
-            # Calculate used languages, excluding English and native language
-            used_languages = self._count_used_language_slots(languages, native_language)
-            
-            points_remaining = language_merit_points - used_languages
-
-            output.extend([
-                section_header("Merit Points", width=78),
-                f"Total points: {language_merit_points} (from Language and Multilingual merits)",
-                f"Native language: {native_language}",
-                f"Languages used: {used_languages}",
-                f"Points remaining: {points_remaining}"
-            ])
-        else:
-            output.extend([
-                section_header("Merit Points", width=78),
-                f"Native language: {native_language}"
-            ])
+        language_points, multilingual_points = self._calculate_language_point_breakdown(target)
+        total_points = language_points + multilingual_points
+        used_language, used_multilingual = self._count_used_language_slots(languages, native_language, proficiencies)
+        used_languages = used_language + used_multilingual
+        points_remaining = total_points - used_languages
+        output.extend([
+            section_header("Merit Points", width=78),
+            f"Total points: {total_points} (from Language and Multilingual merits)",
+            f"Language points: {language_points} total, {max(0, language_points - used_language)} remaining",
+            f"Multilingual points: {multilingual_points} total, {max(0, multilingual_points - used_multilingual)} remaining",
+            f"Native language: {native_language}",
+            f"Languages used: {used_languages}",
+            f"Points remaining: {points_remaining}"
+        ])
         
         output.append(footer(78))
         
@@ -586,41 +729,51 @@ class CmdLanguage(MuxCommand):
         target = caller or self.caller
         languages = target.get_languages()
         native_language = target.db.native_language or "English"
+        proficiencies = self._get_language_proficiencies(target, languages, native_language)
         
-        # Calculate available points
-        language_merit_points = self._calculate_language_points(target)
-        
-        # Calculate how many languages we can keep
         # Always keep English and native language
         allowed_languages = ["English"]
         if native_language != "English":
             allowed_languages.append(native_language)
-        
-        # Calculate how many additional languages we can keep
-        additional_slots = language_merit_points
-        
-        # Add languages in order until we hit our limit
+
+        language_points, multilingual_points = self._calculate_language_point_breakdown(target)
+        remaining_language_points = language_points
+        remaining_multilingual_points = multilingual_points
+
+        # Add languages in order until each pool is exhausted.
         languages_removed = []
         final_languages = allowed_languages.copy()
+        final_proficiencies = {lang: self.LANGUAGE_SOURCE for lang in allowed_languages}
         
         for lang in languages:
             # Skip if it's already in our allowed list
             if lang in allowed_languages:
                 continue
-            
-            # If we have slots available, add the language
-            if additional_slots > 0:
-                final_languages.append(lang)
-                additional_slots -= 1
+
+            source = self._parse_language_source(proficiencies.get(lang)) or self.LANGUAGE_SOURCE
+            if source == self.MULTILINGUAL_SOURCE:
+                if remaining_multilingual_points > 0:
+                    final_languages.append(lang)
+                    final_proficiencies[lang] = self.MULTILINGUAL_SOURCE
+                    remaining_multilingual_points -= 1
+                else:
+                    languages_removed.append(lang)
             else:
-                languages_removed.append(lang)
+                if remaining_language_points > 0:
+                    final_languages.append(lang)
+                    final_proficiencies[lang] = self.LANGUAGE_SOURCE
+                    remaining_language_points -= 1
+                else:
+                    languages_removed.append(lang)
         
         if languages_removed:
             # Update the character's languages
             target.db.languages = final_languages
+            target.db.language_proficiencies = final_proficiencies
             target.msg(f"Removed {', '.join(languages_removed)} to stay within language point limits.")
             return True
         
+        target.db.language_proficiencies = final_proficiencies
         return False
 
     def update_merit(self, merit_name, new_value):

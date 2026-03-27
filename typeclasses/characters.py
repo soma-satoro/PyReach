@@ -878,9 +878,9 @@ class Character(DefaultCharacter):
         Get the language the character is currently speaking.
         
         Returns:
-            str or None: Current speaking language, or None if speaking English/default
+            str: Current speaking language, defaults to "English" if not set
         """
-        return getattr(self.db, 'speaking_language', None)
+        return getattr(self.db, 'speaking_language', None) or "English"
     
     def prepare_say(self, speech, viewer=None, language_only=False, skip_english=False):
         """
@@ -907,11 +907,10 @@ class Character(DefaultCharacter):
             msg_others = f'{self.name} says, "{speech}"'
             return (msg_self, msg_others, msg_others, None)
         
-        # Generate obfuscated version of the speech
-        obfuscated = self._obfuscate_language(speech, speaking_language)
-        
         if language_only:
-            return ("", speech, obfuscated, speaking_language)
+            # For mixed-content commands (pose/emit), return a clear placeholder
+            # instead of gibberish for listeners who don't understand.
+            return ("", speech, f"something in {speaking_language}", speaking_language)
         
         # Create the three message versions
         msg_self = f'You say in {speaking_language}, "{speech}"'

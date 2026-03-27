@@ -51,11 +51,20 @@ class CmdSay(PoseBreakMixin, MuxCommand):
         # Process special characters in the speech
         speech = process_special_characters(speech)
 
+        # Language mode is opt-in via a leading "~", per command help.
+        language_tagged = speech.startswith("~")
+        if language_tagged:
+            speech = speech[1:].lstrip()
+            if not speech:
+                caller.msg("Say what?")
+                return
+            speaking_language = caller.get_speaking_language()
+            if speaking_language == "English":
+                caller.msg("You need to set a speaking language first with +language <language>")
+                return
+
         # Send pose break before the message
         self.send_pose_break()
-
-        # Prepare the say messages
-        msg_self, msg_understand, msg_not_understand, language = caller.prepare_say(speech)
 
         # Filter receivers based on reality layers
         filtered_receivers = []
@@ -81,6 +90,18 @@ class CmdSay(PoseBreakMixin, MuxCommand):
                 not any([obj_in_umbra, obj_in_material, obj_in_dreaming])):
                 filtered_receivers.append(obj)
 
+        # Untagged speech always defaults to English/plain speech.
+        if not language_tagged:
+            msg_self = f'You say, "{speech}"'
+            msg_others = f'{caller.name} says, "{speech}"'
+            for receiver in filtered_receivers:
+                receiver.msg(msg_self if receiver == caller else msg_others)
+            caller.record_scene_activity()
+            return
+
+        # Prepare the language-tagged message content.
+        _, _, _, language = caller.prepare_say(speech)
+
         # Send messages to receivers
         for receiver in filtered_receivers:
             if receiver != caller:
@@ -94,17 +115,14 @@ class CmdSay(PoseBreakMixin, MuxCommand):
                 # Get the languages the receiver knows
                 receiver_languages = receiver.get_languages()
 
-                # If they have Universal Language, know the language, or it's not a language-tagged message
+                # If they understand, show normal text with an explicit language marker.
                 if has_universal or not language or (language and language in receiver_languages):
-                    _, msg_understand, _, _ = caller.prepare_say(speech, viewer=receiver, skip_english=True)
-                    receiver.msg(msg_understand)
+                    receiver.msg(f'{caller.name} says, "{speech}" (in {language})')
                 else:
                     _, _, msg_not_understand, _ = caller.prepare_say(speech, viewer=receiver, skip_english=True)
                     receiver.msg(msg_not_understand)
             else:
-                # The speaker always understands their own speech
-                msg_self, _, _, _ = caller.prepare_say(speech, viewer=receiver, skip_english=True)
-                receiver.msg(msg_self)
+                receiver.msg(f'You say, "{speech}" (in {language})')
 
         # Record scene activity
         caller.record_scene_activity()

@@ -145,7 +145,7 @@ class CmdPose(PoseBreakMixin, MuxCommand):
         # Check if there's a language-tagged speech and set speaking language
         if "~" in self.args:
             speaking_language = caller.get_speaking_language()
-            if not speaking_language:
+            if speaking_language == "English":
                 caller.msg("You need to set a speaking language first with +language <language>")
                 return
 
@@ -201,15 +201,15 @@ class CmdPose(PoseBreakMixin, MuxCommand):
                     
                     # Check for Universal Language merit
                     has_universal = any(
-                        merit.lower().replace(' ', '') == 'universallinguist'
+                        merit.lower().replace(' ', '') == 'universallanguage'
                         for category in receiver.db.stats.get('merits', {}).values()
                         for merit in category.keys()
                     )
                     
                     if receiver == caller or has_universal or (speaking_language and speaking_language in receiver.get_languages()):
-                        parts.append(f'"{msg_understand}"')
+                        parts.append(f'"{msg_understand}" (in {speaking_language})')
                     else:
-                        parts.append(f'"{msg_not_understand}"')
+                        parts.append(f"({msg_not_understand})")
                     
                     current_pos = match.end()
                 
