@@ -5,1133 +5,1232 @@ Kith data including skills, descriptions, blessings, and sources.
 Based on Changeling: The Lost 2nd Edition core book, Kith & Kin, and Dark Eras 2.
 """
 
-ALL_KITHS = {'artist': {'name': 'Artist',
-            'skill': 'Crafts',
-            'description': 'Creators whose bodies and habits were fused to their chosen medium by Arcadian compulsion, '
-                           'whether paint, stone, architecture, music, or another art that consumed their every waking '
-                           'hour. Artists were punished for pausing, resting, or presenting anything less than '
-                           'perfection, and many escaped only by channeling that same obsessive creative force against '
-                           'their Keepers. Many keep unfinished work hidden until it feels flawless enough to survive '
-                           'another judgment. Their mien often carries marks of medium and method: stone skin, '
-                           'ink-veins, pigment streaks, or tool-callused hands. Freeholds rely on them for inspired '
-                           'creation but learn quickly not to interrupt their process at the wrong moment.',
-            'blessing': 'Tools of the Trade: choose Crafts or Expression and an art Specialty. When using that '
-                        'Specialty, three successes count as an exceptional success; by spending 1 Glamour, the '
-                        "character's tools and materials manifest for a scene and grant bonus dice equal to Wyrd "
-                        "(maximum +5) on relevant creation rolls. This blessing models the Artist's compulsive "
-                        'preparedness: tools appear when inspiration hits, and technical focus spikes under pressure.',
-            'book': 'CTL 2e 51'},
+ALL_KITHS = {
+'artist': {'name': 'Artist',
+          'skill': 'Crafts',
+          'description': 'Artists are not just the painters, the sculptors, the architects, or the '
+                         'composers. They are, in a very real way, their art. True Fae rarely '
+                         'abduct established artists to make Artist changelings. Novices, amateurs, '
+                         "and struggling small-timers might all become Artists. The Gentry don't "
+                         'care about the initial quality. What they want is an Artist trained to '
+                         'create things solely for them. As part of their durance, Artists often '
+                         "develop physical characteristics of their chosen medium. A sculptor's "
+                         'skin might become gray and flinty, whereas a painter might have splashes '
+                         'of random, vivid colors in their hair. In Arcadia, a prison of their own '
+                         'frenzied activity held them. Stopping to rest might mean punishment, '
+                         'often in the form of being forced to destroy their own half-finished '
+                         "piece, or watching their Keeper do so because it wasn't perfect. As such, "
+                         'many Artists are usually extremely protective of their works in progress, '
+                         'never letting them see the light of day until they are absolutely '
+                         'flawless.',
+          'blessing': 'Choose either Crafts or Expression. When the Artist uses a Specialty for art '
+                      'with that Skill, achieving three successes counts as an exceptional success. '
+                      'Tools of the Trade: A good Artist is never without her tools. She can spend '
+                      'a point of Glamour for her player to gain bonus dice equal to her Wyrd, to a '
+                      'maximum of +5, on a Crafts or Expression roll with one of her Specialties '
+                      'pertaining to creating art. All the necessary implements of her craft '
+                      'manifest around her for a scene.',
+          'book': 'CTL 2e 51'},
  'bright_one': {'name': 'Bright One',
-                'skill': 'Socialize',
-                'description': 'Radiant changelings forged from mortal passion driven to unbearable intensity, then '
-                               'punished in Arcadia whenever that emotion surfaced. Bright Ones often escaped in '
-                               'eruptions of light and fury, and even in mortal life they remain difficult to ignore - '
-                               'luminous presences whose warmth, anger, and conviction can dominate a room. Keepers '
-                               'often lured them through passion rather than force, then punished feeling until rage '
-                               'became radiance. Their escape stories frequently involve blinding brilliance at '
-                               'exactly the right second. In modern freeholds, they are both magnetic social anchors '
-                               'and dangerous emotional accelerants.',
-                'blessing': 'Flare: when using Socialize to become the center of attention, three successes count as '
-                            "exceptional. By spending 1 Glamour, the character intensify the character's glow to "
-                            'blinding brilliance for a turn; visible enemies who can see the character take bashing '
-                            'damage and suffer a -2 penalty on Physical and Mental actions. Used well, it turns social '
-                            'spotlight into battlefield control, punishing enemies who underestimate presence as a '
-                            'weapon.',
-                'book': 'CTL 2e 52'},
- 'chatelaine': {'name': 'Chatelaine',
-                'skill': 'Empathy',
-                'description': 'Perfect household servants drilled in protocol, hierarchy, and anticipatory obedience '
-                               'within hostile fae estates where every misstep invited punishment. Chatelaines '
-                               'survived by mastering social systems and reading immediate need, and they carry that '
-                               'talent into freehold politics as planners, stewards, event-runners, and subtle '
-                               'operators. They learned to survive by reading rooms before anyone spoke and by '
-                               'borrowing structure from people with more apparent power. Many become exceptional '
-                               'event stewards, negotiators, and court logisticians. Even after escape, service, '
-                               'control, and self-worth remain tangled themes in their lives.',
-                'blessing': "Will That Be All?: when using Empathy to read a target's immediate desires, three "
-                            'successes count as exceptional. Spend 1 Glamour and roll Manipulation + Socialize to '
-                            "temporarily use one other character's Social Merits as if the character's own for the "
-                            'scene, with events remembered as though that target used them. It captures how a '
-                            'Chatelaine survives through systems, protocol, and borrowed status rather than raw '
-                            'authority.',
-                'book': 'CTL 2e 52'},
- 'gristlegrinder': {'name': 'Gristlegrinder',
-                    'skill': 'Brawl',
-                    'description': 'Cannibal nightmares shaped by emptiness, deprivation, and Arcadian brutality, '
-                                   'taught to cook, butcher, or devour other captives as warning and utility. '
-                                   'Gristlegrinders return carrying bottomless appetites - not only for flesh, but for '
-                                   'love, status, money, safety, and certainty - and many struggle to prove they are '
-                                   'more than the hunger they survived. Their hunger is rarely only literal: it often '
-                                   'manifests as obsession with security, affection, money, or certainty. Rumors about '
-                                   'what they will or will not eat follow them through every court. The kindest among '
-                                   'them work hard to prove they are more than the role Arcadia carved into their '
-                                   'jaws.',
-                    'blessing': 'To Serve Man: when grappling to feed, three Brawl successes count as exceptional. The '
-                                'character can make lethal bite attacks without grappling first, and by spending 1 '
-                                'Glamour and rolling Stamina + Survival the character may swallow smaller targets '
-                                'whole; those inside take ongoing lethal damage and must inflict major internal harm '
-                                'to escape. The blessing makes hunger tactically concrete, combining close-quarters '
-                                'lethality with terrifying control once a target is seized.',
-                    'book': 'CTL 2e 53'},
- 'helldiver': {'name': 'Helldiver',
-               'skill': 'Larceny',
-               'description': 'Arcadian spies and infiltrators sent where even True Fae preferred not to go, often '
-                              'bound by a painful silver tether to their Keeper until they found a way to sever it. '
-                              'Helldivers are compulsive explorers and information thieves, forever drawn toward '
-                              'secret places, occult crossings, and conversations they absolutely should not hear. The '
-                              'silver thread of service is remembered as both leash and map, and severing it marks '
-                              'true freedom. They remain compulsive explorers of odd realms, forbidden doors, and '
-                              'half-known rumors. Knowledge is their comfort, their weapon, and sometimes their most '
-                              'dangerous appetite.',
-               'blessing': 'Dive: when using Larceny in the Hedge, Arcadia, or other unearthly realms, three successes '
-                           'count as exceptional. Spend 1 Glamour and roll Dexterity + Occult to phase over time into '
-                           'an invisible, incorporeal state like a dematerialized Hedge ghost; spend Glamour and roll '
-                           'again to return, with access to inter-realm transit where valid gates exist. Dive rewards '
-                           'planning around timing, Clarity, and exits, especially when crossing boundaries other '
-                           'kiths cannot safely traverse.',
-               'book': 'CTL 2e 53'},
- 'hunterheart': {'name': 'Hunterheart',
-                 'skill': 'Investigation',
-                 'description': 'Predators of Arcadia shaped by relentless chase, blooded struggle, and mythic beast '
-                                'archetypes rather than natural ecology. Hunterhearts may be noble stalkers, '
-                                'terrifying ambushers, or disciplined trackers, but all retain the primal certainty '
-                                'that survival belongs to whoever finds the trail first and closes fastest. Their '
-                                'behavior follows mythic predator stories as much as biology: proud lions, solitary '
-                                'wolves, or elegant stalking cats. Escape often comes through bloodshed, but just as '
-                                'often through perfect patience. What matters is the chase, the strike, and never '
-                                'surrendering the trail.',
-                 'blessing': 'Pounce: choose Investigation or Survival; when using the chosen Skill to track fae '
-                             "beings, three successes count as exceptional. If a target can meet the character's gaze, "
-                             'spend 1 Glamour and contest Presence + Wyrd against Composure + Tolerance to inflict '
-                             "either Insensate or Frightened, and the character's unarmed attacks against that prey "
-                             'become lethal. Pounce blends predatory fear and finishing force, making first contact '
-                             'and eye-line positioning crucial to success.',
-                 'book': 'CTL 2e 54'},
- 'leechfinger': {'name': 'Leechfinger',
-                 'skill': 'Medicine',
-                 'description': 'Predatory life-drainers shaped from takers of every social class - manipulators, '
-                                'professionals, killers, and caretakers alike - then weaponized as contact-based '
-                                'torture tools in Faerie. Leechfingers return with excellent bedside instincts and '
-                                'terrifying intimacy-based power, making them useful healers and deeply mistrusted '
-                                'companions. The kith carries the social unease of a healer who can also feed on '
-                                'contact. Some choose strict personal boundaries; others rationalize predation as '
-                                "necessity. Even allies may wonder how much help and harm can look identical at arm's "
-                                'length.',
-                 'blessing': "Sap the Vital Spark: when using Medicine to assess a target's health, three successes "
-                             'count as exceptional. By maintaining physical contact for a full turn and spending 1 '
-                             'Glamour, the character deal bashing damage and heal themself by downgrading damage; '
-                             'against changelings, both inflicted and healed amounts double. Sap mechanics reinforce '
-                             "the kith's duality: predation and restoration share the same touch and the same moral "
-                             'risk.',
-                 'book': 'CTL 2e 55'},
- 'mirrorskin': {'name': 'Mirrorskin',
-                'skill': 'Stealth',
-                'description': 'Identity-fluid survivors who escaped by becoming impossible to pin down, whether as '
-                               'spies, prototype bodies, captive reflections, or living displays for capricious '
-                               'Keepers. Mirrorskins are masters of adaptive selfhood; they can be anyone long enough '
-                               'to survive, but often pay for that flexibility with uncertainty about who remains '
-                               'underneath. People-pleasing instincts and survival disguise blend into a single craft '
-                               'for most Mirrorskins. They can pass, infiltrate, and vanish through social systems '
-                               'with frightening ease. Their hardest work is often not becoming someone else, but '
-                               'deciding who they are when nobody is watching.',
-                'blessing': 'Mercurial Visage: when using Stealth while disguised, three successes count as '
-                            "exceptional. Spend 1 Glamour and roll Wits + Subterfuge + Wyrd to reshape the character's "
-                            'Mask into a new composite identity; for an additional Glamour the character can reshape '
-                            "the character's mien as well, with supernatural detection resolved by Clash of Wills. "
-                            'Mercurial Visage is strongest in social infiltration chronicles where identity itself '
-                            'becomes terrain.',
-                'book': 'CTL 2e 55'},
- 'nightsinger': {'name': 'Nightsinger',
-                 'skill': 'Expression',
-                 'description': 'Arcadian vocal artists whose songs were cultivated to produce exquisite emotional '
-                                'devastation, from grief that breaks stone to joy that dissolves reason. Nightsingers '
-                                'often escaped through performances that overwhelmed their captors, and though mortal '
-                                'reality dulls their old scope, their voices still carry supernatural enthrallment. '
-                                'Many escaped while their Keepers were enthralled by songs too sorrowful or ecstatic '
-                                'to resist. Their voices no longer bend reality as easily in the mortal world, but '
-                                'still alter rooms and crowds. Admiration, fear, and dependency often follow where '
-                                'they perform.',
-                 'blessing': 'Siren Song: when singing or composing with Expression, three successes count as '
-                             'exceptional. Spend 1 Glamour and roll Presence + Expression + Wyrd contested by '
-                             "listeners' Composure + Tolerance; those who fail become Swooned and rooted in place "
-                             "while the character's song continues, unless disrupted by counter-magic, heavy harm, or "
-                             'blocked hearing. Siren Song rewards control of line of hearing and scene pacing, often '
-                             'ending fights before blows are traded.',
-                 'book': 'CTL 2e 56'},
- 'notary': {'name': 'Notary',
-            'skill': 'Politics',
-            'description': 'Living contracts upon whom fae pledges were written in blood, scar, and soul, trained to '
-                           'witness every clause and survive every loophole. Notaries are dangerously valuable in '
-                           'freehold life: legal memory, oath strategy, and technical interpretation wrapped in one '
-                           'person who often escaped by out-lawyering the impossible. Their value lies not just in '
-                           'legal knowledge but in exact memory under pressure. Keepers and freeholds alike treat them '
-                           'as strategic assets in oath-driven politics. A single clause remembered at the right '
-                           'moment can save a motley or doom a monarch.',
-            'blessing': 'Abatement: when negotiating, reading, or interpreting fae pledges with Politics, three '
-                        'successes count as exceptional. Once per chapter, if the character officiate a pledge, the '
-                        'character may negate its Glamour cost entirely and thereafter recite its exact terms from '
-                        'perfect memory for as long as the pledge persists. Abatement can shift entire pledge '
-                        'economies in a chronicle, especially where formal bargains drive politics.',
-            'book': 'CTL 2e 57'},
- 'playmate': {'name': 'Playmate',
-              'skill': 'Persuasion',
-              'description': 'Beloved companions, comfort objects, and emotional supports crafted to satisfy a '
-                             "Keeper's attachment needs, then often discarded once novelty faded. Playmates are "
-                             'profoundly social and often painfully self-sacrificing, navigating suspicion from other '
-                             'Lost while using their rare healing gift to keep motleys, courts, and communities alive. '
-                             'Because many were discarded rather than pursued, they are often mistrusted despite their '
-                             'generosity. Their blessing makes them precious in any crisis, but the personal cost can '
-                             'be devastating. Motley bonds frequently become the first place they relearn chosen, '
-                             'healthy attachment.',
-              'blessing': "Coeur Loyal: when using Persuasion to make someone like the character or the character's "
-                          'allies, three successes count as exceptional. By touching a target and spending 1 Glamour, '
-                          'the character instantly heal their bashing or lethal wounds and take equivalent mild or '
-                          'severe Clarity damage themself, potentially to the point of self-loss. Coeur Loyal offers '
-                          'extreme triage power, but the Clarity cost keeps the blessing tragic and narratively sharp.',
-              'book': 'CTL 2e 57'},
- 'snowskin': {'name': 'Snowskin',
-              'skill': 'Subterfuge',
-              'description': 'Cold-reserved survivors forged in frigid Arcadian realms where emotional shutdown was '
-                             'often the only defense against annihilation. Snowskins escaped by becoming unreadable '
-                             'and untouchable to their Keepers, and many still carry that disciplined frost into '
-                             'freehold life as strategic calm, social distance, and razor-edged contempt. They '
-                             'survived by freezing affect and narrowing trust to what could not betray them. That '
-                             'strategy remains effective, but socially isolating, after escape. Behind the cold '
-                             'presentation, many hide fierce loyalty to the few they finally allow close.',
-              'blessing': "Heart of Ice: when using Subterfuge to hide the character's feelings, three successes count "
-                          'as exceptional. Spend 1 Glamour and roll Presence + Intimidation + Wyrd contested by '
-                          'Composure + Tolerance to inflict Shaken and impose social penalties among changelings, '
-                          'freezing a target out with public disdain. Heart of Ice weaponizes social exclusion, making '
-                          'reputation damage as dangerous as physical harm in changeling courts.',
-              'book': 'CTL 2e 58'},
- 'absinthial': {'name': 'Absinthial',
-                'skill': 'Crafts',
-                'description': "Fickle, perfectionistic 'green fairies' forced to brew dream-soaked Arcadian absinthe "
-                               'for the Gentry, often by distilling their own imagination, longing, and nightmares '
-                               'into impossible drink. After escape, many become obsessive brewers, intoxicating '
-                               'hosts, and dangerous artists whose charisma can feel like drowning in perfume, memory, '
-                               'and hallucination. Absinthials were made to brew dreams into impossible absinthe, and '
-                               'many escaped while their Keepers were incapacitated by ecstatic visions. In mortal '
-                               'life they often become obsessive brewers, exacting hosts, and volatile aesthetes who '
-                               'treat criticism as an existential insult.',
-                'blessing': "Green Fairy's Curse: once per scene, spend 1 Glamour and touch a target, then roll "
-                            "Presence + Crafts + Wyrd contested by Composure + Tolerance. On success, the character's "
-                            'victim is overwhelmed by intoxicating visions and rendered Insensate; when the effect '
-                            'ends, they stagger back with the Confused Condition as dream and waking reality untangle. '
-                            "Green Fairy's Curse combines social contact with incapacitating control, making "
-                            'touch-range setup and timing critical.',
-                'book': 'Kith 88'},
- 'climacteric': {'name': 'Climacteric',
-                 'skill': 'Investigation',
-                 'description': 'Living calendars and stage-managers of Arcadian realms, once tasked with raising '
-                                'suns, calling storms, and setting the rhythm of impossible courts to satisfy a '
-                                "Keeper's theatrical whims. Escaped Climacterics excel at pattern-reading and "
-                                'battlefield timing, but their old authority over tempo and atmosphere marks them as '
-                                'both priceless tactical assets and dangerous beacons for Huntsmen. Climacterics once '
-                                'managed weather and time cues for Arcadian pageantry, from candlelit nightfall to '
-                                'staged dawns. Freeholds value their strategic timing but often fear the attention '
-                                'their powers attract from Huntsmen and old enemies.',
-                 'blessing': 'En Prise: whenever anyone rolls Initiative and the character is present, the character '
-                             'may spend 1 Glamour to choose one other character to act at the top of the order without '
-                             'rolling. The character cannot choose themself, but the character can decisively shape '
-                             "the first beat of a conflict and force the scene to begin on the character's terms. En "
-                             'Prise excels in initiative economies, enabling decisive openers without requiring the '
-                             'Climacteric to act first personally.',
-                 'book': 'Kith 88'},
- 'concubus': {'name': 'Concubus',
-              'skill': 'Empathy',
-              'description': "Nocturnal companions made to sleep beside alien minds, soothe their Keepers' nightmares, "
-                             'and survive long stretches of daylight isolation, abandonment, or confinement. Concubi '
-                             'return with rare and frightening oneiromantic intimacy, often serving as therapists, '
-                             'courtesans, and dream-guides while carrying the private burden of what they witnessed in '
-                             'Gentry dreams that no one else can truly understand. Concubi endured nocturnal intimacy '
-                             'with alien minds and long daylight isolation, leaving them uniquely skilled but deeply '
-                             'scarred oneiromancers. Many become therapists, courtesans, or dream-guardians for other '
-                             'Lost despite suspicion from harder-line courts.',
-              'blessing': 'Valerian and Violence: when the character gains Dream Infiltrator by sleeping beside a '
-                          'dreamer and working in their Bastion, the character can remove one suitable non-persistent '
-                          'mental Condition with a successful paradigm shift. Persistent healing is possible through '
-                          'repeated nights, repeated access, and sustained oneiromantic intervention, making the '
-                          'character one of the strongest long-term dream healers in the freehold. Valerian and '
-                          'Violence is long-horizon healing through dream access, rewarding sustained consent-based '
-                          'oneiromancy scenes.',
-              'book': 'Kith 89'},
- 'draconic': {'name': 'Draconic',
-              'skill': 'Brawl/Weaponry',
-              'description': 'Scaled, horned guardian-beasts forged in the image of Arcadian dragons and made to '
-                             'defend towers, treasures, favored captives, or royal vanity projects for centuries at a '
-                             'time. Draconics often feel too large and intense for mortal life, but once they trust a '
-                             'motley they become fierce, loyal guardians of people, places, and treasured things they '
-                             'call home. Draconics were shaped as guardian beasts for hoards, towers, and favored '
-                             'captives, and many still organize their lives around territory and protection. They can '
-                             'seem overwhelming at first contact, but are fiercely loyal once trust is earned.',
-              'blessing': "None Dare Resist: while the character's mien is revealed, the character may spend extra "
-                          'Glamour to roar, posture, or otherwise assert dominance and inflict fear on everyone who '
-                          'can perceive the character. The character can also spend Glamour to take wing and fly '
-                          'briefly at supernatural speed, including devastating aerial charges, before gliding safely '
-                          'down when the blessing ends. None Dare Resist turns revealed mien into area fear pressure '
-                          'while adding short-burst aerial mobility for tactical spikes.',
-              'book': 'Kith 90'},
- 'flowering': {'name': 'Flowering',
                'skill': 'Socialize',
-               'description': 'Shaped by Arcadian gardens, perfumery, and ornamental service, Flowering are '
-                              'mesmerizing companions whose tenderness can become emotional dependency before anyone '
-                              'realizes what happened. Their scents and social grace make them ideal courtiers, '
-                              'confidantes, and power-behind-the-throne manipulators, whether they nurture a '
-                              "freehold's health or quietly bend it toward personal obsession. Flowerings were trained "
-                              'to beautify others and can struggle with depersonalization after escape. Their scent '
-                              'and social pull create dependency quickly, making them either stabilizing confidantes '
-                              'or subtle court-poisoners depending on intent.',
-               'blessing': 'Seductive Fragrance: spend 1 Glamour and roll Presence + Empathy to release the '
-                           "character's signature fae perfume for the scene. Others in the character's presence "
-                           'contest with Composure + Tolerance; those who fail gain Leveraged regarding the character, '
-                           'and with another Glamour during the same scene the character may inflict Frightened, '
-                           'Reckless, or Swooned on a Leveraged target. Seductive Fragrance creates scene-long '
-                           'leverage webs that can be escalated into targeted emotional conditions.',
-               'book': 'Kith 90'},
- 'ghostheart': {'name': 'Ghostheart',
-                'skill': 'Perception',
-                'description': "Keepers' undertakers and body-disposers, Ghosthearts handled Arcadia's dead directly "
-                               'and learned truths many Lost cannot bear to hear. Haunted but never truly alone, they '
-                               'return with uncanny perception, habitual relationships with Twilight beings, and '
-                               'reputations as eerie but effective spies, couriers, archivists, and negotiators with '
-                               "the restless dead. Ghosthearts handled Arcadia's dead and returned with unusual "
-                               'comfort around spirits and memory. Courts that shun them usually regret it, because a '
-                               "Ghostheart's Twilight network can harass enemies, gather intelligence, and defend "
-                               'territory.',
-                'blessing': 'Friends in Strange Places: begin play with three additional dots of Retainers represented '
-                            'by loyal or bound ghosts, each with chosen starting Numina from the allowed list. The '
-                            "character may invest further Allies to expand those relationships, making the character's "
-                            "supernatural support network one of the character's defining strengths in both "
-                            'investigation and defense. Friends in Strange Places front-loads supernatural support '
-                            'through ghost retainers and customized utility.',
-                'book': 'Kith 91'},
- 'moonborn': {'name': 'Moonborn',
-              'skill': 'Empathy/Intimidation',
-              'description': 'Emotionally tormented playthings kept in near-constant Bedlam, Moonborn return with '
-                             'volatile passions, fierce empathy, and deep scars around attachment, identity, and '
-                             'trust. Many become defenders and mentors for new Lost who feel emotionally unmoored, '
-                             'while others become dangerous bridge-burners who spread the same chaos once carved into '
-                             'their own hearts. Moonborn were emotional test subjects kept in constant Bedlam, making '
-                             'attachment and regulation lifelong battles. Many become protectors of new escapees, '
-                             'while others externalize that trauma and spread chaos in return.',
-              'blessing': 'Full Moon Catharsis: once per chapter, spend 1 Glamour and roll Manipulation + Expression '
-                          'to trigger mass emotional destabilization in up to Wyrd targets, contested by Composure + '
-                          'Tolerance. Those who fail gain one chosen emotional Condition, letting the character '
-                          "weaponize the character's own remembered overwhelm as a controlled outburst. Full Moon "
-                          'Catharsis converts personal trauma memory into controlled mass emotional disruption once '
-                          'per chapter.',
-              'book': 'Kith 92'},
- 'uttervoice': {'name': 'Uttervoice',
-                'skill': 'Intimidation',
-                'description': 'Creators whose blocked longing and frustration were weaponized until their voices '
-                               'became instruments of terror, shock, and destruction in Arcadian war. Some Uttervoices '
-                               'barely speak above a whisper while others lean into open threat, but all struggle with '
-                               'intimacy when ordinary communication can turn into collateral damage. Uttervoices were '
-                               'forged from creative frustration into sonic weapons for fae warfare. Their social '
-                               'lives are often marked by restraint, fear of collateral harm, and resentment at being '
-                               'reduced to a voice that hurts.',
-                'blessing': 'Scream of Agony: spend 1 Glamour and unleash a scream contested by Presence + Wyrd versus '
-                            "listeners' Composure + Tolerance, dealing bashing damage on failure and potentially "
-                            "lethal on the character's exceptional success. The character can sustain the scream by "
-                            'spending actions and Glamour, and the force can shatter weak glass and trigger '
-                            'accidentally on certain supernatural Presence rolls. Scream of Agony is high-collateral '
-                            'sonic force; positioning and ally safety are as important as raw output.',
-                'book': 'Kith 92'},
- 'delver': {'name': 'Delver',
-            'skill': 'Investigation',
-            'description': "Relentless seekers forced to mine Arcadia's buried wealth and hidden secrets, often "
-                           'surrendering pieces of themselves - voice, certainty, identity - in the dark. Delvers '
-                           'return as patient and guarded specialists in recovering what was lost or hidden, and many '
-                           'maintain hard-earned solidarity through coded vibration speech carried through the earth '
-                           'itself. Delvers mined impossible wealth and secrets in isolation, often giving up pieces '
-                           'of self in the process. Their underground communication culture and patience make them '
-                           'excellent investigators, smugglers, and long-game operators.',
-            'blessing': 'Tappingspeak: spend 1 Glamour to send encrypted tapped messages through earth-connected '
-                        'surfaces to declared recipients within Wyrd miles, with instinctive understanding for '
-                        'intended listeners. Other Delvers can intercept and decode; non-Delvers generally need '
-                        'supernatural means, while the character may spend Glamour and roll Investigation to decode '
-                        'intercepted messages. Tappingspeak enables secure low-visibility coordination across '
-                        'distance, especially when spoken channels are compromised.',
-            'book': 'Kith 93'},
- 'glimmerwisp': {'name': 'Glimmerwisp',
-                 'skill': 'Persuasion',
-                 'description': 'Living veils and fogs shaped to hide atrocity, scandal, and breaking points in '
-                                'service to cruel masters who enjoyed outsourcing cruelty to willing cover stories. '
-                                'Escaped Glimmerwisps can still cloud what others see, making them exceptional '
-                                'emergency responders, fixers, and accomplices - or dangerous enablers who hide '
-                                'exactly what should be confronted. Glimmerwisps were veils over atrocity, trained to '
-                                'redirect attention and normalize the intolerable. After escape, some use that skill '
-                                'for triage and de-escalation, while others slip into enabling violence behind a '
-                                'perfumed haze.',
-                 'blessing': 'Concealing Mist: spend 1 Glamour to fill a room or nearby open area with perfumed haze '
-                             'and roll Manipulation + Persuasion + Wyrd, contested by Resolve + Composure. Characters '
-                             'who lose cannot perceive wrongdoing or shameful acts by others within the mist, and the '
-                             'concealment lasts through the end of the scene. Concealing Mist controls what wrongdoing '
-                             'can be perceived, shifting both accountability and witness dynamics.',
-                 'book': 'Kith 94'},
- 'gremlin': {'name': 'Gremlin',
-             'skill': 'Crafts',
-             'description': 'Brilliant obsessives trapped between perfection and destruction, Gremlins tear down '
-                            'anything flawed - including their own nearly finished masterpieces - to rebuild it '
-                            'correctly. Their volatile standards and furious precision make them indispensable makers '
-                            'and infuriating allies, often tolerated because they can produce miracles under '
-                            'impossible deadlines. Gremlins embody perfectionism so extreme that destruction becomes a '
-                            'necessary step in creation. They are brilliant under pressure, but their intolerance for '
-                            'flaws can strain every relationship around them.',
-             'blessing': 'Nightmare at 20,000 Feet: once per scene, spend 1 Glamour to convert an extended action into '
-                         'an instant action, provided the work includes meaningful dismantling or destructive '
-                         "teardown. This reflects the character's kith's paradoxical genius - destruction as "
-                         'acceleration - and is especially potent in high-pressure repair or sabotage scenes. '
-                         'Nightmare at 20,000 Feet compresses time by coupling destruction with rapid execution in '
-                         'critical moments.',
-             'book': 'Kith 94'},
- 'manikin': {'name': 'Manikin',
-             'skill': 'Socialize',
-             'description': "Runway figures, animated displays, and living canvases remade to present someone else's "
-                            'vision flawlessly, whether adored as centerpieces or discarded as obsolete props. '
-                            'Manikins survived through poise and purpose; many escape from storage, abandonment, or '
-                            'theft, then leverage social adaptability to make any role, costume, setting, or audience '
-                            'accept them as natural. Manikins survived as living display forms, props, and facades for '
-                            "someone else's masterpiece. Their social advantage is effortless presentability, "
-                            'especially in spaces where appearance matters more than substance.',
-             'blessing': "Gold From Straw: spend 1 Glamour and roll Presence + Crafts to conceal an object's flaws for "
-                         'one scene, granting up to +5 on related social rolls. In social maneuvering, this can raise '
-                         'impression an extra step when presentation matters, without truly improving function - only '
-                         'how convincingly value is perceived. Gold From Straw manipulates social valuation without '
-                         'changing objective function, perfect for impression economies.',
-             'book': 'Kith 95'},
- 'oculus': {'name': 'Oculus',
-            'skill': 'Persuasion',
-            'description': 'Non-clairvoyant persuaders who make people see only the paths they prefer, whether as '
-                           'diplomats, gamblers, envoys, or kingmakers in fragile freehold politics. Oculi learned in '
-                           'Arcadia that everyone has a price and every argument has leverage points; in mortal '
-                           'society they are brilliant negotiators and dangerous curators of false inevitability. '
-                           'Oculi are non-clairvoyant persuaders who narrow options until their preferred path feels '
-                           'inevitable. In court politics they can be kingmakers, grifters, or saboteurs depending on '
-                           'who is paying attention.',
-            'blessing': 'Amaurosis Fugax: spend 1 Glamour and roll Presence + Persuasion + Wyrd contested by Resolve + '
-                        'Tolerance to obscure all practical routes except the one the character present. Whether the '
-                        "effect is literal visual clouding or cognitive narrowing, the character's target is guided "
-                        "physically and mentally toward the character's chosen destination or option. Amaurosis Fugax "
-                        'narrows choices into inevitability, making route control and negotiation framing highly '
-                        'potent.',
-            'book': 'Kith 95'},
- 'polychromatic': {'name': 'Polychromatic',
-                   'skill': 'Empathy',
-                   'description': 'Emotion-modulators and living displays of shifting color, prized in Arcadia for '
-                                  'keeping gatherings calm, safe, visually pleasing, and politically useful to their '
-                                  'Keepers. In the mortal world, Polychromatics excel as mediators and '
-                                  'crisis-soothers, wielding disarming beauty that asks little yet can emotionally '
-                                  'overwhelm entire rooms when they choose to shine. Polychromatics were emotional '
-                                  'regulators in volatile Arcadian gatherings, prized for safe beauty and '
-                                  'de-escalation. They remain powerful mediators whose visual affect can either soothe '
-                                  'conflict or overwhelm resistance.',
-                   'blessing': 'Prismatic Heart: once per chapter, spend 1 Glamour to unleash a luminous surge of '
-                               "color through the character's mien. Everyone else in the scene must spend Willpower or "
-                               'gain Swooned, and Swooned characters suffer an additional penalty when resisting the '
-                               "character's Empathy actions for the rest of the scene. Prismatic Heart is a "
-                               'scene-level emotional overwhelm tool that strongly amplifies follow-up Empathy '
-                               'actions.',
-                   'book': 'Kith 96'},
- 'veneficus': {'name': 'Veneficus',
-               'skill': 'Survival',
-               'description': 'Arcadian cooks and gatherers whose craft blurs nourishment, medicine, and poison '
-                              'through rare ingredients, sharp instincts, and ritual culinary precision. Venefici '
-                              'often express devotion through feeding others, yet every meal can carry hidden '
-                              'intention; comfort, confession, cure, and sabotage all emerge from the same practiced '
-                              'hands. Venefici blur medicine and poison through culinary alchemy, and many show care '
-                              'through feeding rituals. Their kitchens can heal, bind, expose, or betray, often with '
-                              'the same ingredient list.',
-               'blessing': "Waste Not, Want Not: spend 1 Glamour reflexively to invert a plant's nature, making a "
-                           'toxic plant edible or an edible one toxic. In play, this lets the character rapidly adapt '
-                           'field resources, alter social rituals around food, and turn ordinary ingredients into '
-                           'protective medicine or subtle threat. Waste Not, Want Not is a fast polarity inversion '
-                           'that turns ingredient context into tactical advantage.',
-               'book': 'Kith 97'},
- 'witchtooth': {'name': 'Witchtooth',
-                'skill': 'Intimidation',
-                'description': 'Predatory keepers of wild and abandoned places, remembered in stories as hags and '
-                               'monsters but rooted in older truths about land, fear, and survival without permission. '
-                               'Witchtooths prize autonomy above comfort, harvest Glamour through dread and '
-                               'disorientation, and often become fierce, rough-edged mentors to those they judge '
-                               'resilient enough to learn. Witchtooths channel the authority of wild and abandoned '
-                               'places, harvesting fear as readily as Glamour. They guard autonomy fiercely, but often '
-                               'become hard teachers for those they deem worth preparing.',
-                'blessing': 'Nibble, Nibble, Little Mouse: spend 1 Glamour and roll Resolve + Intimidation to reshape '
-                            'up to one square mile of local terrain into a frightening or misleading configuration for '
-                            'Wyrd turns. Survival actions in that area suffer penalties, allowing the character to '
-                            'control atmosphere, pursuit, and territorial pressure during conflict scenes. Nibble, '
-                            'Nibble, Little Mouse reshapes terrain expectation and pursuit outcomes over a meaningful '
-                            'local footprint.',
-                'book': 'Kith 97'},
- 'bricoleur': {'name': 'Bricoleur',
-               'skill': 'Crafts/Expression',
-               'description': 'Mythmakers who connect unrelated symbols into transformative truths, turning language, '
-                              'coincidence, and metaphor into practical power with alarming confidence. Bricoleurs are '
-                              'ingenious, competitive, and maddeningly nonlinear thinkers - invaluable in a crisis, '
-                              'exhausting in ordinary conversation, and quietly dangerous whenever identity, memory, '
-                              'or narrative can be rewritten by intent. Bricoleurs survive by linking symbols into '
-                              'living myths, turning scraps into systems and words into leverage. Their nonlinear '
-                              'genius wins crises and starts arguments in equal measure.',
-               'blessing': 'Creatio Ex Nihilo: with a thematically appropriate symbolic item, spend 1 Glamour and roll '
-                           'Wits + Persuasion to alter a core truth about themself for days equal to Wyrd. Others '
-                           "accept the new myth as real while it lasts, and rumors persist that the character's fetch "
-                           'mirrors the transformation in permanent ways. Creatio Ex Nihilo is identity '
-                           'myth-engineering; the symbolic component keeps it narratively grounded and costly.',
-               'book': 'Kith 98'},
- 'cloakskin': {'name': 'Cloakskin',
-               'skill': 'Social',
-               'description': 'Changelings whose Masks are unseen by mortal eyes, leaving only shadow and implication '
-                              'where a face should be, even under direct light. Cloakskins are often nomadic and '
-                              'digitally social, aching for normal contact while navigating a life where visibility, '
-                              'recognition, trust, and intimacy are perpetually unstable currencies. Cloakskins are '
-                              'unseen by most mortals under the Mask and often become nomadic by necessity. They crave '
-                              'ordinary human contact while living in an economy of invisibility, aliases, and '
-                              'distance.',
-               'blessing': 'Now the character See Me: spend 1 Glamour and roll Presence + Stealth + Wyrd to vanish '
-                           'from sight for a scene, hiding even from cameras. The character remain detectable by '
-                           'sound, touch, and scent, but sight-based detection fails outright while other sense-based '
-                           'attempts suffer heavy penalties. Now the character See Me hard-counters visual detection '
-                           'and recording, emphasizing multisensory counterplay instead.',
-               'book': 'Kith 98'},
- 'doppelganger': {'name': 'Doppelganger',
-                  'skill': 'Empathy',
-                  'description': 'Subtle mimics who rarely become perfect copies, but steal enough familiar detail to '
-                                 'destabilize trust, memory, and instinctive social comfort. Born from lures, mistaken '
-                                 'identity, and longing to be loved differently, Doppelgangers weaponize recognition '
-                                 'itself and can turn every room into a soft paranoia spiral. Doppelgangers weaponize '
-                                 'partial familiarity rather than perfect imitation, stealing trust through tiny '
-                                 'echoes of someone else. Their power is most dangerous when social certainty is '
-                                 'already fragile.',
-                  'blessing': "Sea-Witch's Bargain: spend 1 Glamour and roll Presence + Empathy + Wyrd contested by "
-                              'Resolve + Tolerance to steal a physical or auditory trait for days equal to Wyrd. The '
-                              "target loses that trait until duration ends or they complete the character's declared "
-                              "task to win it back early. Sea-Witch's Bargain ties trait theft to task economy, "
-                              'creating social quests as part of power resolution.',
-                  'book': 'Kith 99'},
- 'lethipomp': {'name': 'Lethipomp',
+               'description': "Few things turn a True Fae's head more than genuine passion. It "
+                              "doesn't matter what that passion is for -- the arts, the sciences, a "
+                              "political movement, a lover, it's all the same to the Gentry. They "
+                              'see it as a fire, burning in the soul and setting the creature who '
+                              'feels it alight. Humans the Others take because of this passion '
+                              'usually become Bright Ones. The True Fae rarely take a Bright One by '
+                              'force. They go to lengths to ensnare this prey through her passion. '
+                              "Once in Arcadia, the Keeper turns the changeling's passions up to a "
+                              'fever pitch, subjecting her to nightmare after nightmare centered on '
+                              'the things she loves, and punishing her if she shows any emotion. '
+                              'She becomes a Bright One when the built-up rage and anguish explode '
+                              'out of her in a flood of light and fury. Subtlety is not an option '
+                              'for these changelings -- their mien radiates a soft glow always.',
+               'blessing': 'When the Bright One uses Socialize to be the center of attention, '
+                           'achieving three successes counts as an exceptional success. Flare: A '
+                           'Bright One always has a visible glow, even in the darkest of rooms, '
+                           'though the Mask normally prevents mortals from seeing it. She can spend '
+                           'a point of Glamour to turn this glow up to a dazzling brilliance that '
+                           'blinds her enemies for one turn; the Mask does not obscure this light. '
+                           'Each turn the Bright One uses this blessing, each enemy that can see '
+                           'her takes a point of bashing damage and rolls at a -2 on all Physical '
+                           'and Mental actions that turn.',
+               'book': 'CTL 2e 52'},
+ 'chatelaine': {'name': 'Chatelaine',
                'skill': 'Empathy',
-               'description': 'Walking oblivions who endured so much feeling that they now carry a terrifying calm, '
-                              'pulling emotion out of memory like poison from a wound. Lethipomps offer relief from '
-                              'grief, shame, and guilt at steep cost, collecting intimate suffering that can later '
-                              'erupt outward as reenacted trauma. Lethipomps absorb emotion from memory and can offer '
-                              'relief at a cost few fully grasp. Their therapeutic potential is real, but so is their '
-                              'capacity to curate pain as social currency.',
-               'blessing': 'Waters of Lethe: spend 1 Glamour and roll Composure + Empathy + Wyrd contested by the '
-                           'target to absorb emotions tied to a known memory. The target becomes temporarily Lethargic '
-                           'while the character bear an appropriate emotional Condition and may Incite Bedlam to '
-                           'recreate elements of what the character absorbed. Waters of Lethe trades emotional burden '
-                           'transfer for temporary impairment and possible Bedlam reenactment fallout.',
-               'book': 'Kith 99'},
- 'lullescent': {'name': 'Lullescent',
-                'skill': 'Stealth',
-                'description': 'Mute listeners of Arcadia - transformed into flowers, mirrors, fixtures, and hidden '
-                               'observers who heard everything while being denied a voice. Lullescents return with '
-                               'extraordinary hearing, disciplined stillness, and unsettling patience, making them '
-                               'feared informants, court servants, and quiet political threats in any freehold. '
-                               'Lullescents were denied voice and made into listening instruments, then escaped by '
-                               'weaponizing what they overheard. Their hearing and patience make them prized aides and '
-                               'feared blackmail risks.',
-                'blessing': 'Song of Silence: spend 1 Glamour to invoke echolocation for navigation, distance '
-                            'judgment, and object location without line of sight. With a successful Wits + Occult + '
-                            'Wyrd roll, the character can also reveal magically hidden entities or objects, '
-                            'potentially triggering a Clash of Wills against active concealment. Song of Silence gives '
-                            'non-visual mapping plus anti-concealment pressure through Clash-capable echolocation.',
-                'book': 'Kith 100'},
- 'riddleseeker': {'name': 'Riddleseeker',
-                  'skill': 'Investigation',
-                  'description': 'Compulsive hunters of meaning who soothed Keepers with riddles, guarded thresholds '
-                                 'with questions, and learned to treat ignorance as existential danger. Riddleseekers '
-                                 "are lore-drunk problem-solvers with one eye always turned toward Arcadia's "
-                                 'unfinished puzzles, hoarded answers, and dangerous questions no one else dares ask. '
-                                 'Riddleseekers treated knowledge as survival in Arcadia and still chase meaning '
-                                 'compulsively. They can end conflict through wit, but their curiosity often drags '
-                                 'them toward dangerous truths.',
-                  'blessing': 'Neck Riddle: spend 1 Glamour and roll Wits + Expression + Wyrd to force a conflict '
-                              "toward riddle-resolution instead of immediate escalation. If the character's target "
-                              'cannot answer within limited guesses, they must release the conflict until scene end, '
-                              'creating tactical breathing room through wit, ritual, and symbolic authority. Neck '
-                              'Riddle transforms direct conflict into constrained puzzle arbitration with temporary '
-                              'disengagement stakes.',
-                  'book': 'Kith 100'},
- 'sideromancer': {'name': 'Sideromancer',
-                  'skill': 'Occult',
-                  'description': "Wyrd-attuned diviners who survived Arcadia's impossible causality and now read "
-                                 'futures through chosen mortal methods such as cards, lots, bones, writing, numbers, '
-                                 'or omen-casting. Sideromancers crave certainty in unstable social worlds, '
-                                 'specializing in promises, debts, and consequences that follow pledges like gravity. '
-                                 'Sideromancers read Wyrd turbulence through chosen divinatory forms, seeking '
-                                 'certainty in obligation and consequence. Their forecasts are strongest in immediate '
-                                 'pledge-economies, not distant prophecy.',
-                  'blessing': "Panomancy: spend 1 Glamour and perform at least five minutes of the character's chosen "
-                              'divination, then roll Wits + Occult + Wyrd to ask yes-or-no questions about imminent '
-                              'promises, obligations, debts, or payments involving the character as a primary party. '
-                              'This power is intentionally short-horizon; pushing farther risks dramatic failure. '
-                              'Panomancy is strongest for immediate pledge/debt decisions, not distant forecasting, '
-                              'and punishes overreach harshly.',
-                  'book': 'Kith 101'},
- 'spiegelbild': {'name': 'Spiegelbild',
-                 'skill': 'Persuasion',
-                 'description': 'Truth-bent mirror dwellers who live between reflection and refraction, compelled '
-                                'toward revelation but skilled at framing exactly how truth is delivered. '
-                                'Spiegelbilder thrive on secrets, social pressure, and perspective control, and can '
-                                'turn ordinary reflective surfaces into dangerous confessionals where image and '
-                                'honesty become bargaining chips. Spiegelbilder live between reflection and '
-                                'refraction, compelled toward truth but skilled in framing it. They are invaluable '
-                                'confidants and deeply unsafe secret-keepers.',
-                 'blessing': 'Mirror, Mirror on the Wall: spend 1 Glamour and roll Wits + Composure to enter '
-                             'mirror-space through a reflective surface, then observe and listen from within it for '
-                             'the scene. While present the character is bound to truthful answers if questioned, '
-                             "unless the character also successfully conceal the character's presence with a contested "
-                             'stealth roll. Mirror, Mirror on the Wall grants remote observation with truth-binding '
-                             'risk while inside reflective space.',
-                 'book': 'Kith 102'},
- 'asclepian': {'name': 'Asclepian',
-               'skill': 'Medicine',
-               'description': 'Arcadian combat medics, menders, and mad surgeons who learned to heal with impossible '
-                              'grafts, improvised tools, and battlefield pragmatism unconcerned with mortal standards. '
-                              'Asclepians are prized in nearly every freehold because they can stabilize and rebuild '
-                              'what should be beyond saving, though their miracles often leave permanent uncanny '
-                              'additions behind. Asclepians practiced impossible salvage medicine in places where '
-                              'ethics and biology were optional. Freeholds court them aggressively because they can '
-                              'stabilize the unsalvageable with whatever is at hand.',
-               'blessing': 'Grafting: spend 1 Glamour and roll Intelligence + Medicine to perform emergency surgery '
-                           'using available materials, from flowers and wire to engine parts and ritual scraps. The '
-                           'character can stabilize the dying, heal beyond normal limits, and resolve suitable '
-                           'persistent physical Conditions, but grafts remain permanent until painfully removed. '
-                           'Grafting permits impossible emergency intervention and persistent-condition fixes at '
-                           'visible bodily cost.',
-               'book': 'Kith 103'},
- 'bridgeguard': {'name': 'Bridgeguard',
-                 'skill': 'Intimidation',
-                 'description': 'Rear-guard legends forged through unwinnable trials until they could hold chokepoints '
-                                'against overwhelming force and weaponize stubbornness into doctrine. Bridgeguards are '
-                                'planners as much as warriors, experts at choosing ground, dictating tempo, and '
-                                'standing visibly defiant precisely when everyone else has already begun to retreat. '
-                                'Bridgeguards were forged in unwinnable scenarios until outnumbered became their '
-                                'comfort zone. They excel at choosing terrain, anchoring retreats, and making costly '
-                                'stands matter.',
-                 'blessing': 'Against the Odds: when outnumbered, spend 1 Glamour and roll Composure + Intimidation to '
-                             'gain a Defense bonus from successes and ignore multi-attacker Defense reduction for the '
-                             'scene. The blessing requires no action, making the character exceptionally effective at '
-                             'sudden holds, retreats, and last-stand maneuvers. Against the Odds converts being '
-                             'outnumbered into defensive superiority and stable front-line endurance.',
-                 'book': 'Kith 104'},
- 'librorum': {'name': 'Librorum',
-              'skill': 'Intimidation',
-              'description': 'Wardens and retrieval specialists of dangerous archives, stolen lore, and whispered '
-                             'secrets considered too valuable for open shelves or public memory. Librorum return with '
-                             'curated fragments of Arcadian knowledge and the habits of professional guardianship, '
-                             'making them indispensable investigators and deeply difficult people to deceive or '
-                             'dislodge. Librorum guarded and retrieved dangerous knowledge under direct fae '
-                             'supervision. Their escapes often included stolen archives, making them hunted assets and '
-                             'strategic liabilities.',
-              'blessing': 'Stolen Knowledge: once per chapter, spend 1 Glamour and roll Intelligence + Occult + Wyrd '
-                          'after brief meditative recall. Allocate successes as temporary Library or Language Merit '
-                          'dots, or as Repository value, representing specific remembered volumes and cataloged '
-                          "secrets taken from the character's Keeper's hidden collections. Stolen Knowledge turns "
-                          'meditation into temporary scholarly infrastructure exactly when needed.',
-              'book': 'Kith 104'},
- 'liminal': {'name': 'Liminal',
-             'skill': 'Survival/Streetwise',
-             'description': 'Threshold-beings of roads, gates, desks, forests, and borders, shaped to test passage, '
-                            'set terms, and enforce conditional movement between states. Liminals understand '
-                            'transitions better than most Lost, often helping others escape through technicality and '
-                            'timing while turning crossings into binding social and mystical battlegrounds. Liminals '
-                            'are threshold specialists who enforce conditions at borders literal and symbolic. They '
-                            'are often the hidden reason a route opened - or closed - at the exact wrong moment.',
-             'blessing': 'Line in the Sand: while physically on a threshold, declare crossing conditions and spend 1 '
-                         'Glamour to roll Resolve + Intimidation + Wyrd contested by Composure + Tolerance. Those who '
-                         'fail are not physically blocked, but crossing in violation inflicts the Lost Condition and '
-                         'disorients their intent. Line in the Sand imposes conditional crossing penalties that alter '
-                         'behavior without hard physical barriers.',
-             'book': 'Kith 105'},
- 'reborn': {'name': 'Reborn',
-            'skill': 'Occult',
-            'description': 'Favorites repeatedly broken down and remade by Gentry experimentation until only a '
-                           'hardened core identity survived through cycles of destruction and replacement. Reborn '
-                           'carry adaptive Arcadian design in their blood, letting them retune themselves after injury '
-                           'and reconfigure capability around immediate survival needs. Reborn survived repeated '
-                           'teardown-and-rebuild cycles that stripped everything but core identity. Their adaptive '
-                           'self-retuning reflects both hard resilience and lingering body-memory of being remade.',
-            'blessing': 'Retune: after taking lethal damage, spend 1 Glamour and roll Intelligence + Occult to '
-                        'temporarily move Skill dots from one Skill to another for the scene, capped by Wyrd limits. '
-                        'Once per chapter, the character may spend 1 Willpower dot to make a similar redistribution '
-                        'permanent instead. Retune offers dynamic skill redistribution under injury pressure, '
-                        'including rare permanent reconfiguration options.',
-            'book': 'Kith 105'},
- 'stoneflesh': {'name': 'Stoneflesh',
-                'skill': 'Intimidation',
-                'description': 'Juggernauts forged for endurance: trolls, bronze beasts, knight-plates, and other '
-                               'stubborn forms built to outlast cruelty through sheer durability and refusal. '
-                               'Stoneflesh frequently become the pillars of motleys and communities, meeting threat '
-                               'with calm inevitability and refusing to move once they decide where the line is. '
-                               'Stoneflesh were engineered for endurance and often become social pillars after escape. '
-                               'Their calm persistence can read as kindness or intimidation depending on who is '
-                               'confronting them.',
-                'blessing': 'Obdurate Skin: spend 1 Glamour and roll Stamina + Athletics + Wyrd, then divide successes '
-                            'between Armor, Resolve, and Composure for the scene. This allows flexible defense against '
-                            "both physical and social pressure, reinforcing the character's role as anchor under "
-                            'sustained assault or intimidation. Obdurate Skin flexibly allocates resilience across '
-                            'armor and mental steadiness for scene-long durability.',
-                'book': 'Kith 106'},
- 'wisewitch': {'name': 'Wisewitch',
-               'skill': 'Persuasion',
-               'description': "Rare changelings marked by direct contact with a Keeper's Title, carrying visible or "
-                              'symbolic traces of that power in body, behavior, or fate. Wisewitches are practical '
-                              'warning-givers, hedge mystics, and disciplined dealmakers whose authority extends '
-                              'beyond fae circles into spirit and angelic negotiations. Wisewitches carry marks from '
-                              "contact with a Keeper's Title and read power-lines others ignore. They are rare "
-                              'dealmakers where fae, spirit, and angelic obligations intersect.',
-               'blessing': 'Keen Bargains: the character can form pledges with spirits and angels not of fae kind, '
-                           "expanding the character's diplomatic and ritual reach far beyond ordinary changeling "
-                           'boundaries. In chronicles heavy on cross-supernatural politics, this blessing can make a '
-                           "Wisewitch the freehold's most valuable intermediary. Keen Bargains broadens pledge "
-                           'diplomacy beyond fae, enabling high-value cross-splat negotiations.',
-               'book': 'Kith 106'},
- 'airtouched': {'name': 'Airtouched',
-                'skill': 'Athletics',
-                'description': 'Windswept survivors of distance and disconnection, remade as mountain-peaks, '
-                               "cloud-forms, and circling birds in Arcadia's high and lonely spaces. Airtouched often "
-                               'crave closeness while fearing attachment, and carry a literal lightness that lets them '
-                               'drift over fragile surfaces that should never hold a human body. Airtouched were '
-                               'shaped through distance and atmospheric isolation, leaving profound attachment hunger '
-                               'and avoidance side by side. Their movement style reflects that liminal separation from '
-                               'ground and crowd.',
-                'blessing': 'The Drift: spend 1 Glamour to invoke almost weightless movement, letting the character '
-                            'cross water, snow, and fragile surfaces without breaking through or leaving clear traces. '
-                            "Treat the character's weight as only ounces for practical movement effects, and apply "
-                            "penalties to tracking attempts based on the character's Wyrd. The Drift enables "
-                            'improbable traversal and tracking suppression by re-defining effective weight.',
-                'book': 'Kith 107'},
- 'chalomot': {'name': 'Chalomot',
-              'skill': 'Empathy',
-              'description': 'Dream-road scouts and Bastion infiltrators trained by repetition, manipulation, and '
-                             'reality erosion until only oneiric logic felt trustworthy. Chalomot move through dreams '
-                             'with practiced predatory confidence, guiding oneiromancers through hostile spaces and '
-                             'unraveling layered sleeping defenses that can trap the unprepared for entire stories. '
-                             'Chalomot mapped Dreaming Roads and Bastion seams until dream logic felt more real than '
-                             'waking continuity. They remain elite navigators of oneiric risk and entrapment.',
-              'blessing': 'Dreamtread: spend 1 Glamour to gain a bonus to dreamweaving rolls equal to half Wyrd '
-                          '(minimum 1) for the rest of the scene. The character may spend extra Glamour to share this '
-                          'benefit with allied oneiromancers in the same Bastion, enabling coordinated dream '
-                          'operations. Dreamtread is a multiplier for coordinated oneiromancy teams operating in the '
-                          'same Bastion.',
-              'book': 'Kith 107'},
- 'chevalier': {'name': 'Chevalier',
-               'skill': 'Persuasion/Intimidation',
-               'description': 'Riders and drivers shaped by Arcadian ideals of mounted champions, bound emotionally '
-                              'and mystically to steeds ranging from living mounts to roaring engines. Chevaliers '
-                              'treat movement as identity, form deep attachments to chosen rides, and fight with '
-                              'greatest confidence when saddle, cockpit, handlebars, or reins are in hand. Chevaliers '
-                              'embody rider-steed bond myths across both animal and machine forms. Their identity is '
-                              'inseparable from mobility, loyalty, and the politics of who gets carried to safety.',
-               'blessing': "Rider's Call: spend 1 Glamour to designate a touched mount or vehicle as the character's "
-                           'Noble Steed, then later spend Glamour reflexively to call it to the character across '
-                           'realms if physically possible. Sapient steeds can refuse, contested claims can trigger '
-                           "Clash of Wills, and the character's steed senses the character's danger when the character "
-                           "is compromised. Rider's Call formalizes steed bond logistics across distance and crises, "
-                           'with consent and clash safeguards.',
-               'book': 'Kith 107'},
- 'farwalker': {'name': 'Farwalker',
-               'skill': 'Survival',
-               'description': 'Endless patrollers of realm-borders and horizon cracks, often chosen from mortals '
-                              'already familiar with long solitary routes, shift work, and survival under isolation. '
-                              'Farwalkers map danger, locate routes, and make shelter where there should be none, '
-                              'serving as dependable trailblazers through wilderness, Hedge, and contested '
-                              "no-man's-land. Farwalkers learned border patrol and route endurance as a way of life. "
-                              'They are often the first to find escapees and the last to abandon a bad trail.',
-               'blessing': 'Home Away from Home: spend Glamour in wild terrain to create a temporary one-dot Safe '
-                           "Place for a day, sized by half the character's Wyrd and expandable with extra Glamour. In "
-                           'the Hedge, this instead reduces local Hedge hostility and can project one feature of the '
-                           "character's own Hollow into the shelter. Home Away from Home creates reliable temporary "
-                           'shelter and can project hollow utility into the field.',
-               'book': 'Kith 108'},
- 'flickerflash': {'name': 'Flickerflash',
-                  'skill': 'Athletics',
-                  'description': 'Restless couriers and speed-junkie escapees whose Arcadian service turned ordinary '
-                                 'longing for movement into urgent physical necessity and existential strategy. '
-                                 'Flickerflashes run messages, outrun Huntsmen, and often overcompensate for old '
-                                 'loyalties by proving repeatedly - and sometimes recklessly - that no one will ever '
-                                 'catch them again. Flickerflashes are restlessness made flesh, using speed as both '
-                                 'survival strategy and emotional regulation. Many keep scorecards of rescues and '
-                                 'deliveries as proof of loyalty.',
-                  'blessing': "Instantaneous Velocity: spend 1 Glamour reflexively to triple the character's Speed "
-                              'before applying any other modifiers, producing sudden inhuman acceleration. This '
-                              "blessing defines the character's chase profile, supports rapid repositioning, and can "
-                              'turn a losing pursuit into a blur of tactical initiative. Instantaneous Velocity is '
-                              'pure tempo control, deciding chases before many opponents can react.',
-                  'book': 'Kith 110'},
- 'levinquick': {'name': 'Levinquick',
-                'skill': 'Computer',
-                'description': 'Electric, modern couriers adapted to grids, screens, and endless movement, often as '
-                               'comfortable in the BriarNet as in crowded city streets. Levinquicks are jittery and '
-                               'future-focused by habit, using infrastructure itself as route and refuge while fearing '
-                               'stillness as a warning sign of recapture. Levinquicks are products of electric '
-                               'modernity, perpetually in motion across digital and physical networks. Stillness feels '
-                               'like capture to them, even in safety.',
-                'blessing': 'Lightning Walk: by touching a land-connected telecom device, spending 3 Glamour, and '
-                            'rolling Wits + Athletics + Wyrd, the character dissolve into the grid and reappear at '
-                            'another known connected device within Wyrd miles. Extra Glamour can carry companions, '
-                            'while unwilling transport may trigger Clash of Wills and moral consequences. Lightning '
-                            'Walk provides high-cost, high-reach infrastructure transit with real ethical implications '
-                            'for unwilling riders.',
-                'book': 'Kith 110'},
- 'swarmflight': {'name': 'Swarmflight',
-                 'skill': 'Stealth',
-                 'description': 'Changelings whose bodies can disassemble into coherent swarms - spiders, lights, '
-                                'mice, insects, bubbles, or other mobile fragments of self depending on seeming and '
-                                'story. Swarmflights are difficult to pin down emotionally and physically, often '
-                                'scattering under stress and reforming only when threat or panic has passed. '
-                                'Swarmflights disassemble identity into many moving parts, then reassemble when threat '
-                                'recedes. Their perspective is distributed, watchful, and difficult for enemies to pin '
-                                'down.',
-                 'blessing': "Swarm Form: spend 1 Glamour to dissolve into the character's chosen swarm type, acting "
-                             'as a single distributed body with shared senses and area effects. The character gains '
-                             'strong resistance to many personal attacks, can hinder and panic those in the '
-                             "character's area, and in suitable forms may inflict lethal swarm attacks before "
-                             'reassembling. Swarm Form trades singular vulnerability for distributed pressure, area '
-                             'disruption, and selective lethality.',
-                 'book': 'Kith 110'},
- 'swimmerskin': {'name': 'Swimmerskin',
-                 'skill': 'Brawl',
-                 'description': 'Aquatic myth made flesh: kelpie-riders, river-haunters, sea-brides, and deep-water '
-                                'hunters shaped by drowning stories old as civilization itself. Swimmerskins move '
-                                'between worlds as fluidly as between air and water, carrying strong ties to kinship, '
-                                'predation, beauty, danger, and the irresistible pull of the depths. Swimmerskins draw '
-                                'from global aquatic myth lineages and often build social power through ports and '
-                                'river communities. Their waters are both refuge and hunting ground.',
-                 'blessing': "The Selkie's Skin: the character always breathe both air and water, and by spending 1 "
-                             'Glamour the character may reflexively shift to an aquatic lower form suited for powerful '
-                             'swimming. While transformed, the character move through water at double Speed and ignore '
-                             "underwater penalties for weapons and complex actions. The Selkie's Skin grants seamless "
-                             'amphibious superiority and underwater task normalcy on demand.',
-                 'book': 'Kith 111'},
- 'bearskin': {'name': 'Bearskin',
-              'skill': 'Intimidation/Weaponry',
-              'description': 'Conscript soldiers tempered in endless, often meaningless Arcadian wars until loyalty '
-                             'itself became both weapon and scar carried into every future oath. Bearskins can become '
-                             'unmatched defenders of chosen causes, but many struggle with guilt, identity, and the '
-                             'urge to surrender themselves completely to a cause worth dying for. Bearskins were '
-                             'conscripted into endless fae wars where loyalty was manufactured through attrition. '
-                             'After escape, they often bind themselves to causes with dangerous totality.',
-              'blessing': 'Dulce et Decorum Est: when an opponent yields in violence or the character successfully '
-                          'coerce them, spend 1 Glamour to replace one of their Aspirations with one of the '
-                          "character's until story end. If unfulfilled, their original Aspiration returns, "
-                          "highlighting the character's capacity to conscript conviction itself. Dulce et Decorum est "
-                          'alters Aspiration economy to conscript motive, not just body.',
-              'book': 'Kith 111'},
- 'beastcaller': {'name': 'Beastcaller',
-                 'skill': 'Animal Ken',
-                 'description': 'Handlers of Arcadian war-beasts, trained to tame, command, and sometimes become one '
-                                'with goblin creatures far more dangerous than mortal animals. Beastcallers often find '
-                                'solace in those bonds, but risk identity bleed and ethical collapse when beasts '
-                                'become both companions and disposable combat bodies. Beastcallers were handlers of '
-                                'goblin war-fauna and still navigate blurred lines between partnership and possession. '
-                                'Their greatest strength and greatest ethical risk are often the same bond.',
-                 'blessing': 'Night Rider: spend 1 Glamour and succeed on Presence + Animal Ken + Wyrd to possess a '
-                             "goblin beast for turns equal to Wyrd. Damage to the beast echoes onto the character's "
-                             'own body, and if the host dies while possessed the character snap back with aggravated '
-                             'harm, making this power potent but costly. Night Rider creates potent remote force '
-                             'projection while reflecting host-body harm back to the user.',
-                 'book': 'Kith 112'},
- 'cyclopean': {'name': 'Cyclopean',
-               'skill': 'Investigation',
-               'description': 'Towering giants, living bulwarks, and sometimes architectural monstrosities remade to '
-                              'be awe-inspiring and terrifying in equal measure for Arcadian spectacle and war. '
-                              'Cyclopeans often bear lasting injuries from service, yet become steadfast protectors, '
-                              'trackers, and front-line anchors for those they claim as kin. Cyclopeans were made to '
-                              'be monumental, terrifying, and indispensable, often at the cost of lasting injury. They '
-                              'frequently become visible protectors whose presence deters escalation.',
-               'blessing': "Smell the Blood: once per scene, spend 1 Glamour to identify an enemy's vulnerabilities, "
-                           'reducing penalties for targeted attacks and upgrading bashing to lethal on those strikes. '
-                           "This turns the character's immense presence into surgical brutality when a confrontation "
-                           'must end quickly. Smell the Blood improves called-shot lethality and rewards precision '
-                           'from an otherwise brute profile.',
-               'book': 'Kith 112'},
- 'plaguesmith': {'name': 'Plaguesmith',
-                 'skill': 'Medicine',
-                 'description': 'Unwilling vectors forged for fae warfare, carrying tailored contagions that mirror '
-                                "their Keepers' aesthetics, cruelty, and narrative logic of punishment. Plaguesmiths "
-                                'can heal disease as expertly as they inflict it, often living with strict boundaries, '
-                                "intrusive fear, and the persistent dread of becoming someone else's weapon again. "
-                                'Plaguesmiths were cultivated as bioweapons and carry strict personal boundaries to '
-                                'avoid repeating that role. Their healing skill and infectious threat coexist in '
-                                'uneasy balance.',
-                 'blessing': 'Plague of Arcadia: on touch, spend 1 Glamour and roll Strength + Medicine + Wyrd '
-                             'contested by Stamina + Tolerance to infect a target with a grave supernatural disease. '
-                             'Symptoms can be fantastical and title-themed, recovery is demanding, and the condition '
-                             'can inflict recurring aggravated damage over time. Plague of Arcadia is severe, '
-                             'slow-burn pressure with flexible symptom design hooks.',
-                 'book': 'Kith 113'},
- 'razorhand': {'name': 'Razorhand',
-               'skill': 'Brawl',
-               'description': 'Changelings surgically and symbolically armed with blade-hands, crafted for pruning, '
-                              "execution, display, artistry, or open war in their Keepers' domains. Razorhands live at "
-                              'the edge between tenderness and violence - some embrace destruction, while others '
-                              'struggle to heal despite carrying weaponized bodies they can never truly set aside. '
-                              'Razorhands were physically weaponized for pruning, punishment, and spectacle. Many now '
-                              'channel that precision into craft or defense while fearing accidental harm to those '
-                              'they love.',
-               'blessing': 'Sakin: spend 1 Glamour to transform one hand into a 1L blade weapon for the scene, using '
-                           'Brawl and unarmed styles; spend an additional Glamour for the off-hand as well. Cosmetic '
-                           'form varies, but the character cannot be disarmed short of limb removal, making the '
-                           "character's body a permanent armory. Sakin makes the body an always-available weapon "
-                           'platform resistant to conventional disarm tactics.',
-               'book': 'Kith 114'},
- 'sandharrowed': {'name': 'Sandharrowed',
-                  'skill': 'Survival',
-                  'description': "Nomads and storm-runners of Arcadia's brutal deserts, tempered by heat, scarcity, "
-                                 'abrasive wind, and long marches through predatory emptiness. Sandharrowed carry '
-                                 'desert discipline into every environment and can weaponize that memory directly, '
-                                 'using moving grit and choking force to trap opponents who underestimate them. '
-                                 'Sandharrowed survived Arcadian deserts by mastering scarcity, abrasion, and '
-                                 'relentless weather. They bring that adaptability to every environment and weaponize '
-                                 'terrain control naturally.',
-                  'blessing': 'Enveloping Sands: once per scene, before a Brawl or Weaponry attack, spend 1 Glamour; '
-                              'on a successful hit, a sand pillar erupts and inflicts Immobilized on the target. The '
-                              'pillar has fixed Durability and provides cover while confining them, creating immediate '
-                              'battlefield control from a single strike. Enveloping Sands adds once-per-scene '
-                              'immobilization and cover dynamics off a successful hit.',
-                  'book': 'Kith 115'},
- 'valkyrie': {'name': 'Valkyrie',
-              'skill': 'Persuasion/Intimidation',
-              'description': 'Choosers of the slain shaped by mythic war iconography, forced to decide who rises and '
-                             'who falls on Arcadian battlefields soaked in spectacle and sacrifice. Valkyries combine '
-                             'battlefield charisma with occult fate-marking, granting resolve to allies and unraveling '
-                             'enemies with declarations that land like sacred judgment. Valkyries were forced to '
-                             'choose fates on battlefields designed as mythic theater. They carry that authority into '
-                             'modern conflicts through morale shaping and selective doom.',
-              'blessing': 'Chooser of the Slain: a limited number of times per scene, spend 1 Glamour and roll Wits + '
-                          'Occult + Wyrd contested by Resolve + Tolerance to bless or curse a perceived target. On '
-                          'success, the character apply Inspired or Steadfast to allies, or Frightened or Reckless to '
-                          'foes. Chooser of the Slain offers limited but repeatable morale-state assignment to allies '
-                          'and enemies.',
-              'book': 'Kith 115'},
- 'venombite': {'name': 'Venombite',
-               'skill': 'Brawl',
-               'description': 'Assassins and saboteurs distilled from private resentments, with Arcadian venom running '
-                              'where ordinary bitterness once lived quietly in the body. Venombites can appear almost '
-                              'mundane until they strike; then personal grievance becomes precise biological warfare '
-                              'delivered with the intimacy of a bite, grasp, or close-quarters hit. Venombites distill '
-                              'quiet resentments into lethal close-quarters toxin. Their menace lies in appearing '
-                              'ordinary until one committed strike changes everything.',
-               'blessing': 'Deadly Bite: once per scene, before a Brawl attack, spend 1 Glamour to infuse the strike '
-                           "with the character's kith's toxin. On success, the attack deals lethal damage and inflicts "
-                           'a grave Poisoned effect in addition to normal harm, translating old resentment into '
-                           'immediate physiological collapse. Deadly Bite front-loads lethal and poison effects into a '
-                           'single close-range success each scene.',
-               'book': 'Kith 116'},
- 'apoptosome': {'name': 'Apoptosome',
-                'skill': 'Miscellaneous',
-                'description': 'Self-renewing survivors trapped in isolated fortresses, dying and reforming over and '
-                               'over until their bodies became living archives of remembered harm and adaptation. '
-                               'Apoptosomes often return with fractured boundaries and defensive aggression, but also '
-                               'with perfect recall of prior defeat patterns and a brutal knack for making old enemies '
-                               'bleed with them. Apoptosomes endured endless death-and-return cycles in isolated '
-                               'kill-mazes, accruing combat memory as scar tissue. They often read disagreement as '
-                               'imminent threat and retaliate preemptively.',
-                'blessing': 'Sparagmos: in conflict with someone who has hurt the character before, spend 1 Glamour to '
-                            'deal immediate aggravated damage to that foe. For the remainder of the scene, every time '
-                            'those returning enemies damage the character, both they and the character suffer an '
-                            'additional aggravated point, escalating the violence through shared ruin. Sparagmos '
-                            'escalates reciprocal aggravated harm, favoring short brutal exchanges over attrition.',
-                'book': 'Kith 116'},
- 'becquerel': {'name': 'Becquerel',
+               'description': 'Chatelaines are the perfect servants. Taken to Arcadia by Gentry '
+                              'with a taste for the finer things in life, these changelings are '
+                              'butlers, stewards, housekeepers, and domestic workers of all '
+                              'stripes. Their Keepers choose them for their attention to detail, '
+                              'throwing them into their durance with no training and the full '
+                              'expectation that they will provide exactly what the Fair Ones want, '
+                              'when they want it. Rare is the Gentry who keeps just one Chatelaine. '
+                              'A new changeling in a Fae household is expected to learn from the '
+                              'older, more established servants. Keepers rarely have to punish '
+                              'their Chatelaines directly; a simple sign of displeasure is more '
+                              'than enough to send the household scrambling to chastise the errant '
+                              'changeling. Chatelaines quickly learn to work within a system, using '
+                              "others' power to survive while serving a capricious master.",
+               'blessing': "When the Chatelaine uses Empathy to determine a target's immediate "
+                           'desires, achieving three successes counts as an exceptional success. '
+                           'Will That Be All?: Spend a point of Glamour to activate this blessing '
+                           'for the scene. With a successful Manipulation + Socialize roll, a '
+                           'Chatelaine may use the Social Merits of one other character in the '
+                           'scene as though they were her own. When the effect ends, characters act '
+                           'as though the target had used the Merits himself.',
+               'book': 'CTL 2e 52'},
+ 'gristlegrinder': {'name': 'Gristlegrinder',
+                   'skill': 'Brawl',
+                   'description': 'Gristlegrinders are the cannibalistic nightmares of other '
+                                  "changelings. Strictly speaking, they don't need the flesh of the "
+                                  "Lost to survive -- they're more like living garbage disposals "
+                                  'who developed a taste for fae flesh while in Arcadia. Many '
+                                  'Gentry keep them around as cooks, guard dogs, and implicit '
+                                  'threats to their own slaves. The ones that do generally had some '
+                                  'emptiness inside before their captivity, be it grief from a '
+                                  'breakup or a death, loss of direction in life after a stressful '
+                                  'event, or just burnout. Almost every Gristlegrinder has tasted '
+                                  'changeling flesh at some point. Many actually ate their way out '
+                                  'of Arcadia, whether by devouring the hobgoblins and nightmares '
+                                  'standing in their way, or chewing a hole through the Hedge. The '
+                                  "devouring doesn't stop when they leave Arcadia. Their hunger is "
+                                  'all-consuming, be it for love, blood, money, or simply more '
+                                  'food.',
+                   'blessing': 'When the Gristlegrinder uses Brawl to grapple someone with intent '
+                               'to eat them, achieving three successes counts as an exceptional '
+                               'success. To Serve Man: A Gristlegrinder can make bite attacks that '
+                               'deal lethal damage, without needing to grapple a foe first. If she '
+                               'holds something or grapples someone of a smaller Size than herself, '
+                               'she can swallow it (or them) whole. She spends a point of Glamour '
+                               'and her jaw expands to the necessary size. With a successful '
+                               'Stamina + Survival roll, she gets the target down with minimal '
+                               "effort. A Gristlegrinder's digestive system deals two points of "
+                               'lethal damage per turn. Targets attacking the changeling from '
+                               'inside her must deal at least five points of lethal damage with a '
+                               "single attack to break out, but she can't apply her Defense or "
+                               'armor against such attacks.',
+                   'book': 'CTL 2e 53'},
+ 'helldiver': {'name': 'Helldiver',
+              'skill': 'Larceny',
+              'description': 'Occasionally, the True Fae need to get places that even they cannot '
+                             'reach. Sometimes they need a spy or a thief in their byzantine '
+                             'intrigues, someone who would go unnoticed and unaffected. When they '
+                             'feel like engaging in espionage, the Others create Helldivers. '
+                             'Helldivers are unusual among changelings in that their Keepers not '
+                             'only expect them to leave Arcadia, but encourage them to do so. This '
+                             'does not free them, though. Even in their otherworldly forms, '
+                             'still-captive Helldivers have a silver thread attached to their '
+                             'person leading back to their Keeper. All Helldivers know the '
+                             'excruciating pain of being yanked out of another realm unexpectedly '
+                             "to face their Keeper's wrath. Once the thread breaks, the Helldiver "
+                             'is free. Whether captive or free, Helldivers are never in one place '
+                             'for long. They are always chasing some new rumor of a rare token, '
+                             'exploring alien realms, or listening in on conversations they really '
+                             'should not. Helldivers are hungry for knowledge. After all, knowledge '
+                             'is power.',
+              'blessing': 'When the Helldiver uses Larceny in the Hedge, Arcadia, or another '
+                          'unearthly realm, achieving three successes counts as an exceptional '
+                          'success. Dive: Spend a Glamour point to make a Dexterity + Occult roll. '
+                          'On a success, the Helldiver begins to fade into an incorporeal, '
+                          'invisible form. It takes a number of turns equal to (10 - her current '
+                          'Clarity), to a minimum of one full turn, to completely fade. While '
+                          'fading, the Helldiver cannot take any non-reflexive actions or interact '
+                          'with objects or people, and attacks with a non-magical component pass '
+                          'harmlessly through her. Once she completely fades, she acts like a '
+                          'dematerialized Hedge ghost, unable to physically interact with anything '
+                          'except other immaterial beings and objects. She can spend as much time '
+                          'as she likes Diving, but she still requires basic necessities. To end '
+                          'this effect, spend another Glamour point and make another Dexterity + '
+                          'Occult roll to fade back into the world at the same rate.',
+              'book': 'CTL 2e 53'},
+ 'hunterheart': {'name': 'Hunterheart',
+                'skill': 'Investigation',
+                'description': 'If animals have souls, they are not the sort of souls the Gentry '
+                               'can grab onto and twist into shapes to serve their otherworldly '
+                               'needs. Hunterhearts are the wild animals of Arcadia, the feral eyes '
+                               'peeking out from the Hedge. Not all Hunterhearts are Beasts, but '
+                               'all spend their durances consumed with the urge to chase, to hunt, '
+                               'to kill. The True Fae usually take changelings who become '
+                               'Hunterhearts for their mix of ambition and insecurity. A '
+                               "Hunterheart's durance is always red of tooth and claw. While this "
+                               "kith sees more Beasts than most, its members' behavior hews more to "
+                               'the mythic archetypes of such creatures than to any Darwinian '
+                               "textbook. True Fae don't care that male lions are whiny layabouts "
+                               '-- lions in Faerie are proud, noble hunters. Similarly, wolves are '
+                               'mysterious loners, panthers are sleek and sexual, and sharks are '
+                               'cunning and dispassionate. What matters most is the chase, the '
+                               'fight, and the next meal.',
+                'blessing': 'Choose either Investigation or Survival. When the Hunterheart uses the '
+                            'chosen Skill to track down creatures from Faerie, achieving three '
+                            'successes counts as an exceptional success. Pounce: If the target can '
+                            "see the Hunterheart's eyes, the changeling may spend a point of "
+                            'Glamour to lock the target in place or cause him to flee in terror. '
+                            "The Hunterheart's player rolls Presence + Wyrd as an instant action, "
+                            "contested by the target's Composure + Supernatural Tolerance. The "
+                            'target gains the Insensate Tilt or the Frightened Condition if the '
+                            "Hunterheart is successful, chosen by the target's player. If the "
+                            'changeling attacks the frozen or fleeing target, her unarmed attacks '
+                            'deal lethal damage.',
+                'book': 'CTL 2e 54'},
+ 'leechfinger': {'name': 'Leechfinger',
+                'skill': 'Medicine',
+                'description': 'If vampires exist, they cannot become changelings. That is the '
+                               'generally held opinion among the Lost. However, the thought of the '
+                               'Byronic undead ideal entrances humanity -- mysterious, dreamy-eyed, '
+                               'and stealing the life of those around them. The True Fae have '
+                               'seized on this dream to create the Leechfinger. The Gentry draw '
+                               'Leechfingers from mortals who take. This definition is broad: A '
+                               'Leechfinger could have been a manipulative user, a cold contract '
+                               'killer, a kind-hearted fundraiser, or a polite financial '
+                               'professional. Anyone who builds their identity around taking and '
+                               'receiving in some way could make a good Leechfinger. In Faerie, '
+                               'they are weapons against the slaves of other Gentry and instruments '
+                               "of torture against their own Keeper's troublesome servants. With a "
+                               'touch, they steal life and vitality, leaving their victims dazed '
+                               'and fatigued. In the mortal world, other changelings know they '
+                               'exist. They look at even the kindest Leechfinger with suspicion.',
+                'blessing': 'When the Leechfinger uses Medicine to determine the health of a '
+                            'potential target, achieving three successes counts as an exceptional '
+                            'success. Sap The Vital Spark: If the Leechfinger maintains physical '
+                            'contact with a target for a full turn, she may spend a point of '
+                            'Glamour to inflict a point of bashing damage. This heals the '
+                            'Leechfinger, either downgrading one aggravated wound to lethal, one '
+                            'lethal to bashing, or one bashing to fully healed. As long as the '
+                            'Leechfinger maintains contact, she can spend a point of Glamour each '
+                            'turn to continue the effect. If the target is a changeling, the '
+                            'Leechfinger inflicts two points of damage per Glamour instead, and '
+                            'thus heals or downgrades two points of damage per turn.',
+                'book': 'CTL 2e 55'},
+ 'mirrorskin': {'name': 'Mirrorskin',
                'skill': 'Stealth',
-               'description': 'A newer kith born from nuclear-era anxieties, shaped into shadowy poisoners and silent '
-                              'killers marked by radiant ruin and hush-filled dread. Becquerels often escape in '
-                              'spectacular bursts through the Hedge and carry a dangerous touch that burns flesh in '
-                              'patterns reminiscent of fallout and irradiated shadow. Becquerels emerged from '
-                              'nuclear-era dread, styled as shadowy radiance and lingering burn. Their touch is feared '
-                              'for what it does to bodies and what it symbolizes culturally.',
-               'blessing': 'Nuclear Shadow: when the character successfully grapple, spend 1 Glamour to burn the '
-                           'target as a supernatural heat-shadow effect that resembles radiation injury to mundane '
-                           'scans. Each turn the character maintain the hold, the character may apply Stunned or '
-                           'Poisoned, making prolonged contact increasingly devastating. Nuclear Shadow applies '
-                           'thematic burn plus ongoing tilt pressure while maintaining grapple control.',
-               'book': 'Kith 117'},
- 'blightbent': {'name': 'Blightbent',
-                'skill': 'Disease/Poison',
-                'description': "Workers of Arcadia's most toxic pits, furnaces, bogs, and chemical wastes, remade to "
-                               'survive contamination by becoming part of it. Blightbent carry industrial scars, '
-                               'lingering stench, and hard-earned resilience, often thriving where others fail while '
-                               'finding ordinary social reintegration painfully difficult and physically complicated. '
-                               'Blightbent survived toxic labor by becoming toxic themselves, and reintegration is '
-                               'often physically and socially punishing. They carry industrial memory as both '
-                               'resilience and stigma.',
-                'blessing': 'Brimstone: after a successful grapple, spend 1 Glamour to inflict Poisoned through the '
-                            "character's caustic touch. Combined with the character's natural resistance profile and "
-                            'contamination narrative, this lets the character function as both hazard specialist and '
-                            'close-range threat in environments most kiths would avoid entirely. Brimstone converts '
-                            'successful close contact into immediate poisoning, reinforcing contamination identity.',
-                'book': 'Kith 117'},
- 'enkrateia': {'name': 'Enkrateia',
-               'skill': 'Empathy/Persuasion/Subterfuge',
-               'description': "Rare 'better angels' of Arcadia: mediators, analysts, judges, and counselors created to "
-                              'advise Keepers through conflict, vanity, and strategic overreach. Enkrateia return as '
-                              'dispassionate de-escalators with precise situational analysis, often indispensable in '
-                              'freehold politics where everyone else runs too hot and too proud. Enkrateia served as '
-                              'advisors and mediators where Keepers wanted reason without accountability. In '
-                              'freeholds, they excel when emotions outrun strategy.',
-               'blessing': 'Eloquent Analysis: during extended Investigation, the character begin losing dice only '
-                           'after the third successive roll, representing exceptional composure under pressure and '
-                           'methodical reasoning. This makes the character especially strong in tense social '
-                           'inquiries, layered conspiracies, and drawn-out evidence synthesis scenes. Eloquent '
-                           'Analysis extends effective investigation streak length before dice attrition begins.',
-               'book': 'Kith 118'},
- 'gravewight': {'name': 'Gravewight',
-                'skill': 'Empathy/Intimidation',
-                'description': "Executioners, psychopomps, and keepers of Arcadian dead who learned death's mechanics "
-                               'too intimately to fear them in ordinary ways. Gravewights are often pragmatic rather '
-                               'than theatrical, carrying grave-sense, ghost attention, and unnerving calm around '
-                               'mortality that others read as either comfort or threat. Gravewights performed '
-                               'death-work close to chthonic powers and returned with unusual composure around '
-                               'mortality. Their presence attracts ghosts and obligations in equal measure.',
-                'blessing': 'Charnel Sight: spend 1 Glamour to see and hear ghosts lingering in Twilight, while the '
-                            "character's broader presence naturally attracts liminal dead and other in-between "
-                            'entities. In practice this grants investigation leverage, social complication, and '
-                            'constant contact with voices most people never hear. Charnel Sight is equal parts sensory '
-                            'expansion and narrative magnet for liminal entities.',
-                'book': 'Kith 119'},
- 'shadowsoul': {'name': 'Shadowsoul',
-                'skill': 'Subterfuge',
-                'description': 'Nocturnal counterparts to brighter kiths, remade as dusk-bound ornaments, hunters, and '
-                               'attendants in the courts of night-aligned Keepers. Shadowsouls carry lunar and mirror '
-                               'affinities, thrive in concealment and ambiguity, and often endure lingering frailties '
-                               'tied to daylight, scrutiny, and prolonged exposure. Shadowsouls were shaped by '
-                               'nocturnal courts and punished with daylight frailties. They thrive in concealment and '
-                               'mirror-work while carrying resentment toward imposed darkness.',
-                'blessing': 'Nightblind: gain natural affinity with Mirror in addition to existing regalia affinities, '
-                            'and once per scene on an exceptional attack success the character may inflict temporary '
-                            'Blindness by touch. The blessing rewards ambush, precision, and decisive openings rather '
-                            'than prolonged stand-up brawling. Nightblind combines strong mundane deceit support with '
-                            'targeted scene-limited sensory denial.',
-                'book': 'Kith 119'},
- 'telluric': {'name': 'Telluric',
-              'skill': 'Drive/Streetwise',
-              'description': "Isolated stars set in Arcadia's moving heavens, constantly seen yet rarely truly engaged "
-                             'by those below, admired at distance and starved of ordinary belonging. Tellurics return '
-                             'with deep travel instinct, courier talent, and complicated intimacy patterns - craving '
-                             'connection while reflexively casting themselves as distant and untouchable. Tellurics '
-                             'were set in Arcadian skies as distant ornaments and navigational assets. They are seen '
-                             'easily, known poorly, and often lonely even in company.',
-              'blessing': 'Burn Bright: spend 1 Glamour to hurl a starflame projectile using Dexterity + Athletics, '
-                          'dealing torch-sized supernatural fire with candle-level heat profile. The attack provides '
-                          'reliable ranged pressure and thematic spectacle, especially in chases, escapes, and '
-                          'night-sky set pieces. Burn Bright gives reliable ranged supernatural pressure with strong '
-                          'thematic presentation.',
-              'book': 'Kith 120'},
- 'whisperwisp': {'name': 'Whisperwisp',
-                 'skill': 'Subterfuge',
-                 'description': 'Cold-information specialists forged through surveillance, interrogation, blackmail, '
-                                'and sabotage, trained to hear everything and reveal only what serves strategic '
-                                'intent. Whisperwisps are consummate manipulators of truth and lies, often operating '
-                                "at arm's length from courts they advise, exploit, undermine, or quietly protect. "
-                                'Whisperwisps were built for surveillance, interrogation, and covert disruption. They '
-                                'are exceptional manipulators of disclosure, and rarely show their full hand.',
-                 'blessing': 'Forked Tongue: choose Stealth or Persuasion at character generation; rolls with that '
-                             "Skill gain both 9-again and a bonus equal to Wyrd. Combined with the character's "
-                             'truth-vs-falsehood exceptional thresholds, this creates an unusually strong toolkit for '
-                             'espionage, confidence games, and social pressure operations. Forked Tongue supercharges '
-                             'one selected social or stealth channel with both bonus and reroll edge.',
-                 'book': 'Kith 120'},
- 'antiquarian': {'name': 'Antiquarian',
-                 'skill': 'Empathy',
-                 'description': 'Living vaults of secrets layered beneath other secrets, Antiquarians were built to '
-                                "guard a Keeper's one true vulnerability by burying it under names, memories, and "
-                                'confessions stolen from countless others. They survive by hoarding truth, speaking '
-                                'rarely, and reading what people do not mean to reveal, then trading answers only when '
-                                'the price is right. In Alexandria and similar centers, Antiquarians became '
-                                'indispensable librarians and keepers of dangerous catalogues. They measure trust in '
-                                'layers and rarely disclose everything at once. What they know can rescue a freehold '
-                                'or ignite a war, depending on when they speak.',
-                 'blessing': 'Secrets and Whispers: when using Empathy to uncover hidden truths, three successes count '
-                             'as exceptional success. Once per session, spend 1 Glamour and roll Intelligence + '
-                             'Composure to ask a question and draw an answer through research, intuition, omen, or '
-                             'dream-whisper; required successes scale with how hidden the truth is. Secrets and '
-                             'Whispers scales from ordinary research to occult revelation, depending on success and '
-                             'narrative access.',
-                 'book': 'DE2 69'},
- 'chimera': {'name': 'Chimera',
+               'description': 'The True Fae are capricious, ever carried by their whims. Their '
+                              'actions seem illogical, their emotions mercurial, and their desires '
+                              'nonsensical. Changelings never really know their Keepers. However, '
+                              'the True Fae are one thing consistently: themselves. That is how the '
+                              'Mirrorskins escaped. In Arcadia, everything is what it is. '
+                              'Mirrorskins are anything and everything -- or, at least, they can '
+                              'appear to be so. In Arcadia, where appearance is everything, this is '
+                              'a huge advantage. True Fae who create Mirrorskins keep a close eye '
+                              'on them, using them as spies, showpieces, or sometimes literal '
+                              'mirrors. Change and disguise are their weapons, and how they '
+                              'escaped. When they twist and turn and lose themselves in the Mask, '
+                              'that is when their Keepers lose them, too. In the mortal world, they '
+                              'are unmatched in the art of disguise. The sorts of changelings who '
+                              'might become Mirrorskins were people pleasers before. They tried to '
+                              'be whatever they could to delight those around them, or at least '
+                              'avoid negative consequences.',
+               'blessing': 'When the Mirrorskin uses Stealth while in disguise, achieving three '
+                           'successes counts as an exceptional success. Mercurial Visage: A '
+                           'Mirrorskin may mold and shape her appearance like putty, making an '
+                           'entirely new Mask out of composite pieces of people she has met or seen '
+                           'in photos. Spend a point of Glamour and make a reflexive Wits + '
+                           'Subterfuge + Wyrd roll, with no penalties for lacking equipment. For an '
+                           'extra point of Glamour, the changeling can build a new composite mien '
+                           'as well. Supernatural abilities that would pierce her deception prompt '
+                           'a Clash of Wills. This effect lasts indefinitely, but the changeling '
+                           'must use it again even to return to her own natural appearance.',
+               'book': 'CTL 2e 55'},
+ 'nightsinger': {'name': 'Nightsinger',
+                'skill': 'Expression',
+                'description': 'Song is an art almost as old as humanity itself, and something that '
+                               'utterly fascinates the True Fae. While they have otherworldly music '
+                               'of their own, the Gentry love human songs for the endless depths of '
+                               'their emotional expression. Nightsingers are the kith who produce '
+                               'many of the magical songs the creatures in fairy tales teach heroes '
+                               'or children. Nightsingers were creative types before Faerie stole '
+                               'them away, and not just musicians. The True Fae have odd and '
+                               'exacting ideas about what makes a good song, so a changeling who '
+                               'produces a less-than-satisfactory piece runs the risk of severe '
+                               'retribution. Most Nightsingers escape while their Keepers are in '
+                               'the throes of exquisite agony from a song sad enough to make a '
+                               'stone weep, or doubled over in laughter from a bawdy take on a '
+                               'solemn hymn. Nightsingers find that, once they have escaped, their '
+                               'songs hold less power in the solid, consistent mortal world. They '
+                               'are far from powerless, however. The other Lost quietly fear their '
+                               'ability to completely enthrall others with their song.',
+                'blessing': 'When the Nightsinger uses Expression to sing or compose a piece of '
+                            'music, achieving three successes counts as an exceptional success. '
+                            'Siren Song: Spend a point of Glamour and roll Presence + Expression + '
+                            'Wyrd as an instant action, contested with Composure + Supernatural '
+                            "Tolerance by anyone who hears the Nightsinger's unearthly song. Anyone "
+                            'who fails gains the Swooned Condition and is rooted to the spot for as '
+                            'long as the Nightsinger continues to sing; the changeling can take a '
+                            "victim's hand and lead him along with her, but otherwise he cannot "
+                            'move, although he can still apply his Defense against attacks. Jarring '
+                            'him out of it requires an opposing power (prompting a Clash of Wills), '
+                            'dealing him at least as much damage as his Stamina rating, or making '
+                            'it impossible for him to hear the song anymore.',
+                'book': 'CTL 2e 56'},
+ 'notary': {'name': 'Notary',
+           'skill': 'Politics',
+           'description': 'Not all pledges are signed on paper or carved into stone. Some are '
+                          'literally living documents. Notaries are changelings who preside over '
+                          "pledges between True Fae and others. A Notary's Keeper writes these "
+                          "agreements in the changeling's blood, etches them across her skin, and "
+                          'imprints them on her soul. She is both witness and oath, and her Keeper '
+                          'closely supervises her, lest its pledge vanish into the Thorns. This '
+                          'makes a Notary extremely dangerous in the mortal world. A True Fae will '
+                          'stop at nothing to retrieve a lost pledge, sending Huntsmen, loyalists, '
+                          'and even other True Fae after escaped Notaries. Many freeholds would not '
+                          'bother keeping such ticking time bombs around if they were not so '
+                          'incredibly valuable. Notaries escape by finding loopholes in the pledges '
+                          'that bind them to the Others and walking right out the front door. In '
+                          'Lost courts, they are often viziers, lawyers, mediators, and -- if all '
+                          'else fails -- tricksters who outsmart the True Fae into leaving their '
+                          'freehold alone for yet another season. A Notary can perfectly recite any '
+                          'pledge she officiates.',
+           'blessing': 'When the Notary uses Politics to negotiate, read, or interpret a fae '
+                       'pledge, achieving three successes counts as an exceptional success. '
+                       'Abatement: Once per chapter, a Notary can completely negate the need for '
+                       'Glamour in a pledge as long as she is involved in its creation, without a '
+                       'roll. Thereafter, the Notary can perfectly recite the pledge as long as it '
+                       'lasts.',
+           'book': 'CTL 2e 57'},
+ 'playmate': {'name': 'Playmate',
+             'skill': 'Persuasion',
+             'description': 'Each member of the Playmate kith is shaped according to the whims of '
+                            'the specific True Fae who made her. Every Playmate reflects the '
+                            'specific attachment style of his or her Keeper, and every Playmate is '
+                            'made to feel needed. Mortals who already felt lost and alone most '
+                            'often become members of this kith. Adult children reeling from the '
+                            'deaths of parents, new divorcees, and college dropouts are just some '
+                            'examples. The True Fae promise structure, connection, and love. It is '
+                            'an open secret that most Playmates who now exist in the mortal world '
+                            'did not escape. Their Keepers grew bored with them and tossed them '
+                            'into the Hedge. Many Playmates blame themselves -- after all, if they '
+                            'had been better, would their Keepers not have loved them? Playmates '
+                            'occupy an odd spot in changeling society. On the one hand, they were '
+                            'let go, not chased, so many Lost view them with suspicion. On the '
+                            'other hand, Playmates have an extremely valuable blessing and are '
+                            'usually willing to help out wherever possible.',
+             'blessing': 'When the Playmate uses Persuasion to make someone like her or her '
+                         'friends, achieving three successes counts as an exceptional success. '
+                         'Coeur Loyal: A Playmate may touch a wounded character and spend a point '
+                         'of Glamour to heal any number of bashing or lethal damage points as an '
+                         'instant action. She takes the same amount of mild Clarity damage as '
+                         'bashing damage healed, and the same amount of severe Clarity damage as '
+                         'lethal damage healed; apply the mild damage first. She cannot heal more '
+                         'damage than she has room to take more Clarity damage. It is entirely '
+                         'possible for a Playmate to lose herself completely while healing others.',
+             'book': 'CTL 2e 57'},
+ 'snowskin': {'name': 'Snowskin',
              'skill': 'Subterfuge',
-             'description': 'Arcadian composites stitched from multiple bestial forms - predator, courier, '
-                            'executioner, and terror-weapon in one body shaped by experimentation. Chimera often '
-                            'retain kinship with goblins and hedge denizens, understand deception in all its forms, '
-                            'and carry the uneasy pride of those remade from many things that should never have fit '
-                            'together. Chimera are common where Gentry experiment openly with form, especially in '
-                            'realms that prize spectacle and utility. Their patchwork bodies often mirror patchwork '
-                            'social identities among Lost. Tales of predators like the Geryo reinforce both their '
-                            'caution and their ferocity.',
-             'blessing': 'Goblin Kin: when using Subterfuge to detect spoken or written trickery, three successes '
-                         'count as exceptional success. Each chapter, choose one Goblin Contract the character know; '
-                         'that Contract does not incur Goblin Debt when invoked, and this benefit rotates until all '
-                         'eligible Goblin Contracts have been selected. Goblin Kin supports rotational versatility and '
-                         "encourages regular use of the kith's broader Goblin Contract toolkit.",
-             'book': 'CTL JS 47 / DE2 69'},
- 'dryad': {'name': 'Dryad',
-           'skill': 'Survival',
-           'description': 'Woodbound changelings cultivated as living ornaments, wardens, and seasonal fixtures in '
-                          'Arcadian gardens and sacred groves, bound to green life even when imprisoned. Dryads often '
-                          'return preferring trees to crowds, navigating forest and Hedge with instinctive ease while '
-                          'carrying a stillness that can make them vanish into leaf and bark as if they were never '
-                          'there. Wooded domains and sacred gardens shaped their instincts toward green cover, rooted '
-                          'patience, and quiet paths. Even in cities, many seek parks, courtyards, and overgrown '
-                          'margins for safety. They often trust trees and thorns faster than people.',
-           'blessing': 'Fade into the Foliage: in wooded areas (including the Hedge), Survival rolls for tracking and '
-                       'pathfinding treat three successes as exceptional success. If unobserved for one turn, spend 1 '
-                       'Glamour to conceal themself behind substantial foliage; remain perfectly hidden while still, '
-                       'and add Wyrd to Stealth when moving. Fade into the Foliage turns terrain into defense, '
-                       'rewarding patience, sight-line control, and woodland positioning.',
-           'book': 'DE2 70'},
- 'muse': {'name': 'Muse',
-          'skill': 'Mantle',
-          'description': 'Catalysts of brilliance who inspire, pressure, and provoke excellence in others, Muses were '
-                         'prized by Keepers and courts that measured power through monuments, performance, and legacy. '
-                         'They are often socially magnetic and politically useful, able to elevate status by presence '
-                         'alone and drive mortals toward creation that outlasts everyone involved. Muses in this era '
-                         'were tied to monumental ambition, from city projects to reputational contests among courts. '
-                         'Their influence can be benevolent inspiration or coercive pressure dressed as encouragement. '
-                         'Either way, they leave marks on culture larger than themselves.',
-          'blessing': "Tyranny of Ideas: once per session, interact with other Lost as though the character's Mantle "
-                      'or court Goodwill were one dot higher. By spending 1 Glamour and making an appropriate social '
-                      "roll against a human target, the character grant bonus dice to that target's creation roll and "
-                      'let three successes count as exceptional success for the resulting work. Tyranny of Ideas '
-                      'creates indirect power by amplifying mortal creators rather than harvesting glamour from their '
-                      'output.',
-          'book': 'DE2 70'},
- 'nymph': {'name': 'Nymph',
-           'skill': 'Athletics',
-           'description': 'Waterborn changelings shaped in the image of mythic sea-kin, thriving in harbors, '
-                          'riverways, and hidden channels where information and tribute move together. Nymphs are '
-                          'natural aquatic scouts and social powers in port communities, balancing hospitality and '
-                          'danger with the same current that carried them out of Arcadia. Harbors and riverways make '
-                          'them natural scouts, informants, and guardians of exchange. Their communities often involve '
-                          'tribute, bargains, and territorial etiquette around water. Allies learn quickly that '
-                          'generosity and danger share the same tide.',
-           'blessing': 'Gift of Water: when making Athletics rolls while swimming, three successes count as '
-                       'exceptional success. Spend 1 Glamour and succeed on a Stamina + Athletics roll to manifest '
-                       'gills and an aquatic lower form, allowing air-and-water breathing, double swim speed, and '
-                       'normal use of weapons and complex actions underwater for the scene. Gift of Water provides '
-                       'sustained aquatic superiority, making ports, rivers, and flooded zones decisive home ground.',
-           'book': 'DE2 70'},
- 'cleverquick': {'name': 'Cleverquick',
+             'description': 'Faerie is not all exploding chaos and wild whimsy. Sometimes it is '
+                            'cold, still, and quiet, like a snowfall on a winter night. In palaces '
+                            'of glittering ice, or at the bottom of freezing oceans filled with all '
+                            'manner of unearthly creatures, Keepers enforce a frigid peace at the '
+                            'end of an icicle spear. Their servants become Snowskins to better '
+                            'survive their chilling durances. Members of this kith have, at the '
+                            'very least, an unusually low body temperature. Some develop ice '
+                            'crystals in their hair, or constantly fogging breath. Before the Fae '
+                            'took them, Snowskins were stable and self-sufficient. Their durances '
+                            'sharpened this to a fine point, teaching them not to trust anyone or '
+                            'anything other than their own capabilities. It is this total freezing '
+                            "of the heart and soul that allows a Snowskin to evade his Keeper's "
+                            'tender mercies long enough to escape Arcadia. Bright, expressive souls '
+                            'attract the Gentry, not lumps of ice and shadow. Snowskins usually '
+                            'escape unnoticed once they force this change of heart. Even once back '
+                            'in the mortal world, some never warm up to their fellow Lost, and '
+                            'those who do form extremely strong attachments to those they let in.',
+             'blessing': 'When the Snowskin attempts to use Subterfuge to hide her feelings from '
+                         'others, achieving three successes counts as an exceptional success. Heart '
+                         "of Ice: A Snowskin's derision is more vicious than a howling blizzard. "
+                         'When she attempts to shut someone down in front of an audience, spend a '
+                         'point of Glamour and roll Presence + Intimidation + Wyrd, contested by '
+                         "the target's Composure + Supernatural Tolerance. If the Snowskin "
+                         'succeeds, her target gains the Shaken Condition and suffers a -2 on all '
+                         'Social rolls involving other changelings until the Condition resolves, as '
+                         'her contempt freezes him out of society.',
+             'book': 'CTL 2e 58'},
+ 'absinthial': {'name': 'Absinthial',
+               'skill': 'Crafts',
+               'description': 'Absinthials brewed fae absinthe for the Gentry, using their own '
+                              "dreams as ingredients. Most escaped during their Keepers' fits of "
+                              'intoxicated ecstasy. Fickle, perfectionistic, and creative, they '
+                              'insist on doing things their way and do not take criticism lying '
+                              'down. Some continue brewing in the mortal world; others settle for '
+                              'rendering people paralyzed by their presence alone.',
+               'blessing': 'When crafting anything consumable with fae ingredients using Crafts, '
+                           "three successes count as an exceptional success. Green Fairy's Curse: "
+                           'Once per scene, spend a Glamour and touch a target. Roll Presence + '
+                           'Crafts + Wyrd contested by Composure + Wyrd; success inflicts the '
+                           'Insensate Tilt. When the Insensate effect ends, the target suffers the '
+                           'Confused Condition. Does not work on True Fae or Huntsmen.',
+               'book': 'Kith 88'},
+ 'climacteric': {'name': 'Climacteric',
+                'skill': 'Investigation',
+                'description': 'Climacterics served as living timepieces and stage managers in '
+                               "Arcadia, pulling down nights and raising suns at their Keepers' "
+                               'command. They represent both immense value and incredible danger '
+                               'for freeholds -- their blessing allows near-complete battlefield '
+                               'control, but its use serves as a beacon to Huntsmen. Many quietly '
+                               'keep to themselves, taking joy in strategy games and long-term '
+                               'planning.',
+                'blessing': 'When attempting to identify patterns with Investigation, three '
+                            'successes count as an exceptional success. En Prise: Whenever a '
+                            'Climacteric is present when anyone rolls Initiative, she may spend a '
+                            'Glamour to choose one character to automatically act at the top of the '
+                            'Initiative order without a roll. She cannot choose herself.',
+                'book': 'Kith 88'},
+ 'concubus': {'name': 'Concubus',
+             'skill': 'Empathy',
+             'description': 'Concubi spent their nights with their Keepers as nocturnal companions, '
+                            'plunging into shared madness with alien minds while enduring desperate '
+                            'stretches of daytime isolation. Few other changelings have experienced '
+                            'what passes for Gentry dreams. Some miss the role enough to return; '
+                            'others find work as therapists, courtesans, and oneiropomps for the '
+                            'Lost.',
+             'blessing': 'When breaking into a Bastion with Empathy, three successes count as an '
+                         'exceptional success. Valerian and Violence: When a Concubus gains the '
+                         'Dream Infiltrator Condition by sleeping next to the target for six hours, '
+                         'she can remove one non-persistent mental or psychosomatic Condition as a '
+                         'paradigm shift costing three successes. Resolving a Persistent Condition '
+                         'requires three consecutive six-hour shifts, the Dream Intruder Condition, '
+                         'and performing both subtle and paradigm shifts inside the Bastion.',
+             'book': 'Kith 89'},
+ 'draconic': {'name': 'Draconic',
+             'skill': 'Brawl/Weaponry',
+             'description': 'Draconic changelings are modeled on the mythic beasts of Faerie -- '
+                            'thick horns, scales, heavy leathery wings. They find themselves too '
+                            'big for the mortal world: too loud, too present, too much. Some build '
+                            "hoards; others join motleys and fuss over their people's well-being. "
+                            'Once settled, Draconics guard their people and things with unmatched '
+                            'ferocity.',
+             'blessing': 'Choose either Brawl or Weaponry. When the Draconic defends a person, '
+                         'place, or thing she cares about with that Skill, three successes count as '
+                         'an exceptional success. None Dare Resist: Spend an extra Glamour while '
+                         'scouring her Mask and make a display of dominance to inflict Frightened '
+                         'on all opponents who can perceive her. Additionally, spend a Glamour as a '
+                         'reflexive action to fly for turns equal to Wyrd at Speed 60; aerial '
+                         'charges gain +2 to the attack roll.',
+             'book': 'Kith 90'},
+ 'flowering': {'name': 'Flowering',
+              'skill': 'Socialize',
+              'description': "Flowering changelings blossomed among Arcadia's strange flora, "
+                             'trained by their durances to make others look good. Many find it '
+                             'difficult to readjust to being their own masters. Their hypnotic '
+                             'scent creates dependency in those around them -- some abuse this '
+                             "power, some try to act in the freehold's interest, and others seclude "
+                             'themselves to avoid unduly influencing anyone.',
+              'blessing': 'When convincing someone they need her with Socialize, three successes '
+                          'count as an exceptional success. Seductive Fragrance: Spend a Glamour '
+                          'and roll Presence + Empathy. For the scene, anyone in her presence '
+                          'contests with Composure + Wyrd; those who fail suffer the Leveraged '
+                          'Condition regarding the Flowering. Spend another Glamour during the '
+                          'scene to also inflict Frightened, Reckless, or Swooned on a Leveraged '
+                          'target.',
+              'book': 'Kith 90'},
+ 'ghostheart': {'name': 'Ghostheart',
+               'skill': 'Perception',
+               'description': 'Ghosthearts disposed of the dead in Faerie -- burying, burning, '
+                              'sinking, or cooking them. Shunned by other changelings, they found '
+                              'companionship among the unquiet dead, and it was often these ghosts '
+                              'who led them to escape. Other Lost find them creepy at best, but a '
+                              'Ghostheart has many ephemeral friends happy to harass anyone who '
+                              'hurts her.',
+               'blessing': 'When making a perception roll with Wits + Composure to see manifest '
+                           'ghosts or other ghostly Twilight entities (including Helldivers), three '
+                           'successes count as an exceptional success. Friends in Strange Places: '
+                           'Start play with three extra dots of Retainers representing ghosts, each '
+                           "with one chosen Numen (other than Clarity Drain, Entrap, and Keeper's "
+                           'Calling). May buy more Allies dots for additional ghosts.',
+               'book': 'Kith 91'},
+ 'moonborn': {'name': 'Moonborn',
+             'skill': 'Empathy/Intimidation',
+             'description': 'Moonborn were kept in constant Bedlam, run through thousands of '
+                            'emotions in quick succession until they had no basis for comparison. '
+                            'Every piece of stable emotional footing they have was fought for. Some '
+                            'help new Lost find their feet; a few exist outside freeholds entirely, '
+                            'inflicting on others the same chaos that was carved into them.',
+             'blessing': "Choose Empathy or Intimidation. When changing someone's emotional state "
+                         'with the chosen Skill, three successes count as an exceptional success. '
+                         'Full Moon Catharsis: Once per chapter, spend a Glamour and roll '
+                         'Manipulation + Expression to Incite Bedlam in up to Wyrd targets, '
+                         'contested by Composure + Wyrd. Inflict one of the following on all who '
+                         'fail: Competitive, Frightened, Reckless, Lethargic, or Wanton.',
+             'book': 'Kith 92'},
+ 'uttervoice': {'name': 'Uttervoice',
+               'skill': 'Intimidation',
+               'description': 'Uttervoices come from frustrated creatives whose blocked feelings '
+                              'were shaped into a weapon. Instead of a masterpiece, their voice '
+                              'became a claymore. Some refuse to speak above a whisper; others take '
+                              'care to remind people what weight their voice carries. When your '
+                              'primary communication contains violence, relating to others gets '
+                              'complicated.',
+               'blessing': 'When using their voice to Intimidate, three successes count as an '
+                           'exceptional success. Scream of Agony: Spend a Glamour and scream -- '
+                           'roll Presence + Wyrd contested by Composure + Wyrd for everyone who '
+                           "hears. Failure inflicts one bashing; the Uttervoice's exceptional "
+                           'success upgrades it to lethal. Can scream each turn until out of '
+                           'Glamour. Ignores Durability below 2, shatters glass. Accidentally '
+                           'activates on Presence rolls affecting supernatural phenomena that '
+                           'benefit from 8-again.',
+               'book': 'Kith 92'},
+ 'delver': {'name': 'Delver',
+           'skill': 'Investigation',
+           'description': "Delvers mined Arcadia's depths in near-solitude, pushed to find the next "
+                          'gemstone or raise lost treasures. Most lost their voices in some lonely '
+                          'tunnel. They communicate through coded tapping vibrations carried '
+                          'through the earth. After escape, they form tight communities and often '
+                          'find professional success through patience and persistence.',
+           'blessing': 'When making Investigation rolls to find what was lost or hidden, three '
+                       'successes count as an exceptional success. Tappingspeak: Spend a Glamour to '
+                       'send encrypted tapped messages through earth-connected surfaces to declared '
+                       'recipients within Wyrd miles. Recipients understand innately. Other Delvers '
+                       'may intercept; non-Delvers need supernatural means to decode. Spend a '
+                       'Glamour and roll Investigation to decode intercepted messages.',
+           'book': 'Kith 93'},
+ 'glimmerwisp': {'name': 'Glimmerwisp',
+                'skill': 'Persuasion',
+                'description': "Glimmerwisps threw protective fogs over the Gentry's atrocities, "
+                               'hiding their worst excesses from other changelings. The Gentry '
+                               "didn't need them to do this -- they just enjoyed having a servant "
+                               'whose job was covering up cruelty. Escaping is easy enough: just '
+                               'breeze through the Hedge. In the mortal world, some use the skill '
+                               'for triage and crisis response; others keep hiding things that '
+                               'should be confronted.',
+                'blessing': 'When using Persuasion to redirect attention away from something '
+                            'horrible or wonderful, three successes count as an exceptional '
+                            'success. Concealing Mist: Spend a Glamour to fill a room (or open '
+                            'space up to 10 yards) with perfumed mist. Roll Manipulation + '
+                            'Persuasion + Wyrd, contested by Resolve + Composure. Those who lose '
+                            'cannot see the wrongdoing of anyone else within the mist. Lasts until '
+                            'end of scene.',
+                'book': 'Kith 94'},
+ 'gremlin': {'name': 'Gremlin',
+            'skill': 'Crafts',
+            'description': 'Gremlins feel the push and pull of perfection and obsession, with the '
+                           'same outlet: destruction. Miss a stitch? Rip out the whole thread. One '
+                           'wrong line of code? Delete the file. Before Arcadia, they were '
+                           'engineers, editors, sculptors, chefs -- brilliant workaholics. The '
+                           'Gentry promised them workshops and glory, then tore their work apart '
+                           'with even more gusto.',
+            'blessing': 'When making a Crafts roll to fix a broken or flawed item, three successes '
+                        'count as an exceptional success. Nightmare at 20,000 Feet: Once per scene, '
+                        'spend a Glamour to turn an extended action into an instant action, as long '
+                        'as something needs to be torn down or destroyed as part of the process.',
+            'book': 'Kith 94'},
+ 'manikin': {'name': 'Manikin',
+            'skill': 'Socialize',
+            'description': 'Manikins are living canvases: runway models, animatronic creatures, '
+                           'scarecrows, caryatids supporting a roof. Often at the bottom of the '
+                           'pecking order among servants. Many Gentry keep a wide variety and dump '
+                           'them when moving on to the next project. Manikins know how to present '
+                           'themselves and fit into any situation without drawing the wrong kind of '
+                           'attention.',
+            'blessing': 'When using Socialize to fit into any situation, three successes count as '
+                        'an exceptional success. Gold From Straw: Spend a Glamour and roll Presence '
+                        "+ Crafts to hide an object's flaws for a scene. Gain successes (up to +5) "
+                        'as bonus on social rolls. When used to adjust an impression in Social '
+                        'maneuvering, the impression level raises an extra step. Does not actually '
+                        'improve quality -- only how it is perceived.',
+            'book': 'Kith 95'},
+ 'oculus': {'name': 'Oculus',
+           'skill': 'Persuasion',
+           'description': 'Oculi are not clairvoyant, but they have a gift for making people see '
+                          'things their way. In Arcadia they mediated negotiations between Gentry, '
+                          'but also put down uprisings among slaves. The first thing they learn is '
+                          "that everyone has a price, even people who think they don't. Expert "
+                          'bargainers, they rarely abandon negotiations no matter how poorly things '
+                          'are going.',
+           'blessing': 'When using Persuasion to get someone to consider her point of view, three '
+                       'successes count as an exceptional success. Amaurosis Fugax: Spend a Glamour '
+                       'and roll Presence + Persuasion + Wyrd contested by Resolve + Wyrd to '
+                       'obscure all paths save hers. Whether via literal clouded vision or mental '
+                       "block, the Oculus guides her target's destination.",
+           'book': 'Kith 95'},
+ 'polychromatic': {'name': 'Polychromatic',
+                  'skill': 'Empathy',
+                  'description': 'Polychromatics were kept around by Keepers for their soothing '
+                                 'display of shifting colors, sometimes used as emotional '
+                                 'modulators at large gatherings. Their wonder lies in their '
+                                 'incredible inoffensiveness -- safe beauty that demands nothing of '
+                                 "others. Some just walked out of Arcadia's front gates, flashing "
+                                 'signals of safety. They make excellent mediators and crisis '
+                                 'counselors.',
+                  'blessing': 'When using Empathy to soothe nerves or temper, three successes count '
+                              'as an exceptional success. Prismatic Heart: Once per chapter, spend '
+                              'a Glamour to cause a bright display of light and color. All other '
+                              'characters must spend Willpower or suffer the Swooned Condition. '
+                              'Swooned characters take an additional -2 on rolls to resist the '
+                              "Polychromatic's Empathy for the rest of the scene.",
+                  'book': 'Kith 96'},
+ 'veneficus': {'name': 'Veneficus',
+              'skill': 'Survival',
+              'description': 'Venefici toiled in Gentry kitchens or gathered ingredients in '
+                             'Arcadian woods. They can look at two identical plants and know which '
+                             'heals and which kills. Before abduction, they believed in the healing '
+                             'power of food -- instead of saying sorry, they bought coffee; instead '
+                             'of saying I love you, they baked a cake. They can just have more of '
+                             'an effect now.',
+              'blessing': 'When making a Survival roll to identify Goblin fruits, three successes '
+                          'count as an exceptional success. Waste Not, Want Not: Spend a Glamour to '
+                          'reflexively make a toxic plant edible, or vice versa.',
+              'book': 'Kith 97'},
+ 'witchtooth': {'name': 'Witchtooth',
+               'skill': 'Intimidation',
+               'description': 'Witchtooths are the keepers of wild and abandoned places -- forests, '
+                              'coves, salt flats, empty housing projects. Modeled on figures like '
+                              'Baba Yaga and Black Annis, though the old stories got it wrong. They '
+                              'prize freedom above all and harvest Glamour through scaring '
+                              'travelers. Despite stereotypes, they form strong attachments and '
+                              'serve as tough teachers to those they judge worthy.',
+               'blessing': 'When targeting a mortal with Intimidation, three successes count as an '
+                           'exceptional success. Nibble, Nibble, Little Mouse: Spend a Glamour and '
+                           'roll Resolve + Intimidation to reshape the land within one square mile '
+                           'to look how she wants. Lasts for turns equal to Wyrd and imposes -1 on '
+                           'Survival rolls in the area.',
+               'book': 'Kith 97'},
+ 'bricoleur': {'name': 'Bricoleur',
+              'skill': 'Crafts/Expression',
+              'description': 'Bricoleurs trade in symbolism and see potential links between '
+                             'unrelated things. Their durance was transmutative -- they realized '
+                             'language is not a rule and used it to escape. They think in crooked '
+                             'lines, which can make them hard to befriend. Many become overly '
+                             'enamored of their own cleverness, but they are valuable allies who '
+                             'think well on their feet.',
+              'blessing': 'Choose a Crafts or Expression specialty at character creation. When '
+                          'rolling that skill and specialty, three successes count as an '
+                          'exceptional success. Creatio Ex Nihilo: Spend a Glamour and roll Wits + '
+                          'Persuasion to change a core truth about herself (hair color, age, etc.) '
+                          'for days equal to Wyrd. Requires a thematically appropriate item. '
+                          'Everyone else believes the change. The same transformation happens '
+                          'permanently to her fetch.',
+              'book': 'Kith 98'},
+ 'cloakskin': {'name': 'Cloakskin',
+              'skill': 'Social',
+              'description': 'Cloakskins are invisible to mortal eyes under their Mask -- only '
+                             'their shadow remains visible, even in direct sunlight. Many were '
+                             'wallflowers before abduction. Being unseen gets old fast, and most '
+                             'cannot return to their old lives. They tend to be nomadic, turning to '
+                             'the internet for social connection where no one needs to see your '
+                             'face.',
+              'blessing': 'The Cloakskin receives +1 bonus die to all Social rolls. Now You See Me: '
+                          'Spend a Glamour and roll Presence + Stealth + Wyrd to make the mien '
+                          'disappear from sight for one scene. Others can hear, touch, and smell '
+                          'the Cloakskin but not see her; cameras will not record her. Sight-based '
+                          'Perception rolls fail; other senses suffer -3.',
+              'book': 'Kith 98'},
+ 'doppelganger': {'name': 'Doppelganger',
+                 'skill': 'Empathy',
+                 'description': "Doppelgangers don't look exactly like someone, but they can look "
+                                'just enough like them to keep everyone off-kilter. A crooked '
+                                "smile, a familiar voice, a grandmother's perfume -- they use "
+                                'subtle recognition cues to their advantage. Before abduction, they '
+                                'believed that if they just changed one thing, someone would '
+                                'finally love them.',
+                 'blessing': "When using Empathy to gain someone's confidence, three successes "
+                             "count as an exceptional success. Sea-Witch's Bargain: Spend a Glamour "
+                             'and roll Presence + Empathy + Wyrd contested by Resolve + Wyrd to '
+                             'steal a physical or auditory trait as part of her Mask for days equal '
+                             'to Wyrd. The target loses the trait until it expires or they complete '
+                             'an assigned task to win it back early.',
+                 'book': 'Kith 99'},
+ 'lethipomp': {'name': 'Lethipomp',
+              'skill': 'Empathy',
+              'description': 'Lethipomps do not feel pain, anxiety, or much of anything at all. '
+                             'Their Keepers gave them water from a river of forgetting, and many '
+                             "simply walked out of Arcadia knowing they wouldn't die afraid. They "
+                             'can pull emotion out of memories like poison from a wound, offering '
+                             'relief from guilt and sorrow -- but the cost is letting memories '
+                             'fade.',
+              'blessing': 'When using Empathy to guess a secret, three successes count as an '
+                          'exceptional success. Waters of Lethe: Spend a Glamour and roll Composure '
+                          "+ Empathy + Wyrd (contested) to absorb emotions from a target's known "
+                          'memory. The target suffers Lethargic for 24 hours. The Lethipomp suffers '
+                          'an appropriate Condition for 12 hours and may Incite Bedlam during that '
+                          'time, causing those in range to re-enact the absorbed memory.',
+              'book': 'Kith 99'},
+ 'lullescent': {'name': 'Lullescent',
+               'skill': 'Stealth',
+               'description': 'Lullescents had their voices removed and were made into listeners -- '
+                              'hidden flowers, acoustic mirrors, surveillance fixtures. They spent '
+                              'their durance shouting to be heard before realizing there were more '
+                              'interesting things to listen to. Their sharp hearing dips into '
+                              'ultrasonic and infrasonic ranges. If one is in the freehold, be '
+                              'careful with your words.',
+               'blessing': 'When using Stealth to eavesdrop, three successes count as an '
+                           'exceptional success. Song of Silence: Spend a Glamour to use '
+                           'echolocation for measuring distance, navigation, or finding hidden '
+                           'objects. A successful Wits + Occult + Wyrd roll also unveils objects '
+                           'and beings hidden by magic, requiring a Clash of Wills if the concealer '
+                           'is still alive.',
+               'book': 'Kith 100'},
+ 'riddleseeker': {'name': 'Riddleseeker',
+                 'skill': 'Investigation',
+                 'description': 'Riddleseekers soothed Keepers with new riddles or stood guard over '
+                                'treasure, posing questions only two beings knew the answer to. In '
+                                'Arcadia, where novelty is currency, running out of questions '
+                                'motivated many escapes. Most secretly want to return, if only '
+                                'briefly -- dusty mortal tomes no longer scratch the same itch.',
+                 'blessing': 'When using Investigation to solve a riddle or puzzle, three successes '
+                             'count as an exceptional success. Neck Riddle: Spend a Glamour and '
+                             'roll Wits + Expression + Wyrd to persuade a target to resolve a '
+                             'conflict with a riddle instead. If the target cannot guess the answer '
+                             'within three attempts, they must let the Riddleseeker go without '
+                             'pursuing the conflict until after the scene ends.',
+                 'book': 'Kith 100'},
+ 'sideromancer': {'name': 'Sideromancer',
                  'skill': 'Occult',
-                 'description': "Quick-witted hunters and schemers trained in pairs to expose an enemy's hidden "
-                                'weaknesses and weaponize them with ruthless timing. Cleverquicks thrive on '
-                                'preparation, pattern recognition, and dangerous bargains, often acting as '
-                                'monster-slayers, court operatives, or precision saboteurs who would rather win '
-                                'cleverly than fight fairly. Many Cleverquicks operate best in pairs, where planning '
-                                'and execution can be split with ruthless precision. They thrive on identifying the '
-                                'one weakness that turns a superior foe into prey. Victory, for them, is proof of '
-                                'preparation rather than brute force.',
-                 'blessing': "Know the character's Enemy: when using Occult to outsmart an adversary, three successes "
-                             'count as exceptional success. Spend 1 Glamour to learn one existing frailty, ban, or '
-                             'bane; spend 3 Glamour to impose a temporary one for the chapter, but the character '
-                             'accept the same weakness for that duration. Paired Cleverquicks may split costs and '
-                             'share outcomes.',
-                 'book': 'DE2 368'}}
+                 'description': "Sideromancers became attuned to the Wyrd's ripples and now read "
+                                'futures through chosen mortal methods -- cards, bones, molten '
+                                'lead, automatic writing. They shared a fear of the unknown before '
+                                'abduction. Seeing the road ahead by a little is better than seeing '
+                                'nothing at all, though they try not to think about the fact that '
+                                'the future is not fixed.',
+                 'blessing': 'When using an Occult divination Specialty, three successes count as '
+                             'an exceptional success. Panomancy: Using her chosen method, spend a '
+                             'Glamour and roll Wits + Occult + Wyrd (takes at least five minutes) '
+                             'to predict outcomes of promises, pledges, debts, or payments she is a '
+                             'primary party to. Ask the Storyteller yes/no questions equal to '
+                             'successes during the same scene. Predicting further into the future '
+                             'is an automatic dramatic failure.',
+                 'book': 'Kith 101'},
+ 'spiegelbild': {'name': 'Spiegelbild',
+                'skill': 'Persuasion',
+                'description': 'Spiegelbilder were trapped in mirrors as advisors to the Gentry, '
+                               'making friends with the creatures peeking in and with light itself. '
+                               'Bound by the twin pillars of reflection and refraction: telling the '
+                               'truth does not mean you cannot emphasize some things and minimize '
+                               'others. Before abduction, they were the sort of person people spoke '
+                               'to in confidence -- and they never kept secrets forever.',
+                'blessing': 'When using Persuasion to talk out of making a promise, three successes '
+                            'count as an exceptional success. Mirror, Mirror on the Wall: Spend a '
+                            'Glamour and roll Wits + Composure to enter mirror space through a '
+                            'reflective surface. She can look through mirrors and hear what is on '
+                            'the other side. The Wyrd binds her to answer truthfully if anyone asks '
+                            'the mirror a question. She can hide her face with Manipulation + '
+                            'Stealth + Wyrd contested by Wits + Composure. Breaking the mirror does '
+                            'not force her out before end of scene.',
+                'book': 'Kith 102'},
+ 'asclepian': {'name': 'Asclepian',
+              'skill': 'Medicine',
+              'description': 'Asclepians are clever healers who make do with impossible materials '
+                             '-- a crown of flowers as a tourniquet, a camera lens transplanted for '
+                             'an eye, mystical chants to close mortal wounds. It does not matter '
+                             'what works in the mortal world; an Asclepian might use anything. Rare '
+                             'and closely watched in Arcadia, even more in demand among the Lost.',
+              'blessing': 'On first aid Medicine rolls, three successes count as an exceptional '
+                          'success. Grafting: A touch stabilizes injuries and prevents worsening. '
+                          'Spend a Glamour and roll Intelligence + Medicine to perform field '
+                          'surgery with cobbled-together tools. Can heal injuries beyond normal '
+                          'healing, even if the patient technically died within the last scene. '
+                          'Scraps used should have thematic connection to their purpose. All grafts '
+                          'become permanent additions. Can also resolve persistent physical '
+                          'Conditions; removing a graft causes lethal damage and the Condition '
+                          'returns.',
+              'book': 'Kith 103'},
+ 'bridgeguard': {'name': 'Bridgeguard',
+                'skill': 'Intimidation',
+                'description': 'Bridgeguards are rear-guard legends, forged through twisted and '
+                               'unfair challenges until they learned to pick their hill to die on. '
+                               'Always outnumbered but never outmaneuvered, they find every edge in '
+                               'circumstance, strategy, and terrain. They control the center of '
+                               'gravity, forcing confrontations to happen at the time and place of '
+                               'their choosing.',
+                'blessing': 'When using Intimidation against multiple targets, three successes '
+                            'count as an exceptional success. Against the Odds: When outnumbered, '
+                            'spend a Glamour and roll Composure + Intimidation. Gain a Defense '
+                            'bonus equal to successes rolled and Defense is no longer reduced '
+                            'against multiple attacks. Lasts one scene, requires no action.',
+                'book': 'Kith 104'},
+ 'librorum': {'name': 'Librorum',
+             'skill': 'Intimidation',
+             'description': 'Librorum guarded knowledge for the Gentry -- watching over libraries, '
+                            "standing outside seers' temples, ferreting out missing secrets. "
+                            'Mortals chosen to become Librorum tend to have mercenary and incurious '
+                            'natures, doing their jobs with no questions asked. Most find their way '
+                            'home through the very archives they were assigned to protect, taking '
+                            'precious stolen knowledge with them.',
+             'blessing': 'When rolling Intimidation in pursuit or protection of knowledge, three '
+                         'successes count as an exceptional success. Stolen Knowledge: Once per '
+                         'chapter, spend a Glamour and roll Intelligence + Occult + Wyrd while '
+                         'meditating briefly. Divide successes between Library or Language Merits, '
+                         "or apply as a Repository, unlocking purloined knowledge from her Keeper's "
+                         'library.',
+             'book': 'Kith 104'},
+ 'liminal': {'name': 'Liminal',
+            'skill': 'Survival/Streetwise',
+            'description': 'Liminals are creatures of duality and transition, bound to thresholds. '
+                           'They were placed in dark woods to test heroes, fashioned into locks on '
+                           'vaults, or set at front desks before nightmarish corridors. Many '
+                           'twisted their mandate to help others escape -- a sphinx tells her '
+                           'simplest riddle, a green man neglects to fill a rabbit hole. Most had '
+                           'to be pulled out by other changelings.',
+            'blessing': 'When using Survival or Streetwise to navigate, three successes count as an '
+                        'exceptional success. Line in the Sand: While on a threshold, make a '
+                        'conditional declaration and spend a Glamour. Roll Resolve + Intimidation + '
+                        'Wyrd contested by Composure + Wyrd. Does not physically prevent crossing, '
+                        'but those who fail and cross without meeting conditions suffer the Lost '
+                        'Condition.',
+            'book': 'Kith 105'},
+ 'reborn': {'name': 'Reborn',
+           'skill': 'Occult',
+           'description': 'Reborn were broken down and rebuilt by their Keepers, sometimes again '
+                          'and again. Each reconstruction burned out everything unnecessary and '
+                          'weak. Only those who seized and held fast to their core identity '
+                          'survived with humanity intact. After escape they no longer return from '
+                          'death, but they carry adaptive power in their blood.',
+           'blessing': 'When using Occult to separate fact from fake, three successes count as an '
+                       'exceptional success. Retune: After taking lethal damage, spend a Glamour '
+                       'and roll Intelligence + Occult to redistribute Skill dots equal to '
+                       'successes from one Skill to another for the scene (cannot exceed Wyrd '
+                       'maximum). Once per chapter, spend a Willpower dot to make the '
+                       'redistribution permanent.',
+           'book': 'Kith 105'},
+ 'stoneflesh': {'name': 'Stoneflesh',
+               'skill': 'Intimidation',
+               'description': 'A common kith forged for durability: stone-skinned trolls, bronze '
+                              'hounds, armored knights on a bloody chessboard. The Gentry take '
+                              'stubborn humans and toughen them up, dangling a sliver of hope just '
+                              'out of reach. Back in the mortal world, they often become community '
+                              'pillars -- they survived Arcadian horrors, so whatever mortal life '
+                              'throws at them, they can weather it.',
+               'blessing': 'When using physical presence for Intimidation, three successes count as '
+                           'an exceptional success. Obdurate Skin: Spend a Glamour and roll Stamina '
+                           '+ Athletics + Wyrd. Divide successes between Armor, Resolve, and '
+                           'Composure for the scene.',
+               'book': 'Kith 106'},
+ 'wisewitch': {'name': 'Wisewitch',
+              'skill': 'Persuasion',
+              'description': "Wisewitches were marked by contact with a Keeper's Title, pressed "
+                             'into them like a seal into wax. Some were shaped deliberately; others '
+                             'touched the Title on their own without their Keeper realizing it. '
+                             'Other changelings have difficulty identifying them visually, but '
+                             'their appearance always carries some mark of their brush with the '
+                             'Title. Today they commonly practice as psychics, herbalists, shamans, '
+                             'or priests.',
+              'blessing': 'When using Persuasion to warn someone away from supernatural danger, '
+                          'three successes count as an exceptional success. Keen Bargains: The '
+                          'Wisewitch can form pledges with spirits and angels not of fae kind.',
+              'book': 'Kith 106'},
+ 'airtouched': {'name': 'Airtouched',
+               'skill': 'Athletics',
+               'description': 'Some Airtouched were already one step removed from others before '
+                              'abduction. Others were deeply rooted people whose connections the '
+                              'Gentry severed one by one. Either way, their Keepers drained their '
+                              'attachments and crafted them into clouds or distant, circling birds. '
+                              'The ache for connection remains. Those who escape prove the Fae '
+                              'cannot consistently sever humanity from its need for others.',
+               'blessing': 'When rolling Athletics to climb, jump, or move vertically, three '
+                           'successes count as an exceptional success. The Drift: Spend a Glamour '
+                           'to move as though weighing only a few ounces -- cross snow without '
+                           'breaking through, walk on water, or balance on surfaces too fragile for '
+                           'full weight. Penalize tracking attempts by Wyrd/2 (minimum 1).',
+               'book': 'Kith 107'},
+ 'chalomot': {'name': 'Chalomot',
+             'skill': 'Empathy',
+             'description': 'Chalomot served as dream-road scouts, finding cracks in Bastions and '
+                            "crafting lures within sleepers' minds. Their Keepers slowly stripped "
+                            'away their sense of reality through repetitive dreams with subtle '
+                            'tweaks until only oneiric logic made sense. Kept captive by a chain of '
+                            'ivory and horn anchored to the bones of her wrist, each invaded '
+                            'Bastion after Bastion until she tore the chain free.',
+             'blessing': 'When gauging the strength of a Bastion, three successes on Empathy count '
+                         'as an exceptional success. Dreamtread: Spend a Glamour to gain a bonus to '
+                         'dreamweaving rolls equal to Wyrd/2 (minimum 1) for the rest of the scene. '
+                         'May spend additional Glamour to share this blessing with up to five '
+                         'fellow oneiromancers in the same Bastion.',
+             'book': 'Kith 107'},
+ 'chevalier': {'name': 'Chevalier',
+              'skill': 'Persuasion/Intimidation',
+              'description': 'Chevaliers are shaped by the deep bond between rider and steed, '
+                             'whether horse, motorcycle, or racing car. One Keeper lures young '
+                             'riders with kelpies; another places ads for antique auto restorers. '
+                             'The bond runs deep enough that breaking free often means losing an '
+                             'irreplaceable mount in the Thorns.',
+              'blessing': 'Choose Persuasion or Intimidation. When riding or piloting their steed '
+                          'and rolling the chosen Skill, three successes count as an exceptional '
+                          "success. Rider's Call: Spend a Glamour to touch a vehicle or mount and "
+                          'name it Noble Steed. Spend another Glamour reflexively to call it from '
+                          'anywhere at its fastest speed. Sapient steeds may refuse. Contested '
+                          'claims prompt a Clash of Wills. The steed automatically senses the '
+                          "rider's peril when she drops to 0 Willpower, gains a Clarity Condition, "
+                          'or takes wound penalties.',
+              'book': 'Kith 107'},
+ 'farwalker': {'name': 'Farwalker',
+              'skill': 'Survival',
+              'description': "Farwalkers patrolled the borders of their Keeper's realm until one "
+                             'day they found a crack in the horizon wide enough to fit through. The '
+                             'Gentry select those used to long solitary routes: hikers, night '
+                             'security guards, latchkey kids, long-haul commuters. They can make '
+                             'shelter anywhere and lead motleys on ranging treks through the Hedge.',
+              'blessing': 'When using Survival to find or create shelter or forage in any realm, '
+                          'three successes count as an exceptional success. Home Away from Home: '
+                          'Spend a Glamour in wild terrain to create a one-dot Safe Place for a '
+                          'day, sleeping Wyrd/2 people (minimum 1). Expand with extra Glamour per '
+                          'person. In the Hedge, instead decrease the Hedge rating by one for the '
+                          'same area and confer one feature of an existing Hollow.',
+              'book': 'Kith 108'},
+ 'flickerflash': {'name': 'Flickerflash',
+                 'skill': 'Athletics',
+                 'description': 'Every Flickerflash carried deep restlessness long before the Fae '
+                                'found them -- the runaway child, the Navy recruit escaping a dusty '
+                                'hometown, the college student burning from one project to the '
+                                'next. The Gentry twisted that longing into an unquenchable need '
+                                'for speed. Many get caught in obsessive loops, proving themselves '
+                                'again and again to their motleys and freeholds.',
+                 'blessing': 'When using Athletics during a chase in any realm, three successes '
+                             'count as an exceptional success. Instantaneous Velocity: Reflexively '
+                             'spend a Glamour to triple Speed. Apply before any other Speed '
+                             'modifiers.',
+                 'book': 'Kith 110'},
+ 'levinquick': {'name': 'Levinquick',
+               'skill': 'Computer',
+               'description': 'Levinquick are electricity given purpose: scouts and couriers '
+                              'flowing through grids and networks. Constantly looking to the '
+                              'horizon, they know sitting still makes them vulnerable. The digital '
+                              "world's restless children -- anyone raised with modern technology -- "
+                              'make good Levinquick. The best carry an ineffable hunger for motion '
+                              'that is never satisfied.',
+               'blessing': 'When engaging in chase rolls within the BriarNet, three successes on '
+                           'Computer count as an exceptional success. Lightning Walk: Touch a '
+                           'land-connected telecom device, spend 3 Glamour, and roll Wits + '
+                           'Athletics + Wyrd. On success, dissolve into the grid and reappear at '
+                           'another known land-connected device within Wyrd miles. Can carry '
+                           'companions for extra Glamour each; dragging unwilling people triggers a '
+                           'Clash of Wills and potential moral consequences.',
+               'book': 'Kith 110'},
+ 'swarmflight': {'name': 'Swarmflight',
+                'skill': 'Stealth',
+                'description': 'Swarmflights can disassemble into coherent swarms -- spiders, '
+                               'fireflies, mice, bubbles -- and reform when danger passes. They '
+                               'often respond to stress by literally falling apart. The swarm acts '
+                               'as a single entity, perceiving through any individual creature.',
+                'blessing': 'When using Stealth in swarm form, three successes count as an '
+                            'exceptional success. Swarm Form: Spend a Glamour to dissolve into a '
+                            'chosen swarm type (fixed at creation, Size 0 or 1 creatures). Spread '
+                            'up to five yards per Wyrd dot. Everyone in the area suffers persistent '
+                            'Distracted. Most single attacks deal only one point of damage (two on '
+                            'exceptional), except iron and large-scale threats. Appropriate swarm '
+                            'types may attack with Strength + Brawl ignoring Defense, dealing '
+                            'lethal damage divided among those in the swarm.',
+                'book': 'Kith 110'},
+ 'swimmerskin': {'name': 'Swimmerskin',
+                'skill': 'Brawl',
+                'description': 'Swimmerskins draw from global aquatic myth -- kuliltu, rusalka, '
+                               'ningyo, kelpie, merrow. Those who love the water always face peril '
+                               'for their adoration; some are lured into riptides, others dragged '
+                               'through cracked ice. Sometimes an unfortunate who hates water gets '
+                               'swept off a whale-watching deck. When Gentry caprice and the sea '
+                               'combine, anything can happen.',
+                'blessing': 'When rolling Brawl to grapple or ambush someone in or from water, '
+                            "three successes count as an exceptional success. The Selkie's Skin: "
+                            'Always breathe both air and water. Spend a Glamour to reflexively fuse '
+                            'legs into a tail, tentacles, or aquatic appendages. Swim at double '
+                            'Speed and suffer no penalties for weapons or complex tasks underwater. '
+                            'May be invoked and dismissed reflexively.',
+                'book': 'Kith 111'},
+ 'bearskin': {'name': 'Bearskin',
+             'skill': 'Intimidation/Weaponry',
+             'description': 'Bearskin soldiers were pushed into endless Arcadian wars, broken down '
+                            'until they wanted to fight and die for their Keeper. The causes were '
+                            "pointless -- a single flower, a golden apple. Many don't realize they "
+                            'can escape until their Keeper rejects them or pushes them past a line. '
+                            'A Bearskin with a cause fashions their whole self into its sword; a '
+                            'liege need not prove herself worthy -- she just needs to ask.',
+             'blessing': 'Choose Intimidation or Weaponry. When using the chosen Skill to defend a '
+                         "motley-mate's Aspiration (not her own), three successes count as an "
+                         'exceptional success. Dulce et Decorum Est: When an opponent surrenders or '
+                         'the Bearskin successfully intimidates or coerces someone, spend a Glamour '
+                         "to replace one of the defeated opponent's Aspirations with one of her own "
+                         'for the rest of the story.',
+             'book': 'Kith 111'},
+ 'beastcaller': {'name': 'Beastcaller',
+                'skill': 'Animal Ken',
+                'description': 'Beastcallers corralled goblin war-beasts for the Gentry -- '
+                               'briarwolves, birds of omen, and stranger things. Before abduction, '
+                               'they may have been zookeepers, lion tamers, or dog fighters. The '
+                               'hardest part of escape was leaving a bonded beast behind. Working '
+                               'with animals soothes trauma, but the closer the bond, the harder it '
+                               'is to tell one mind from another.',
+                'blessing': 'When making an Animal Ken roll to tame a goblin beast, three successes '
+                            'count as an exceptional success. Night Rider: Spend a Glamour and roll '
+                            'Presence + Animal Ken + Wyrd to possess a goblin beast for turns equal '
+                            'to Wyrd. The Beastcaller takes bashing for each lethal dealt to the '
+                            'beast, and lethal for each aggravated. If the beast dies while '
+                            'possessed, the changeling returns to her own body with an additional '
+                            'aggravated wound.',
+                'book': 'Kith 112'},
+ 'cyclopean': {'name': 'Cyclopean',
+              'skill': 'Investigation',
+              'description': 'Cyclopeans are towering nightmare giants: caryatids holding living '
+                             'temples, shepherds of golden-fleeced sheep, armies of oni. Almost '
+                             'every Cyclopean carries some lasting injury from service -- a missing '
+                             'arm, a lost leg. Their muchness, once a problem, became the solution. '
+                             'In freeholds they usually serve as combatants or protectors, though '
+                             'some choose the softer roles of shepherd, builder, or tracker.',
+              'blessing': 'When using Investigation to track down any fae creature other than a '
+                          'Huntsman, three successes count as an exceptional success. Smell The '
+                          "Blood: Once per scene, spend a Glamour to learn the target's weakest "
+                          'points, reducing penalties for attacks to specified targets by 2 '
+                          '(minimum -1). If the attack would deal bashing, it deals lethal instead.',
+              'book': 'Kith 112'},
+ 'plaguesmith': {'name': 'Plaguesmith',
+                'skill': 'Medicine',
+                'description': 'Plaguesmiths were living biological weapons the Gentry sent into '
+                               'war. Not all knew what the Fae did to them until they watched '
+                               'symptoms appear on test subjects. They return acutely aware of '
+                               'their poisoned touch and become extraordinarily choosy about '
+                               'interaction. Many become hypochondriacs, fearing the diseases '
+                               'incubated in their bodies could turn on them or their loved ones.',
+                'blessing': 'When using Medicine to treat infectious disease, three successes count '
+                            'as an exceptional success. Plague of Arcadia: Touch a target, spend a '
+                            'Glamour, and roll Strength + Medicine + Wyrd contested by Stamina + '
+                            'Wyrd. The target suffers a grave disease dealing one aggravated per 12 '
+                            'hours. Stopping it requires successful resistance rolls equal to the '
+                            "Plaguesmith's Wyrd. Symptoms should reflect the Keeper's Title and may "
+                            'be fantastical.',
+                'book': 'Kith 113'},
+ 'razorhand': {'name': 'Razorhand',
+              'skill': 'Brawl',
+              'description': 'Razorhands had blades installed where fingers once were. The Fae '
+                             'often chose the gentlest of souls, delighting in watching them grow '
+                             'calluses over their hearts. A Razorhand never escapes the bloodshed '
+                             'built into his body -- some embrace it, some struggle against it, but '
+                             'the hands remain.',
+              'blessing': 'When attacking with bladed hands, three successes count as an '
+                          'exceptional success. Sakin: Spend a Glamour to transform one hand into a '
+                          '1L knife for the scene; a second Glamour allows the other hand as well '
+                          '(with offhand penalties). Uses Brawl and unarmed styles. Unless someone '
+                          'removes her limbs, a Razorhand may never be disarmed.',
+              'book': 'Kith 114'},
+ 'sandharrowed': {'name': 'Sandharrowed',
+                 'skill': 'Survival',
+                 'description': "Sandharrowed were set loose in Arcadia's vast deserts as nomads or "
+                                'dust devils. Before abduction, they were quietly useful people -- '
+                                'the administrator who sends all the mail, the head of the '
+                                'street-sweeping crew, the substitute teacher who always shows up '
+                                'on time. They learned to survive windstorms without a scratch and '
+                                'carry that sand with them as a weapon.',
+                 'blessing': 'When using Survival to get through an area affected by an '
+                             'environmental Tilt, three successes count as an exceptional success. '
+                             'Enveloping Sands: Once per scene, before a Brawl or Weaponry attack, '
+                             'spend a Glamour. On success, the target suffers the Immobilized Tilt '
+                             'as a sand pillar traps them. The pillar has Durability 2 and the '
+                             'target has cover while trapped.',
+                 'book': 'Kith 115'},
+ 'valkyrie': {'name': 'Valkyrie',
+             'skill': 'Persuasion/Intimidation',
+             'description': 'Valkyries walk battlefields selecting who rises and who falls. The '
+                            'Gentry favor mortals with deep convictions about right and wrong, then '
+                            'delight in forcing them to choose between their survival and someone '
+                            "else's until they lose all sense of themselves. They accumulate "
+                            'symbols of whatever mythos their Keeper adhered to, though many Fae '
+                            'just made up their own tortured symbology.',
+             'blessing': 'Choose Persuasion or Intimidation. When inspiring an ally or intimidating '
+                         'a foe on the battlefield with the chosen Skill, three successes count as '
+                         'an exceptional success. Chooser of the Slain: A number of times per scene '
+                         'equal to Wyrd/2 (minimum 1), spend a Glamour and roll Wits + Occult + '
+                         'Wyrd contested by Resolve + Wyrd to grant an ally Inspired or Steadfast, '
+                         'or inflict Frightened or Reckless on a foe.',
+             'book': 'Kith 115'},
+ 'venombite': {'name': 'Venombite',
+              'skill': 'Brawl',
+              'description': 'Not poisonous but venomous, Venombites take their name from their '
+                             'dangerous bites. Everyone carries small resentments, words they never '
+                             "say, petty hatreds boiling in their stomachs. A Venombite's durance "
+                             'distilled those feelings into Arcadian toxin. They were kept as pets, '
+                             'poison sources, or assassins. That path of destruction often '
+                             'continues in the mortal world.',
+              'blessing': 'When using Brawl to grapple, three successes count as an exceptional '
+                          'success. Deadly Bite: Once per scene, spend a Glamour before rolling a '
+                          'Brawl attack. If it succeeds, inject the victim with toxin in addition '
+                          'to normal damage. The attack deals lethal and inflicts the Poisoned Tilt '
+                          '(grave poison).',
+              'book': 'Kith 116'},
+ 'apoptosome': {'name': 'Apoptosome',
+               'skill': 'Miscellaneous',
+               'description': 'Apoptosomes died and reformed in empty fortresses, over and over, '
+                              'waging solitary war against trespassers. Each death left them '
+                              'misshapen by the blow that killed them, but wiser to the tricks of '
+                              'the next attacker. They never saw their Keeper directly. They often '
+                              'return with questionable boundaries, treating disagreements as '
+                              'preludes to new attacks.',
+               'blessing': 'Perfectly remembers fight progressions she loses -- gains an extra die '
+                           'on one roll per scene in subsequent contests with that creature or '
+                           'person. Sparagmos: In a fight with someone who has hurt her before, '
+                           'spend a Glamour to deal one aggravated to that foe. For the rest of the '
+                           'scene, both the changeling and those enemies take an additional '
+                           'aggravated point every time they damage the Apoptosome.',
+               'book': 'Kith 116'},
+ 'becquerel': {'name': 'Becquerel',
+              'skill': 'Stealth',
+              'description': 'A relatively new kith, born from nuclear-era nightmares. The Gentry '
+                             'noticed when nuclear energy rocketed down the trods near Trinity and '
+                             'Lop Nur. Becquerels were used as art pieces, poisoners, and '
+                             'assassins, their shadowy forms lending stealth in low light. Many '
+                             'escape in spectacular bursts through the Hedge. Their touch is warm '
+                             'and their passions run hot.',
+              'blessing': 'When using Stealth in low-light areas, three successes count as an '
+                          'exceptional success. Nuclear Shadow: When she successfully grapples '
+                          'someone, spend a Glamour to burn them as though set on fire (torch size, '
+                          'candle heat). Appears as radiation burns to mundane scans. Each turn she '
+                          'maintains the grapple, she may inflict Stunned or Poisoned.',
+              'book': 'Kith 117'},
+ 'blightbent': {'name': 'Blightbent',
+               'skill': 'Disease/Poison',
+               'description': 'Blightbent toiled in the foulest conditions Arcadia could offer -- '
+                              'ammonia cauldrons, furnace towers, sour bogs, volcanic calderas. '
+                              'They became poison to survive the poison. Most did not choose to '
+                              'escape; they woke up dumped in the Hedge when they had absorbed too '
+                              'much. The smell of tar feels more natural to them than wildflowers.',
+               'blessing': 'When making Stamina + Resolve to mitigate disease and poison damage, '
+                           'automatically downgrade aggravated to lethal, lethal to bashing, or '
+                           'ignore bashing. Brimstone: When she successfully grapples someone, '
+                           'spend a Glamour to inflict the Poisoned Tilt through her caustic touch.',
+               'book': 'Kith 117'},
+ 'enkrateia': {'name': 'Enkrateia',
+              'skill': 'Empathy/Persuasion/Subterfuge',
+              'description': 'Enkrateia were created as better angels -- silver statues brokering '
+                             'peace, fang-toothed giants pronouncing judgment, caged songbirds '
+                             'chirping subtle advice. Their Keepers listened only when they felt '
+                             'like it. In freeholds, they excel when heightened emotions override '
+                             "everyone else's better natures.",
+              'blessing': 'When attempting to calm a conflict, roll the highest of Empathy, '
+                          'Persuasion, or Subterfuge. Eloquent Analysis: When the Enkrateia takes '
+                          'an extended action to Investigate, she only begins to lose dice after '
+                          'the third successive roll.',
+              'book': 'Kith 118'},
+ 'gravewight': {'name': 'Gravewight',
+               'skill': 'Empathy/Intimidation',
+               'description': 'Gravewights performed death-work in Arcadia: executions, funerary '
+                              'rites, dredging battlefields. Not necessarily morbid -- they can '
+                              'become cavalier about death, including their own. Their presence '
+                              'attracts ghosts and beings caught between life and death. A clever '
+                              'monarch knows how to use a loyal Gravewight.',
+               'blessing': 'Choose Empathy or Intimidation. When influencing someone with her mien, '
+                           'physical presence, or knowledge of death mechanics, three successes '
+                           'count as an exceptional success. Charnel Sight: Spend a Glamour to see '
+                           'and hear ghosts in Twilight. Ghosts appear more frequently and '
+                           'completely near her.',
+               'book': 'Kith 119'},
+ 'shadowsoul': {'name': 'Shadowsoul',
+               'skill': 'Subterfuge',
+               'description': 'Shadowsouls were crafted for nocturnal or chthonic Keepers into '
+                              'evening stars, dark doppelgangers, or crystal cave-dwellers. They '
+                              'took long, dangerous roads out of Arcadia, unable to move faster '
+                              "than the moon's pace. They carry frailties tied to daylight and "
+                              'embrace the darkness not out of preference but necessity.',
+               'blessing': 'Gain a Subterfuge bonus equal to Wyrd and the 8-again rule on '
+                           'Subterfuge rolls. Nightblind: Gain natural affinity with the Mirror '
+                           'Regalia in addition to other affinities. Once per scene, on an '
+                           'exceptional attack success, inflict temporary Blindness on someone she '
+                           'touches. Resolves at end of scene.',
+               'book': 'Kith 119'},
+ 'telluric': {'name': 'Telluric',
+             'skill': 'Drive/Streetwise',
+             'description': "Tellurics were set as stars in Arcadia's heavens -- burning with fire, "
+                            'shining with radiance, visible to everyone but spoken to by no one. '
+                            'They were all lonely in some way before abduction. The Gentry lured '
+                            'them with promises of beauty and attention. Escaped Tellurics tell sad '
+                            'stories about friends consumed by their own perfection who fell to the '
+                            'forests as shooting stars.',
+             'blessing': 'When chasing someone with Drive or Streetwise on a clear night under '
+                         'visible stars, three successes count as an exceptional success. Burn '
+                         'Bright: Spend a Glamour to throw a ball of starflame as a ranged attack '
+                         'using Dexterity + Athletics. The fire is torch-sized with candle heat.',
+             'book': 'Kith 120'},
+ 'whisperwisp': {'name': 'Whisperwisp',
+                'skill': 'Subterfuge',
+                'description': 'Whisperwisps were built to be spies and saboteurs, constantly '
+                               'cataloging the habits of others, punctuated by grueling '
+                               'interrogations and mock trials. Most are cold and a little amoral, '
+                               'lying reflexively even when sharing would be better. Nearly all '
+                               'stay apart, ready to fade into shadows at the first sign of '
+                               'personal danger.',
+                'blessing': 'When influencing someone with a known falsehood, three successes count '
+                            'as an exceptional success. When influencing with truth, five successes '
+                            'count as exceptional. Forked Tongue: Choose Stealth or Persuasion at '
+                            'character creation. Rolls with the chosen skill gain both 9-again and '
+                            'a bonus equal to Wyrd.',
+                'book': 'Kith 120'},
+ 'antiquarian': {'name': 'Antiquarian',
+                'skill': 'Empathy',
+                'description': "Antiquarians were built to guard a Keeper's one true vulnerability "
+                               'by burying it under names, memories, and confessions stolen from '
+                               'countless others. They survive by hoarding truth, speaking rarely, '
+                               'and reading what people do not mean to reveal. What they know can '
+                               'rescue a freehold or ignite a war, depending on when they speak.',
+                'blessing': 'Secrets and Whispers: when using Empathy to uncover hidden truths, '
+                            'three successes count as exceptional success. Once per session, spend '
+                            '1 Glamour and roll Intelligence + Composure to ask a question and draw '
+                            'an answer through research, intuition, omen, or dream-whisper; '
+                            'required successes scale with how hidden the truth is. Secrets and '
+                            'Whispers scales from ordinary research to occult revelation, depending '
+                            'on success and narrative access.',
+                'book': 'DE2 69'},
+ 'chimera': {'name': 'Chimera',
+            'skill': 'Subterfuge',
+            'description': 'Chimera are patchwork composites stitched from multiple bestial forms '
+                           '-- predator, courier, executioner in one body. They retain kinship with '
+                           'goblins and hedge creatures and understand deception from the inside '
+                           'out. Common where Gentry experiment openly with form, especially in '
+                           'realms that prize spectacle and utility.',
+            'blessing': 'Goblin Kin: when using Subterfuge to detect spoken or written trickery, '
+                        'three successes count as exceptional success. Each chapter, choose one '
+                        'Goblin Contract the character know; that Contract does not incur Goblin '
+                        'Debt when invoked, and this benefit rotates until all eligible Goblin '
+                        'Contracts have been selected. Goblin Kin supports rotational versatility '
+                        "and encourages regular use of the kith's broader Goblin Contract toolkit.",
+            'book': 'CTL JS 47 / DE2 69'},
+ 'dryad': {'name': 'Dryad',
+          'skill': 'Survival',
+          'description': 'Dryads were cultivated as living ornaments and wardens in Arcadian '
+                         'gardens and sacred groves. They often prefer trees to crowds, navigating '
+                         'forest and Hedge instinctively. Even in cities, many seek parks and '
+                         'overgrown margins for safety. They tend to trust trees and thorns faster '
+                         'than people.',
+          'blessing': 'Fade into the Foliage: in wooded areas (including the Hedge), Survival rolls '
+                      'for tracking and pathfinding treat three successes as exceptional success. '
+                      'If unobserved for one turn, spend 1 Glamour to conceal themself behind '
+                      'substantial foliage; remain perfectly hidden while still, and add Wyrd to '
+                      'Stealth when moving. Fade into the Foliage turns terrain into defense, '
+                      'rewarding patience, sight-line control, and woodland positioning.',
+          'book': 'DE2 70'},
+ 'muse': {'name': 'Muse',
+         'skill': 'Mantle',
+         'description': 'Muses inspire, pressure, and provoke excellence in others, prized by '
+                        'Keepers who measured power through monuments and performance. Socially '
+                        'magnetic and politically useful, they can elevate status by presence '
+                        'alone. Their influence can be genuine inspiration or coercive pressure '
+                        'dressed as encouragement.',
+         'blessing': 'Tyranny of Ideas: once per session, interact with other Lost as though the '
+                     "character's Mantle or court Goodwill were one dot higher. By spending 1 "
+                     'Glamour and making an appropriate social roll against a human target, the '
+                     "character grant bonus dice to that target's creation roll and let three "
+                     'successes count as exceptional success for the resulting work. Tyranny of '
+                     'Ideas creates indirect power by amplifying mortal creators rather than '
+                     'harvesting glamour from their output.',
+         'book': 'DE2 70'},
+ 'nymph': {'name': 'Nymph',
+          'skill': 'Athletics',
+          'description': 'Nymphs are waterborn changelings thriving in harbors, riverways, and '
+                         'hidden channels where information and tribute move together. Natural '
+                         'aquatic scouts and social powers in port communities, balancing '
+                         'hospitality and danger with the same current that carried them out of '
+                         'Arcadia.',
+          'blessing': 'Gift of Water: when making Athletics rolls while swimming, three successes '
+                      'count as exceptional success. Spend 1 Glamour and succeed on a Stamina + '
+                      'Athletics roll to manifest gills and an aquatic lower form, allowing '
+                      'air-and-water breathing, double swim speed, and normal use of weapons and '
+                      'complex actions underwater for the scene. Gift of Water provides sustained '
+                      'aquatic superiority, making ports, rivers, and flooded zones decisive home '
+                      'ground.',
+          'book': 'DE2 70'},
+ 'cleverquick': {'name': 'Cleverquick',
+                'skill': 'Occult',
+                'description': 'Quick-witted hunters and schemers who often worked in pairs to '
+                               "expose an enemy's hidden weaknesses. They thrive on preparation, "
+                               'pattern recognition, and dangerous bargains. Victory, for a '
+                               'Cleverquick, is proof of preparation rather than brute force.',
+                'blessing': "Know the character's Enemy: when using Occult to outsmart an "
+                            'adversary, three successes count as exceptional success. Spend 1 '
+                            'Glamour to learn one existing frailty, ban, or bane; spend 3 Glamour '
+                            'to impose a temporary one for the chapter, but the character accept '
+                            'the same weakness for that duration. Paired Cleverquicks may split '
+                            'costs and share outcomes.',
+                'book': 'DE2 368'}}
 
 
 def get_kith(kith_key):
@@ -1142,4 +1241,3 @@ def get_kith(kith_key):
 def get_all_kiths():
     """Get all kiths."""
     return ALL_KITHS.copy()
-

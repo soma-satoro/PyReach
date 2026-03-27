@@ -1,4 +1,4 @@
-﻿from evennia.commands.default.muxcommand import MuxCommand
+from evennia.commands.default.muxcommand import MuxCommand
 from evennia.server.models import ServerConfig
 from world.cofd.lookup_data import (
     LOOKUP_DATA, 
@@ -3069,21 +3069,13 @@ class CmdLookup(MuxCommand):
         msg = self.format_header("Changeling Courts")
         msg += "\n\n"
         
-        court_descriptions = {
-            "spring": "The Emerald Court of desire and new beginnings",
-            "summer": "The Crimson Court of wrath and iron resolve",
-            "autumn": "The Leaden Court of fear and sorcerous power",
-            "winter": "The Onyx Court of sorrow and cold logic",
-            "courtless": "Independent changelings who reject court politics"
-        }
+        courts_data = LOOKUP_DATA.changeling_data['courts_detailed']
         
         for court in sorted(LOOKUP_DATA.changeling_data['courts']):
-            desc = court_descriptions.get(court, "Changeling court")
-            msg += f"|m{court.title():<20}|n {desc}\n"
-        
-        msg += "\n"
-        msg += "|cNote:|n Courts are seasonal political factions among the Lost.\n\n"
-        msg += self.format_footer("Chronicles of Darkness Reference")
+            court_data = courts_data[court]
+            name = court_data['name']
+            desc = court_data['description']
+            msg += f"|m{name:<20}|n {desc}\n"
         
         self.caller.msg(msg)
     
@@ -4429,28 +4421,30 @@ class CmdLookup(MuxCommand):
     
     def show_court_details(self, court_name):
         """Show detailed information about a specific changeling court."""
+        from world.cofd.powers.changeling_courts import get_court
+
         court_key = court_name.lower().replace(" ", "_")
-        
-        court_descriptions = {
-            "spring": "The Emerald Court of desire and new beginnings",
-            "summer": "The Crimson Court of wrath and iron resolve",
-            "autumn": "The Leaden Court of fear and sorcerous power",
-            "winter": "The Onyx Court of sorrow and cold logic",
-            "courtless": "Independent changelings who reject court politics"
-        }
-        
-        if court_key not in LOOKUP_DATA.changeling_data['courts']:
+
+        court_data = get_court(court_key)
+        if not court_data:
             self.caller.msg(f"Court '{court_name}' not found.")
             self.caller.msg("|cUse:|n +lookup courts - to see all available courts")
             return
-        
-        desc = court_descriptions.get(court_key, "Changeling court")
-        msg = self.format_header(f"{court_key.title()} - Changeling Court")
+
+        msg = self.format_header(f"{court_data['name']} - Changeling Court")
         msg += "\n\n"
-        msg += f"|cDescription:|n {desc}\n"
+
+        msg += f"|cDescription:|n {court_data['description']}\n\n"
+
+        msg += f"|wMantle Benefits:|n\n"
+        for level, benefit in court_data['mantle_benefits'].items():
+            msg += f"  |c{level}:|n {benefit}\n"
+        msg += "\n"
+
+        msg += f"|cSource:|n {court_data['book']}\n"
         msg += f"|cSet on Character:|n |y+stat court={court_key}|n\n\n"
         msg += self.format_footer("Chronicles of Darkness Reference")
-        
+
         self.caller.msg(msg)
     
     def show_incarnation_details(self, incarnation_name):

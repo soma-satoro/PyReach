@@ -60,6 +60,7 @@ from world.cofd.powers.werewolf_tribes import get_all_tribes, get_all_lodges
 from world.cofd.powers.changeling_contracts import ALL_CHANGELING_CONTRACTS
 from world.cofd.powers.changeling_kiths import ALL_KITHS
 from world.cofd.powers.changeling_seemings import get_all_seemings, get_all_entitlements
+from world.cofd.powers.changeling_courts import ALL_COURTS as ALL_COURTS_DETAILED
 from world.cofd.templates.changeling import CHANGELING_SEEMINGS, CHANGELING_COURTS, CHANGELING_KITHS, CHANGELING_ENTITLEMENTS
 from world.cofd.templates.promethean import PROMETHEAN_TEMPLATE
 from world.cofd.powers.promethean_powers import (
@@ -274,6 +275,7 @@ class LookupData:
             'kiths': CHANGELING_KITHS,
             'kiths_detailed': ALL_KITHS,
             'seemings_detailed': get_all_seemings(),
+            'courts_detailed': ALL_COURTS_DETAILED,
             'entitlements': CHANGELING_ENTITLEMENTS,
             'entitlements_detailed': get_all_entitlements()
         }
