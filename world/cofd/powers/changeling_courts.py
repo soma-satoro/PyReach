@@ -147,14 +147,14 @@ ALL_COURTS = {
     },
     "ebb_tide": {
         "name": "Court of Ebb Tide",
-        "description": "With the tide on its way out, the beaches fall again. Families spread their blankets further, children adorn their castles with drizzles of wet sand. It’s the calm after the storm, now that the waves aren’t so tall. When the Court of Ebb Tide rules, quiet reigns. Though the Court of Tides doesn’t always hew to the seasons, Ebb Tide Queens often take to their thrones in the latest part of the summer, when cool breezes on the heels of hot ones signal autumn’s approach, and when some quality of the sunset from mid-August on flls tourists with nostalgia for the summer even as they’re still on vacation. Ebb Tide courtiers are often matter-of-fact, approaching bargains and proposals with a skeptical eye. Many changelings join this court when they frst escape Arcadia. The sense of summer just out of reach reminds them of the lives they once led, and offers hope that they’ll return to those lives when the tide returns, even though that’s rarely the case.",
+        "description": "With the tide on its way out, the beaches fall again. Families spread their blankets further, children adorn their castles with drizzles of wet sand. It's the calm after the storm, now that the waves aren't so tall. When the Court of Ebb Tide rules, quiet reigns. Though the Court of Tides doesn't always hew to the seasons, Ebb Tide Queens often take to their thrones in the latest part of the summer, when cool breezes on the heels of hot ones signal autumn's approach, and when some quality of the sunset from mid-August on flls tourists with nostalgia for the summer even as they're still on vacation. Ebb Tide courtiers are often matter-of-fact, approaching bargains and proposals with a skeptical eye. Many changelings join this court when they frst escape Arcadia. The sense of summer just out of reach reminds them of the lives they once led, and offers hope that they'll return to those lives when the tide returns, even though that's rarely the case.",
         "mantle_benefits": {
             "0": "The Mantle of an Ebb Tide courtier evokes a feeling of calm. The sound of waves lapping gently on the shore follows them. Your character gains a Glamour point whenever he successfully talks an individual down from a fght.",
-            "1": "Gain bonus dice equal to your character’s Mantle dots on mundane rolls to persuade someone based on shared past experiences.",
-            "2": "Gain bonus dice equal to your character’s Mantle dots on mundane rolls to defuse a tense group situation.",
+            "1": "Gain bonus dice equal to your character's Mantle dots on mundane rolls to persuade someone based on shared past experiences.",
+            "2": "Gain bonus dice equal to your character's Mantle dots on mundane rolls to defuse a tense group situation.",
             "3": "Once per chapter, you may reroll a mundane roll to negotiate a deal or pledge and choose which result to keep.",
-            "4": "Increase your character’s effective Composure by one when using it to contest mundane or supernatural attempts to make your character lose her cool.",
-            "5": "Enemies take a penalty equal to your character’s Mantle dots to their Initiative bonuses.",
+            "4": "Increase your character's effective Composure by one when using it to contest mundane or supernatural attempts to make your character lose her cool.",
+            "5": "Enemies take a penalty equal to your character's Mantle dots to their Initiative bonuses.",
         },
         "book": "CTL 2e p.288"
     },
