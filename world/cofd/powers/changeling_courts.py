@@ -106,7 +106,7 @@ ALL_COURTS = {
         },
         "book": "CTL 2e p.281"
     },
-    "high tide": {
+    "high_tide": {
         "name": "High Tide",
         "description": "The waves pound away at the shore, destroying carefully built sandcastles, washing forgotten sandals and buckets out to sea. When the tide comes in, land yields to water, and when it recedes, it takes a bit of the beach with it. Those who swear fealty to it are forces of nature themselves, with strong personalities and implacable wills. Some of its members confront their foes like strong waves, knocking down anyone who dares stand in their paths. Others prefer to wait, working their will so subtly their opponents don’t realize they’ve lost until the tide’s already on its way out. Changelings who join this court are often the first line of defense against the True Fae and their minions.",
         "mantle_benefits": {
@@ -119,7 +119,7 @@ ALL_COURTS = {
         },
         "book": "CTL 2e p.161"
     },
-    "low tide": {
+    "low_tide": {
         "name": "Low Tide",
         "description": "The water is as far from shore as it ever gets, the sea fled for a time. Clams push toward the surface for a bit of air, only to be dug up and cooked for a delicious dinner. The sands lay uncovered; debris left behind by the tide dries in the sun. The Court of Low Tide attracts changelings of a gentler disposition, but equating “gentle” with “weak” is unwise. Lost who join this court are adept at digging up secrets and exposing them, bringing down their foes without ever having to confront them in person. This court also handles the majority of the dealings with other supernatural beings, keeping track of what is taken from the land and what is owed as a result.",
         "mantle_benefits": {
@@ -132,7 +132,7 @@ ALL_COURTS = {
         },
         "book": "CTL 2e p.161"
     },
-    "flood tide": {
+    "flood_tide": {
         "name": "Flood Tide",
         "description": "Just as the tide goes out, it comes in again. The sea swells and encroaches, sandbars disappear, and the beaches feel more crowded as sunbathers are pushed closer together. Where Ebb Tide is the calm after the storm, Flood Tide is the feeling of clouds gathering beforehand and the air growing heavy with the promise of rain. Members of the Court of Flood Tide are perpetually engaged. Whether it’s planning gatherings for the other courts, checking up on the newly freed Lost, or following up on the freehold’s needs, these changelings always have a full calendar. Other courts joke that when the Huntsmen come looking for them, the Lost of the Flood Tide are simply too busy to get caught. The real truth is that the Flood Tide courtiers never stop running.",
         "mantle_benefits": {
@@ -185,7 +185,7 @@ ALL_COURTS = {
         },
         "book": "CTL 2e p.161"
     },
-    "shady deals": {
+    "shady_deals": {
         "name": "Court of Shady Deals",
         "description": "The gentle-natured man would never do harm to another living being, but oh, how his neighbor snores at night. If only someone would pinch his nose shut. Sure, you don’t have the Snowdrop Crown in your backpack, but if it were to fnd its way there, and then to Tumbledown, well…don’t you want to know if your daughter still dreams about her father? What’s one more throat cut, after all the lives your Keeper made you take? Members of the Court of Shady Deals are willing to take on the jobs most others would reject outright. They do the hard jobs, the ones that require cold logic, steady hands, and no aversion to blood. They do what’s necessary. They’re not sorry. The Lost who swear to this court are also the freehold’s defenders. If the Huntsmen come near, they know where to hide the bodies.",
         "mantle_benefits": {
