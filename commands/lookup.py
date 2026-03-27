@@ -3064,19 +3064,42 @@ class CmdLookup(MuxCommand):
         
         self.caller.msg(msg)
     
+    COURT_SUMMARIES = {
+        "spring": "The Emerald Court of desire and new beginnings",
+        "summer": "The Crimson Court of wrath and iron resolve",
+        "autumn": "The Leaden Court of fear and sorcerous power",
+        "winter": "The Onyx Court of sorrow and cold logic",
+        "courtless": "Independent changelings who reject court politics",
+        "morning": "Society of birth, growth, and discovery of the new",
+        "day": "Society of marriage, fruition, and moderation of opposing forces",
+        "night": "Society of death, retreat, and the stillness of contemplation",
+        "barter": "Court of fair trade and honest exchange",
+        "coins": "Court of straightforward dealing in specifics and absolutes",
+        "favors": "Court of shrewd bargains and vast networks",
+        "shady_deals": "Court of dirty jobs, cold logic, and necessary evils",
+        "high_tide": "Court of strong wills and implacable forces of nature",
+        "low_tide": "Court of unearthed secrets and gentle persistence",
+        "flood_tide": "Court of perpetual engagement and tireless planning",
+    }
+
     def show_courts(self):
         """Show changeling courts."""
         msg = self.format_header("Changeling Courts")
         msg += "\n\n"
-        
+
         courts_data = LOOKUP_DATA.changeling_data['courts_detailed']
-        
+
         for court in sorted(LOOKUP_DATA.changeling_data['courts']):
             court_data = courts_data[court]
             name = court_data['name']
-            desc = court_data['description']
-            msg += f"|m{name:<20}|n {desc}\n"
-        
+            summary = self.COURT_SUMMARIES.get(court, "Changeling court")
+            msg += f"|m{name:<25}|n {summary}\n"
+            msg += f"  |gUse:|n +lookup courts {court}\n\n"
+
+        msg += f"|cTotal:|n {len(courts_data)} courts available\n"
+        msg += "|cFor court details:|n +lookup courts <court_name>\n\n"
+        msg += self.format_footer("Chronicles of Darkness Reference")
+
         self.caller.msg(msg)
     
     def show_kiths(self):
