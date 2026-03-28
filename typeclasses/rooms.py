@@ -98,6 +98,11 @@ class Room(DefaultRoom):
         characters = self.get_display_characters(looker)
         if characters:
             appearance_parts.append(characters)
+
+        # Objects section
+        objects = self.get_display_objects(looker)
+        if objects:
+            appearance_parts.append(objects)
             
         # Directions section
         directions = self.get_display_directions(looker)
@@ -458,6 +463,45 @@ class Room(DefaultRoom):
             return f"{idle_seconds // 60}m"
         else:
             return f"{idle_seconds // 3600}h"
+
+    def get_display_objects(self, looker, **kwargs):
+        """
+        Get non-character, non-exit room contents.
+
+        This exposes regular objects in the room (including chargen helper
+        objects like instruction boards) while excluding players and exits.
+        """
+        # Build a set of exit dbrefs for quick exclusion.
+        exit_ids = {ex.id for ex in self.exits}
+
+        objects = []
+        for obj in self.contents:
+            # Skip characters and exits.
+            if obj.has_account or obj.id in exit_ids:
+                continue
+            # Respect visibility/access checks if available.
+            try:
+                if not obj.access(looker, "view"):
+                    continue
+            except Exception:
+                pass
+            objects.append(obj)
+
+        if not objects:
+            return ""
+
+        # Keep output stable and readable.
+        objects = sorted(objects, key=lambda o: (o.key or "").lower())
+
+        # Get theme colors
+        _, _, divider_color = self.get_theme_colors()
+
+        obj_lines = []
+        obj_lines.append(f"|{divider_color}----> Objects <" + "-" * 65 + "|n")
+        for obj in objects:
+            obj_lines.append(obj.get_display_name(looker))
+
+        return "\n" + "\n".join(obj_lines)
 
     def get_display_directions(self, looker, **kwargs):
         """
