@@ -58,7 +58,7 @@ class CmdWeather(MuxCommand):
         return directions[index]
 
     def get_tide_info(self):
-        tide_url = "https://api.tidesandcurrents.noaa.gov/api/prod/datagetter?date=today&station=9410170&product=predictions&datum=STND&time_zone=lst_ldt&interval=hilo&units=english&format=json"
+        tide_url = "https://api.tidesandcurrents.noaa.gov/api/prod/datagetter?date=today&station=1615680&product=predictions&datum=STND&time_zone=lst_ldt&interval=hilo&units=english&format=json"
         try:
             response = requests.get(tide_url)
             tide_data = response.json()
@@ -144,7 +144,7 @@ class CmdWeather(MuxCommand):
         else:
             # OpenWeatherMap API call
             api_key = "549ac137ad7db9fb5d6f68b590d488a6"
-            city_id = "5391811"  # San Diego city ID
+            city_id = "5847487"  # Kahului city ID
             url = f"http://api.openweathermap.org/data/2.5/weather?id={city_id}&appid={api_key}&units=imperial"
             forecast_url = f"http://api.openweathermap.org/data/2.5/forecast?id={city_id}&appid={api_key}&units=imperial"
             
