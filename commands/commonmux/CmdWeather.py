@@ -29,6 +29,7 @@ class CmdWeather(MuxCommand):
     aliases = ["+time"]
     locks = "cmd:all()"
     help_category = "Roleplaying Tools"
+    WEATHER_TIMEZONE = "Pacific/Honolulu"
 
     def get_moon_phase(self):
         moon = ephem.Moon()
@@ -59,27 +60,28 @@ class CmdWeather(MuxCommand):
 
     def get_tide_info(self):
         tide_url = "https://api.tidesandcurrents.noaa.gov/api/prod/datagetter?date=today&station=1615680&product=predictions&datum=STND&time_zone=lst_ldt&interval=hilo&units=english&format=json"
+        local_tz = pytz.timezone(self.WEATHER_TIMEZONE)
         try:
-            response = requests.get(tide_url)
+            response = requests.get(tide_url, timeout=10)
+            response.raise_for_status()
             tide_data = response.json()
             
             if 'predictions' not in tide_data:
                 return []  # Return empty list if no predictions are available
 
             predictions = tide_data['predictions']
-            san_diego_tz = pytz.timezone('America/Los_Angeles')
-            now = datetime.now(san_diego_tz)
+            now = datetime.now(local_tz)
             
             future_tides = [
                 tide for tide in predictions
-                if san_diego_tz.localize(datetime.strptime(tide['t'], "%Y-%m-%d %H:%M")) > now
+                if local_tz.localize(datetime.strptime(tide['t'], "%Y-%m-%d %H:%M")) > now
             ]
 
             next_two_tides = future_tides[:2]
             
             formatted_tides = []
             for tide in next_two_tides:
-                tide_time = san_diego_tz.localize(datetime.strptime(tide['t'], "%Y-%m-%d %H:%M"))
+                tide_time = local_tz.localize(datetime.strptime(tide['t'], "%Y-%m-%d %H:%M"))
                 tide_type = "High" if tide['type'] == 'H' else "Low"
                 formatted_tides.append((
                     tide_type,
@@ -91,7 +93,7 @@ class CmdWeather(MuxCommand):
 
         except requests.RequestException:
             # If there's an error fetching the data, return a placeholder
-            now = datetime.now(san_diego_tz)
+            now = datetime.now(local_tz)
             return [
                 ("High", (now + timedelta(hours=2)).strftime("%I:%M %p"), "N/A"),
                 ("Low", (now + timedelta(hours=8)).strftime("%I:%M %p"), "N/A")
@@ -123,11 +125,11 @@ class CmdWeather(MuxCommand):
         # Check for custom weather override
         custom_weather = self.caller.db.custom_weather
 
-        # Set the timezone for San Diego
-        san_diego_tz = pytz.timezone('America/Los_Angeles')
+        # Set the timezone for Kahului/Maui display.
+        local_tz = pytz.timezone(self.WEATHER_TIMEZONE)
         
-        # Get current date and time in San Diego
-        now = datetime.now(san_diego_tz)
+        # Get current date and time in the local weather timezone.
+        now = datetime.now(local_tz)
         current_date = now.strftime("%A, %B %d, %Y")
         current_time = now.strftime("%I:%M %p")
 
@@ -144,13 +146,13 @@ class CmdWeather(MuxCommand):
         else:
             # OpenWeatherMap API call
             api_key = "549ac137ad7db9fb5d6f68b590d488a6"
-            city_id = "5847487"  # Kahului city ID
-            url = f"http://api.openweathermap.org/data/2.5/weather?id={city_id}&appid={api_key}&units=imperial"
-            forecast_url = f"http://api.openweathermap.org/data/2.5/forecast?id={city_id}&appid={api_key}&units=imperial"
+            city_id = "5847411"  # Kahului city ID
+            url = f"https://api.openweathermap.org/data/2.5/weather?id={city_id}&appid={api_key}&units=imperial"
+            forecast_url = f"https://api.openweathermap.org/data/2.5/forecast?id={city_id}&appid={api_key}&units=imperial"
             
             try:
-                response = requests.get(url)
-                forecast_response = requests.get(forecast_url)
+                response = requests.get(url, timeout=10)
+                forecast_response = requests.get(forecast_url, timeout=10)
                 data = response.json()
                 forecast_data = forecast_response.json()
                 
@@ -164,8 +166,8 @@ class CmdWeather(MuxCommand):
                     wind_dir = self.get_wind_direction(wind_deg)
                     
                     # Convert sunrise and sunset to local time
-                    sunrise = datetime.fromtimestamp(data['sys']['sunrise'], san_diego_tz).strftime("%I:%M %p")
-                    sunset = datetime.fromtimestamp(data['sys']['sunset'], san_diego_tz).strftime("%I:%M %p")
+                    sunrise = datetime.fromtimestamp(data['sys']['sunrise'], local_tz).strftime("%I:%M %p")
+                    sunset = datetime.fromtimestamp(data['sys']['sunset'], local_tz).strftime("%I:%M %p")
                     
                     # Get moon phase
                     moon_phase = self.get_moon_phase()
@@ -191,11 +193,18 @@ class CmdWeather(MuxCommand):
                         output.append(self.format_stat(f"{tide[0]} Tide", f"{tide[1]} ({tide[2]})", width=width))
                     
                     output.append(section_header("Tomorrow's Forecast", width=width))
-                    forecast = f"Clear sky, {tomorrow_temp:.1f}F"
+                    forecast = f"{tomorrow_desc.capitalize()}, {tomorrow_temp:.1f}F"
                     output.append(self.format_stat("", forecast, width=width))
+                else:
+                    weather_error = data.get("message", f"HTTP {response.status_code}")
+                    forecast_error = forecast_data.get("message", f"HTTP {forecast_response.status_code}")
+                    output.append(section_header("Weather Service Status", width=width))
+                    output.append(self.format_stat("Current", f"Unavailable ({weather_error})", width=width))
+                    output.append(self.format_stat("Forecast", f"Unavailable ({forecast_error})", width=width))
 
             except requests.RequestException:
-                self.caller.msg("Sorry, there was an error connecting to the weather service.")
+                output.append(section_header("Weather Service Status", width=width))
+                output.append(self.format_stat("Error", "Could not connect to weather API", width=width))
 
         output.append(footer(width=width, char="="))
         
