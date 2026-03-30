@@ -198,13 +198,23 @@ class CmdCondition(MuxCommand):
         if not self.args:
             target = self.caller
         else:
+            # If the argument matches a condition name, show condition details.
+            # This allows `+condition <condition_name>` to behave like view/help.
+            if self._find_condition_key(self.args.strip()) is not None:
+                self.cond_view()
+                return
+
             # Check permission if viewing someone else
             if not self.caller.check_permstring("Admin"):
-                self.caller.msg("|rYou can only view your own conditions. Staff can view others' conditions.|n")
+                self.caller.msg("|rInvalid syntax.|n")
+                self.caller.msg("Use |w+condition|n to view your active conditions.")
+                self.caller.msg("Use |w+condition/view <condition_name>|n (or |w+condition <condition_name>|n) for condition details.")
+                self.caller.msg("See |whelp +condition|n for full usage.")
                 return
             
             target = search_character(self.caller, self.args)
             if not target:
+                self.caller.msg("Use |w+condition/view <condition_name>|n to view condition details.")
                 return
                 
         conditions = target.conditions.all()

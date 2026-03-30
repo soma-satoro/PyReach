@@ -86,17 +86,9 @@ def search_character(searcher, search_string, global_search=True, quiet=False):
         if target:
             return target
         
-    # Fallback to direct attribute search
-    alias_matches = search_object(
-        search_string,
-        typeclass=Character,
-        attribute_name="alias", 
-        attribute_value=search_string
-    )
-    if alias_matches:
-        return alias_matches[0]
-        
-    # Also try case-insensitive attribute search as a last resort
+    # Fallback to case-insensitive attribute search as a last resort.
+    # NOTE: Evennia's search_object does not support `attribute_value` in all
+    # versions, so we avoid passing unsupported kwargs here.
     all_chars = search_object("*", typeclass=Character)
     for char in all_chars:
         if hasattr(char, 'attributes') and char.attributes.has('alias'):
