@@ -220,6 +220,18 @@ def roll_to_job_display(successes: int, ones: int, rolls: List[int], dice_pool: 
             roll_desc = f"{stat_name.title()} + {skill_name.title()}{modifier_str}"
         else:
             roll_desc = f"{stat_name.title()} + {skill_name.title()}"
+    elif stat_name:
+        modifier_parts = []
+        if modifier != 0:
+            modifier_parts.append(f"{modifier:+d}")
+        if wound_penalty != 0:
+            modifier_parts.append(f"{wound_penalty:+d} (wound)")
+
+        if modifier_parts:
+            modifier_str = " " + " ".join(modifier_parts)
+            roll_desc = f"{stat_name.title()}{modifier_str}"
+        else:
+            roll_desc = f"{stat_name.title()}"
     else:
         roll_desc = f"{final_pool} dice"
         if wound_penalty != 0:
@@ -291,6 +303,18 @@ def roll_to_room_display(successes: int, ones: int, dice_pool: int,
             roll_desc = f"{stat_name.title()} + {skill_name.title()}{modifier_str}"
         else:
             roll_desc = f"{stat_name.title()} + {skill_name.title()}"
+    elif stat_name:
+        modifier_parts = []
+        if modifier != 0:
+            modifier_parts.append(f"{modifier:+d}")
+        if wound_penalty != 0:
+            modifier_parts.append(f"{wound_penalty:+d} (wound)")
+
+        if modifier_parts:
+            modifier_str = " " + " ".join(modifier_parts)
+            roll_desc = f"{stat_name.title()}{modifier_str}"
+        else:
+            roll_desc = f"{stat_name.title()}"
     else:
         roll_desc = f"{final_pool} dice"
         if wound_penalty != 0:
@@ -385,6 +409,18 @@ def format_roll_display(successes: int, ones: int, rolls: List[int], dice_pool: 
             roll_desc = f"|g{stat_name.title()}|n + |g{skill_name.title()}|n{modifier_str} (|w{final_pool}|n dice)"
         else:
             roll_desc = f"|g{stat_name.title()}|n + |g{skill_name.title()}|n (|w{final_pool}|n dice)"
+    elif stat_name:
+        modifier_parts = []
+        if modifier != 0:
+            modifier_parts.append(f"{modifier:+d}")
+        if wound_penalty != 0:
+            modifier_parts.append(f"{wound_penalty:+d} (wound)")
+
+        if modifier_parts:
+            modifier_str = " " + " ".join(modifier_parts)
+            roll_desc = f"|g{stat_name.title()}|n{modifier_str} (|w{final_pool}|n dice)"
+        else:
+            roll_desc = f"|g{stat_name.title()}|n (|w{final_pool}|n dice)"
     else:
         roll_desc = f"|g{final_pool}|n dice"
         if wound_penalty != 0:

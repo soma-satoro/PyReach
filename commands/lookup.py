@@ -2854,8 +2854,11 @@ class CmdLookup(MuxCommand):
             output = ["|wChangeling Contracts|n", "", "|cAvailable Contract Categories:|n", ""]
             
             # Main contract categories
-            main_cats = ["crown", "jewel", "mirror", "shield", "steed", "sword", 
-                        "chalice", "coin", "stars", "thorn"]
+            main_cats = [
+                "crown", "jewel", "mirror", "shield", "steed", "sword",
+                "chalice", "coin", "stars", "thorn",
+                "high_tide", "low_tide", "flood_tide", "ebb_tide"
+            ]
             
             output.append("|yMain Contracts:|n")
             # Display in 2 columns

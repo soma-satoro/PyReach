@@ -20,6 +20,133 @@ from world.cofd.powers.deviant_data import DEVIANT_ADAPTATIONS
 from world.cofd.powers.mummy_powers import ALL_AFFINITY_NAMES, ALL_UTTERANCE_NAMES
 
 
+TIDE_COURTS = {"high_tide", "low_tide", "flood_tide", "ebb_tide"}
+
+
+def _normalize_token(value):
+    """Normalize strings for robust merit key comparisons."""
+    return str(value).strip().lower().replace(" ", "_").replace("-", "_")
+
+
+def _get_instanced_merit_dots(stats, base_merit, instance_name):
+    """
+    Fetch dots from an instanced merit key like ``mantle:high_tide``.
+
+    Supports legacy key variants with spaces/hyphens.
+    """
+    merits = (stats or {}).get("merits", {}) or {}
+    base = _normalize_token(base_merit)
+    instance = _normalize_token(instance_name)
+    accepted_prefixes = {f"{base}:"}
+    if base == "court_goodwill":
+        accepted_prefixes.add("goodwill:")
+
+    for merit_key, merit_data in merits.items():
+        key = _normalize_token(merit_key)
+        if not any(key.startswith(prefix) for prefix in accepted_prefixes):
+            continue
+        merit_instance = key.split(":", 1)[1]
+        if _normalize_token(merit_instance) != instance:
+            continue
+
+        if isinstance(merit_data, dict):
+            try:
+                return int(merit_data.get("dots", 0) or 0)
+            except (TypeError, ValueError):
+                return 0
+        try:
+            return int(merit_data or 0)
+        except (TypeError, ValueError):
+            return 0
+
+    return 0
+
+
+def _count_known_tide_contracts(stats, court_key):
+    """Return (common_count, royal_count) for known contracts in a Tide court."""
+    powers = (stats or {}).get("powers", {}) or {}
+    court = _normalize_token(court_key)
+    common_count = 0
+    royal_count = 0
+
+    for power_key, power_value in powers.items():
+        if power_value != "known":
+            continue
+        if not isinstance(power_key, str) or not power_key.startswith("contract:"):
+            continue
+        contract_key = power_key.split(":", 1)[1]
+        contract_data = ALL_CHANGELING_CONTRACTS.get(contract_key, {}) or {}
+        contract_type = _normalize_token(contract_data.get("contract_type", ""))
+        if not contract_type:
+            continue
+        is_royal = contract_type.endswith("_royal")
+        contract_court = contract_type.replace("_royal", "")
+        if contract_court != court:
+            continue
+        if is_royal:
+            royal_count += 1
+        else:
+            common_count += 1
+
+    return common_count, royal_count
+
+
+def check_tide_contract_prerequisites(character, contract_name):
+    """
+    Validate Tide Court Contract learning prerequisites.
+
+    Rules:
+    - Common: Mantle 1 OR Court Goodwill 2
+    - Royal: Mantle 3 OR Court Goodwill 5
+    - Exception: anyone may learn one Common per Tide court
+    - Exception: Court Goodwill 4 allows one Royal per Tide court
+    """
+    stats = character.db.stats or {}
+    contract_key = _normalize_token(contract_name)
+    contract_data = ALL_CHANGELING_CONTRACTS.get(contract_key, {}) or {}
+    contract_type = _normalize_token(contract_data.get("contract_type", ""))
+
+    if not contract_type:
+        return False, "Unknown contract."
+
+    is_royal = contract_type.endswith("_royal")
+    court = contract_type.replace("_royal", "")
+    if court not in TIDE_COURTS:
+        return True, None
+
+    mantle_dots = _get_instanced_merit_dots(stats, "mantle", court)
+    goodwill_dots = _get_instanced_merit_dots(stats, "court_goodwill", court)
+    known_common, known_royal = _count_known_tide_contracts(stats, court)
+
+    court_display = court.replace("_", " ").title()
+    contract_display = contract_data.get("name", contract_key.replace("_", " ").title())
+
+    if is_royal:
+        if mantle_dots >= 3 or goodwill_dots >= 5:
+            return True, None
+        if goodwill_dots >= 4 and known_royal == 0:
+            return True, None
+        return (
+            False,
+            f"{contract_display} ({court_display}, Royal) requires Mantle {court_display} 3+ or "
+            f"Court Goodwill ({court_display}) 5+. Exception: Court Goodwill 4 may learn one Royal "
+            f"for this court (already learned: {known_royal}). Your ratings: Mantle {mantle_dots}, "
+            f"Court Goodwill {goodwill_dots}."
+        )
+
+    if mantle_dots >= 1 or goodwill_dots >= 2:
+        return True, None
+    if known_common == 0:
+        return True, None
+    return (
+        False,
+        f"{contract_display} ({court_display}, Common) requires Mantle {court_display} 1+ or "
+        f"Court Goodwill ({court_display}) 2+. Exception: one Common contract in this court may be "
+        f"learned without prerequisites (already learned: {known_common}). Your ratings: Mantle "
+        f"{mantle_dots}, Court Goodwill {goodwill_dots}."
+    )
+
+
 def get_valid_semantic_powers(power_type):
     """
     Get list of valid powers for a semantic power type.
@@ -336,6 +463,11 @@ def handle_semantic_power(character, power_type, power_name, value, caller):
     
     elif power_type in ["discipline_power", "devotion", "coil", "scale", "theban", "cruac", "gift", "rite", "contract"]:
         # Vampire-specific and werewolf-specific powers - store with prefixes for organization
+        if power_type == "contract":
+            meets_prereqs, prereq_msg = check_tide_contract_prerequisites(character, power_name)
+            if not meets_prereqs:
+                return False, f"|rCannot learn contract:|n {prereq_msg}"
+
         if "powers" not in character.db.stats:
             character.db.stats["powers"] = {}
         

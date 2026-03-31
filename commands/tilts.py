@@ -16,7 +16,7 @@ class CmdTilt(MuxCommand):
         +tilt/remove <tilt_name> - Remove tilt from yourself
         +tilt/remove <character> = <tilt_name> - Remove tilt from character (staff only)
         +tilt/list - Show all available tilts in the system
-        +tilt/help <tilt_name> - Show detailed information about a tilt
+        +tilt/view <tilt_name> - Show detailed information about a tilt
         +tilt/env/add <tilt_name> - Add environmental tilt (staff only)
         +tilt/env/remove <tilt_name> - Remove environmental tilt (staff only)
         +tilt/env/list - List environmental tilts
@@ -31,7 +31,7 @@ class CmdTilt(MuxCommand):
         +tilt/remove knocked_down - Remove knocked down from yourself
         +tilt/add John = stunned - Staff: add stunned to John
         +tilt/list - See all tilts available
-        +tilt/help blinded - See details about the blinded tilt
+        +tilt/view blinded - See details about the blinded tilt
         +tilt/clear John - Staff: clear all tilts from John
         +tilt/env/add darkness - Staff: add darkness to location
         +tilt/advance - Advance tilts by one turn
@@ -78,14 +78,14 @@ class CmdTilt(MuxCommand):
             self.tilt_remove()
         elif switch == "list":
             self.tilt_list_all()
-        elif switch == "help":
-            self.tilt_help()
+        elif switch == "view":
+            self.tilt_view()
         elif switch == "advance":
             self.tilt_advance()
         elif switch == "clear":
             self.tilt_clear()
         else:
-            self.caller.msg("Invalid switch. Use: add, remove, list, help, env, advance, or clear")
+            self.caller.msg("Invalid switch. Use: add, remove, list, view, env, advance, or clear")
     
     def handle_environmental(self):
         """Handle environmental tilt commands"""
@@ -299,7 +299,7 @@ class CmdTilt(MuxCommand):
         output.append(f"|{text_color}{'Available Tilts'.center(78)}|n")
         output.append(footer(78, char="="))
         output.append("")
-        output.append("|cUse |w+tilt/help <name>|c to see details about a specific tilt.|n")
+        output.append("|cUse |w+tilt/view <name>|c to see details about a specific tilt.|n")
         output.append("")
         
         # Personal Tilts section
@@ -362,10 +362,10 @@ class CmdTilt(MuxCommand):
         output.append(footer(78, char="="))
         self.caller.msg("\n".join(output))
         
-    def tilt_help(self):
+    def tilt_view(self):
         """Get information about a specific tilt"""
         if not self.args:
-            self.caller.msg("Usage: +tilt/help <tilt_name>")
+            self.caller.msg("Usage: +tilt/view <tilt_name>")
             return
             
         tilt_name = self._normalize_tilt_name(self.args)

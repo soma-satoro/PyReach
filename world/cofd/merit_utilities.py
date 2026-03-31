@@ -1,6 +1,20 @@
 """
 Merit management utilities.
 Handles merit instances, validation, and setting.
+
+Prerequisite authoring shorthand (validated by Character prerequisite checks):
+    stat:value                -> e.g. "resolve:3"
+                                 Stat lookup includes attributes, skills,
+                                 and advantages (e.g. wyrd, blood_potency,
+                                 primal_urge, gnosis, etc.)
+    [a:x,b:y]                 -> OR group
+    category_skill:value      -> e.g. "social_skill:2"
+    category_attribute:value  -> e.g. "mental_attribute:3"
+    specialty:value           -> any specialty count
+    <skill>_specialty:value   -> e.g. "brawl_specialty:1"
+    weapon_specialty:value    -> brawl/firearms/weaponry specialties
+    merit_instance:value      -> e.g. "mantle:autumn:3"
+    stat:@dots                -> dynamic threshold tied to merit dots
 """
 
 
@@ -38,8 +52,16 @@ def validate_merit(character, merit_obj, dots, caller):
         return False, f"{merit_obj.name} must be between {merit_obj.min_value} and {merit_obj.max_value} dots."
     
     # Check prerequisites if they exist
-    if merit_obj.prerequisite and not character.check_merit_prerequisites(merit_obj.prerequisite):
-        return False, f"Prerequisites not met for {merit_obj.name}: {merit_obj.prerequisite}"
+    if merit_obj.prerequisite:
+        unmet = character.get_unmet_merit_prerequisites(
+            merit_obj.prerequisite, merit_dots=dots
+        )
+        if unmet:
+            return (
+                False,
+                f"Prerequisites not met for {merit_obj.name}: "
+                f"{', '.join(unmet)}"
+            )
     
     return True, None
 
@@ -75,7 +97,6 @@ def set_merit(character, merit_key, merit_obj, dots, caller):
         "dots": dots,
         "max_dots": merit_obj.max_value,
         "merit_type": merit_obj.merit_type,
-        "description": merit_obj.description,
         "base_merit": base_merit_name
     }
     
@@ -89,11 +110,6 @@ def set_merit(character, merit_key, merit_obj, dots, caller):
         merit_display += f" ({instance_name.replace('_', ' ').title()})"
     
     message = f"Set {character.name}'s {merit_display} merit to {dots} dots."
-    
-    # Add note for unapproved characters
-    is_npc = hasattr(character, 'db') and character.db.is_npc
-    if not character.db.approved and not is_npc:
-        message += "\n(Merit set during character generation - after approval, use +xp/buy to purchase merits)"
     
     # Recalculate derived stats in case merit affects them
     if hasattr(character, 'calculate_derived_stats'):

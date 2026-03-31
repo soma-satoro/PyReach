@@ -621,8 +621,8 @@ STANDARD_CONDITIONS = {
         description="Your character faced the full bore of a Rahu's essence. He's sure that he can win in the face of the Rahu's fury.",
         is_persistent=False
     ),
-    'swooning': Condition(
-        name="Swooning",
+    'swooned': Condition(
+        name="Swooned",
         description="Your character is attracted to someone and is vulnerable where they are concerned. He may have the proverbial \"butterflies in his stomach\" or just be constantly aware of the object of his affection. A character may have multiple instances of this Condition, reflecting affection for multiple characters. He suffers a -2 die penalty to any rolls that would adversely affect the specified character, who also gains +2 die bonus on any Social rolls against him. If the specified character is attempting Social maneuvering on the Swooning character, the impression level is considered one higher (maximum of perfect; see p. 174).",
         is_persistent=False,
         possible_sources="Be on the receiving end of an exceptional success of a Persuasion or Subterfuge roll, dramatic failure on using the Majesty Discipline, fed on non-violently by a vampire, have another character help you fulfill your Vice (if mortal).",
@@ -658,8 +658,8 @@ STANDARD_CONDITIONS = {
         beat="n/a",
         resolution_method="Kill. Fall to frenzy. Have a meaningful connection with a Touchstone."
     ),
-    'unware': Condition(
-        name="Unware",
+    'unaware': Condition(
+        name="Unaware",
         description="Your character has been dazed and confused, distracted and internalized.",
         is_persistent=False
     ),
@@ -903,12 +903,1165 @@ STANDARD_CONDITIONS = {
         beat="You go out of your way to fulfill your bargain despite danger or personal cost.",
         resolution_method="Fulfill the terms of your bargain completely, or break the bargain (losing the protection and potentially gaining the Notoriety Condition)."
     ),
-    'paranoid': Condition(
-        name="Paranoid",
+    'paranoid_huntsman': Condition(
+        name="Paranoid (Huntsman)",
         description="You feel watched, hunted. The sensation of being stalked by something terrible gnaws at your mind. You're constantly looking over your shoulder and jumping at shadows. Take a -2 penalty to rolls involving concentration or calm interaction. Any attempt to convince you that you're safe or that the danger has passed requires exceptional success.",
         is_persistent=False,
         possible_sources="Attempting to seal a Huntsman's statement (whether successful or not), attracting the attention of the True Fae.",
         beat="Your paranoia causes you to make a decision that significantly complicates the situation or harms your relationships.",
         resolution_method="Confront the source of your fear directly, or take significant steps to secure your safety (such as establishing wards, changing locations, or eliminating the threat)."
-    )
+    ),
+
+    # Auto-imported from Codex 2e (non-Beast)
+    'addled': Condition(
+        name="Addled",
+        description="Your memories are jumbled and confused.",
+        is_persistent=False
+    ),
+    'agoraphobic': Condition(
+        name="Agoraphobic",
+        description="You avoid open spaces and crowds.",
+        is_persistent=False
+    ),
+    'apprehensive': Condition(
+        name="Apprehensive",
+        description="Your character is convinced something bad is about to happen to them.",
+        is_persistent=False
+    ),
+    'avarice': Condition(
+        name="Avarice",
+        description="Your lust for wealth and/or power is insatiable.",
+        is_persistent=False
+    ),
+    'detached': Condition(
+        name="Detached",
+        description="●",
+        is_persistent=False
+    ),
+    'dissociation': Condition(
+        name="Dissociation",
+        description="Surreality plagues you with doubts of your own experiences.",
+        is_persistent=False
+    ),
+    'doubtful': Condition(
+        name="Doubtful",
+        description="●",
+        is_persistent=False
+    ),
+    'emboldened': Condition(
+        name="Emboldened",
+        description="An uninhibited atmosphere makes you impulsive and prone to temptation.",
+        is_persistent=False
+    ),
+    'faith': Condition(
+        name="Faith",
+        description="●",
+        is_persistent=False
+    ),
+    'first_trimester': Condition(
+        name="First Trimester",
+        description="●",
+        is_persistent=False
+    ),
+    'second_trimester': Condition(
+        name="Second Trimester",
+        description="●",
+        is_persistent=False
+    ),
+    'third_trimester': Condition(
+        name="Third Trimester",
+        description="●",
+        is_persistent=False
+    ),
+    'fixated': Condition(
+        name="Fixated",
+        description="You are intently focused on a single thought or command.",
+        is_persistent=False
+    ),
+    'reckless': Condition(
+        name="Reckless",
+        description="You are incapable of considering the consequences of your actions.",
+        is_persistent=False
+    ),
+    'sleepwalking': Condition(
+        name="Sleepwalking",
+        description="●",
+        is_persistent=False
+    ),
+    'stoic': Condition(
+        name="Stoic",
+        description="Distance and emotional guard ease lies, but inhibit perspective and passion.",
+        is_persistent=False
+    ),
+    'strained': Condition(
+        name="Strained",
+        description="You've held back the shock of witnessing supernal sorcery, but the pressure remains.",
+        is_persistent=False
+    ),
+    'violent': Condition(
+        name="Violent",
+        description="Violence is second nature to you, causing you to lash out at others.",
+        is_persistent=False
+    ),
+    'withdrawn': Condition(
+        name="Withdrawn",
+        description="Doubt and insecurity drive you inward, sapping the will to action.",
+        is_persistent=False
+    ),
+    'agonized': Condition(
+        name="Agonized",
+        description="○",
+        is_persistent=False
+    ),
+    'arm_disability': Condition(
+        name="Arm Disability",
+        description="●",
+        is_persistent=False
+    ),
+    'chronic_agony': Condition(
+        name="Chronic Agony",
+        description="●",
+        is_persistent=False
+    ),
+    'chronic_sickness': Condition(
+        name="Chronic Sickness",
+        description="●",
+        is_persistent=False
+    ),
+    'deaf': Condition(
+        name="Deaf",
+        description="●",
+        is_persistent=False
+    ),
+    'energized': Condition(
+        name="Energized",
+        description="A chemically induced rush.",
+        is_persistent=False
+    ),
+    'fatigued': Condition(
+        name="Fatigued",
+        description="You've pushed yourself too far, and your fatigue hangs over you constantly.",
+        is_persistent=False
+    ),
+    'fragile': Condition(
+        name="Fragile",
+        description="You're using equipment not sturdy enough to endure continued use.",
+        is_persistent=False
+    ),
+    'leg_disability': Condition(
+        name="Leg Disability",
+        description="●",
+        is_persistent=False
+    ),
+    'numb': Condition(
+        name="Numb",
+        description="●",
+        is_persistent=False
+    ),
+    'sickly': Condition(
+        name="Sickly",
+        description="Disease is making its way through your system.",
+        is_persistent=False
+    ),
+    'volatile': Condition(
+        name="Volatile",
+        description="You're using unstable equipment prone to backfiring.",
+        is_persistent=False
+    ),
+    'vendetta': Condition(
+        name="Vendetta",
+        description="You will stop at nothing to punish those who wronged you.",
+        is_persistent=False
+    ),
+    'watched': Condition(
+        name="Watched",
+        description="●",
+        is_persistent=False
+    ),
+    'accursed_knowledge': Condition(
+        name="Accursed Knowledge",
+        description="You have acquired forbidden knowledge, trading sanity for power.",
+        is_persistent=False
+    ),
+    'dissonant_tuning': Condition(
+        name="Dissonant Tuning",
+        description="Your soul resonates with the Lie, amplifying its effects on Supernal phenomena.",
+        is_persistent=False
+    ),
+    'dormant_sovereign': Condition(
+        name="Dormant Sovereign",
+        description="●",
+        is_persistent=False
+    ),
+    'emanation': Condition(
+        name="Emanation",
+        description="●",
+        is_persistent=False
+    ),
+    'goblin_queen': Condition(
+        name="Goblin Queen",
+        description="Your fractured goblin nature has stranded you in the Hedge and attracted followers.",
+        is_persistent=False
+    ),
+    'going_westward': Condition(
+        name="Going Westward",
+        description="●",
+        is_persistent=False
+    ),
+    'hedge_denizen': Condition(
+        name="Hedge Denizen",
+        description="●",
+        is_persistent=False
+    ),
+    'identity_crisis': Condition(
+        name="Identity Crisis",
+        description="Your identity and memories have become intertwined with those of others, leaving you unsure of who you really are.",
+        is_persistent=False
+    ),
+    'ominous': Condition(
+        name="Ominous",
+        description="●",
+        is_persistent=False
+    ),
+    'the_sibyl_s_tongue': Condition(
+        name="The Sibyl's Tongue",
+        description="●",
+        is_persistent=False
+    ),
+    'soul_shocked': Condition(
+        name="Soul Shocked",
+        description="Your sense of self is healing after experiencing death outside the body.",
+        is_persistent=False
+    ),
+    'unintended_medium': Condition(
+        name="Unintended Medium",
+        description="A lingering ghost or spirit is able to subject you to harrowing visions.",
+        is_persistent=False
+    ),
+    'blood_siblings': Condition(
+        name="Blood Siblings",
+        description="Your fate has been bound by obligation to aid another, regardless of your will.",
+        is_persistent=False
+    ),
+    'coerced': Condition(
+        name="Coerced",
+        description="You've been coerced by a Devotion to do a task or suffer damage.",
+        is_persistent=False
+    ),
+    'crown': Condition(
+        name="Crown",
+        description="●",
+        is_persistent=False
+    ),
+    'dead_dreamer': Condition(
+        name="Dead Dreamer",
+        description="●",
+        is_persistent=False
+    ),
+    'ensorcelled': Condition(
+        name="Ensorcelled",
+        description="○",
+        is_persistent=False
+    ),
+    'ghost_marked': Condition(
+        name="Ghost-Marked",
+        description="●",
+        is_persistent=False
+    ),
+    'impassioned_shade': Condition(
+        name="Impassioned Shade",
+        description="Infusion of a mission which preserves an ephemeral entity in Twilight.",
+        is_persistent=False
+    ),
+    'manic': Condition(
+        name="Manic",
+        description="Supernatural power has made you focused and obsessive to the point of over-exertion.",
+        is_persistent=False
+    ),
+    'melancholic': Condition(
+        name="Melancholic",
+        description="Supernatural power has made you melancholic. You struggle to do even minor tasks.",
+        is_persistent=False
+    ),
+    'ravaged': Condition(
+        name="Ravaged",
+        description="Fae predations have scarred your heart and mind, leaving you a ghost of your former self.",
+        is_persistent=False
+    ),
+    'relentless': Condition(
+        name="Relentless",
+        description="●",
+        is_persistent=False
+    ),
+    'vocalization': Condition(
+        name="Vocalization",
+        description="You've been cursed with harrowing sounds and voices.",
+        is_persistent=False
+    ),
+    'primeval_truths': Condition(
+        name="Primeval Truths",
+        description="Occult revelations disquiet you until you face them down.",
+        is_persistent=False
+    ),
+    'anchored_heart': Condition(
+        name="Anchored Heart",
+        description="●",
+        is_persistent=False
+    ),
+    'beast_s_bargain': Condition(
+        name="Beast's Bargain",
+        description="●",
+        is_persistent=False
+    ),
+    'beloved_enemy': Condition(
+        name="Beloved Enemy",
+        description="●",
+        is_persistent=False
+    ),
+    'children_of_the_blood': Condition(
+        name="Children of the Blood",
+        description="●",
+        is_persistent=False
+    ),
+    'crushed': Condition(
+        name="Crushed",
+        description="The incredible weight of centuries bears down upon you.",
+        is_persistent=False
+    ),
+    'curated': Condition(
+        name="Curated",
+        description="●",
+        is_persistent=False
+    ),
+    'forgotten': Condition(
+        name="Forgotten",
+        description="●",
+        is_persistent=False
+    ),
+    'immutable_heart': Condition(
+        name="Immutable Heart",
+        description="●",
+        is_persistent=False
+    ),
+    'imprisoned_echo': Condition(
+        name="Imprisoned Echo",
+        description="Your Ka is temporarily trapped within a mirror.",
+        is_persistent=False
+    ),
+    'living_legend': Condition(
+        name="Living Legend",
+        description="●",
+        is_persistent=False
+    ),
+    'lost_lineage': Condition(
+        name="Lost Lineage",
+        description="●",
+        is_persistent=False
+    ),
+    'quiet_echo': Condition(
+        name="Quiet Echo",
+        description="Your Ka is calmed, able to walk outside its usual confined without drawing attention.",
+        is_persistent=False
+    ),
+    'synchronized': Condition(
+        name="Synchronized",
+        description="You have drunk too deeply from your victim, taking their injuries and conditions upon yourself.",
+        is_persistent=False
+    ),
+    'vitae_s_resoluteness': Condition(
+        name="Vitae's Resoluteness",
+        description="●",
+        is_persistent=False
+    ),
+    'weak_vitae': Condition(
+        name="Weak Vitae",
+        description="●",
+        is_persistent=False
+    ),
+    'audience': Condition(
+        name="Audience",
+        description="There are eavesdroppers and witnesses to your exchange.",
+        is_persistent=False
+    ),
+    'crowd_darling': Condition(
+        name="Crowd Darling",
+        description="You have charmed the audience to your side.",
+        is_persistent=False
+    ),
+    'danse_macabre': Condition(
+        name="Danse Macabre",
+        description="You are being observed by the upper echelons of vampire society.",
+        is_persistent=False
+    ),
+    'disgraced': Condition(
+        name="Disgraced",
+        description="You have fallen from grace, and face existence as a pariah.",
+        is_persistent=False
+    ),
+    'exposed': Condition(
+        name="Exposed",
+        description="Your actions have compromised others within your circle, diminishing your influence.",
+        is_persistent=False
+    ),
+    'repressed': Condition(
+        name="Repressed",
+        description="You have suffered defeat at the hands of a rival.",
+        is_persistent=False
+    ),
+    'rising_star': Condition(
+        name="Rising Star",
+        description="You are the crowd favorite, the audience rallying to your side.",
+        is_persistent=False
+    ),
+    'subdued': Condition(
+        name="Subdued",
+        description="A rival has further demonstrated their mastery over you.",
+        is_persistent=False
+    ),
+    'the_edge': Condition(
+        name="The Edge",
+        description="You have demonstrated superiority over one of your contemporaries, and are riding the high.",
+        is_persistent=False
+    ),
+    'alienated': Condition(
+        name="Alienated",
+        description="●",
+        is_persistent=False
+    ),
+    'domineering': Condition(
+        name="Domineering",
+        description="●",
+        is_persistent=False
+    ),
+    'feral': Condition(
+        name="Feral",
+        description="●",
+        is_persistent=False
+    ),
+    'malcontent': Condition(
+        name="Malcontent",
+        description="●",
+        is_persistent=False
+    ),
+    'voyeuristic': Condition(
+        name="Voyeuristic",
+        description="●",
+        is_persistent=False
+    ),
+    'hunger': Condition(
+        name="Hunger",
+        description="You feel a violent, desperate need for Vitae.",
+        is_persistent=False
+    ),
+    'inbred': Condition(
+        name="Inbred",
+        description="●",
+        is_persistent=False
+    ),
+    'recovery': Condition(
+        name="Recovery",
+        description="●",
+        is_persistent=False
+    ),
+    'defeated': Condition(
+        name="Defeated",
+        description="A rival has won magical advantage over you in the Duel Arcane.",
+        is_persistent=False
+    ),
+    'degenerate_mana': Condition(
+        name="Degenerate Mana",
+        description="●",
+        is_persistent=False
+    ),
+    'mage_hunter': Condition(
+        name="Mage Hunter",
+        description="●",
+        is_persistent=False
+    ),
+    'megalomaniacal': Condition(
+        name="Megalomaniacal",
+        description="You are blinded by hubris.",
+        is_persistent=False
+    ),
+    'mystery_commands': Condition(
+        name="Mystery Commands",
+        description="●",
+        is_persistent=False
+    ),
+    'rampant': Condition(
+        name="Rampant",
+        description="Your spellcasting is ruled by a cavalier, reckless attitude.",
+        is_persistent=False
+    ),
+    'supernal_harrowing': Condition(
+        name="Supernal Harrowing",
+        description="●",
+        is_persistent=False
+    ),
+    'tainted_aspiration': Condition(
+        name="Tainted Aspiration",
+        description="●",
+        is_persistent=False
+    ),
+    'triumphant': Condition(
+        name="Triumphant",
+        description="You carry your victory in the Dual Arcane with you in Awakened society.",
+        is_persistent=False
+    ),
+    'abyssal_backlash': Condition(
+        name="Abyssal Backlash",
+        description="A Paradox casts a shadow over you, threatening to break through on the next spell that gives it an opening.",
+        is_persistent=False
+    ),
+    'abyssal_debilitation': Condition(
+        name="Abyssal Debilitation",
+        description="You are hampered as a result of exposing your soul to the Abyss.",
+        is_persistent=False
+    ),
+    'abyssal_imago': Condition(
+        name="Abyssal Imago",
+        description="A Paradox intrudes upon the spells you envision, compelling dangerous Reach.",
+        is_persistent=False
+    ),
+    'abyssal_nimbus': Condition(
+        name="Abyssal Nimbus",
+        description="A Paradox has leaked across your Nimbus and invites Abyssal manifestations.",
+        is_persistent=False
+    ),
+    'monster': Condition(
+        name="Monster",
+        description="A Paradox has mutated an animal into a miserable, fearsome nemesis.",
+        is_persistent=False
+    ),
+    'unclean': Condition(
+        name="Unclean",
+        description="A Paradox has turned your magical tools and methods against you.",
+        is_persistent=False
+    ),
+    'branded_throng': Condition(
+        name="Branded Throng",
+        description="●",
+        is_persistent=False
+    ),
+    'disconnected': Condition(
+        name="Disconnected",
+        description="Frustration in your Pilgrimage causes you to shrink from human interaction.",
+        is_persistent=False
+    ),
+    'tormented': Condition(
+        name="Tormented",
+        description="Pain and suffering have severely imbalanced your alchemical humours.",
+        is_persistent=False
+    ),
+    'disquieted': Condition(
+        name="Disquieted",
+        description="A Promethean's presence increasingly distracts and overwhelms you over progressive stages.",
+        is_persistent=False
+    ),
+    'murderous': Condition(
+        name="Murderous",
+        description="Pandoran Disquiet taints your instincts with predatory violence.",
+        is_persistent=False
+    ),
+    'stricken': Condition(
+        name="Stricken",
+        description="Pandoran Disquiet infects you with horror and fright.",
+        is_persistent=False
+    ),
+    'terrified': Condition(
+        name="Terrified",
+        description="Pandoran Disquiet whips you into panicked retreat.",
+        is_persistent=False
+    ),
+    'analyst': Condition(
+        name="Analyst",
+        description="●",
+        is_persistent=False
+    ),
+    'destructive': Condition(
+        name="Destructive",
+        description="●",
+        is_persistent=False
+    ),
+    'enraged': Condition(
+        name="Enraged",
+        description="●",
+        is_persistent=False
+    ),
+    'intense': Condition(
+        name="Intense",
+        description="●",
+        is_persistent=False
+    ),
+    'introspective': Condition(
+        name="Introspective",
+        description="●",
+        is_persistent=False
+    ),
+    'masked': Condition(
+        name="Masked",
+        description="●",
+        is_persistent=False
+    ),
+    'patient': Condition(
+        name="Patient",
+        description="●",
+        is_persistent=False
+    ),
+    'resourceful': Condition(
+        name="Resourceful",
+        description="●",
+        is_persistent=False
+    ),
+    'sensitive': Condition(
+        name="Sensitive",
+        description="●",
+        is_persistent=False
+    ),
+    'tenacious': Condition(
+        name="Tenacious",
+        description="●",
+        is_persistent=False
+    ),
+    'tuned_in': Condition(
+        name="Tuned In",
+        description="●",
+        is_persistent=False
+    ),
+    'atavistic': Condition(
+        name="Atavistic",
+        description="The charge of Metamorphosis has overwhelmed your composure.",
+        is_persistent=False
+    ),
+    'burnout': Condition(
+        name="Burnout",
+        description="The charge of Vulcanus has painfully overstoked your inner fire.",
+        is_persistent=False
+    ),
+    'callous': Condition(
+        name="Callous",
+        description="The charge of Mesmerism has sapped your empathy.",
+        is_persistent=False
+    ),
+    'degaussed': Condition(
+        name="Degaussed",
+        description="The charge of Electrification disrupts local electromagnetics.",
+        is_persistent=False
+    ),
+    'ephemeral_anchor': Condition(
+        name="Ephemeral Anchor",
+        description="The charge of Spiritus invites ephemeral activity around you.",
+        is_persistent=False
+    ),
+    'flawed_vessel': Condition(
+        name="Flawed Vessel",
+        description="The charge of Alchemicus interferes with your ability to channel Pyros.",
+        is_persistent=False
+    ),
+    'greedy_brand': Condition(
+        name="Greedy Brand",
+        description="The charge of Benefice draws out and wastes throngmates' Pyros.",
+        is_persistent=False
+    ),
+    'hyperextended': Condition(
+        name="Hyperextended",
+        description="The charge of Vitality overtaxes your body's abilities.",
+        is_persistent=False
+    ),
+    'irritable': Condition(
+        name="Irritable",
+        description="The charge of Disquietism saps your self-control.",
+        is_persistent=False
+    ),
+    'kinesthesia': Condition(
+        name="Kinesthesia",
+        description="The charge of Corporeum interferes with abstract thought.",
+        is_persistent=False
+    ),
+    'regressive': Condition(
+        name="Regressive",
+        description="The charge of Saturninus dulls your grip on human motives and behavior.",
+        is_persistent=False
+    ),
+    'synesthesia': Condition(
+        name="Synesthesia",
+        description="The charge of Sensorium overwhelms your ability to distinguish sensory input.",
+        is_persistent=False
+    ),
+    'behind_your_eyes': Condition(
+        name="Behind Your Eyes",
+        description="Your clarity disintegration allows Hedge ghosts, Hobgoblins, or the Gentry to use your senses.",
+        is_persistent=False
+    ),
+    'comatose': Condition(
+        name="Comatose",
+        description="You've lost all Clarity and subconsciously retreated into an unending dream.",
+        is_persistent=False
+    ),
+    'cursed': Condition(
+        name="Cursed",
+        description="●",
+        is_persistent=False
+    ),
+    'deep_kenning': Condition(
+        name="Deep Kenning",
+        description="Your enhanced Clarity offers you insight into nearby magic, fading if Clarity drops to 0.",
+        is_persistent=False
+    ),
+    'dream_assailant': Condition(
+        name="Dream Assailant",
+        description="Your reckless dreamweaving has roused the dream's violent rebellion.",
+        is_persistent=False
+    ),
+    'dream_infiltrator': Condition(
+        name="Dream Infiltrator",
+        description="Your meddling dreamweaving has raised the suspicion of the dream and its eidolons.",
+        is_persistent=False
+    ),
+    'dream_intruder': Condition(
+        name="Dream Intruder",
+        description="Your extensive dreamweaving sets the dream and its eidolons ill at ease.",
+        is_persistent=False
+    ),
+    'egomaniac': Condition(
+        name="Egomaniac",
+        description="Your loss of Clarity leads to egotistical behavior and altered anchors.",
+        is_persistent=False
+    ),
+    'enchanted_obligation': Condition(
+        name="Enchanted Obligation",
+        description="You have enchanted bargain with a mortal, similar to Obliged but includes additional effects.",
+        is_persistent=False
+    ),
+    'glamour_addicted': Condition(
+        name="Glamour Addicted",
+        description="●",
+        is_persistent=False
+    ),
+    'hexed': Condition(
+        name="Hexed",
+        description="You suffer from a changeling's minor curse, resolved through a specified action.",
+        is_persistent=False
+    ),
+    'icon_shard': Condition(
+        name="Icon Shard",
+        description="●",
+        is_persistent=False
+    ),
+    'indebted': Condition(
+        name="Indebted",
+        description="○",
+        is_persistent=False
+    ),
+    'kithseeker': Condition(
+        name="Kithseeker",
+        description="●",
+        is_persistent=False
+    ),
+    'hedge_addiction': Condition(
+        name="Hedge Addiction",
+        description="●",
+        is_persistent=False
+    ),
+    'arcadian_dreams': Condition(
+        name="Arcadian Dreams",
+        description="●",
+        is_persistent=False
+    ),
+    'bonding': Condition(
+        name="Bonding",
+        description="Your relationship with your geist benefits from weathering a crisis point.",
+        is_persistent=False
+    ),
+    'dead': Condition(
+        name="Dead",
+        description="Your body lies dead, unleashing your geist.",
+        is_persistent=False
+    ),
+    'defiant': Condition(
+        name="Defiant",
+        description="●",
+        is_persistent=False
+    ),
+    'echoes': Condition(
+        name="Echoes",
+        description="Your geist's Remembrance Traits jumble in your mind.",
+        is_persistent=False
+    ),
+    'ferry_bound': Condition(
+        name="Ferry Bound",
+        description="You may navigate passengers across the Underworld's rivers so long as you collect the proper price.",
+        is_persistent=False
+    ),
+    'flatlining': Condition(
+        name="Flatlining",
+        description="●",
+        is_persistent=False
+    ),
+    'fragmented': Condition(
+        name="Fragmented",
+        description="Dead waters have washed away your definition and identity.",
+        is_persistent=False
+    ),
+    'lawbreaker': Condition(
+        name="Lawbreaker",
+        description="●",
+        is_persistent=False
+    ),
+    'memento_collector': Condition(
+        name="Memento Collector",
+        description="Other Sin-Eaters are impressed!",
+        is_persistent=False
+    ),
+    'memory_bleed': Condition(
+        name="Memory Bleed",
+        description="●",
+        is_persistent=False
+    ),
+    'regalia': Condition(
+        name="Regalia",
+        description="A krewe has bestowed you with a special crown blessing.",
+        is_persistent=False
+    ),
+    'theophany': Condition(
+        name="Theophany",
+        description="●",
+        is_persistent=False
+    ),
+    'unleashed': Condition(
+        name="Unleashed",
+        description="The geist materializes, temporarily unmoored from its Bound.",
+        is_persistent=False
+    ),
+    'wavering': Condition(
+        name="Wavering",
+        description="You have offended your geist and it demands recompense before it will cooperate.",
+        is_persistent=False
+    ),
+    'weakened_bond': Condition(
+        name="Weakened Bond",
+        description="Unleashing your geist has temporarily displaced your power.",
+        is_persistent=False
+    ),
+    'actor': Condition(
+        name="Actor",
+        description="You have been bound to participate in a ghostly recapitulation of events.",
+        is_persistent=False
+    ),
+    'boneyard': Condition(
+        name="Boneyard",
+        description="The Bound's consciousness haunts the location, seeping awareness into every corner and object.",
+        is_persistent=False
+    ),
+    'caul': Condition(
+        name="Caul",
+        description="You've invited your geist into your flesh to transform your shape.",
+        is_persistent=False
+    ),
+    'curse': Condition(
+        name="Curse",
+        description="A Sin-Eater haunts you with cursed fortune.",
+        is_persistent=False
+    ),
+    'dirge': Condition(
+        name="Dirge",
+        description="The song of the Bound moves you and impels you.",
+        is_persistent=False
+    ),
+    'marionette': Condition(
+        name="Marionette",
+        description="You are strung by the Plasm of a manipulative Bound.",
+        is_persistent=False
+    ),
+    'maw': Condition(
+        name="Maw",
+        description="You've become an uncontrollable nexus for the Underworld's endless hunger.",
+        is_persistent=False
+    ),
+    'memoria': Condition(
+        name="Memoria",
+        description="Memories of death and the dead play out in visions.",
+        is_persistent=False
+    ),
+    'oracle': Condition(
+        name="Oracle",
+        description="You have left your body to seek answers as a spectral traveller.",
+        is_persistent=False
+    ),
+    'rage': Condition(
+        name="Rage",
+        description="You wield ghostly malice to smite your foes.",
+        is_persistent=False
+    ),
+    'servant': Condition(
+        name="Servant",
+        description="An engine of Plasm controls your body.",
+        is_persistent=False
+    ),
+    'shroud': Condition(
+        name="Shroud",
+        description="Your body interweaves with your geist, ghostly and gauzy.",
+        is_persistent=False
+    ),
+    'tomb': Condition(
+        name="Tomb",
+        description="You have molded memories of something lost into a perfect replica.",
+        is_persistent=False
+    ),
+    'void': Condition(
+        name="Void",
+        description="You have opened the wake of a black and hungry nothingness.",
+        is_persistent=False
+    ),
+    'void_storm': Condition(
+        name="Void Storm",
+        description="The Underworld's hunger reaches through you to sap energy from the world.",
+        is_persistent=False
+    ),
+    'well': Condition(
+        name="Well",
+        description="Your self and memories flow like the dead rivers.",
+        is_persistent=False
+    ),
+    'merciless': Condition(
+        name="Merciless",
+        description="●",
+        is_persistent=False
+    ),
+    'vigilant': Condition(
+        name="Vigilant",
+        description="●",
+        is_persistent=False
+    ),
+    'disembodied': Condition(
+        name="Disembodied",
+        description="You walk as a ghost through Twilight.",
+        is_persistent=False
+    ),
+    'disinterred': Condition(
+        name="Disinterred",
+        description="Your tomb has been ransacked or ruined.",
+        is_persistent=False
+    ),
+    'forgotten_skill': Condition(
+        name="Forgotten Skill",
+        description="●",
+        is_persistent=False
+    ),
+    'effortless_effort': Condition(
+        name="Effortless Effort",
+        description="Your cult produces greater results in its efforts.",
+        is_persistent=False
+    ),
+    'far_reaching': Condition(
+        name="Far-Reaching",
+        description="Your cult has made successful inroads with important figures.",
+        is_persistent=False
+    ),
+    'haphazard_cultists': Condition(
+        name="Haphazard Cultists",
+        description="Your cult is disorganized, reducing their effectiveness.",
+        is_persistent=False
+    ),
+    'heresy': Condition(
+        name="Heresy",
+        description="●",
+        is_persistent=False
+    ),
+    'iron_grasp': Condition(
+        name="Iron Grasp",
+        description="Your grip on your cult is absolute.",
+        is_persistent=False
+    ),
+    'mismanaged': Condition(
+        name="Mismanaged",
+        description="Your cult's effectiveness is stymied by ineffective elements within it.",
+        is_persistent=False
+    ),
+    'shaken_faith': Condition(
+        name="Shaken Faith",
+        description="●",
+        is_persistent=False
+    ),
+    'zealous': Condition(
+        name="Zealous",
+        description="Your cult is more dedicated to its mission than most, operating more effectively.",
+        is_persistent=False
+    ),
+    'unease_sybaris': Condition(
+        name="Unease Sybaris",
+        description="Stage one. Dread unsettles you without a supernatural power to turn to.",
+        is_persistent=False
+    ),
+    'terror_sybaris': Condition(
+        name="Terror Sybaris",
+        description="Stage two. Contact with a mummy seizes you with fear.",
+        is_persistent=False
+    ),
+    'desecration_sybaris': Condition(
+        name="Desecration Sybaris",
+        description="Stage three. Unholy terror invites the will of Duat.",
+        is_persistent=False
+    ),
+    'accelerated_descent': Condition(
+        name="Accelerated Descent",
+        description="Duat pulls more eagerly at your Sekhem.",
+        is_persistent=False
+    ),
+    'auspicious_descent': Condition(
+        name="Auspicious Descent",
+        description="Your Sekhem weathers the Descent longer.",
+        is_persistent=False
+    ),
+    'blessed_minions': Condition(
+        name="Blessed Minions",
+        description="Your cultists are inspired by your accomplishments.",
+        is_persistent=False
+    ),
+    'damaged_pillar': Condition(
+        name="Damaged Pillar",
+        description="You cannot draw power from one of the Pillars of your soul.",
+        is_persistent=False
+    ),
+    'devouring_urge': Condition(
+        name="Devouring Urge",
+        description="Ammut the Devourer speaks to you, and only sacrifice will buy her silence.",
+        is_persistent=False
+    ),
+    'driven': Condition(
+        name="Driven",
+        description="Your surety in your ambition is a great well of strength.",
+        is_persistent=False
+    ),
+    'echoes_of_descent': Condition(
+        name="Echoes of Descent",
+        description="Your clarity and Memory lift up the power of your soul.",
+        is_persistent=False
+    ),
+    'geometric_alignment': Condition(
+        name="Geometric Alignment",
+        description="Sekhem's flow preserves your tomb from disruption.",
+        is_persistent=False
+    ),
+    'graceful_descent': Condition(
+        name="Graceful Descent",
+        description="Your overflowing Sekham staves off your Descent.",
+        is_persistent=False
+    ),
+    'luminous_pillars': Condition(
+        name="Luminous Pillars",
+        description="Your soul shines strong and resists depletion.",
+        is_persistent=False
+    ),
+    'precipitous_descent': Condition(
+        name="Precipitous Descent",
+        description="The Descent wears down your Sekhem more quickly.",
+        is_persistent=False
+    ),
+    'repression': Condition(
+        name="Repression",
+        description="Your failures in the trials of Duat have hollowed out portions of your knowledge.",
+        is_persistent=False
+    ),
+    'alternative_current': Condition(
+        name="Alternative Current",
+        description="Time around you is taking a divergent current.",
+        is_persistent=False
+    ),
+    'deja_vu': Condition(
+        name="Déjà Vu",
+        description="You stand where different currents of possiblity converge on a single event.",
+        is_persistent=False
+    ),
+    'eddy': Condition(
+        name="Eddy",
+        description="You wade through sluggish waters which can be outpaced.",
+        is_persistent=False
+    ),
+    'mirage': Condition(
+        name="Mirage",
+        description="You recognize patterns in the tides which echo past and future events.",
+        is_persistent=False
+    ),
+    'rip': Condition(
+        name="Rip",
+        description="You can take precise stock from your position amid rapid timeflows.",
+        is_persistent=False
+    ),
+    'whirlpool': Condition(
+        name="Whirlpool",
+        description="Caught in a swirl of recurring events, you can grab hold of causal fixtures.",
+        is_persistent=False
+    ),
+    'aetheric_bleed': Condition(
+        name="Aetheric Bleed",
+        description="Exertion in demonic form has you releasing accumulated Aether.",
+        is_persistent=False
+    ),
+    'burn_coded': Condition(
+        name="Burn-Coded",
+        description="You have been infected with malware, compromising your Cover.",
+        is_persistent=False
+    ),
+    'demonic_disconnect': Condition(
+        name="Demonic Disconnect",
+        description="You've failed to maintain human empathy while in your demonic form.",
+        is_persistent=False
+    ),
+    'demonic_rage': Condition(
+        name="Demonic Rage",
+        description="Pain and frustration suffered in demonic form provoke frenzied violence.",
+        is_persistent=False
+    ),
+    'implanted': Condition(
+        name="Implanted",
+        description="●",
+        is_persistent=False
+    ),
+    'memory_hole': Condition(
+        name="Memory Hole",
+        description="Errors in god-hacking have disrupted your access to a particular Skill.",
+        is_persistent=False
+    ),
+    'of_the_machine': Condition(
+        name="Of the Machine",
+        description="The demon has god-hacked to disguise her fallen nature within a project.",
+        is_persistent=False
+    ),
+    'overclocked': Condition(
+        name="Overclocked",
+        description="You've stored more Aether than your body can normally process at once, and must soon vent the excess.",
+        is_persistent=False
+    ),
+    'phantom_pain': Condition(
+        name="Phantom Pain",
+        description="●",
+        is_persistent=False
+    ),
+    'activated': Condition(
+        name="Activated",
+        description="●",
+        is_persistent=False
+    ),
+    'catalogued': Condition(
+        name="Catalogued",
+        description="The God-Machine is probing your Cipher. You have two Key Embeds and an Interlock, but the God-Machine is watching your status.",
+        is_persistent=False
+    ),
+    'examined': Condition(
+        name="Examined",
+        description="The God-Machine has accessed your Cipher. You have three Key Embeds and two Interlocks, but you're scrutinized enough to pose demons a risk of compromise through you.",
+        is_persistent=False
+    ),
+    'noted': Condition(
+        name="Noted",
+        description="The God-Machine is looking for your Cipher. You have one Key Embed.",
+        is_persistent=False
+    ),
+    'end_stage': Condition(
+        name="End Stage",
+        description="Terminal instability renders Variations at maximum Magnitude uncontrollably potent, and by the end of the chapter, will destroy you, body and soul.",
+        is_persistent=False
+    ),
+
 } 

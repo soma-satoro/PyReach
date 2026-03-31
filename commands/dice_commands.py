@@ -10,14 +10,22 @@ from world.conditions import STANDARD_CONDITIONS, Condition
 from world.utils.dice_utils import roll_dice, interpret_roll_results, roll_to_job_display, roll_to_room_display, format_roll_display, RollType
 from world.utils.formatting import footer, divider
 from django.utils import timezone
+import re
+from collections.abc import Mapping
 
 class CmdRoll(MuxCommand):
     """
     Roll dice for Chronicles of Darkness system.
     
     Usage:
-      +roll[/switches] <stat> + <skill> [+/- modifier]
+      +roll[/switches] <stat expression>
                             [vs player:stat+skill or vs <value>]
+
+      Stat expression examples:
+      +roll intelligence + academics
+      +roll wyrd
+      +roll contacts (airport workers)
+      +roll 3 + 2
 
     Switches (Multiple switches can be combined):
       /8 - 8-again, /9 - 9-again, /rote - Reroll all failed dice once
@@ -69,6 +77,10 @@ class CmdRoll(MuxCommand):
         self.vs_value = 0
         self.extended_target = 0  # Target successes for extended rolls
         self.extended_max_rolls = 0  # Max number of rolls for extended action
+        self.stat_value = None
+        self.skill_value = None
+        self._last_roll_error = None
+        self.parse_failed = False
         
         # Parse switches
         if self.switches:
@@ -101,7 +113,6 @@ class CmdRoll(MuxCommand):
             self.roll_types = {RollType.NORMAL}
         
         # Check for extended roll syntax
-        import re
         if self.is_extended:
             # Extended format: <stat> + <skill>=<target> [rolls:<max>]
             # Example: intelligence + academics=10 (auto-calculates max rolls)
@@ -182,107 +193,288 @@ class CmdRoll(MuxCommand):
     
     def _parse_dice_expression(self, expression, is_job=False):
         """
-        Enhanced parsing for dice expressions that handles various modifier formats.
-        
-        Supports formats like:
-        - "5" (direct dice)
-        - "strength + weaponry" (stat + skill)
-        - "strength + weaponry + 3" (stat + skill + modifier)
-        - "strength + weaponry - 2" (stat + skill - modifier)
-        - "strength+weaponry-2" (compact format)
+        Parse a dice expression supporting stats and numeric terms.
+
+        Supported examples:
+        - "5"
+        - "strength + weaponry"
+        - "intelligence + academics + 3 + 2"
+        - "mantle"
+        - "contacts (airport workers) + composure"
+        - "3 + 2"
         """
         expression = expression.strip()
-        
-        # First, try to parse as a single number (direct dice)
-        try:
-            self.dice_pool = int(expression)
-            self.roll_type = 'job_direct' if is_job else 'direct'
-            return
-        except ValueError:
-            pass
-        
-        # Split on + to get main parts
-        parts = [part.strip() for part in expression.split("+")]
-        
-        if len(parts) == 1:
-            # Could be a stat name with attached modifier (e.g., "strength-2")
-            part = parts[0]
-            stat, modifier = self._extract_modifier_from_part(part)
-            if modifier is not None:
-                # Single stat with modifier - this is unusual but we'll handle it
-                stat_value = self.get_stat_value(stat.lower())
-                if stat_value is None:
-                    self.caller.msg(f"You don't have the attribute '{stat}' set.")
-                    return
-                self.dice_pool = stat_value
-                self.modifier = modifier
-                self.stat_name = stat
-                self.roll_type = 'job_stat_mod' if is_job else 'stat_mod'
-            else:
-                self.caller.msg("Invalid roll format. See help for usage.")
-            return
-            
-        elif len(parts) == 2:
-            # Could be "stat + skill" or "stat + skill-modifier"
-            stat = parts[0].lower()
-            skill_part = parts[1]
-            
-            # Check if the skill part has an attached modifier
-            skill, modifier = self._extract_modifier_from_part(skill_part)
-            
-            # Get stat and skill values
-            stat_value = self.get_stat_value(stat)
-            skill_value = self.get_stat_value(skill.lower())
-            
-            if stat_value is None:
-                self.caller.msg(f"You don't have the attribute '{stat}' set.")
-                return
-            if skill_value is None:
-                self.caller.msg(f"You don't have the skill '{skill}' set.")
-                return
-                
-            self.dice_pool = stat_value + skill_value
-            self.modifier = modifier if modifier is not None else 0
-            self.stat_name = stat
-            self.skill_name = skill
-            
-            if modifier is not None:
-                self.roll_type = 'job_stat_skill_mod' if is_job else 'stat_skill_mod'
-            else:
-                self.roll_type = 'job_stat_skill' if is_job else 'stat_skill'
-            
-        elif len(parts) == 3:
-            # "stat + skill + modifier" format
-            stat = parts[0].lower()
-            skill = parts[1].lower()
-            modifier_part = parts[2]
-            
-            try:
-                modifier = int(modifier_part)
-            except ValueError:
-                self.caller.msg("Invalid modifier specified.")
-                return
-                
-            # Get stat and skill values
-            stat_value = self.get_stat_value(stat)
-            skill_value = self.get_stat_value(skill)
-            
-            if stat_value is None:
-                self.caller.msg(f"You don't have the attribute '{stat}' set.")
-                return
-            if skill_value is None:
-                self.caller.msg(f"You don't have the skill '{skill}' set.")
-                return
-                
-            self.dice_pool = stat_value + skill_value
-            self.modifier = modifier
-            self.stat_name = stat
-            self.skill_name = skill
-            self.roll_type = 'job_stat_skill_mod' if is_job else 'stat_skill_mod'
-            
-        else:
+
+        self._last_roll_error = None
+        parsed_terms = self._tokenize_roll_expression(expression)
+        if not parsed_terms:
             self.caller.msg("Invalid roll format. See help for usage.")
+            self.parse_failed = True
             return
+
+        total_pool = 0
+        named_pool = 0
+        numeric_pool = 0
+        named_terms = []
+        parse_errors = []
+
+        for sign, raw_term in parsed_terms:
+            term = raw_term.strip()
+            if not term:
+                continue
+
+            if re.fullmatch(r"\d+", term):
+                value = sign * int(term)
+                total_pool += value
+                numeric_pool += value
+                continue
+
+            stat_data = self._resolve_roll_stat(term)
+            if not stat_data:
+                parse_errors.append(term)
+                continue
+
+            component_value = sign * stat_data["value"]
+            total_pool += component_value
+            named_pool += component_value
+            named_terms.append((sign, stat_data))
+
+        if parse_errors:
+            detailed_error = self._last_roll_error
+            self._last_roll_error = None
+            if detailed_error:
+                self.caller.msg(detailed_error)
+                self.parse_failed = True
+                return
+            if len(parse_errors) == 1:
+                self.caller.msg(f"You don't have a rollable stat named '{parse_errors[0]}'.")
+            else:
+                missing = ", ".join(f"'{entry}'" for entry in parse_errors)
+                self.caller.msg(f"You don't have rollable stats named: {missing}.")
+            self.parse_failed = True
+            return
+
+        positive_named = [entry for sign, entry in named_terms if sign > 0]
+
+        if positive_named and all(sign > 0 for sign, _ in named_terms):
+            self.dice_pool = named_pool
+            self.modifier = numeric_pool
+        else:
+            self.dice_pool = total_pool
+            self.modifier = 0
+
+        if len(positive_named) >= 1:
+            self.stat_name = positive_named[0]["display"]
+            self.stat_value = positive_named[0]["value"]
+        if len(positive_named) >= 2:
+            self.skill_name = positive_named[1]["display"]
+            self.skill_value = positive_named[1]["value"]
+
+        # For expressions with >2 named parts (or only numeric parts), display as dice total.
+        if len(positive_named) == 0 or len(positive_named) > 2:
+            self.stat_name = None
+            self.skill_name = None
+            self.stat_value = None
+            self.skill_value = None
+
+        if len(positive_named) == 0:
+            self.roll_type = 'job_direct' if is_job else 'direct'
+        elif len(positive_named) == 1:
+            self.roll_type = 'job_stat' if is_job else 'stat'
+        elif len(positive_named) == 2 and all(sign > 0 for sign, _ in named_terms):
+            self.roll_type = 'job_stat_skill' if is_job else 'stat_skill'
+        else:
+            self.roll_type = 'job_stat_skill_mod' if is_job else 'stat_skill_mod'
+
+    def _tokenize_roll_expression(self, expression):
+        """
+        Tokenize expression into signed terms while preserving text in parentheses.
+        Returns list of tuples: (sign, term), where sign is 1 or -1.
+        """
+        terms = []
+        current = []
+        sign = 1
+        depth = 0
+
+        for char in expression:
+            if char == "(":
+                depth += 1
+                current.append(char)
+                continue
+            if char == ")":
+                depth = max(0, depth - 1)
+                current.append(char)
+                continue
+
+            if depth == 0 and char in "+-":
+                term = "".join(current).strip()
+                if term:
+                    terms.append((sign, term))
+                sign = 1 if char == "+" else -1
+                current = []
+                continue
+
+            current.append(char)
+
+        final_term = "".join(current).strip()
+        if final_term:
+            terms.append((sign, final_term))
+
+        return terms
+
+    def _normalize_stat_token(self, token):
+        """Normalize user-facing stat text to internal key format."""
+        cleaned = token.strip().lower().replace("-", "_").replace(" ", "_").replace("'", "")
+        cleaned = cleaned.replace("(", "").replace(")", "")
+        return cleaned
+
+    def _normalize_roll_input(self, term):
+        """
+        Normalize raw roll input, supporting 'Merit (Instance)' as 'merit:instance'.
+        """
+        term = term.strip()
+        instance_match = re.match(r"^(?P<base>.+?)\s*\((?P<instance>.+)\)\s*$", term)
+        if instance_match:
+            base = self._normalize_stat_token(instance_match.group("base"))
+            instance = self._normalize_stat_token(instance_match.group("instance"))
+            return f"{base}:{instance}"
+        return self._normalize_stat_token(term)
+
+    def _extract_dots(self, value):
+        """Extract numeric dots from merit/power entries."""
+        if isinstance(value, bool):
+            return None
+        if isinstance(value, int):
+            return value
+        if isinstance(value, float):
+            return int(value)
+        if isinstance(value, Mapping):
+            for key in ("dots", "value", "perm"):
+                if key in value and isinstance(value[key], (int, float)):
+                    return int(value[key])
+        return None
+
+    def _iter_merit_entries(self, merits):
+        """Yield normalized merit key and numeric dots from supported merit layouts."""
+        if not isinstance(merits, Mapping):
+            return
+
+        for merit_key, merit_data in merits.items():
+            if isinstance(merit_key, str):
+                dots = self._extract_dots(merit_data)
+                if dots is not None:
+                    yield self._normalize_roll_input(merit_key), dots
+
+            if isinstance(merit_data, Mapping):
+                for nested_key, nested_data in merit_data.items():
+                    if not isinstance(nested_key, str):
+                        continue
+                    dots = self._extract_dots(nested_data)
+                    if dots is not None:
+                        yield self._normalize_roll_input(nested_key), dots
+
+    def _resolve_merit_value(self, character, normalized_term):
+        """Resolve merit dots, with support for instanced merits and fallback to lone instance."""
+        merits = (character.db.stats or {}).get("merits", {})
+        merit_entries = list(self._iter_merit_entries(merits))
+        if not merit_entries:
+            return None
+
+        # Normalize potential "merit:<name>" keys to "<name>".
+        expanded_entries = []
+        for merit_key, dots in merit_entries:
+            if merit_key.startswith("merit:"):
+                expanded_entries.append((merit_key.split(":", 1)[1], dots))
+            expanded_entries.append((merit_key, dots))
+
+        if ":" in normalized_term:
+            exact = [dots for key, dots in expanded_entries if key == normalized_term]
+            if exact:
+                return max(exact)
+            return None
+
+        direct = [dots for key, dots in expanded_entries if key == normalized_term]
+        if direct:
+            return max(direct)
+
+        instanced = [(key, dots) for key, dots in expanded_entries if key.startswith(f"{normalized_term}:")]
+        if len(instanced) == 1:
+            # Rule: If only one instance exists, rolling base merit uses that instance.
+            return instanced[0][1]
+        if len(instanced) > 1:
+            # Rule: Base merit with multiple instances must be disambiguated.
+            instance_names = sorted({
+                key.split(":", 1)[1].replace("_", " ").title()
+                for key, _ in instanced
+            })
+            merit_name = normalized_term.replace("_", " ").title()
+            suggestion_list = ", ".join(instance_names)
+            self._last_roll_error = (
+                f"'{merit_name}' has multiple instances. "
+                f"Use one of: {suggestion_list}. "
+                f"Example: +roll {merit_name} ({instance_names[0]})"
+            )
+            return None
+
+        return None
+
+    def _resolve_power_value(self, character, normalized_term):
+        """Resolve power dots; ignores semantic 'known' entries."""
+        powers = (character.db.stats or {}).get("powers", {})
+        if not isinstance(powers, Mapping):
+            return None
+
+        # Direct key match first.
+        if normalized_term in powers:
+            return self._extract_dots(powers.get(normalized_term))
+
+        # Common prefixed power formats.
+        for prefix in ("discipline_", "arcanum_", "gift_"):
+            prefixed = f"{prefix}{normalized_term}"
+            if prefixed in powers:
+                return self._extract_dots(powers.get(prefixed))
+
+        return None
+
+    def _resolve_roll_stat(self, term, character=None):
+        """
+        Resolve a roll component across attributes, skills, advantages, merits, and powers.
+        Returns dict {'value': int, 'display': str} or None.
+        """
+        character = character or self.caller
+        stats = (character.db.stats or {})
+        if not isinstance(stats, Mapping):
+            return None
+
+        normalized = self._normalize_roll_input(term)
+        display = term.strip().replace("_", " ").title()
+
+        # Attributes
+        attributes = stats.get("attributes", {}) or {}
+        if normalized in attributes and isinstance(attributes.get(normalized), (int, float)):
+            return {"value": int(attributes.get(normalized)), "display": display}
+
+        # Skills
+        skills = stats.get("skills", {}) or {}
+        if normalized in skills and isinstance(skills.get(normalized), (int, float)):
+            return {"value": int(skills.get(normalized)), "display": display}
+
+        # Advantages
+        advantages = stats.get("advantages", {}) or {}
+        if normalized in advantages and isinstance(advantages.get(normalized), (int, float)):
+            return {"value": int(advantages.get(normalized)), "display": display}
+
+        # Merits (supports instances)
+        merit_value = self._resolve_merit_value(character, normalized)
+        if merit_value is not None:
+            return {"value": int(merit_value), "display": display}
+
+        # Powers with numeric values only (exclude semantic known-powers).
+        power_value = self._resolve_power_value(character, normalized)
+        if power_value is not None:
+            return {"value": int(power_value), "display": display}
+
+        return None
     
     def _extract_modifier_from_part(self, part):
         """
@@ -423,24 +615,12 @@ class CmdRoll(MuxCommand):
     
     def get_stat_value_from_char(self, character, stat_name):
         """Get a stat value from a specific character's stats"""
-        if not character.db.stats:
+        if not stat_name:
             return None
-            
-        # Check attributes
-        attributes = character.db.stats.get("attributes", {})
-        if stat_name in attributes:
-            return attributes.get(stat_name)
-        
-        # Check skills
-        skills = character.db.stats.get("skills", {})
-        if stat_name in skills:
-            return skills.get(stat_name)
-        
-        # Check advantages
-        advantages = character.db.stats.get("advantages", {})
-        if stat_name in advantages:
-            return advantages.get(stat_name)
-            
+
+        resolved = self._resolve_roll_stat(stat_name, character=character)
+        if resolved:
+            return resolved["value"]
         return None
     
     def get_specialty_bonus(self):
@@ -474,6 +654,8 @@ class CmdRoll(MuxCommand):
         """Execute the roll command."""
         if not hasattr(self, 'dice_pool'):
             return
+        if getattr(self, "parse_failed", False):
+            return
         
         # Handle extended rolls (multiple rolls to reach target)
         if self.is_extended:
@@ -489,10 +671,13 @@ class CmdRoll(MuxCommand):
         specialty_bonus = 0
         specialty_name = None
         if self.is_specialty:
+            if not self.skill_name:
+                self.caller.msg("Specialty rolls require a skill in the expression.")
+                return
             specialty_bonus, specialty_name = self.get_specialty_bonus()
             if specialty_bonus == 0:
                 self.caller.msg(f"You don't have a specialty in {self.skill_name}.")
-            return
+                return
             
         # Apply modifier and wound penalties
         wound_penalty = 0
@@ -522,9 +707,13 @@ class CmdRoll(MuxCommand):
         stat_value = None
         skill_value = None
         
-        if self.stat_name:
+        if self.stat_value is not None:
+            stat_value = self.stat_value
+        elif self.stat_name:
             stat_value = self.get_stat_value(self.stat_name.lower())
-        if self.skill_name:
+        if self.skill_value is not None:
+            skill_value = self.skill_value
+        elif self.skill_name:
             skill_value = self.get_stat_value(self.skill_name.lower())
         
         # Get character name

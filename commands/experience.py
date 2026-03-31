@@ -883,7 +883,12 @@ class CmdExperience(MuxCommand):
     
     def _spend_on_semantic_power(self, exp_handler, power_type, power_name):
         """Handle spending XP on semantic powers like devotions, discipline_powers, etc."""
-        from world.cofd.power_utilities import handle_semantic_power, check_devotion_prerequisites, get_valid_semantic_powers
+        from world.cofd.power_utilities import (
+            handle_semantic_power,
+            check_devotion_prerequisites,
+            check_tide_contract_prerequisites,
+            get_valid_semantic_powers,
+        )
         from world.cofd.powers.vampire_disciplines import ALL_DEVOTIONS
         from world.cofd.powers.changeling_contracts import ALL_CHANGELING_CONTRACTS
         from world.xp_costs import calculate_xp_cost
@@ -940,6 +945,11 @@ class CmdExperience(MuxCommand):
                 return
 
             contract_data = ALL_CHANGELING_CONTRACTS.get(power_name, {}) or {}
+            meets_prereqs, prereq_msg = check_tide_contract_prerequisites(self.caller, power_name)
+            if not meets_prereqs:
+                self.caller.msg(f"|rCannot purchase {contract_data.get('name', power_name)}:|n {prereq_msg}")
+                return
+
             contract_type = str(contract_data.get("contract_type", "")).lower()
             stat_type = "goblin_contract" if contract_type == "goblin" else "contract"
             xp_cost, _ = calculate_xp_cost(self.caller, stat_type, power_name, 0, 1)
@@ -1379,6 +1389,13 @@ class CmdExperience(MuxCommand):
             if target_dots <= current_dots:
                 self.caller.msg(f"You already have {stat_name.replace('_', ' ').title()} at {current_dots} dots.")
                 return
+
+            # Enforce Tide court contract prerequisites consistently with semantic purchases.
+            from world.cofd.power_utilities import check_tide_contract_prerequisites
+            meets_prereqs, prereq_msg = check_tide_contract_prerequisites(self.caller, stat_name)
+            if not meets_prereqs:
+                self.caller.msg(f"|rCannot purchase {stat_name.replace('_', ' ').title()}:|n {prereq_msg}")
+                return
             
             # Calculate cost (checks if favored)
             cost, xp_type = calculate_xp_cost(self.caller, 'contract', stat_name, current_dots, target_dots)
@@ -1700,8 +1717,7 @@ class CmdExperience(MuxCommand):
         current_merits[merit_name] = {
             "dots": dots,
             "max_dots": merit.max_value,
-            "merit_type": merit.merit_type,
-            "description": merit.description
+            "merit_type": merit.merit_type
         }
         self.caller.db.stats["merits"] = current_merits
         

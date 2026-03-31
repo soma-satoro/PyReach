@@ -32,7 +32,7 @@ changeling_merits = [
         max_value=3,
         description="Your character has learned to embrace his worries and fears, and use them as a shield against the supernatural. Anyone using a supernatural ability to cause damage or inflict physical Tilts upon the character suffers a penalty equal to his dots in this Merit. Supernatural abilities include Contracts, kith blessings, vampire Disciplines, mage spells, and any other innate ability used by a supernatural creature.",
         merit_type="supernatural",
-        prerequisite="autumn_mantle:3"
+        prerequisite="mantle:autumn:3"
     ),
     Merit(
         name="Cold Hearted",
@@ -40,7 +40,7 @@ changeling_merits = [
         max_value=3,
         description="Your character has taken her pain, and the pain of others, and crafted them into a barrier against further suffering. She may spend a Willpower to ignore the effects of a single Clarity Condition once per scene. She still has the Condition and doesn't heal any Clarity damage, but she does not suffer the ill effects of the Condition. If her actions during the scene would resolve the Condition, it resolves normally.",
         merit_type="changeling",
-        prerequisite="winter_mantle:3"
+        prerequisite="mantle:winter:3"
     ),
     Merit(
         name="Court Goodwill",
@@ -136,7 +136,7 @@ changeling_merits = [
         max_value=2,
         description="Your character has the spirit of Summer within him, and channels that wrath into others. Once per scene, when your character goads someone into a fight, he regains a single Willpower point.",
         merit_type="changeling",
-        prerequisite="summer_mantle:3"
+        prerequisite="mantle:summer:3"
     ),
     Merit(
         name="Frightful Incantation",
@@ -176,7 +176,7 @@ changeling_merits = [
         max_value=3,
         description="Your character's connection to the Spring Court makes him sure of himself and his perceptions. Even when he is at his weakest and most vulnerable, the verdant life of Spring protects him. He has an armor rating of 1 against all Clarity attacks that deal mild damage.",
         merit_type="changeling",
-        prerequisite="spring_mantle:3"
+        prerequisite="mantle:spring:3"
     ),
     Merit(
         name="Hedge Brawler",
@@ -352,7 +352,7 @@ changeling_merits = [
         max_value=3,
         description="Whether through active mental discipline or natural stubbornness, your character's dream Bastion is particularly well fortified against intrusion. Each dot in Warded Dreams increases the Bastion's Fortification rating by one.",
         merit_type="changeling",
-        prerequisite="resolve:1"
+        prerequisite="resolve:@dots"
     ),
     Merit(
         name="Workshop",

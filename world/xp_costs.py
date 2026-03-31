@@ -579,9 +579,21 @@ def _calculate_changeling_cost(character, stat_type, stat_name, dots_to_buy):
         contract_type = get_changeling_contract_type(stat_name)
         is_royal = 'royal' in contract_type
         is_goblin = contract_type == 'goblin'
+        is_tide_court = any(
+            contract_type.startswith(prefix)
+            for prefix in ("high_tide", "low_tide", "flood_tide", "ebb_tide")
+        )
         
         if is_goblin:
             return (dots_to_buy * CHANGELING_COSTS['goblin_contract'], 'normal')
+
+        # Tide Court contracts ignore favored regalia discounts.
+        if is_tide_court:
+            if is_royal:
+                cost = CHANGELING_COSTS['royal_contract']
+            else:
+                cost = CHANGELING_COSTS['common_contract']
+            return (dots_to_buy * cost, 'normal')
         
         if is_favored:
             if is_royal:
@@ -773,9 +785,21 @@ def _calculate_mortal_plus_cost(character, stat_type, stat_name, dots_to_buy):
             contract_type = get_changeling_contract_type(stat_name)
             is_royal = 'royal' in contract_type
             is_goblin = contract_type == 'goblin'
+            is_tide_court = any(
+                contract_type.startswith(prefix)
+                for prefix in ("high_tide", "low_tide", "flood_tide", "ebb_tide")
+            )
             
             if is_goblin:
                 return (dots_to_buy * FAE_TOUCHED_COSTS['goblin_contract'], 'normal')
+
+            # Tide Court contracts ignore favored regalia discounts.
+            if is_tide_court:
+                if is_royal:
+                    cost = FAE_TOUCHED_COSTS['royal_contract']
+                else:
+                    cost = FAE_TOUCHED_COSTS['common_contract']
+                return (dots_to_buy * cost, 'normal')
             
             if is_favored:
                 if is_royal:

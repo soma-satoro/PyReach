@@ -709,14 +709,57 @@ class Character(DefaultCharacter):
         if changes_made and caller:
             caller.msg("Fixed misplaced stats: " + ", ".join(changes_made))
     
-    def check_merit_prerequisites(self, prerequisite_string):
+    def _resolve_prerequisite_value(self, raw_required_value, merit_dots=None):
+        """
+        Resolve a prerequisite threshold value.
+
+        Supports:
+            - integer literals: ``2``
+            - dynamic merit-dot references: ``@dots``, ``self``, ``merit_dots``
+            - dynamic offsets: ``@dots+1``, ``@dots-1``
+        """
+        value_str = str(raw_required_value).strip().lower()
+        if not value_str:
+            return None
+
+        if value_str.lstrip("-").isdigit():
+            return int(value_str)
+
+        if merit_dots is None:
+            return None
+
+        if value_str in {"@dots", "self", "merit_dots"}:
+            return merit_dots
+
+        if value_str.startswith("@dots"):
+            offset = value_str[5:].strip()
+            if not offset:
+                return merit_dots
+            if offset[0] in {"+", "-"} and offset[1:].isdigit():
+                return merit_dots + int(offset)
+
+        return None
+    
+    def check_merit_prerequisites(self, prerequisite_string, merit_dots=None):
         """Check if character meets merit prerequisites."""
+        return not self.get_unmet_merit_prerequisites(
+            prerequisite_string, merit_dots=merit_dots
+        )
+    
+    def get_unmet_merit_prerequisites(self, prerequisite_string, merit_dots=None):
+        """
+        Return a list of prerequisite clauses not currently met.
+
+        For bracketed OR clauses, the full bracket expression is returned if no
+        contained option is satisfied.
+        """
         if not prerequisite_string:
-            return True
+            return []
             
         # Parse prerequisite string respecting brackets
         # Format: "attribute:value", "skill:value", "[option1,option2]", "[req1 and req2]"
         prereqs = self._parse_prerequisites(prerequisite_string)
+        unmet = []
         
         for prereq in prereqs:
             prereq = prereq.strip()
@@ -726,16 +769,16 @@ class Character(DefaultCharacter):
                 or_options = prereq[1:-1].split(",")
                 or_met = False
                 for option in or_options:
-                    if self.check_single_merit_prerequisite(option.strip()):
+                    if self.check_single_merit_prerequisite(option.strip(), merit_dots=merit_dots):
                         or_met = True
                         break
                 if not or_met:
-                    return False
+                    unmet.append(prereq)
             else:
-                if not self.check_single_merit_prerequisite(prereq):
-                    return False
+                if not self.check_single_merit_prerequisite(prereq, merit_dots=merit_dots):
+                    unmet.append(prereq)
                     
-        return True
+        return unmet
     
     def _parse_prerequisites(self, prereq_string):
         """Parse prerequisite string, respecting bracket groups."""
@@ -763,8 +806,174 @@ class Character(DefaultCharacter):
             prereqs.append(current.strip())
         
         return prereqs
+    
+    def _get_merit_dots_for_prereq(self, merit_name):
+        """
+        Get the highest dots value for a merit, including instanced variants.
+
+        Supports both direct merit keys (e.g. ``mentor``) and instanced keys
+        (e.g. ``mentor:goblin``) by checking either key-prefix matching or the
+        stored ``base_merit`` metadata on merit entries.
+        """
+        merits = (self.db.stats or {}).get("merits", {})
+        if not isinstance(merits, dict):
+            return 0
+
+        max_dots = merits.get(merit_name, {}).get("dots", 0)
+        prefix = f"{merit_name}:"
+
+        for key, data in merits.items():
+            if not isinstance(data, dict):
+                continue
+
+            base_merit = data.get("base_merit", "")
+            if key.startswith(prefix) or base_merit == merit_name:
+                max_dots = max(max_dots, data.get("dots", 0))
+
+        return max_dots
+    
+    def _normalize_merit_token(self, value):
+        """Normalize merit/instance tokens to stored key format."""
+        return (
+            str(value)
+            .strip()
+            .lower()
+            .replace(" ", "_")
+            .replace("-", "_")
+            .replace("'", "")
+            .replace("(", "")
+            .replace(")", "")
+        )
+    
+    def _get_specific_merit_dots(self, base_merit_name, instance_name=None):
+        """
+        Get dots for a merit prerequisite, optionally requiring a specific instance.
+
+        Examples:
+            - base only: ``mentor`` (any mentor instance can qualify)
+            - specific instance: ``mantle:autumn``
+        """
+        merits = (self.db.stats or {}).get("merits", {})
+        if not isinstance(merits, dict):
+            return 0
+
+        base_merit_name = self._normalize_merit_token(base_merit_name)
+        if not instance_name:
+            return self._get_merit_dots_for_prereq(base_merit_name)
+
+        instance_name = self._normalize_merit_token(instance_name)
+        full_key = f"{base_merit_name}:{instance_name}"
+        max_dots = merits.get(full_key, {}).get("dots", 0)
+
+        for key, data in merits.items():
+            if not isinstance(data, dict):
+                continue
+            base_merit = self._normalize_merit_token(data.get("base_merit", ""))
+            instance = self._normalize_merit_token(data.get("instance", ""))
+            if key == full_key or (base_merit == base_merit_name and instance == instance_name):
+                max_dots = max(max_dots, data.get("dots", 0))
+
+        return max_dots
+    
+    def _check_skill_category_prerequisite(self, category_name, required_value, stats):
+        """
+        Check category-style skill prerequisites (any matching skill can qualify).
+
+        Supported categories:
+            - ``social_skill``
+            - ``physical_skill``
+            - ``mental_skill``
+            - any ``*_skill`` fallback (treated as any skill)
+        """
+        skills = stats.get("skills", {})
+        if not isinstance(skills, dict):
+            return False
+
+        social_skills = {
+            "animal_ken", "empathy", "expression", "intimidation",
+            "persuasion", "socialize", "streetwise", "subterfuge"
+        }
+        physical_skills = {
+            "athletics", "brawl", "drive", "firearms",
+            "larceny", "stealth", "survival", "weaponry"
+        }
+        mental_skills = {
+            "academics", "computer", "crafts", "investigation",
+            "medicine", "occult", "politics", "science"
+        }
+
+        if category_name == "social_skill":
+            skill_pool = social_skills
+        elif category_name == "physical_skill":
+            skill_pool = physical_skills
+        elif category_name == "mental_skill":
+            skill_pool = mental_skills
+        else:
+            # Generic fallback for tokens like chosen_skill/auspice_skill.
+            skill_pool = set(skills.keys())
+
+        return any(skills.get(skill, 0) >= required_value for skill in skill_pool)
+    
+    def _check_attribute_category_prerequisite(self, category_name, required_value, stats):
+        """
+        Check category-style attribute prerequisites (any matching attribute can qualify).
+
+        Supported categories:
+            - ``social_attribute``
+            - ``physical_attribute``
+            - ``mental_attribute``
+            - any ``*_attribute`` fallback (treated as any attribute)
+        """
+        attributes = stats.get("attributes", {})
+        if not isinstance(attributes, dict):
+            return False
+
+        social_attributes = {"presence", "manipulation", "composure"}
+        physical_attributes = {"strength", "dexterity", "stamina"}
+        mental_attributes = {"intelligence", "wits", "resolve"}
+
+        if category_name == "social_attribute":
+            attribute_pool = social_attributes
+        elif category_name == "physical_attribute":
+            attribute_pool = physical_attributes
+        elif category_name == "mental_attribute":
+            attribute_pool = mental_attributes
+        else:
+            # Generic fallback for category-like tokens.
+            attribute_pool = set(attributes.keys())
+
+        return any(attributes.get(attr, 0) >= required_value for attr in attribute_pool)
+    
+    def _count_specialties(self, specialties, skill_name=None):
+        """
+        Count specialties, optionally for a specific skill.
+
+        Specialty storage format is expected to be:
+            specialties = {"brawl": ["Punches", ...], ...}
+        """
+        if not specialties or not hasattr(specialties, "get"):
+            return 0
+
+        def _entry_count(entry):
+            if entry is None:
+                return 0
+            if isinstance(entry, str):
+                return 1 if entry.strip() else 0
+            # Support Evennia saver containers and other sequence-like values.
+            try:
+                return len(entry)
+            except TypeError:
+                return 1 if entry else 0
+
+        if skill_name is None:
+            if not hasattr(specialties, "values"):
+                return 0
+            return sum(_entry_count(entry) for entry in specialties.values())
+
+        normalized_skill = self._normalize_merit_token(skill_name)
+        return _entry_count(specialties.get(normalized_skill, []))
         
-    def check_single_merit_prerequisite(self, prereq):
+    def check_single_merit_prerequisite(self, prereq, merit_dots=None):
         """Check a single merit prerequisite requirement."""
         prereq = prereq.strip()
         stats = self.db.stats or {}
@@ -786,14 +995,79 @@ class Character(DefaultCharacter):
             # If not a known template prerequisite, return False
             return False
             
+        # Handle explicit merit prerequisites with optional instance targeting:
+        # - merit:<base>:<value>
+        # - merit:<base>:<instance>:<value>
+        prereq_parts = [part.strip() for part in prereq.split(":")]
+        if len(prereq_parts) >= 3 and prereq_parts[0].lower() == "merit":
+            merit_base = prereq_parts[1]
+            raw_required = prereq_parts[-1]
+            merit_instance = ":".join(prereq_parts[2:-1]) if len(prereq_parts) > 3 else None
+            required_value = self._resolve_prerequisite_value(raw_required, merit_dots=merit_dots)
+            if required_value is None:
+                return False
+            current_value = self._get_specific_merit_dots(merit_base, merit_instance)
+            return current_value >= required_value
+        
+        # Shorthand instance-aware merit prerequisites (without explicit "merit:" prefix):
+        # - <base>:<instance>:<value>
+        # - <base>:<instance_with_colons>:<value>
+        if len(prereq_parts) >= 3:
+            first_token = prereq_parts[0].lower()
+            non_merit_prefixes = {
+                "template_type", "power", "bio", "attribute", "skill", "specialty"
+            }
+            if first_token not in non_merit_prefixes:
+                merit_base = prereq_parts[0]
+                raw_required = prereq_parts[-1]
+                merit_instance = ":".join(prereq_parts[1:-1])
+                required_value = self._resolve_prerequisite_value(raw_required, merit_dots=merit_dots)
+                if required_value is None:
+                    return False
+                current_value = self._get_specific_merit_dots(merit_base, merit_instance)
+                return current_value >= required_value
+        
         # Handle stat:value prerequisites
         stat_name, required_value = prereq.split(":", 1)
         stat_name = stat_name.strip().lower()
         
-        try:
-            required_value = int(required_value.strip())
-        except ValueError:
+        required_value = self._resolve_prerequisite_value(required_value, merit_dots=merit_dots)
+        if required_value is None:
             return False
+        
+        # Handle specialty prerequisites:
+        # - specialty:1, skill_specialty:1 -> any specialty
+        # - weapon_specialty:1 -> any weapon specialty (brawl, firearms, weaponry)
+        # - brawl_specialty:1, occult_specialty:1 -> specialty in that specific skill
+        if stat_name == "specialty" or stat_name == "skill_specialty":
+            specialties = stats.get("specialties", {})
+            return self._count_specialties(specialties) >= required_value
+        if stat_name == "weapon_specialty":
+            specialties = stats.get("specialties", {})
+            weapon_specialties = (
+                self._count_specialties(specialties, "brawl")
+                + self._count_specialties(specialties, "firearms")
+                + self._count_specialties(specialties, "weaponry")
+            )
+            return weapon_specialties >= required_value
+        if stat_name.endswith("_specialty"):
+            specialties = stats.get("specialties", {})
+            skill_name = stat_name[: -len("_specialty")]
+            return self._count_specialties(specialties, skill_name) >= required_value
+        
+        # Legacy shorthand for Mantle instances (autumn_mantle, etc.)
+        if stat_name.endswith("_mantle"):
+            instance_name = stat_name[: -len("_mantle")]
+            current_value = self._get_specific_merit_dots("mantle", instance_name)
+            return current_value >= required_value
+        
+        # Handle category-style skill prerequisites (social_skill, mental_skill, etc.)
+        if stat_name.endswith("_skill"):
+            return self._check_skill_category_prerequisite(stat_name, required_value, stats)
+        
+        # Handle category-style attribute prerequisites (mental_attribute, etc.)
+        if stat_name.endswith("_attribute"):
+            return self._check_attribute_category_prerequisite(stat_name, required_value, stats)
         
         # Handle generic "skill" prerequisite - check for ANY skill at required level
         if stat_name == "skill":
@@ -810,7 +1084,7 @@ class Character(DefaultCharacter):
             return total_specialties >= required_value
             
         # Check attributes
-        current_value = stats.get("attributes", {}).get(stat_name, 1)
+        current_value = stats.get("attributes", {}).get(stat_name, 0)
         if current_value >= required_value:
             return True
             
@@ -818,9 +1092,14 @@ class Character(DefaultCharacter):
         current_value = stats.get("skills", {}).get(stat_name, 0)
         if current_value >= required_value:
             return True
+        
+        # Check advantages (e.g. wyrd, blood_potency, gnosis, etc.)
+        current_value = stats.get("advantages", {}).get(stat_name, 0)
+        if current_value >= required_value:
+            return True
             
-        # Check merits
-        current_value = stats.get("merits", {}).get(stat_name, {}).get("dots", 0)
+        # Check merits, including instanced merits (e.g. mentor:goblin)
+        current_value = self._get_merit_dots_for_prereq(stat_name)
         if current_value >= required_value:
             return True
             

@@ -60,6 +60,14 @@ class Merit:
     description: str = ""
     merit_type: str = ""  # Merit type (e.g., "physical", "social", "mental", "style", "fighting", "supernatural")
     cost: int = 0  # Cost in experience points
-    prerequisite: str = ""  # Prerequisite (e.g., "strength:2", "brawl:1", "[brawl:1,weaponry:1]", etc.)
+    # Prerequisite shorthand examples:
+    # - "strength:2" (specific stat; can resolve from attributes/skills/advantages)
+    # - "[brawl:1,weaponry:1]" (OR group)
+    # - "social_skill:2" / "mental_attribute:3" (category-any)
+    # - "brawl_specialty:1", "weapon_specialty:1", "specialty:1" (specialties)
+    # - "mentor:2" (base merit; instance counts)
+    # - "mantle:autumn:3" (specific merit instance)
+    # - "resolve:@dots" (dynamic threshold tied to purchased merit dots)
+    prerequisite: str = ""
     
 

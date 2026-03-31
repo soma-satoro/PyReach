@@ -1780,6 +1780,280 @@ ROYAL_CONTRACTS_OF_WINTER = {
     }
 }
 
+# ==================== TIDES COURT CONTRACTS ====================
+
+# Contracts of High Tide
+CONTRACTS_OF_HIGH_TIDE = {
+    "flotsam_and_jetsam": {
+        "name": "Flotsam and Jetsam",
+        "contract_type": "high_tide",
+        "cost": "2 glamour, 1 willpower",
+        "dice_pool": "Manipulation + Survival + Wyrd",
+        "loopholes": "Carry shore-gathered jetsam (driftwood, netting, etc.)",
+        "description": "Loose objects surge toward the changeling in a (Wyrd x 10)-foot radius, duplicating Flooded (-2 to physical dice pools) for everyone else in the area for a scene or until dismissed.",
+        "seeming_benefits": {},
+        "book": "Tides (Homebrew)"
+    },
+    "muddy_the_waters": {
+        "name": "Muddy the Waters",
+        "contract_type": "high_tide",
+        "cost": "1 glamour",
+        "dice_pool": "Manipulation + Subterfuge + Wyrd",
+        "loopholes": "Mark each affected person with mud",
+        "description": "Obscure tracks, scent, and mundane clues; mundane tracking fails and magical tracking contests via Clash of Wills for the scene.",
+        "seeming_benefits": {},
+        "book": "Tides (Homebrew)"
+    },
+    "like_crashing_waves": {
+        "name": "Like Crashing Waves",
+        "contract_type": "high_tide",
+        "cost": "2 glamour",
+        "dice_pool": "Manipulation + Persuasion + Wyrd vs Resolve + Composure",
+        "loopholes": "Changeling is already suffering a Mental (emotional) Condition",
+        "description": "Overwhelm one target with a chosen emotion and matching Condition for the scene; target also takes -2 on unrelated actions (except defensive).",
+        "seeming_benefits": {},
+        "book": "Tides (Homebrew)"
+    }
+}
+
+# Royal Contracts of High Tide
+ROYAL_CONTRACTS_OF_HIGH_TIDE = {
+    "what_the_tide_hath_brought": {
+        "name": "What the Tide Hath Brought",
+        "contract_type": "high_tide_royal",
+        "cost": "1 glamour",
+        "dice_pool": "Wits + Survival + Wyrd",
+        "loopholes": "Waded in high tide within the last hour",
+        "description": "Pull a simple tool from any suitable container for immediate use through the next scene; dramatic failure causes spectacular malfunction.",
+        "seeming_benefits": {},
+        "book": "Tides (Homebrew)"
+    },
+    "soul_rime": {
+        "name": "Soul Rime",
+        "contract_type": "high_tide_royal",
+        "cost": "2 glamour, 1 willpower",
+        "dice_pool": "Manipulation + Empathy + Wyrd vs Stamina + Wyrd",
+        "loopholes": "Hold a handful of ice while invoking",
+        "description": "Extended contested freezing assault; each winning roll applies Extreme Cold. At 10 net successes, victim is frozen in suspended animation until thaw conditions are met.",
+        "seeming_benefits": {},
+        "book": "Tides (Homebrew)"
+    },
+    "song_of_the_abyss": {
+        "name": "Song of the Abyss",
+        "contract_type": "high_tide_royal",
+        "cost": "1+ glamour, 2 willpower",
+        "dice_pool": "Presence + Expression + Wyrd vs Resolve + Composure + Wyrd",
+        "loopholes": "Accept Madness for next 24 hours (waives Glamour cost)",
+        "description": "Sustain a growing psychic song (extended contested) each turn by spending Glamour; radius expands up to (Mantle x 5) yards and cumulative effects escalate from Spooked to Madness and recurring bashing damage.",
+        "seeming_benefits": {},
+        "book": "Tides (Homebrew)"
+    }
+}
+
+# Contracts of Low Tide
+CONTRACTS_OF_LOW_TIDE = {
+    "clearing_the_stream": {
+        "name": "Clearing the Stream",
+        "contract_type": "low_tide",
+        "cost": "1 glamour",
+        "dice_pool": "Wits + Investigation + Wyrd",
+        "loopholes": "Splash clean water on face before activation",
+        "description": "Automatically decipher mundane clues and trails; magical concealment prompts Clash of Wills.",
+        "seeming_benefits": {},
+        "book": "Tides (Homebrew)"
+    },
+    "whispering_winds": {
+        "name": "Whispering Winds",
+        "contract_type": "low_tide",
+        "cost": "1 or 2 glamour, optionally 1 willpower",
+        "dice_pool": "None",
+        "loopholes": "Tell a secret to an enemy since last sunrise/sunset crossing",
+        "description": "Send short wind-carried messages to a subject within (Mantle x 2) kilometers; extra Glamour broadcasts widely, and Willpower adds Mantle to Persuasion-based actions through the message.",
+        "seeming_benefits": {},
+        "book": "Tides (Homebrew)"
+    },
+    "drawing_out_the_tide": {
+        "name": "Drawing Out the Tide",
+        "contract_type": "low_tide",
+        "cost": "2 glamour",
+        "dice_pool": "Manipulation + Persuasion + Wyrd vs Resolve + Composure",
+        "loopholes": "Changeling is already suffering a Mental (emotional) Condition",
+        "description": "Strip emotion from one target, inflicting Withdrawn and -2 on actions involving others (except defensive); effect can persist with failed reflexive resistance.",
+        "seeming_benefits": {},
+        "book": "Tides (Homebrew)"
+    },
+    "troubled_hearts_confession": {
+        "name": "Troubled Heart's Confession",
+        "contract_type": "low_tide",
+        "cost": "1 glamour",
+        "dice_pool": "Wits + Empathy + Mantle vs Composure + Wyrd",
+        "loopholes": "Changeling and subject willingly hold hands",
+        "description": "Learn the subject's greatest current inner trouble; exceptional success also grants Informed toward the subject.",
+        "seeming_benefits": {},
+        "book": "Tides (Homebrew)"
+    }
+}
+
+# Royal Contracts of Low Tide
+ROYAL_CONTRACTS_OF_LOW_TIDE = {
+    "hearths_respite": {
+        "name": "Hearth's Respite",
+        "contract_type": "low_tide_royal",
+        "cost": "1 glamour, 1 willpower",
+        "dice_pool": "Composure + Empathy + Mantle",
+        "loopholes": "Display a visible photo of changeling's mortal family nearby",
+        "description": "Sanctify a home/business for one week: welcomed changelings heal mild Clarity hourly, food/drink grants anti-Clarity/Integrity modifiers, and aggressive rolls lose 10-again.",
+        "seeming_benefits": {},
+        "book": "Tides (Homebrew)"
+    },
+    "charybdis_maw": {
+        "name": "Charybdis' Maw",
+        "contract_type": "low_tide_royal",
+        "cost": "2 glamour",
+        "dice_pool": "Manipulation + Survival + Wyrd",
+        "loopholes": "Create a tiny water vortex in a shaken container first",
+        "description": "Create a line-of-sight whirlpool in a large body of water with radius (Wyrd x 5) yards; victims and vessels must escape ongoing pull or suffer Drowning and vessel damage risks.",
+        "seeming_benefits": {},
+        "book": "Tides (Homebrew)"
+    }
+}
+
+# Contracts of Flood Tide
+CONTRACTS_OF_FLOOD_TIDE = {
+    "nanaues_rending_grasp": {
+        "name": "Nanaue's Rending Grasp",
+        "contract_type": "flood_tide",
+        "cost": "1 glamour",
+        "dice_pool": "Previous attack roll",
+        "loopholes": "Prick yourself and bleed using sea-creature bone or tooth",
+        "description": "After landing a lethal attack, roll to make a second attack; exceptional success also inflicts Cowed.",
+        "seeming_benefits": {},
+        "book": "Tides (Homebrew)"
+    },
+    "brainstorm": {
+        "name": "Brainstorm",
+        "contract_type": "flood_tide",
+        "cost": "1 or 2 glamour",
+        "dice_pool": "None",
+        "loopholes": "Subject is peacefully sleeping",
+        "description": "Grant Inspired or Informed tied to a current topic; for extra Glamour and relevant knowledge, grant both while making the idea feel self-generated.",
+        "seeming_benefits": {},
+        "book": "Tides (Homebrew)"
+    },
+    "safeguarded_supplies": {
+        "name": "Safeguarded Supplies",
+        "contract_type": "flood_tide",
+        "cost": "1 glamour",
+        "dice_pool": "Intelligence + Crafts + Mantle",
+        "loopholes": "Sleep with the item under your pillow the prior night",
+        "description": "One complex item functions normally in the Hedge for a chapter; exceptional success grants +1 Equipment bonus or +1 Durability.",
+        "seeming_benefits": {},
+        "book": "Tides (Homebrew)"
+    },
+    "hadal_sight": {
+        "name": "Hadal Sight",
+        "contract_type": "flood_tide",
+        "cost": "1 glamour",
+        "dice_pool": "Wits + Composure + Wyrd vs Stealth + Supernatural Trait",
+        "loopholes": "Carry a near-dead battery device (e.g., phone at ~10%)",
+        "description": "Gain psychic sonar awareness regardless of light/sound and detect even supernaturally hidden entities; exceptional success adds +2 Initiative for the scene.",
+        "seeming_benefits": {},
+        "book": "Tides (Homebrew)"
+    }
+}
+
+# Royal Contracts of Flood Tide
+ROYAL_CONTRACTS_OF_FLOOD_TIDE = {
+    "mauis_bargain": {
+        "name": "Maui's Bargain",
+        "contract_type": "flood_tide_royal",
+        "cost": "3 glamour",
+        "dice_pool": "Intelligence + Occult + Wyrd vs Resolve + Supernatural Trait",
+        "loopholes": "Meet the target's eyes through their reflection",
+        "description": "For one scene, swap a matching Attribute rating with the target; exceptional success also grants 9-again on the next roll.",
+        "seeming_benefits": {},
+        "book": "Tides (Homebrew)"
+    },
+    "rain_of_terror": {
+        "name": "Rain of Terror",
+        "contract_type": "flood_tide_royal",
+        "cost": "2 glamour, 1 willpower",
+        "dice_pool": "Intelligence + Occult + Mantle vs Composure + Wyrd",
+        "loopholes": "Scatter samples of mimicked weather from highest local point",
+        "description": "Summon a bizarre storm over (Mantle x 2) kilometers via contested extended rolls; victims suffer escalating mental Conditions (and possible Madness variants) while exposed.",
+        "seeming_benefits": {},
+        "book": "Tides (Homebrew)"
+    }
+}
+
+# Contracts of Ebb Tide
+CONTRACTS_OF_EBB_TIDE = {
+    "sea_carries_forth": {
+        "name": "Sea Carries Forth",
+        "contract_type": "ebb_tide",
+        "cost": "1 glamour",
+        "dice_pool": "Stamina + (Academics or Athletics or Socialize) + Wyrd",
+        "loopholes": "Wear abrasive sandpaper jewelry in contact with skin",
+        "description": "Add Wyrd to extended rolls aimed at eroding/breaking targets (physical, mental, or social); exceptional success halves required successes.",
+        "seeming_benefits": {},
+        "book": "Tides (Homebrew)"
+    },
+    "echo_chant": {
+        "name": "Echo-Chant",
+        "contract_type": "ebb_tide",
+        "cost": "1 glamour",
+        "dice_pool": "Presence or Manipulation + Persuasion + Wyrd vs Resolve + Supernatural Trait",
+        "loopholes": "Sing a lyric about something the target wants",
+        "description": "Compel listeners to accept compelling or dubious requests they would not normally accept (but not direct self-harm unless otherwise allowed).",
+        "seeming_benefits": {},
+        "book": "Tides (Homebrew)"
+    },
+    "cloud_gazing": {
+        "name": "Cloud Gazing",
+        "contract_type": "ebb_tide",
+        "cost": "1 glamour",
+        "dice_pool": "Wits + Survival + Mantle",
+        "loopholes": "Draw an eye in window condensation",
+        "description": "Extended divination (5 successes) to ask yes/no questions about next 24 hours; later in the day add Mantle as bonus dice once to support or prevent a foreseen event.",
+        "seeming_benefits": {},
+        "book": "Tides (Homebrew)"
+    },
+    "light_as_a_feather": {
+        "name": "Light as a Feather",
+        "contract_type": "ebb_tide",
+        "cost": "1 or 2 glamour",
+        "dice_pool": "None",
+        "loopholes": "Be outdoors in natural winds",
+        "description": "Reflexively negate all falling damage to the changeling and those touching him; for 2 Glamour, affect up to Mantle visible subjects.",
+        "seeming_benefits": {},
+        "book": "Tides (Homebrew)"
+    }
+}
+
+# Royal Contracts of Ebb Tide
+ROYAL_CONTRACTS_OF_EBB_TIDE = {
+    "koholas_fury": {
+        "name": "Kohola's Fury",
+        "contract_type": "ebb_tide_royal",
+        "cost": "3 glamour",
+        "dice_pool": "Strength + Occult + Wyrd",
+        "loopholes": "Flip over an object at least half your size this scene",
+        "description": "Gain temporary Strength dots equal to Wyrd for your next attack; exceptional success also inflicts Knocked Down.",
+        "seeming_benefits": {},
+        "book": "Tides (Homebrew)"
+    },
+    "calm_the_storm": {
+        "name": "Calm the Storm",
+        "contract_type": "ebb_tide_royal",
+        "cost": "2 glamour, 1 willpower",
+        "dice_pool": "Manipulation + Persuasion + Wyrd vs Composure + Wyrd",
+        "loopholes": "Take time to calm yourself with successful Resolve + Composure roll",
+        "description": "Dispel storms by Wyrd scale or calm crowds up to (Wyrd x 5), removing negative emotional Conditions from affected targets.",
+        "seeming_benefits": {},
+        "book": "Tides (Homebrew)"
+    }
+}
+
 # ==================== INDEPENDENT CONTRACTS ====================
 
 # Common Independent Contracts
@@ -2140,6 +2414,30 @@ ALL_WINTER_CONTRACTS = {
     **ROYAL_CONTRACTS_OF_WINTER
 }
 
+# High Tide Contracts
+ALL_HIGH_TIDE_CONTRACTS = {
+    **CONTRACTS_OF_HIGH_TIDE,
+    **ROYAL_CONTRACTS_OF_HIGH_TIDE
+}
+
+# Low Tide Contracts
+ALL_LOW_TIDE_CONTRACTS = {
+    **CONTRACTS_OF_LOW_TIDE,
+    **ROYAL_CONTRACTS_OF_LOW_TIDE
+}
+
+# Flood Tide Contracts
+ALL_FLOOD_TIDE_CONTRACTS = {
+    **CONTRACTS_OF_FLOOD_TIDE,
+    **ROYAL_CONTRACTS_OF_FLOOD_TIDE
+}
+
+# Ebb Tide Contracts
+ALL_EBB_TIDE_CONTRACTS = {
+    **CONTRACTS_OF_EBB_TIDE,
+    **ROYAL_CONTRACTS_OF_EBB_TIDE
+}
+
 # Independent Contracts
 ALL_INDEPENDENT_CONTRACTS = {
     **COMMON_INDEPENDENT_CONTRACTS,
@@ -2167,6 +2465,10 @@ ALL_CHANGELING_CONTRACTS = {
     **ALL_SUMMER_CONTRACTS,
     **ALL_AUTUMN_CONTRACTS,
     **ALL_WINTER_CONTRACTS,
+    **ALL_HIGH_TIDE_CONTRACTS,
+    **ALL_LOW_TIDE_CONTRACTS,
+    **ALL_FLOOD_TIDE_CONTRACTS,
+    **ALL_EBB_TIDE_CONTRACTS,
     **ALL_INDEPENDENT_CONTRACTS,
     **ALL_THORN_CONTRACTS,
     **GOBLIN_CONTRACTS
@@ -2204,6 +2506,10 @@ def get_contracts_by_category(category):
         'summer': ALL_SUMMER_CONTRACTS,
         'autumn': ALL_AUTUMN_CONTRACTS,
         'winter': ALL_WINTER_CONTRACTS,
+        'high_tide': ALL_HIGH_TIDE_CONTRACTS,
+        'low_tide': ALL_LOW_TIDE_CONTRACTS,
+        'flood_tide': ALL_FLOOD_TIDE_CONTRACTS,
+        'ebb_tide': ALL_EBB_TIDE_CONTRACTS,
         'independent': ALL_INDEPENDENT_CONTRACTS,
         'thorn': ALL_THORN_CONTRACTS,
         'goblin': GOBLIN_CONTRACTS
