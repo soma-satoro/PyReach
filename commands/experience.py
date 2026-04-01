@@ -650,6 +650,18 @@ class CmdExperience(MuxCommand):
         elif instance or self._is_merit(stat_name):
             stat_type = 'merit'
             stat_category = 'merits'
+            if stat_name == "defensive_combat":
+                normalized_instance = (
+                    str(instance).strip().lower().replace(" ", "_").replace("-", "_")
+                    if instance else ""
+                )
+                if normalized_instance not in {"brawl", "weaponry"}:
+                    self.caller.msg(
+                        "|rDefensive Combat must be purchased as an instance: "
+                        "|wdefensive_combat:brawl|r or |wdefensive_combat:weaponry|r.|n"
+                    )
+                    return
+                instance = normalized_instance
             merit_key = f"{stat_name}:{instance}" if instance else stat_name
             current_dots = stats.get("merits", {}).get(merit_key, {}).get("dots", 0) if isinstance(stats.get("merits", {}).get(merit_key), dict) else 0
             max_dots = 5  # Will be validated against merit definition
@@ -699,6 +711,8 @@ class CmdExperience(MuxCommand):
             if merit_key not in stats[stat_category]:
                 stats[stat_category][merit_key] = {}
             stats[stat_category][merit_key]["dots"] = target_dots
+            stats[stat_category][merit_key]["base_merit"] = stat_name
+            stats[stat_category][merit_key]["instance"] = instance
         else:
             stats[stat_category][stat_name] = target_dots
         
@@ -994,6 +1008,10 @@ class CmdExperience(MuxCommand):
         
         self.caller.msg(f"|gSpent {xp_cost} XP to learn {display_name} ({power_type.replace('_', ' ').title()}).|n")
         self.caller.msg(f"Remaining experience: {exp_handler.experience}")
+        self._maybe_show_chrysalis_selection_guard(
+            contract_key=power_name if power_type == "contract" else "",
+            extra_forms_note=False,
+        )
 
     def _spend_on_contract_benefit(self, exp_handler, stat_input, value_str):
         """
@@ -1102,6 +1120,37 @@ class CmdExperience(MuxCommand):
             f"{contract_key.replace('_', ' ').title()}.|n"
         )
         self.caller.msg(f"Remaining experience: {exp_handler.experience}")
+        if contract_key == "chrysalis" and seeming_key == "beast":
+            self._maybe_show_chrysalis_selection_guard(
+                contract_key="chrysalis",
+                extra_forms_note=True,
+            )
+
+    def _maybe_show_chrysalis_selection_guard(self, contract_key="", extra_forms_note=False):
+        """Remind players to select Chrysalis forms when none are chosen yet."""
+        normalized_contract = str(contract_key or "").strip().lower().replace(" ", "_").replace("-", "_")
+        if normalized_contract != "chrysalis":
+            return
+
+        stats = self.caller.db.stats or {}
+        powers = (stats.get("powers", {}) or {})
+        if powers.get("contract:chrysalis") != "known":
+            return
+
+        selected_forms = getattr(self.caller.db, "chrysalis_forms", None) or []
+        if selected_forms:
+            return
+
+        self.caller.msg(
+            "|yChrysalis reminder: You know Chrysalis but have no animal forms selected yet.|n"
+        )
+        self.caller.msg(
+            "|yUse |w+shift/chrysalis <animal>|y to pick your permanent forms before shifting.|n"
+        )
+        if extra_forms_note:
+            self.caller.msg(
+                "|yBeast seeming benefit applied: you can now choose |w2 additional|y Chrysalis forms.|n"
+            )
     
     def _spend_on_template_stat(self, exp_handler, stat_name, target_dots, instance=None):
         """Handle spending XP on template-specific stats."""

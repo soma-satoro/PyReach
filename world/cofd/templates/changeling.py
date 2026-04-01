@@ -4,6 +4,7 @@ Changeling: The Lost template with Seeming, Court, and Kith validations.
 """
 
 from . import register_template
+from world.cofd.powers.changeling_contracts import get_all_contracts
 
 # Valid seemings for Changeling characters
 CHANGELING_SEEMINGS = [
@@ -58,77 +59,9 @@ CHANGELING_ENTITLEMENTS = [
     "Baron of the Lesser Ones", "Dauphines of Wayward Children", "Master of Keys", "Modiste of Elfhame", "Thorn Dancer", "Sibylline Fishers", "Spiderborn Riders"
 ]
 
-# Valid changeling contracts (2nd Edition) - Individual contract powers
-CHANGELING_CONTRACTS = [
-    # Crown Contracts
-    "hostile_takeover", "mask_of_superiority", "paralyzing_presence", "summon_the_loyal_servant", "tumult",
-    # Royal Crown Contracts
-    "discreet_summons", "masterminds_gambit", "pipes_of_the_beastcaller", "the_royal_court", "spinning_wheel",
-    # Jewels Contracts
-    "blessing_of_perfection", "changing_fortunes", "light_shy", "murkblur", "trivial_reworking",
-    # Royal Jewels Contracts
-    "changeling_hours", "dance_of_the_toys", "hidden_reality", "stealing_the_solid_reflection", "tatterdemalions_workshop",
-    # Mirror Contracts
-    "glimpse_of_a_distant_mirror", "know_the_competition", "portents_and_visions", "read_lucidity", "walls_have_ears",
-    # Royal Mirror Contracts
-    "props_and_scenery", "reflections_of_the_past", "riddle_kith", "skinmask", "unravel_the_tapestry",
-    # Shield Contracts
-    "cloak_of_night", "fae_cunning", "shared_burden", "thorns_and_brambles", "trapdoor_spiders_trick",
-    # Royal Shield Contracts
-    "fortifying_presence", "hedgewall", "pure_clarity", "vow_of_no_compromise", "whispers_of_morning",
-    # Steed Contracts
-    "boon_of_the_scuttling_spider", "dreamsteps", "nevertread", "pathfinder", "seven_league_leap",
-    # Royal Steed Contracts
-    "chrysalis", "flickering_hours", "leaping_toward_nightfall", "mirror_walk", "talon_and_wing",
-    # Sword Contracts
-    "elemental_weapon", "might_of_the_terrible_brute", "overpowering_dread", "primal_glory", "touch_of_wrath",
-    # Royal Sword Contracts
-    "elemental_fury", "oathbreakers_punishment", "red_revenge", "relentless_pursuit", "thief_of_reason",
-    # Chalice Contracts
-    "filling_the_cup", "frail_as_the_dying_word", "sleeps_sweet_embrace", "curses_cure", "dreamers_phalanx",
-    # Royal Chalice Contracts
-    "closing_deaths_door", "feast_of_plenty", "still_waters_run_deep", "poison_the_well", "shared_cup",
-    # Coin Contracts
-    "book_of_black_and_red", "give_and_take", "beggar_knight", "coin_mark", "grease_the_wheels",
-    # Royal Coin Contracts
-    "blood_debt", "exchange_of_gilded_contracts", "golden_promise", "grand_revel_of_the_harvest", "thirty_pieces",
-    # Scepter Contracts
-    "burning_ambition", "jealous_vengeance", "litany_of_rivals", "knights_oath", "unmask_the_dark_horse",
-    # Royal Scepter Contracts
-    "a_benevolent_hand", "fake_it_til_you_make_it", "tempters_quest", "curse_of_hidden_strings", "spare_not_the_rod",
-    # Stars Contracts
-    "pole_star", "straight_on_til_morning", "cynosure", "shooting_star", "retrograde",
-    # Royal Stars Contracts
-    "frozen_star", "star_light_star_bright", "light_of_ancient_stars", "pinch_of_stardust",
-    # Thorn Contracts
-    "briars_herald", "by_the_pricking_of_my_thumbs", "thistles_rebuke", "the_gouging_curse", "embrace_of_nettles",
-    # Royal Thorn Contracts
-    "acanthas_fury", "awaken_portal", "crown_of_thorns", "shrikes_larder", "witchs_brambles",
-    # Spring Contracts
-    "cupids_arrow", "dreams_of_the_earth", "gift_of_warm_breath", "springs_kiss", "wyrd_faced_stranger",
-    # Royal Spring Contracts
-    "blessing_of_spring", "gift_of_warm_blood", "pandoras_gift", "prince_of_ivy", "waking_the_inner_fae",
-    # Summer Contracts
-    "baleful_sense", "child_of_the_hearth", "helios_light", "high_summers_zeal", "vigilance_of_ares",
-    # Royal Summer Contracts
-    "fiery_tongue", "flames_of_summer", "helios_judgment", "solstice_revelation", "sunburnt_heart",
-    # Autumn Contracts
-    "autumns_fury", "last_harvest", "tale_of_the_baba_yaga", "twilights_harbinger", "witches_intuition",
-    # Royal Autumn Contracts
-    "famines_bulwark", "mien_of_the_baba_yaga", "riding_the_falling_leaves", "sorcerers_rebuke", "tasting_the_harvest",
-    # Winter Contracts
-    "the_dragon_knows", "heart_of_ice", "ice_queens_call", "slipknot_dreams", "touch_of_winter",
-    # Royal Winter Contracts
-    "ermines_winter_coat", "fallow_fields", "field_of_regret", "mantle_of_frost", "winters_curse",
-    # Retaliation Contracts
-    "peacemakers_draw", "draw_likeness",
-    # Goblin Contracts
-    "blessing_of_forgetfulness", "distill_the_hidden", "glib_tongue", "goblins_eye", "goblins_luck",
-    "huntsmans_clarion", "lost_visage", "mantle_mask", "sight_of_truth_and_lies", "uncanny", "wayward_guide", "wyrd_debt",
-    # Independent Arcadian Contracts
-    "coming_darkness", "pomp_and_circumstance", "shadow_puppet", "steal_influence", "earths_gentle_movements",
-    "dread_companion", "cracked_mirror", "listen_with_winds_ears", "momentary_respite", "earths_impenetrable_walls"
-]
+# Valid changeling contracts (2e + project homebrew extensions).
+# Keep this synced automatically with the authoritative contracts registry.
+CHANGELING_CONTRACTS = sorted(get_all_contracts().keys())
 
 # Changeling template definition
 CHANGELING_TEMPLATE = {

@@ -5,6 +5,8 @@ from world.utils.health_utils import (
 )
 from world.utils.permission_utils import check_builder_permission
 from utils.search_helpers import search_character
+from world.cofd.kith_utils import has_kith
+from world.cofd.clarity_utils import add_clarity_damage
 
 class CmdHealth(MuxCommand):
     """
@@ -16,7 +18,7 @@ class CmdHealth(MuxCommand):
         +health/hurt <amount> [type] - Take damage (bashing/lethal/aggravated)
         +health/hurt <character>=<amount> [type] - Apply damage to character (staff only)
         +health/heal <amount> [type] - Heal damage 
-        +health/heal <character>=<amount> [type] - Heal character's damage (staff only)
+        +health/heal <character>=<amount> [type] - Heal character's damage (staff, or Playmate same-room blessing)
         +health/set <health_level> <type> - Set specific health box (staff only)
         +health/clear - Clear all damage 
         +health/clear <character> - Clear character's damage (staff only)
@@ -39,6 +41,12 @@ class CmdHealth(MuxCommand):
         
     Note: More severe damage pushes less severe damage to the right.
     Aggravated > Lethal > Bashing. Healing happens from right to left.
+
+    Kith Blessing:
+        Playmate Changelings may use +health/heal <character>=<amount> [type]
+        on non-staff accounts, but only if the target is in the same room.
+        Healing another character this way inflicts matching Clarity damage:
+        bashing healed -> mild Clarity, lethal healed -> severe Clarity.
     """
     
     key = "+health"
@@ -300,9 +308,10 @@ class CmdHealth(MuxCommand):
                 return
             
             # Check for staff targeting another character (format: <char>=<amount> [type])
+            playmate_healing_other = False
             if "=" in self.args:
-                if not is_staff:
-                    self.caller.msg("|rOnly staff can heal other characters.|n")
+                if not is_staff and not has_kith(self.caller, "playmate"):
+                    self.caller.msg("|rOnly staff can heal other characters (Playmate kith may use this blessing).|n")
                     return
                 
                 parts = self.args.split("=", 1)
@@ -312,6 +321,11 @@ class CmdHealth(MuxCommand):
                 target = search_character(self.caller, target_name)
                 if not target:
                     return
+                if target != self.caller and not is_staff:
+                    if target.location != self.caller.location:
+                        self.caller.msg("|rPlaymate blessing requires the target to be in the same room.|n")
+                        return
+                    playmate_healing_other = True
             else:
                 remaining_args = self.args
             
@@ -353,6 +367,21 @@ class CmdHealth(MuxCommand):
                 self.caller.msg(f"Health: {display}")
             else:
                 self.caller.msg(f"{target.name}'s Health: {display}")
+
+            # Playmate blessing: heal others and take matching Clarity damage.
+            if playmate_healing_other and healed > 0:
+                if damage_type == "bashing":
+                    _, clarity_msg, _ = add_clarity_damage(self.caller, "mild", healed)
+                    self.caller.msg(
+                        f"|mPlaymate Blessing: You absorb {healed} mild Clarity damage for healing {target.name}.|n"
+                    )
+                    self.caller.msg(clarity_msg)
+                elif damage_type == "lethal":
+                    _, clarity_msg, _ = add_clarity_damage(self.caller, "severe", healed)
+                    self.caller.msg(
+                        f"|mPlaymate Blessing: You absorb {healed} severe Clarity damage for healing {target.name}.|n"
+                    )
+                    self.caller.msg(clarity_msg)
         
         elif "set" in self.switches:
             # Staff only

@@ -1068,6 +1068,11 @@ class CmdStat(MuxCommand):
                     value_normalized = str(value).lower().replace(' ', '_')
                     value = tribe_aliases.get(value_normalized, value_normalized)
                 
+                # Special handling for changeling courts - accept spaces/hyphens
+                # and normalize to template valid_values format (underscores).
+                if stat == "court" and character_template.lower() in ["changeling", "legacy_changeling"]:
+                    value = str(value).lower().replace(' ', '_').replace('-', '_')
+                
                 # Validate field value if it has restrictions
                 is_valid, error_msg = target.validate_template_field(stat, str(value))
                 if not is_valid:
@@ -1434,7 +1439,8 @@ class CmdStat(MuxCommand):
         # Other stats (including template-specific stats)
         elif stat in ["integrity", "size", "beats", "experience", "loyalty", "conviction", "acclimation", "tier", 
                      "ab", "ba", "ka", "ren", "sheut", "memory", "sekhem", "pilgrimage", "pyros", "ephemera",
-                     "curse", "method", "investment", "invested_pillars", "promise", "promise_type", "glamour"]:
+                     "curse", "method", "investment", "invested_pillars", "promise", "promise_type", "glamour",
+                     "swarm_size"]:
             if stat in ["integrity", "size"] and isinstance(value, int):
                 if stat == "integrity" and not 0 <= value <= 10:
                     self.caller.msg("Integrity must be between 0 and 10.")
@@ -1515,6 +1521,15 @@ class CmdStat(MuxCommand):
                 template = target.db.stats.get("other", {}).get("template", "Mortal")
                 if template.lower() != "promethean":
                     self.caller.msg("Pilgrimage can only be set for Promethean characters.")
+                    return
+            elif stat == "swarm_size" and isinstance(value, int):
+                template = target.db.stats.get("other", {}).get("template", "Mortal").lower()
+                kith = target.db.stats.get("bio", {}).get("kith", "").lower().replace(" ", "_")
+                if template != "changeling" or kith != "swarmflight":
+                    self.caller.msg("Swarm Size can only be set for Changeling characters with the Swarmflight kith.")
+                    return
+                if value not in (0, 1):
+                    self.caller.msg("Swarm Size must be 0 or 1.")
                     return
                 if not 1 <= value <= 10:
                     self.caller.msg("Pilgrimage must be between 1 and 10.")
@@ -2473,6 +2488,26 @@ class CmdStat(MuxCommand):
                 if category not in category_order and category_merits:
                     category_merits = sorted(category_merits)
                     output.append(f"  |c{category.title()}:|n " + ", ".join(category_merits))
+
+            # Ghostheart chargen tracking: first 3 Retainers dots are free.
+            template = other.get("template", "").lower()
+            kith = target.db.stats.get("bio", {}).get("kith", "").lower().replace(" ", "_")
+            if template == "changeling" and kith == "ghostheart":
+                retainers_dots = 0
+                for merit_name, merit_data in merits.items():
+                    merit_key = str(merit_name).lower().replace(" ", "_")
+                    base_merit = ""
+                    if isinstance(merit_data, dict):
+                        base_merit = str(merit_data.get("base_merit", "")).lower().replace(" ", "_")
+                    if merit_key == "retainers" or merit_key.startswith("retainers:") or base_merit == "retainers":
+                        if isinstance(merit_data, dict):
+                            retainers_dots += int(merit_data.get("dots", 0) or 0)
+                        else:
+                            retainers_dots += int(merit_data or 0)
+                if retainers_dots > 0:
+                    free_dots = min(3, retainers_dots)
+                    paid_dots = max(0, retainers_dots - free_dots)
+                    output.append(f"  |xGhostheart Retainers:|n {retainers_dots} total ({free_dots} free, {paid_dots} paid)")
             
             output.append("")
         
@@ -3055,8 +3090,32 @@ class CmdStat(MuxCommand):
             self.caller.msg(message)
         else:
             self.caller.msg(message)
+            self._maybe_show_chrysalis_selection_guard(target, power_type, power_name)
         
         return success
+
+    def _maybe_show_chrysalis_selection_guard(self, target, power_type, power_name):
+        """Show a reminder when Chrysalis is known but forms are not selected."""
+        power_type_key = str(power_type or "").strip().lower().replace(" ", "_").replace("-", "_")
+        power_name_key = str(power_name or "").strip().lower().replace(" ", "_").replace("-", "_")
+        if power_type_key != "contract" or power_name_key != "chrysalis":
+            return
+
+        stats = target.db.stats or {}
+        powers = (stats.get("powers", {}) or {})
+        if powers.get("contract:chrysalis") != "known":
+            return
+
+        selected_forms = getattr(target.db, "chrysalis_forms", None) or []
+        if selected_forms:
+            return
+
+        self.caller.msg(
+            "|yChrysalis reminder: You know Chrysalis but have no animal forms selected yet.|n"
+        )
+        self.caller.msg(
+            "|yUse |w+shift/chrysalis <animal>|y to pick your permanent forms before shifting.|n"
+        )
 
 class CmdRecalc(MuxCommand):
     """

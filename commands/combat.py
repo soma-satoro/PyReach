@@ -3,16 +3,82 @@ Chronicles of Darkness Combat Commands - Refactored Version
 """
 
 from evennia.commands.default.muxcommand import MuxCommand
-from evennia.utils import evtable
 # from .combat_core import CombatTracker, WeaponData  # Disabled - module doesn't exist
 from .base import BasePyReachCommand, BuilderMixin
-from world.utils.permission_utils import check_builder_permission, require_approved_character
+from world.utils.permission_utils import check_staff_permission, require_approved_character
+from world.utils.formatting import footer, section_header, get_theme_colors
+from world.utils.ansi_utils import wrap_ansi
 
 # Combat system implementation
 from world.utils.dice_utils import roll_dice, RollType
 from world.equipment_database import WEAPON_DATABASE as WEAPON_DATA, WeaponData, ArmorData
 import secrets
 from utils.search_helpers import search_character
+from world.cofd.kith_utils import has_kith
+
+
+def _format_combat_status_display(combat):
+    """Build a formatted combat status display string."""
+    if not combat.participants:
+        return "No active combat in this location."
+
+    entries = []
+    for char in combat.initiative_order:
+        data = combat.participants[char]
+        status_parts = []
+
+        if data.get('prone'):
+            status_parts.append("Prone")
+        if data.get('in_cover'):
+            status_parts.append(f"Cover {data['cover_rating']}")
+        if data.get('grappling_with'):
+            partner = data['grappling_with']
+            if data.get('grapple_controller'):
+                status_parts.append(f"|gGrappling {partner.name} (Controller)|n")
+            else:
+                status_parts.append(f"|rGrappling {partner.name}|n")
+
+        grapple_actions = data.get('grapple_actions', {})
+        if grapple_actions.get('control_weapon'):
+            status_parts.append("Weapon Control")
+        if grapple_actions.get('held'):
+            status_parts.append("Held")
+        if grapple_actions.get('restrained'):
+            status_parts.append("Restrained")
+        if grapple_actions.get('taking_cover'):
+            status_parts.append("Human Shield")
+
+        status = ", ".join(status_parts) if status_parts else "Normal"
+        name = char.name
+        if char == combat.current_actor:
+            name = f"|y{name}*|n"
+
+        entries.append({
+            "name": name,
+            "team": f"|c{data['team']}|n" if data.get('team') else "None",
+            "initiative": str(data['initiative']),
+            "status": status,
+            "is_current": char == combat.current_actor,
+        })
+
+    _, text_color, _ = get_theme_colors()
+    output = [
+        footer(78, char="="),
+        f"|{text_color}{'COMBAT STATUS'.center(78)}|n",
+        footer(78, char="="),
+        f"|wRound:|n {combat.round_number}   |wTurn:|n {combat.turn_number}",
+        section_header("Initiative Order", width=78),
+    ]
+
+    for index, entry in enumerate(entries, start=1):
+        marker = "|y>>|n" if entry["is_current"] else "  "
+        output.append(
+            f"{marker} |w{index}.|n {entry['name']}  |wTeam:|n {entry['team']}  |wInit:|n |c{entry['initiative']}|n"
+        )
+        output.append(wrap_ansi(f"Status: {entry['status']}", width=78, left_padding=4))
+
+    output.append(footer(78, char="="))
+    return "\n".join(output)
 
 def search_combat_target(caller, target_name):
     """
@@ -46,6 +112,30 @@ def search_combat_target(caller, target_name):
         return None
     
     return target
+
+
+def _ensure_changeling_glamour(character):
+    """Ensure changeling glamour_current is initialized from Wyrd."""
+    if character.db.glamour_current is not None:
+        return True
+    advantages = (character.db.stats or {}).get("advantages", {}) or {}
+    max_glamour = advantages.get("glamour", 0)
+    if max_glamour <= 0:
+        return False
+    character.db.glamour_current = max_glamour
+    return True
+
+
+def _set_climacteric_target_top(combat, target):
+    """Move target to top of initiative without rolling."""
+    if target not in combat.participants:
+        combat.add_participant(target)
+    highest = max(
+        [data.get("initiative", 0) for data in combat.participants.values()],
+        default=0
+    )
+    combat.participants[target]["initiative"] = highest + 1
+    combat.update_initiative_order()
 
 class CombatTracker:
     """Full combat tracker implementation for Chronicles of Darkness"""
@@ -264,12 +354,29 @@ class CombatTracker:
         if character not in self.participants:
             return 0
             
-        # Base Defense = min(Wits, Dexterity) + Athletics
+        # Base Defense = min(Wits, Dexterity) + best qualifying skill.
+        # Athletics is always valid; Defensive Combat can add Brawl/Weaponry.
         wits = character.db.stats.get("attributes", {}).get("wits", 1)
         dex = character.db.stats.get("attributes", {}).get("dexterity", 1)
         athletics = character.db.stats.get("skills", {}).get("athletics", 0)
-        
-        base_defense = min(wits, dex) + athletics
+        brawl = character.db.stats.get("skills", {}).get("brawl", 0)
+        weaponry = character.db.stats.get("skills", {}).get("weaponry", 0)
+
+        defense_skill = athletics
+        has_dc_brawl = (
+            hasattr(character, "_get_specific_merit_dots")
+            and character._get_specific_merit_dots("defensive_combat", "brawl") >= 1
+        )
+        has_dc_weaponry = (
+            hasattr(character, "_get_specific_merit_dots")
+            and character._get_specific_merit_dots("defensive_combat", "weaponry") >= 1
+        )
+        if has_dc_brawl:
+            defense_skill = max(defense_skill, brawl)
+        if has_dc_weaponry:
+            defense_skill = max(defense_skill, weaponry)
+
+        base_defense = min(wits, dex) + defense_skill
         
         # Apply modifiers
         data = self.participants[character]
@@ -453,6 +560,7 @@ class CmdCombat(BasePyReachCommand, BuilderMixin):
     
     Usage:
         +combat/init [modifier] - Roll initiative
+        +combat/climacteric <character> - Climacteric blessing (top initiative, costs 1 Glamour)
         +combat/status - Show combat status
         +combat/next - Advance to next turn (staff/participants)
         +combat/join [team] - Join combat (optionally specify team number)
@@ -538,6 +646,8 @@ class CmdCombat(BasePyReachCommand, BuilderMixin):
         # Basic combat management
         if switch == "init":
             self.roll_initiative()
+        elif switch == "climacteric":
+            self.climacteric_top()
         elif switch == "status":
             self.show_combat_status()
         elif switch == "join":
@@ -646,6 +756,11 @@ class CmdCombat(BasePyReachCommand, BuilderMixin):
     
     def roll_initiative(self):
         """Roll initiative for combat"""
+        # If already on initiative order, mirror status behavior.
+        if self.caller in self.combat.initiative_order:
+            self.caller.msg(_format_combat_status_display(self.combat))
+            return
+
         modifier = 0
         if self.args:
             try:
@@ -665,57 +780,48 @@ class CmdCombat(BasePyReachCommand, BuilderMixin):
         total_mod = init_attr + modifier
         total_initiative = roll + total_mod
         
-        self.caller.msg(f"Initiative: {total_initiative} ({roll} + {total_mod})")
+        _, text_color, _ = get_theme_colors()
+        output = [
+            footer(78, char="="),
+            f"|{text_color}{'INITIATIVE ROLL'.center(78)}|n",
+            footer(78, char="="),
+            f"|wResult:|n {self.caller.name} enters at |c{total_initiative}|n ({roll} + {total_mod})",
+            footer(78, char="="),
+        ]
+        self.caller.msg("\n".join(output))
+
+    def climacteric_top(self):
+        """Spend Glamour to place another character at top initiative."""
+        if not self.args:
+            self.caller.msg("Usage: +combat/climacteric <character>")
+            return
+        if not has_kith(self.caller, "climacteric"):
+            self.caller.msg("|rOnly the Climacteric kith can use this blessing.|n")
+            return
+        if not _ensure_changeling_glamour(self.caller):
+            self.caller.msg("|rYour Glamour pool is not initialized. Set Wyrd first.|n")
+            return
+        if (self.caller.db.glamour_current or 0) < 1:
+            self.caller.msg("|rYou do not have enough Glamour (need 1).|n")
+            return
+
+        target = search_combat_target(self.caller, self.args.strip())
+        if not target:
+            return
+        if target == self.caller:
+            self.caller.msg("|rClimacteric cannot target herself.|n")
+            return
+
+        self.caller.db.glamour_current -= 1
+        _set_climacteric_target_top(self.combat, target)
+        self.caller.location.msg_contents(
+            f"|m{self.caller.name} twists fate, placing {target.name} at the top of initiative!|n"
+        )
+        self.caller.msg("|gYou spend 1 Glamour for your Climacteric blessing.|n")
         
     def show_combat_status(self):
         """Show current combat status"""
-        if not self.combat.participants:
-            self.caller.msg("No active combat in this location.")
-            return
-            
-        table = evtable.EvTable("Character", "Team", "Initiative", "Status")
-        
-        for char in self.combat.initiative_order:
-            data = self.combat.participants[char]
-            status_parts = []
-            
-            if data.get('prone'):
-                status_parts.append("Prone")
-            if data.get('in_cover'):
-                status_parts.append(f"Cover {data['cover_rating']}")
-            if data.get('grappling_with'):
-                partner = data['grappling_with']
-                if data.get('grapple_controller'):
-                    status_parts.append(f"|gGrappling {partner.name} (Controller)|n")
-                else:
-                    status_parts.append(f"|rGrappling {partner.name}|n")
-            
-            # Add grapple action status
-            grapple_actions = data.get('grapple_actions', {})
-            if grapple_actions.get('control_weapon'):
-                status_parts.append("Weapon Control")
-            if grapple_actions.get('held'):
-                status_parts.append("Held")
-            if grapple_actions.get('restrained'):
-                status_parts.append("Restrained")
-            if grapple_actions.get('taking_cover'):
-                status_parts.append("Human Shield")
-                
-            status = ", ".join(status_parts) if status_parts else "Normal"
-            
-            name = char.name
-            if char == self.combat.current_actor:
-                name = f"|y{name}*|n"
-                
-            team = data['team']
-            team_display = f"|c{team}|n" if team else "None"
-                
-            table.add_row(name, team_display, data['initiative'], status)
-            
-        output = [f"Combat Status - Round {self.combat.round_number}, Turn {self.combat.turn_number}"]
-        output.append(str(table))
-        
-        self.caller.msg("\n".join(output))
+        self.caller.msg(_format_combat_status_display(self.combat))
         
     def join_combat(self):
         """Join combat"""
@@ -737,11 +843,18 @@ class CmdCombat(BasePyReachCommand, BuilderMixin):
         self.caller.msg("You leave combat.")
         
     def advance_turn(self):
-        """Advance to next turn (staff or participants only)"""
-        # Check if caller is in combat or is staff
-        if self.caller not in self.combat.participants:
-            if not self.check_builder_access():
-                self.caller.msg("You must be in combat or have builder access to advance turns.")
+        """Advance to next turn (current actor, or staff override)."""
+        if not self.combat.initiative_order:
+            self.caller.msg("No active initiative order in this location.")
+            return
+
+        # Staff can always force-advance turns.
+        if not check_staff_permission(self.caller):
+            if self.caller not in self.combat.participants:
+                self.caller.msg("You must be in combat to advance turns.")
+                return
+            if self.combat.current_actor != self.caller:
+                self.caller.msg("Only the current actor can advance the turn.")
                 return
         
         self.combat.advance_turn()
@@ -755,18 +868,20 @@ class CmdCombat(BasePyReachCommand, BuilderMixin):
         
     def show_help(self):
         """Show combat help"""
+        _, text_color, _ = get_theme_colors()
         output = [
-            "|cChronicles of Darkness Combat Commands|n",
-            "",
-            "|yBasic Commands:|n",
+            footer(78, char="="),
+            f"|{text_color}{'CHRONICLES OF DARKNESS COMBAT COMMANDS'.center(78)}|n",
+            footer(78, char="="),
+            section_header("Basic Commands", width=78),
             "+combat/join [team] - Join combat (optionally specify team)",
             "+combat/init [modifier] - Roll initiative", 
+            "+combat/climacteric <character> - Climacteric kith, spend 1 Glamour, target another in room",
             "+combat/status - Show combat status and turn order",
             "+combat/next - Advance to next turn",
             "+combat/leave - Leave combat",
             "+combat/end - End combat (staff only)",
-            "",
-            "|yAttack Commands:|n",
+            section_header("Attack Commands", width=78),
             "+combat/attack <target> [weapon] - Generic attack",
             "+combat/unarmed <target> - Unarmed attack",
             "+combat/melee <target> [weapon] - Melee weapon attack",
@@ -775,8 +890,7 @@ class CmdCombat(BasePyReachCommand, BuilderMixin):
             "+combat/charge <target> [weapon] - Charge attack (move + attack)",
             "+combat/dodge - Dodge (double Defense, use action)",
             "+combat/aim [target] - Aim for bonus dice",
-            "",
-            "|yGrappling Commands:|n",
+            section_header("Grappling Commands", width=78),
             "+combat/grapple <target> - Initiate grapple (Strength + Brawl contest)",
             "+combat/break - Break free from grapple (reflexive)",
             "+combat/control - Control weapons in grapple",
@@ -786,13 +900,13 @@ class CmdCombat(BasePyReachCommand, BuilderMixin):
             "+combat/restrain - Restrain with equipment (requires hold)",
             "+combat/prone - Throw both to ground",
             "+combat/takecover - Use opponent as human shield",
-            "",
-            "|yExample Usage:|n",
+            section_header("Example Usage", width=78),
             "+combat/join 1 - Join team 1",
             "+combat/init 2 - Roll initiative with +2 modifier",
             "+combat/attack John sword - Attack John with a sword",
             "+combat/grapple Jane - Attempt to grapple Jane",
             "+combat/status - Check who's turn it is",
+            footer(78, char="="),
         ]
         
         self.caller.msg("\n".join(output))
@@ -1894,19 +2008,21 @@ class CmdCombatHelp(BasePyReachCommand):
     
     def func(self):
         """Execute the command"""
+        _, text_color, _ = get_theme_colors()
         output = [
-            "|cChronicles of Darkness Combat Quick Reference|n",
-            "",
-            "|yBasic Combat Flow:|n",
+            footer(78, char="="),
+            f"|{text_color}{'CHRONICLES OF DARKNESS COMBAT QUICK REFERENCE'.center(78)}|n",
+            footer(78, char="="),
+            section_header("Basic Combat Flow", width=78),
             "1. Join combat: +combat/join [team]",
             "2. Roll initiative: +combat/init",
             "3. Take actions on your turn",
-            "",
-            "|yCommon Commands:|n",
+            section_header("Common Commands", width=78),
             "+combat/status - Show combat status",
             "+combat/join - Join combat",
             "+combat/leave - Leave combat",
-            "+combat/end - End combat (staff only)"
+            "+combat/end - End combat (staff only)",
+            footer(78, char="="),
         ]
         
         self.caller.msg("\n".join(output))
@@ -1924,7 +2040,13 @@ class CmdWeapons(BasePyReachCommand):
         """Execute the command"""
         from world.equipment_database import WEAPON_DATABASE, WEAPON_TAG_DESCRIPTIONS
         
-        output = ["|cAvailable Weapons (Chronicles of Darkness: Hurt Locker)|n"]
+        _, text_color, _ = get_theme_colors()
+        output = [
+            footer(78, char="="),
+            f"|{text_color}{'AVAILABLE WEAPONS'.center(78)}|n",
+            footer(78, char="="),
+            wrap_ansi("|xChronicles of Darkness: Hurt Locker reference list.|n", width=78)
+        ]
         
         # Categorize weapons
         categories = {
@@ -1972,14 +2094,15 @@ class CmdWeapons(BasePyReachCommand):
         # Display categories
         for category, weapons in categories.items():
             if weapons:
-                output.append(f"\n|g{category}:|n")
+                output.append(section_header(category, width=78))
                 for weapon in sorted(weapons):
                     output.append(f"  {weapon}")
         
-        output.append(f"\n|yUsage:|n")
+        output.append(section_header("Usage", width=78))
         output.append("  +combat/wield <weapon> - Ready weapon for combat")
         output.append("  +combat/attack <target> <weapon> - Attack with specific weapon")
         output.append("  +equipment/add <weapon_name> weapon - Add weapon to inventory")
+        output.append(footer(78, char="="))
         
         self.caller.msg("\n".join(output))
 
@@ -2001,7 +2124,12 @@ class CmdEquippedGear(BasePyReachCommand):
             if not target:
                 return
             
-        output = [f"Equipped gear for {target.name}:"]
+        _, text_color, _ = get_theme_colors()
+        output = [
+            footer(78, char="="),
+            f"|{text_color}{f'EQUIPPED GEAR - {target.name}'.center(78)}|n",
+            footer(78, char="="),
+        ]
         
         # Show wielded weapon
         wielded_weapon = target.db.wielded_weapon
@@ -2016,5 +2144,172 @@ class CmdEquippedGear(BasePyReachCommand):
             output.append(f"Armor: {worn_armor}")
         else:
             output.append("Armor: None")
+        output.append(footer(78, char="="))
             
         self.caller.msg("\n".join(output))
+
+
+class CmdInitiative(BasePyReachCommand):
+    """
+    Quick initiative command.
+
+    Usage:
+        initiative
+        init
+        init/team <character>
+        init/turn
+        init/climacteric <character>   (Climacteric kith blessing, costs 1 Glamour)
+
+    If you are not in the initiative order, this rolls initiative and adds you.
+    If you are already in initiative order, this shows combat status.
+    """
+
+    key = "initiative"
+    aliases = ["init"]
+    help_category = "Automated Combat System"
+
+    def func(self):
+        """Execute the initiative shortcut behavior."""
+        if not require_approved_character(self.caller, "initiative"):
+            return
+
+        if not self.caller.location:
+            self.caller.msg("You are nowhere. Initiative cannot be used here.")
+            return
+
+        combat = self._get_or_create_combat()
+
+        if self.switches:
+            switch = self.switches[0].lower()
+            if switch == "team":
+                self._handle_team_switch(combat)
+                return
+            if switch == "turn":
+                self._handle_turn_switch(combat)
+                return
+            if switch == "climacteric":
+                self._handle_climacteric_switch(combat)
+                return
+
+            self.caller.msg("Usage: init, init/team <character>, init/turn, or init/climacteric <character>")
+            return
+
+        # Default behavior: status if already in order, otherwise roll in.
+        if self.caller in combat.initiative_order:
+            self.caller.msg(_format_combat_status_display(combat))
+            return
+
+        self._roll_into_initiative(combat)
+
+    def _get_or_create_combat(self):
+        """Get or create location combat tracker."""
+        if not hasattr(self.caller.location, 'combat_tracker'):
+            self.caller.location.combat_tracker = CombatTracker(self.caller.location)
+        return self.caller.location.combat_tracker
+
+    def _roll_into_initiative(self, combat):
+        """Add caller if needed, then roll and display initiative."""
+        if self.caller not in combat.participants:
+            combat.add_participant(self.caller)
+
+        roll, init_attr = combat.roll_initiative(self.caller)
+        total_initiative = roll + init_attr
+
+        _, text_color, _ = get_theme_colors()
+        output = [
+            footer(78, char="="),
+            f"|{text_color}{'INITIATIVE ROLL'.center(78)}|n",
+            footer(78, char="="),
+            f"|wResult:|n {self.caller.name} enters at |c{total_initiative}|n ({roll} + {init_attr})",
+            footer(78, char="="),
+        ]
+        self.caller.msg("\n".join(output))
+
+    def _handle_team_switch(self, combat):
+        """init/team <character>: join or swap to the target's team, then roll/status."""
+        if not self.args:
+            self.caller.msg("Usage: init/team <character>")
+            return
+
+        target = search_combat_target(self.caller, self.args.strip())
+        if not target:
+            return
+
+        if target not in combat.participants:
+            self.caller.msg(f"{target.name} is not in combat.")
+            return
+
+        target_team = combat.get_team(target)
+        if target_team is None:
+            self.caller.msg(f"{target.name} is not on a combat team.")
+            return
+
+        if self.caller not in combat.participants:
+            combat.add_participant(self.caller, team=target_team)
+        else:
+            current_team = combat.get_team(self.caller)
+            if current_team != target_team:
+                if current_team in combat.teams and self.caller in combat.teams[current_team]:
+                    combat.teams[current_team].remove(self.caller)
+                if target_team not in combat.teams:
+                    combat.teams[target_team] = []
+                if self.caller not in combat.teams[target_team]:
+                    combat.teams[target_team].append(self.caller)
+                combat.participants[self.caller]["team"] = target_team
+                self.caller.location.msg_contents(
+                    f"{self.caller.name} joins team {target_team} with {target.name}."
+                )
+
+        if self.caller in combat.initiative_order:
+            self.caller.msg(_format_combat_status_display(combat))
+            return
+
+        self._roll_into_initiative(combat)
+
+    def _handle_turn_switch(self, combat):
+        """init/turn: advance to the next actor."""
+        if not combat.initiative_order:
+            self.caller.msg("No active initiative order in this location.")
+            return
+
+        # Staff can always force-advance turns.
+        if not check_staff_permission(self.caller):
+            if self.caller not in combat.participants:
+                self.caller.msg("You must be in combat to advance turns.")
+                return
+            if combat.current_actor != self.caller:
+                self.caller.msg("Only the current actor can advance the turn.")
+                return
+
+        combat.advance_turn()
+        self.caller.msg(_format_combat_status_display(combat))
+
+    def _handle_climacteric_switch(self, combat):
+        """init/climacteric <character>: Climacteric blessing top-initiative target."""
+        if not self.args:
+            self.caller.msg("Usage: init/climacteric <character>")
+            return
+        if not has_kith(self.caller, "climacteric"):
+            self.caller.msg("|rOnly the Climacteric kith can use this blessing.|n")
+            return
+        if not _ensure_changeling_glamour(self.caller):
+            self.caller.msg("|rYour Glamour pool is not initialized. Set Wyrd first.|n")
+            return
+        if (self.caller.db.glamour_current or 0) < 1:
+            self.caller.msg("|rYou do not have enough Glamour (need 1).|n")
+            return
+
+        target = search_combat_target(self.caller, self.args.strip())
+        if not target:
+            return
+        if target == self.caller:
+            self.caller.msg("|rClimacteric cannot target yourself.|n")
+            return
+
+        self.caller.db.glamour_current -= 1
+        _set_climacteric_target_top(combat, target)
+        self.caller.location.msg_contents(
+            f"|m{self.caller.name} twists fate, placing {target.name} at the top of initiative!|n"
+        )
+        self.caller.msg("|gYou spend 1 Glamour for your Climacteric blessing.|n")
+        self.caller.msg(_format_combat_status_display(combat))

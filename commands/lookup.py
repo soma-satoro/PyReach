@@ -2864,7 +2864,7 @@ class CmdLookup(MuxCommand):
             # Display in 2 columns
             for i in range(0, len(main_cats), 2):
                 row = main_cats[i:i+2]
-                row_text = "  " + ", ".join([f"{cat}" for cat in row])
+                row_text = "  " + ", ".join([cat.replace("_", " ").title() for cat in row])
                 output.append(row_text)
             
             output.append("")
@@ -2885,7 +2885,8 @@ class CmdLookup(MuxCommand):
             return
         
         # Display contracts
-        title = f"|wChangeling Contracts - {filter_arg.title()}|n"
+        category_display = filter_arg.replace("_", " ").replace("-", " ").title()
+        title = f"|wChangeling Contracts - {category_display}|n"
         self.caller.msg(title)
         self.caller.msg("=" * len(title.replace("|w", "").replace("|n", "")))
         
@@ -2921,7 +2922,7 @@ class CmdLookup(MuxCommand):
             
             self.caller.msg(msg)
         
-        self.caller.msg(f"\n|cTotal:|n {len(contracts)} contracts in {filter_arg.title()} category")
+        self.caller.msg(f"\n|cTotal:|n {len(contracts)} contracts in {category_display} category")
         self.caller.msg(f"\n|cNote:|n Set with: |y+stat contract=<name>|n")
     
     def show_geist_keys(self):

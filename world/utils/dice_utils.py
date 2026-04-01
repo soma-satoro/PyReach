@@ -97,7 +97,8 @@ def roll_dice(dice_pool: int, difficulty: int = 8, roll_types: Set[RollType] = N
     return all_rolls, successes, ones
 
 def interpret_roll_results(successes: int, ones: int, rolls: List[int] = None, diff: int = 8, 
-                         roll_types: Set[RollType] = None, dice_pool: int = None, modifier: int = 0) -> str:
+                         roll_types: Set[RollType] = None, dice_pool: int = None, modifier: int = 0,
+                         exceptional_threshold: int = 5) -> str:
     """
     Interpret the results of a dice roll for Chronicles of Darkness.
     
@@ -148,7 +149,7 @@ def interpret_roll_results(successes: int, ones: int, rolls: List[int] = None, d
     # Add Success/Successes text - dramatic failure only on chance dice
     if successes == 0 and ones >= 1 and dice_pool is not None and dice_pool + modifier <= 0:
         msg += f"|r Dramatic Failure!|n"
-    elif successes >= 5:
+    elif successes >= exceptional_threshold:
         msg += f"|g Exceptional Success!|n"
     elif successes > 0:
         msg += " Success"
@@ -184,7 +185,8 @@ def roll_to_job_display(successes: int, ones: int, rolls: List[int], dice_pool: 
                        roll_types: Set[RollType], modifier: int = 0, 
                        stat_name: str = None, skill_name: str = None, 
                        stat_value: int = None, skill_value: int = None,
-                       character_name: str = None, wound_penalty: int = 0) -> str:
+                       character_name: str = None, wound_penalty: int = 0,
+                       exceptional_threshold: int = 5) -> str:
     """
     Create a single-line formatted dice roll display.
     
@@ -257,7 +259,7 @@ def roll_to_job_display(successes: int, ones: int, rolls: List[int], dice_pool: 
     if successes == 0 and ones >= 1 and final_pool <= 0:
         # Dramatic failure only on chance dice
         result = f"|R{successes} successes (Dramatic Failure)|n"
-    elif successes >= 5:
+    elif successes >= exceptional_threshold:
         result = f"|g{successes} successes (Exceptional Success)|n"
     elif successes > 0:
         result = f"|g{successes} successes|n"
@@ -271,7 +273,8 @@ def roll_to_job_display(successes: int, ones: int, rolls: List[int], dice_pool: 
 def roll_to_room_display(successes: int, ones: int, dice_pool: int, 
                         roll_types: Set[RollType], modifier: int = 0, 
                         stat_name: str = None, skill_name: str = None,
-                        character_name: str = None, wound_penalty: int = 0) -> str:
+                        character_name: str = None, wound_penalty: int = 0,
+                        exceptional_threshold: int = 5) -> str:
     """
     Create a single-line formatted dice roll display for room observers (without dice details).
     
@@ -328,7 +331,7 @@ def roll_to_room_display(successes: int, ones: int, dice_pool: int,
     if successes == 0 and ones >= 1 and final_pool <= 0:
         # Dramatic failure only on chance dice
         result = f"|R{successes} successes (Dramatic Failure)|n"
-    elif successes >= 5:
+    elif successes >= exceptional_threshold:
         result = f"|g{successes} successes (Exceptional Success)|n"
     elif successes > 0:
         result = f"|g{successes} successes|n"
@@ -343,7 +346,7 @@ def format_roll_display(successes: int, ones: int, rolls: List[int], dice_pool: 
                        roll_types: Set[RollType], modifier: int = 0, 
                        stat_name: str = None, skill_name: str = None, 
                        stat_value: int = None, skill_value: int = None,
-                       wound_penalty: int = 0) -> str:
+                       wound_penalty: int = 0, exceptional_threshold: int = 5) -> str:
     """
     Create a beautifully formatted display box for dice roll results (expansive format for job rolls).
     
@@ -453,7 +456,7 @@ def format_roll_display(successes: int, ones: int, rolls: List[int], dice_pool: 
     success_color = "|w"
     if successes == 0:
         success_color = "|r"
-    elif successes >= 5:
+    elif successes >= exceptional_threshold:
         success_color = "|g"
     elif successes > 0:
         success_color = "|g"
@@ -461,7 +464,7 @@ def format_roll_display(successes: int, ones: int, rolls: List[int], dice_pool: 
     # Interpretation
     if successes == 0 and ones >= 1 and dice_pool + modifier + wound_penalty <= 0:
         interpretation = "|R[DRAMATIC FAILURE]|n"
-    elif successes >= 5:
+    elif successes >= exceptional_threshold:
         interpretation = "|G[EXCEPTIONAL SUCCESS]|n"
     elif successes > 0:
         interpretation = "|g[SUCCESS]|n"
@@ -489,7 +492,7 @@ def format_roll_display(successes: int, ones: int, rolls: List[int], dice_pool: 
     output.append(format_footer())
     
     # Special message for exceptional success (separate from the box)
-    if successes >= 5:
+    if successes >= exceptional_threshold:
         output.append("")
         output.append("|Y|[bExceptional Success achieved! You may add a condition.|n|Y]|n")
         output.append("|yUse: |w+condition/add <condition_name>|n")

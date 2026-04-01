@@ -12,6 +12,31 @@ from world.cofd.stat_dictionary import (
 from collections.abc import Mapping
 
 
+def _get_merit_dots(merit_entry):
+    """Extract dots from a merit entry stored as int or dict."""
+    try:
+        if isinstance(merit_entry, Mapping):
+            return int(merit_entry.get("dots", 0) or 0)
+        return int(merit_entry or 0)
+    except (TypeError, ValueError):
+        return 0
+
+
+def _count_retainers_dots(merits):
+    """Count total Retainers dots including instanced forms."""
+    total = 0
+    if not isinstance(merits, Mapping):
+        return 0
+    for merit_name, merit_data in merits.items():
+        merit_key = str(merit_name).lower().replace(" ", "_")
+        base_merit = ""
+        if isinstance(merit_data, Mapping):
+            base_merit = str(merit_data.get("base_merit", "")).lower().replace(" ", "_")
+        if merit_key == "retainers" or merit_key.startswith("retainers:") or base_merit == "retainers":
+            total += _get_merit_dots(merit_data)
+    return total
+
+
 def _count_specialties(character, stats):
     """
     Count specialties across current and legacy storage formats.
@@ -223,6 +248,12 @@ def calculate_chargen_points(character):
         # Court membership grants one free Mantle dot at chargen.
         if changeling_data.get('mantle_free_dot_applied', False):
             result['merits_spent'] = max(0, result['merits_spent'] - 1)
+        # Ghostheart gets first 3 Retainers dots free at chargen.
+        if changeling_data.get('ghostheart_free_retainers_dots', 0) > 0:
+            result['merits_spent'] = max(
+                0,
+                result['merits_spent'] - changeling_data['ghostheart_free_retainers_dots']
+            )
     elif template.lower() == 'mage':
         mage_data = calculate_mage_chargen(character, stats, merits)
         result['mage'] = mage_data
@@ -949,6 +980,10 @@ def calculate_changeling_chargen(character, stats, merits):
     has_court = bool(str(court).strip())
     mantle_free_dot_applied = has_court and mantle_dots >= 1
     mantle_paid_dots = max(0, mantle_dots - 1) if has_court else mantle_dots
+    is_ghostheart = str(kith).strip().lower().replace(" ", "_") == "ghostheart"
+    retainers_dots = _count_retainers_dots(merits)
+    ghostheart_free_retainers_dots = min(3, retainers_dots) if is_ghostheart else 0
+    ghostheart_paid_retainers_dots = max(0, retainers_dots - ghostheart_free_retainers_dots)
     
     return {
         'seeming': seeming,
@@ -976,7 +1011,11 @@ def calculate_changeling_chargen(character, stats, merits):
         'has_mantle': has_mantle,
         'mantle_dots': mantle_dots,
         'mantle_paid_dots': mantle_paid_dots,
-        'mantle_free_dot_applied': mantle_free_dot_applied
+        'mantle_free_dot_applied': mantle_free_dot_applied,
+        'is_ghostheart': is_ghostheart,
+        'retainers_dots': retainers_dots,
+        'ghostheart_free_retainers_dots': ghostheart_free_retainers_dots,
+        'ghostheart_paid_retainers_dots': ghostheart_paid_retainers_dots
     }
 
 

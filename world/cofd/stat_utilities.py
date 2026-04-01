@@ -3,6 +3,69 @@ Stat management utilities for character statistics.
 Handles stat removal, validation, and permissions.
 """
 
+SEMANTIC_POWER_TYPES = {
+    "devotion", "discipline_power", "coil", "scale", "theban", "cruac", "gift",
+    "contract", "spell", "alembic", "bestowment", "endowment", "embed", "exploit",
+    "adaptation", "key", "ceremony", "rite", "ritual", "affinity", "utterance",
+}
+
+
+def _normalize_semantic_term(term):
+    """Normalize semantic power names for lookup and matching."""
+    return str(term).strip().lower().replace(" ", "_").replace("-", "_").replace("'", "")
+
+
+def _resolve_semantic_power_stat(character, stat):
+    """
+    Resolve shorthand semantic power names to concrete powers dict keys.
+
+    Examples:
+        chrysalis -> contract:chrysalis
+        in vitae veritas -> devotion:in_vitae_veritas
+    """
+    powers = (character.db.stats or {}).get("powers", {}) or {}
+    if not isinstance(powers, dict) or not powers:
+        return stat, None
+
+    normalized_stat = _normalize_semantic_term(stat)
+
+    # If user included an explicit semantic prefix, normalize the instance part and
+    # try to map to an existing key (important for endowment keys that may keep spaces).
+    if ":" in stat:
+        base_name, instance_name = stat.split(":", 1)
+        if base_name in SEMANTIC_POWER_TYPES:
+            normalized_instance = _normalize_semantic_term(instance_name)
+            for power_key in powers.keys():
+                if ":" not in power_key:
+                    continue
+                key_type, key_name = power_key.split(":", 1)
+                if key_type in SEMANTIC_POWER_TYPES and key_type == base_name:
+                    if _normalize_semantic_term(key_name) == normalized_instance:
+                        return power_key, None
+            return stat, None
+
+    # Unprefixed removal: match by semantic power instance name.
+    matches = []
+    for power_key in powers.keys():
+        if ":" not in power_key:
+            continue
+        power_type, power_name = power_key.split(":", 1)
+        if power_type in SEMANTIC_POWER_TYPES and _normalize_semantic_term(power_name) == normalized_stat:
+            matches.append(power_key)
+
+    if len(matches) == 1:
+        return matches[0], None
+
+    if len(matches) > 1:
+        options = ", ".join(sorted(matches)[:6])
+        return None, (
+            f"Ambiguous semantic power '{stat}'. "
+            f"Use a prefixed key, for example +stat/remove contract:{stat}. "
+            f"Matches: {options}"
+        )
+
+    return stat, None
+
 
 def check_stat_permissions(caller, target, is_removal=False):
     """
@@ -96,6 +159,12 @@ def remove_stat_from_character(character, stat, caller):
     if character_template.lower() in ["mage", "legacy_mage"]:
         if stat == "death":
             stat = "arcanum_death"
+
+    # Support shorthand semantic power removal (e.g. "chrysalis" -> "contract:chrysalis").
+    resolved_stat, resolution_error = _resolve_semantic_power_stat(character, stat)
+    if resolution_error:
+        return False, resolution_error
+    stat = resolved_stat
     
     # Try to find stat in all categories
     for category in ["attributes", "skills", "advantages", "bio", "anchors", "merits", "powers", "other"]:
@@ -137,10 +206,7 @@ def remove_stat_from_character(character, stat, caller):
             if ":" in stat:
                 base_name, instance = stat.split(":", 1)
                 # Check if this is a semantic power (devotion, discipline_power, etc.) or an instanced merit
-                semantic_power_types = ["devotion", "discipline_power", "coil", "scale", "theban", "cruac", "gift", 
-                                       "contract", "spell", "alembic", "bestowment", "endowment", "embed", "exploit",
-                                       "adaptation", "key", "ceremony", "rite"]
-                if base_name in semantic_power_types:
+                if base_name in SEMANTIC_POWER_TYPES:
                     # This is a semantic power like devotion:in_vitae_veritas
                     # Try to get the actual power name for better display
                     try:

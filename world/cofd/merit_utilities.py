@@ -87,6 +87,23 @@ def set_merit(character, merit_key, merit_obj, dots, caller):
     
     # Parse instance if present
     base_merit_name, instance_name = parse_merit_instance(merit_key)
+    base_merit_name = base_merit_name.strip().lower().replace(" ", "_").replace("-", "_").replace("'", "")
+    if instance_name is not None:
+        instance_name = instance_name.strip().lower().replace(" ", "_").replace("-", "_").replace("'", "")
+        merit_key = f"{base_merit_name}:{instance_name}"
+    else:
+        merit_key = base_merit_name
+
+    # Defensive Combat must always be taken as an instance.
+    if base_merit_name == "defensive_combat":
+        valid_instances = {"brawl", "weaponry"}
+        if not instance_name or instance_name not in valid_instances:
+            valid_display = "', '".join(sorted(valid_instances))
+            return (
+                False,
+                f"Defensive Combat must be taken as an instance. "
+                f"Use one of: '{valid_display}'."
+            )
     
     # Ensure merits category exists
     if "merits" not in character.db.stats:

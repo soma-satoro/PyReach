@@ -1,6 +1,7 @@
 from evennia.commands.default.muxcommand import MuxCommand
 from evennia.utils import evtable
 from evennia import search_object
+from collections.abc import Mapping
 from world.utils.health_utils import get_health_track, set_health_track, compact_track
 from world.utils.formatting import footer, sheet_section_header, get_theme_colors
 from world.cofd.templates import get_template_definition
@@ -120,6 +121,68 @@ class CmdSheet(MuxCommand):
             filled = filled_char * value
             empty = empty_char * (max_value - value)
             return filled + empty
+
+    def _get_shift_display_context(self, target):
+        """Return base/current context for temporary shapeshift overlays."""
+        current_form = getattr(target.db, "current_form", None)
+        is_shifted = bool(current_form and current_form not in ("hishu", "human"))
+
+        base_attrs = getattr(target.db, "base_attributes", None)
+        if isinstance(base_attrs, Mapping):
+            base_attrs = dict(base_attrs)
+        elif isinstance(base_attrs, (list, tuple)):
+            try:
+                base_attrs = dict(base_attrs)
+            except (TypeError, ValueError):
+                base_attrs = {}
+        elif not isinstance(base_attrs, dict):
+            base_attrs = {}
+
+        base_advantages = getattr(target.db, "base_advantages", None)
+        if isinstance(base_advantages, Mapping):
+            base_advantages = dict(base_advantages)
+        elif isinstance(base_advantages, (list, tuple)):
+            try:
+                base_advantages = dict(base_advantages)
+            except (TypeError, ValueError):
+                base_advantages = {}
+        elif not isinstance(base_advantages, dict):
+            base_advantages = {}
+
+        return {
+            "is_shifted": is_shifted,
+            "base_attributes": base_attrs,
+            "base_size": getattr(target.db, "base_size", None),
+            "base_speed": getattr(target.db, "base_speed", None),
+            "base_defense": base_advantages.get("defense"),
+            "base_initiative": base_advantages.get("initiative"),
+            "base_health": base_advantages.get("health"),
+        }
+
+    def _format_shift_overlay(self, base_value, current_value, force_ascii, max_value=5, always_numeric=False):
+        """
+        Format a stat as permanent with temporary shifted value in yellow parens.
+        Example: 5 |y(1)|n
+        """
+        try:
+            base_int = int(base_value)
+            current_int = int(current_value)
+        except (TypeError, ValueError):
+            base_int = base_value
+            current_int = current_value
+
+        if base_int == current_int:
+            if always_numeric:
+                return str(current_int)
+            return self._format_dots(current_int, max_value, force_ascii)
+
+        _, _, _, use_numeric = self._get_dots_style(force_ascii)
+        if use_numeric or always_numeric:
+            return f"{base_int} |y({current_int})|n"
+
+        base_dots = self._format_dots(base_int, max_value, force_ascii)
+        current_dots = self._format_dots(current_int, max_value, force_ascii)
+        return f"{base_dots} |y({current_dots})|n"
     
 
     def _get_template_bio_fields(self, template):
@@ -401,8 +464,8 @@ class CmdSheet(MuxCommand):
                                 is_royal = False
                                 category = contract_type
                             
-                            # Format category name (capitalize first letter)
-                            category_display = category.capitalize()
+                            # Format category name for display.
+                            category_display = category.replace("_", " ").replace("-", " ").title()
                             
                             # Determine type (Royal or Common)
                             type_display = "Royal" if is_royal else "Common"
@@ -750,6 +813,8 @@ class CmdSheet(MuxCommand):
                     # Special handling for multi-word fields - use title case (all words capitalized)
                     elif field in ["keeper", "entitlement", "lodge", "pack"] and field_value != "<not set>":
                         field_value = field_value.replace("_", " ").replace("-", " ").title()
+                    elif field == "court" and field_value != "<not set>":
+                        field_value = field_value.replace("_", " ").replace("-", " ").title()
                     elif field in capitalization_fixes and field_value != "<not set>":
                         # Convert to sentence case (first letter uppercase, rest lowercase)
                         field_value = field_value.capitalize()
@@ -788,6 +853,10 @@ class CmdSheet(MuxCommand):
             legacy_virtue_vice = self._format_legacy_virtue_vice(virtue, vice)
             output.extend(legacy_virtue_vice)
         
+        shift_context = self._get_shift_display_context(target)
+
+        shift_context = self._get_shift_display_context(target)
+
         # Attributes
         attrs = target.db.stats.get("attributes", {})
         if attrs:
@@ -796,8 +865,9 @@ class CmdSheet(MuxCommand):
             # Mental
             mental = []
             for attr in ["intelligence", "wits", "resolve"]:
-                val = attrs.get(attr, 0)
-                dots = self._format_dots(val, 5, force_ascii)
+                current_val = attrs.get(attr, 0)
+                base_val = shift_context["base_attributes"].get(attr, current_val) if shift_context["is_shifted"] else current_val
+                dots = self._format_shift_overlay(base_val, current_val, force_ascii, max_value=5)
                 if use_numeric:
                     attr_name = attr.title()
                     padding = '.' * (20 - len(attr_name))
@@ -808,8 +878,9 @@ class CmdSheet(MuxCommand):
             # Physical
             physical = []
             for attr in ["strength", "dexterity", "stamina"]:
-                val = attrs.get(attr, 0)
-                dots = self._format_dots(val, 5, force_ascii)
+                current_val = attrs.get(attr, 0)
+                base_val = shift_context["base_attributes"].get(attr, current_val) if shift_context["is_shifted"] else current_val
+                dots = self._format_shift_overlay(base_val, current_val, force_ascii, max_value=5)
                 if use_numeric:
                     attr_name = attr.title()
                     padding = '.' * (20 - len(attr_name))
@@ -820,8 +891,9 @@ class CmdSheet(MuxCommand):
             # Social
             social = []
             for attr in ["presence", "manipulation", "composure"]:
-                val = attrs.get(attr, 0)
-                dots = self._format_dots(val, 5, force_ascii)
+                current_val = attrs.get(attr, 0)
+                base_val = shift_context["base_attributes"].get(attr, current_val) if shift_context["is_shifted"] else current_val
+                dots = self._format_shift_overlay(base_val, current_val, force_ascii, max_value=5)
                 if use_numeric:
                     attr_name = attr.title()
                     padding = '.' * (20 - len(attr_name))
@@ -968,19 +1040,32 @@ class CmdSheet(MuxCommand):
                     merit_display = f"{display_name:<30} {dots}"
                 merit_list.append(merit_display)
         
+        defense_current = advantages.get('defense', 0)
+        initiative_current = advantages.get('initiative', 0)
+        speed_current = advantages.get('speed', 0)
+        size_current = other.get('size', 5)
+        defense_base = shift_context["base_defense"] if shift_context["is_shifted"] and shift_context["base_defense"] is not None else defense_current
+        initiative_base = shift_context["base_initiative"] if shift_context["is_shifted"] and shift_context["base_initiative"] is not None else initiative_current
+        speed_base = shift_context["base_speed"] if shift_context["is_shifted"] and shift_context["base_speed"] is not None else speed_current
+        size_base = shift_context["base_size"] if shift_context["is_shifted"] and shift_context["base_size"] is not None else size_current
+        defense_display = self._format_shift_overlay(defense_base, defense_current, force_ascii, max_value=20, always_numeric=True)
+        initiative_display = self._format_shift_overlay(initiative_base, initiative_current, force_ascii, max_value=20, always_numeric=True)
+        speed_display = self._format_shift_overlay(speed_base, speed_current, force_ascii, max_value=20, always_numeric=True)
+        size_display = self._format_shift_overlay(size_base, size_current, force_ascii, max_value=20, always_numeric=True)
+
         if use_numeric:
             advantage_list = [
-                f"  Defense................... {advantages.get('defense', 0)}",
-                f"  Speed..................... {advantages.get('speed', 0)}",
-                f"  Initiative................ {advantages.get('initiative', 0)}",
-                f"  Size...................... {other.get('size', 5)}"
+                f"  Defense................... {defense_display}",
+                f"  Speed..................... {speed_display}",
+                f"  Initiative................ {initiative_display}",
+                f"  Size...................... {size_display}"
             ]
         else:
             advantage_list = [
-                f"{'Defense':<15} : {advantages.get('defense', 0)}",
-                f"{'Speed':<15} : {advantages.get('speed', 0)}",
-                f"{'Initiative':<15} : {advantages.get('initiative', 0)}",
-                f"{'Size':<15} : {other.get('size', 5)}"
+                f"{'Defense':<15} : {defense_display}",
+                f"{'Speed':<15} : {speed_display}",
+                f"{'Initiative':<15} : {initiative_display}",
+                f"{'Size':<15} : {size_display}"
             ]
         
         # Add integrity to advantages (except for Geist and Deviant characters)
@@ -2469,6 +2554,8 @@ class CmdSheet(MuxCommand):
                     # Special handling for multi-word fields - use title case (all words capitalized)
                     elif field in ["keeper", "entitlement", "lodge", "pack"] and field_value != "<not set>":
                         field_value = field_value.replace("_", " ").replace("-", " ").title()
+                    elif field == "court" and field_value != "<not set>":
+                        field_value = field_value.replace("_", " ").replace("-", " ").title()
                     elif field in capitalization_fixes and field_value != "<not set>":
                         # Convert to sentence case (first letter uppercase, rest lowercase)
                         field_value = field_value.capitalize()
@@ -2515,8 +2602,9 @@ class CmdSheet(MuxCommand):
             # Mental
             mental = []
             for attr in ["intelligence", "wits", "resolve"]:
-                val = attrs.get(attr, 0)
-                dots = self._format_dots(val, 5, force_ascii)
+                current_val = attrs.get(attr, 0)
+                base_val = shift_context["base_attributes"].get(attr, current_val) if shift_context["is_shifted"] else current_val
+                dots = self._format_shift_overlay(base_val, current_val, force_ascii, max_value=5)
                 # Use dot padding in numeric mode for better readability
                 if use_numeric:
                     attr_name = attr.title()
@@ -2528,8 +2616,9 @@ class CmdSheet(MuxCommand):
             # Physical
             physical = []
             for attr in ["strength", "dexterity", "stamina"]:
-                val = attrs.get(attr, 0)
-                dots = self._format_dots(val, 5, force_ascii)
+                current_val = attrs.get(attr, 0)
+                base_val = shift_context["base_attributes"].get(attr, current_val) if shift_context["is_shifted"] else current_val
+                dots = self._format_shift_overlay(base_val, current_val, force_ascii, max_value=5)
                 # Use dot padding in numeric mode for better readability
                 if use_numeric:
                     attr_name = attr.title()
@@ -2541,8 +2630,9 @@ class CmdSheet(MuxCommand):
             # Social
             social = []
             for attr in ["presence", "manipulation", "composure"]:
-                val = attrs.get(attr, 0)
-                dots = self._format_dots(val, 5, force_ascii)
+                current_val = attrs.get(attr, 0)
+                base_val = shift_context["base_attributes"].get(attr, current_val) if shift_context["is_shifted"] else current_val
+                dots = self._format_shift_overlay(base_val, current_val, force_ascii, max_value=5)
                 # Use dot padding in numeric mode for better readability
                 if use_numeric:
                     attr_name = attr.title()
@@ -2698,19 +2788,32 @@ class CmdSheet(MuxCommand):
         
         # Create advantages list (including integrity)
         # Use dot padding in numeric mode for consistency
+        defense_current = advantages.get('defense', 0)
+        initiative_current = advantages.get('initiative', 0)
+        speed_current = advantages.get('speed', 0)
+        size_current = other.get('size', 5)
+        defense_base = shift_context["base_defense"] if shift_context["is_shifted"] and shift_context["base_defense"] is not None else defense_current
+        initiative_base = shift_context["base_initiative"] if shift_context["is_shifted"] and shift_context["base_initiative"] is not None else initiative_current
+        speed_base = shift_context["base_speed"] if shift_context["is_shifted"] and shift_context["base_speed"] is not None else speed_current
+        size_base = shift_context["base_size"] if shift_context["is_shifted"] and shift_context["base_size"] is not None else size_current
+        defense_display = self._format_shift_overlay(defense_base, defense_current, force_ascii, max_value=20, always_numeric=True)
+        initiative_display = self._format_shift_overlay(initiative_base, initiative_current, force_ascii, max_value=20, always_numeric=True)
+        speed_display = self._format_shift_overlay(speed_base, speed_current, force_ascii, max_value=20, always_numeric=True)
+        size_display = self._format_shift_overlay(size_base, size_current, force_ascii, max_value=20, always_numeric=True)
+
         if use_numeric:
             advantage_list = [
-                f"   Defense................... {advantages.get('defense', 0)}",
-                f"   Speed..................... {advantages.get('speed', 0)}",
-                f"   Initiative................ {advantages.get('initiative', 0)}",
-                f"   Size...................... {other.get('size', 5)}"
+                f"   Defense................... {defense_display}",
+                f"   Speed..................... {speed_display}",
+                f"   Initiative................ {initiative_display}",
+                f"   Size...................... {size_display}"
             ]
         else:
             advantage_list = [
-                f"   {'Defense':<15} : {advantages.get('defense', 0)}",
-                f"   {'Speed':<15} : {advantages.get('speed', 0)}",
-                f"   {'Initiative':<15} : {advantages.get('initiative', 0)}",
-                f"   {'Size':<15} : {other.get('size', 5)}"
+                f"   {'Defense':<15} : {defense_display}",
+                f"   {'Speed':<15} : {speed_display}",
+                f"   {'Initiative':<15} : {initiative_display}",
+                f"   {'Size':<15} : {size_display}"
             ]
         
         # Add integrity to advantages (except for Geist and Deviant characters)

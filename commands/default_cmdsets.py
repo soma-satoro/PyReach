@@ -26,7 +26,7 @@ from .CmdSheet import CmdSheet
 from .stats import CmdStat, CmdRecalc
 from .aspirations import CmdAspiration
 from .social import CmdSocial
-from .combat import CmdCombat, CmdEquippedGear, CmdCombatHelp
+from .combat import CmdCombat, CmdEquippedGear, CmdCombatHelp, CmdInitiative
 from .integrity import CmdIntegrity
 from .equipment import CmdEquipment, CmdBuyConfig, CmdBuy, CmdAddResources
 from .groups import CmdGroups, CmdRoster, CmdGroupMerit, CmdTotem
@@ -140,6 +140,7 @@ class CharacterCmdSet(default_cmds.CharacterCmdSet):
 
         # Combat
         self.add(CmdCombat())
+        self.add(CmdInitiative())
         self.add(CmdEquippedGear())
         self.add(CmdCombatHelp())
         

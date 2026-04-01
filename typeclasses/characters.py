@@ -501,33 +501,20 @@ class Character(DefaultCharacter):
             self.db.stats["advantages"]["speed"] = speed
             updated_stats.append("speed")
         
-        # Defense = Lower of Wits or Dexterity + Athletics (base)
+        # Defense = Lower of Wits or Dexterity + skill
+        # Base skill is Athletics. Defensive Combat may allow Brawl and/or Weaponry.
         if "wits" in attrs and "dexterity" in attrs:
-            defense = min(attrs["wits"], attrs["dexterity"])
-            
-            # Add Athletics skill to Defense
             athletics = skills.get("athletics", 0)
-            defense += athletics
-            
-            # Defensive Combat: Use Brawl or Weaponry instead of Athletics if merit is taken
-            # Check for Defensive Combat (Brawl)
-            dc_brawl = merits.get("defensive_combat:brawl", {})
-            if dc_brawl and "dots" in dc_brawl:
-                brawl = skills.get("brawl", 0)
-                # Replace athletics with brawl if brawl is higher
-                if brawl > athletics:
-                    defense = min(attrs["wits"], attrs["dexterity"]) + brawl
-            
-            # Check for Defensive Combat (Weaponry)
-            dc_weaponry = merits.get("defensive_combat:weaponry", {})
-            if dc_weaponry and "dots" in dc_weaponry:
-                weaponry = skills.get("weaponry", 0)
-                # Replace with weaponry if weaponry is higher than current defense calculation
-                current_skill = athletics
-                if "defensive_combat:brawl" in merits:
-                    current_skill = max(athletics, skills.get("brawl", 0))
-                if weaponry > current_skill:
-                    defense = min(attrs["wits"], attrs["dexterity"]) + weaponry
+            brawl = skills.get("brawl", 0)
+            weaponry = skills.get("weaponry", 0)
+
+            defense_skill = athletics
+            if self._get_specific_merit_dots("defensive_combat", "brawl") >= 1:
+                defense_skill = max(defense_skill, brawl)
+            if self._get_specific_merit_dots("defensive_combat", "weaponry") >= 1:
+                defense_skill = max(defense_skill, weaponry)
+
+            defense = min(attrs["wits"], attrs["dexterity"]) + defense_skill
             
             self.db.stats["advantages"]["defense"] = defense
             updated_stats.append("defense")
@@ -816,19 +803,33 @@ class Character(DefaultCharacter):
         stored ``base_merit`` metadata on merit entries.
         """
         merits = (self.db.stats or {}).get("merits", {})
-        if not isinstance(merits, dict):
+        if not merits or not hasattr(merits, "items"):
             return 0
 
-        max_dots = merits.get(merit_name, {}).get("dots", 0)
+        merit_entry = merits.get(merit_name, {}) if hasattr(merits, "get") else {}
+        if hasattr(merit_entry, "get"):
+            try:
+                max_dots = int(merit_entry.get("dots", 0) or 0)
+            except (TypeError, ValueError):
+                max_dots = 0
+        else:
+            try:
+                max_dots = int(merit_entry or 0)
+            except (TypeError, ValueError):
+                max_dots = 0
         prefix = f"{merit_name}:"
 
         for key, data in merits.items():
-            if not isinstance(data, dict):
+            if not hasattr(data, "get"):
                 continue
 
             base_merit = data.get("base_merit", "")
-            if key.startswith(prefix) or base_merit == merit_name:
-                max_dots = max(max_dots, data.get("dots", 0))
+            if str(key).startswith(prefix) or base_merit == merit_name:
+                try:
+                    dots = int(data.get("dots", 0) or 0)
+                except (TypeError, ValueError):
+                    dots = 0
+                max_dots = max(max_dots, dots)
 
         return max_dots
     
@@ -854,7 +855,7 @@ class Character(DefaultCharacter):
             - specific instance: ``mantle:autumn``
         """
         merits = (self.db.stats or {}).get("merits", {})
-        if not isinstance(merits, dict):
+        if not merits or not hasattr(merits, "items"):
             return 0
 
         base_merit_name = self._normalize_merit_token(base_merit_name)
@@ -863,15 +864,29 @@ class Character(DefaultCharacter):
 
         instance_name = self._normalize_merit_token(instance_name)
         full_key = f"{base_merit_name}:{instance_name}"
-        max_dots = merits.get(full_key, {}).get("dots", 0)
+        merit_entry = merits.get(full_key, {}) if hasattr(merits, "get") else {}
+        if hasattr(merit_entry, "get"):
+            try:
+                max_dots = int(merit_entry.get("dots", 0) or 0)
+            except (TypeError, ValueError):
+                max_dots = 0
+        else:
+            try:
+                max_dots = int(merit_entry or 0)
+            except (TypeError, ValueError):
+                max_dots = 0
 
         for key, data in merits.items():
-            if not isinstance(data, dict):
+            if not hasattr(data, "get"):
                 continue
             base_merit = self._normalize_merit_token(data.get("base_merit", ""))
             instance = self._normalize_merit_token(data.get("instance", ""))
-            if key == full_key or (base_merit == base_merit_name and instance == instance_name):
-                max_dots = max(max_dots, data.get("dots", 0))
+            if str(key) == full_key or (base_merit == base_merit_name and instance == instance_name):
+                try:
+                    dots = int(data.get("dots", 0) or 0)
+                except (TypeError, ValueError):
+                    dots = 0
+                max_dots = max(max_dots, dots)
 
         return max_dots
     

@@ -33,6 +33,7 @@ class CmdRoll(MuxCommand):
       /job - Roll to a job (uses expansive format, adds to job comments)
       /secret - Hide skill/stat details from room observers
       /specialty - Use specialty bonus (+1 die if character has specialty)
+      /kith - Exceptional success at 3+ successes (kith blessings)
 
     VS Rolls and /oppose rolls (Resisted/Contested):
       VS rolls subtract dice from your pool based on opponent's stats or a
@@ -68,6 +69,7 @@ class CmdRoll(MuxCommand):
         self.is_secret = False
         self.is_extended = False
         self.is_specialty = False
+        self.is_kith_roll = False
         self.stat_name = None
         self.skill_name = None
         self.vs_target = None
@@ -107,6 +109,8 @@ class CmdRoll(MuxCommand):
                     self.is_extended = True
                 elif switch == "specialty":
                     self.is_specialty = True
+                elif switch == "kith":
+                    self.is_kith_roll = True
         
         # If no roll types specified, use normal (10-again)
         if not self.roll_types:
@@ -650,6 +654,14 @@ class CmdRoll(MuxCommand):
         merits = self.caller.db.stats.get("merits", {})
         return "patient" in [m.lower() for m in merits.keys()]
 
+    def _get_exceptional_threshold(self):
+        """Return exceptional success threshold for this roll."""
+        return 3 if self.is_kith_roll else 5
+
+    def _is_exceptional_success(self, successes):
+        """True if successes meet current exceptional threshold."""
+        return successes >= self._get_exceptional_threshold()
+
     def func(self):
         """Execute the roll command."""
         if not hasattr(self, 'dice_pool'):
@@ -742,7 +754,8 @@ class CmdRoll(MuxCommand):
                     stat_value=stat_value,
                     skill_value=skill_value,
                     character_name=character_name,
-                    wound_penalty=wound_penalty
+                    wound_penalty=wound_penalty,
+                    exceptional_threshold=self._get_exceptional_threshold()
                 )
             
             # Send to the player
@@ -763,7 +776,7 @@ class CmdRoll(MuxCommand):
                     final_pool = self.dice_pool + self.modifier + wound_penalty
                     if successes == 0 and ones >= 1 and final_pool <= 0:
                         result = f"|r{successes} successes (Dramatic Failure)|n"
-                    elif successes >= 5:
+                    elif self._is_exceptional_success(successes):
                         result = f"|g{successes} successes (Exceptional Success)|n"
                     elif successes > 0:
                         result = f"|g{successes} successes|n"
@@ -791,7 +804,8 @@ class CmdRoll(MuxCommand):
                         stat_name=self.stat_name,
                         skill_name=self.skill_name,
                         character_name=character_name,
-                        wound_penalty=wound_penalty
+                        wound_penalty=wound_penalty,
+                        exceptional_threshold=self._get_exceptional_threshold()
                     )
             
             # Send to others in the room
@@ -803,7 +817,7 @@ class CmdRoll(MuxCommand):
                 self.caller.location.msg_contents(room_msg, exclude=exclude_list)
             
             # Handle exceptional success
-            if successes >= 5:
+            if self._is_exceptional_success(successes):
                 self.caller.msg("|Y|[bExceptional Success achieved! You may add a condition.|n|Y]|n")
                 self.caller.msg("|yUse: |w+condition/add <condition_name>|n")
                 # Award beat for exceptional success
@@ -960,7 +974,7 @@ class CmdRoll(MuxCommand):
             self.award_beat("dramatic_failure")
         elif successes == 0:
             result_type = "failure"
-        elif successes >= 5:
+        elif self._is_exceptional_success(successes):
             result_type = "exceptional_success"
             # Award beat for exceptional success
             self.award_beat("exceptional_success")
@@ -1201,7 +1215,7 @@ class CmdRoll(MuxCommand):
         
         # Handle exceptional successes and dramatic failures for both parties
         # Attacker (caller)
-        if attacker_successes >= 5:
+        if self._is_exceptional_success(attacker_successes):
             self.caller.msg("|Y|[bExceptional Success achieved! You may add a condition.|n|Y]|n")
             self.award_beat("exceptional_success")
         
@@ -1210,7 +1224,7 @@ class CmdRoll(MuxCommand):
         
         # Defender (target) - award beats if they're a player character
         if self.vs_target_char and self.vs_target_char != self.caller:
-            if defender_successes >= 5:
+            if self._is_exceptional_success(defender_successes):
                 self.vs_target_char.msg("|Y|[bExceptional Success achieved! You may add a condition.|n|Y]|n")
                 # Award beat to defender
                 self._award_beat_to_character(self.vs_target_char, "exceptional_success")
@@ -1294,7 +1308,7 @@ class CmdRoll(MuxCommand):
         # Success interpretation
         if successes == 0 and ones >= 1 and final_pool <= 0:
             msg.append(f"  |r|[bDRAMATIC FAILURE!|n|r]|n")
-        elif successes >= 5:
+        elif self._is_exceptional_success(successes):
             msg.append(f"  |g|[bEXCEPTIONAL SUCCESS!|n|g]|n")
         elif successes > 0:
             msg.append(f"  |gSuccess|n")
@@ -1313,7 +1327,7 @@ class CmdRoll(MuxCommand):
             final_pool = self.dice_pool + self.modifier + wound_penalty + vs_penalty
             if successes == 0 and ones >= 1 and final_pool <= 0:
                 result = f"|r{successes} successes (Dramatic Failure)|n"
-            elif successes >= 5:
+            elif self._is_exceptional_success(successes):
                 result = f"|g{successes} successes (Exceptional Success)|n"
             elif successes > 0:
                 result = f"|g{successes} successes|n"
@@ -1360,7 +1374,7 @@ class CmdRoll(MuxCommand):
         # Result description
         if successes == 0 and ones >= 1 and final_pool <= 0:
             result = f"|r{successes} successes (Dramatic Failure)|n"
-        elif successes >= 5:
+        elif self._is_exceptional_success(successes):
             result = f"|g{successes} successes (Exceptional Success)|n"
         elif successes > 0:
             result = f"|g{successes} successes|n"
@@ -1403,7 +1417,8 @@ class CmdRoll(MuxCommand):
                     skill_name=skill_name,
                     stat_value=stat_value,
                     skill_value=skill_value,
-                    wound_penalty=wound_penalty
+                    wound_penalty=wound_penalty,
+                    exceptional_threshold=self._get_exceptional_threshold()
                 )
             
             # Send the expansive format to the roller
@@ -1439,7 +1454,7 @@ class CmdRoll(MuxCommand):
             final_pool_for_failure = self.dice_pool + self.modifier + wound_penalty + vs_penalty
             if successes == 0 and ones >= 1 and final_pool_for_failure <= 0:
                 result = f"{successes} successes (Dramatic Failure)"
-            elif successes >= 5:
+            elif self._is_exceptional_success(successes):
                 result = f"{successes} successes (Exceptional Success)"
             elif successes > 0:
                 result = f"{successes} successes"
@@ -1477,7 +1492,7 @@ class CmdRoll(MuxCommand):
             self.caller.msg(f"|gRoll added to Job #{self.job_id} and participants notified.|n")
             
             # Handle exceptional success (message already included in format_roll_display)
-            if successes >= 5:
+            if self._is_exceptional_success(successes):
                 # Award beat for exceptional success
                 self.award_beat("exceptional_success")
             

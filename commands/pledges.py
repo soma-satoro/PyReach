@@ -1,4 +1,4 @@
-﻿"""
+"""
 Pledge command for Changeling: The Lost 2nd Edition.
 
 This command handles all pledge types: Sealing, Oath, and Bargain.
@@ -8,6 +8,8 @@ Based on CTL 2e core book, pages 210-215.
 from evennia.commands.default.muxcommand import MuxCommand
 from evennia.utils.search import search_object
 from evennia.utils import evtable
+from django.utils import timezone
+from datetime import timedelta
 from world.cofd.pledges import (
     Pledge, PledgeHandler, get_next_pledge_id, validate_pledge_participants,
     PLEDGE_TYPE_SEALING, PLEDGE_TYPE_OATH, PLEDGE_TYPE_BARGAIN,
@@ -17,6 +19,7 @@ from world.cofd.pledges import (
 )
 from world.conditions import Condition, STANDARD_CONDITIONS
 from world.utils.permission_utils import require_approved_character
+from world.cofd.kith_utils import has_kith
 
 
 class CmdPledge(MuxCommand):
@@ -36,6 +39,7 @@ class CmdPledge(MuxCommand):
         +pledge/benefit <#>=<benefit> - Set pledge benefit
         +pledge/consequence <#>=<consequence> - Set consequence for breaking
         +pledge/finalize <#> - Finalize and activate a pledge
+        +pledge/finalize/noglamour <#> - Notary only, once per 30 days (no Glamour cost)
         +pledge/break <#> - Break a pledge
         +pledge/fulfill <#> - Fulfill a pledge
         +pledge/release <#> - Release a sealing (sealer only)
@@ -658,7 +662,7 @@ class CmdPledge(MuxCommand):
         caller = self.caller
         
         if not self.args:
-            caller.msg("|rUsage: +pledge/finalize <#>|n")
+            caller.msg("|rUsage: +pledge/finalize <#> or +pledge/finalize/noglamour <#>|n")
             return
         
         pledge_id = self.args.strip()
@@ -681,17 +685,32 @@ class CmdPledge(MuxCommand):
             caller.msg("|rPledge must have text/verbiage before finalizing. Use |w+pledge/text|n")
             return
         
-        # Ensure glamour is initialized and check cost
-        if not self._ensure_glamour_initialized(caller):
-            caller.msg("|rYou don't have Wyrd set yet. Set your Wyrd stat first with |w+stat wyrd=<value>|n")
-            return
-        
-        glamour_current = caller.db.glamour_current
-        if glamour_current < 1:
-            caller.msg("|rYou don't have enough Glamour to finalize this pledge.|n")
-            return
-        
-        caller.db.glamour_current -= 1
+        # Notary blessing option: /noglamour once every 30 days.
+        skip_glamour_cost = "noglamour" in [switch.lower() for switch in self.switches]
+        if skip_glamour_cost:
+            if not has_kith(caller, "notary"):
+                caller.msg("|rOnly Notary kith Changelings can finalize without spending Glamour.|n")
+                return
+            last_used = getattr(caller.db, "notary_pledge_waiver_last_used", None)
+            now = timezone.now()
+            if last_used and (now - last_used) < timedelta(days=30):
+                remaining = timedelta(days=30) - (now - last_used)
+                days_remaining = max(1, remaining.days + (1 if remaining.seconds > 0 else 0))
+                caller.msg(f"|rYour Notary no-Glamour pledge finalization is on cooldown for {days_remaining} more day(s).|n")
+                return
+            caller.db.notary_pledge_waiver_last_used = now
+        else:
+            # Ensure glamour is initialized and check cost
+            if not self._ensure_glamour_initialized(caller):
+                caller.msg("|rYou don't have Wyrd set yet. Set your Wyrd stat first with |w+stat wyrd=<value>|n")
+                return
+            
+            glamour_current = caller.db.glamour_current
+            if glamour_current < 1:
+                caller.msg("|rYou don't have enough Glamour to finalize this pledge.|n")
+                return
+            
+            caller.db.glamour_current -= 1
         
         # Activate the pledge
         pledge.status = STATUS_ACTIVE
@@ -719,6 +738,8 @@ class CmdPledge(MuxCommand):
                 caller.conditions.add(obliged_condition)
         
         caller.msg(f"|gPledge #{pledge_id} has been finalized and is now active!|n")
+        if skip_glamour_cost:
+            caller.msg("|gYour Notary blessing waives the Glamour cost for this finalization.|n")
         caller.msg("|gThe Wyrd binds you to your word.|n")
     
     def break_pledge(self):

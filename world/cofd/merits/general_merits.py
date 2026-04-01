@@ -745,7 +745,7 @@ style_merits = [
         max_value=5,
         description="Defensive techniques with weapons",
         merit_type="style",
-        prerequisite="dexterity:3,weaponry:2,defensive_combat_weaponry:1"
+        prerequisite="dexterity:3,weaponry:2,defensive_combat:weaponry:1"
     ),
     Merit(
         name="Close Quarters Combat",
@@ -759,7 +759,7 @@ style_merits = [
         name="Defensive Combat",
         min_value=1,
         max_value=1,
-        description="Use Brawl or Weaponry for Defense calculation",
+        description="Must be purchased as an instance: Defensive Combat (Brawl) or Defensive Combat (Weaponry). Defense uses Athletics or the chosen skill, whichever is higher. If both instances are taken, use the highest of Athletics, Brawl, or Weaponry.",
         merit_type="fighting",
         prerequisite="[brawl:1,weaponry:1]"
     ),
@@ -873,7 +873,7 @@ style_merits = [
         max_value=5,
         description="Defensive unarmed combat techniques",
         merit_type="style",
-        prerequisite="dexterity:3,brawl:2,defensive_combat_brawl:1"
+        prerequisite="dexterity:3,brawl:2,defensive_combat:brawl:1"
     ),
     Merit(
         name="Cheap Shot",

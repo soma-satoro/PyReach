@@ -49,7 +49,8 @@ def _get_instanced_merit_dots(stats, base_merit, instance_name):
         if _normalize_token(merit_instance) != instance:
             continue
 
-        if isinstance(merit_data, dict):
+        # Support plain dicts and Evennia saver dict-like containers.
+        if merit_data and hasattr(merit_data, "get"):
             try:
                 return int(merit_data.get("dots", 0) or 0)
             except (TypeError, ValueError):
