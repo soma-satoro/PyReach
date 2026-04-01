@@ -17,6 +17,8 @@ class CmdLanguage(MuxCommand):
       +language <language>
       +language none
       +language/add <language>
+      +language/add <language>/language
+      +language/add <language>/multilingual
       +language/all
       +language/set <character>=<language1>,<language2>,...  (Staff only)
       +language/rem <language>         (Remove a language from yourself)
@@ -24,11 +26,20 @@ class CmdLanguage(MuxCommand):
       +language/view <name>            (Staff only - View character's languages)
       +language/native <language>        (Set your native language)
 
+    Purchase Options:
+      /language      Buy as a standard Language point (read/write proficiency).
+      /multilingual  Buy as a Multilingual point (conversational proficiency).
+      If no suffix is provided, +language/add defaults to /language.
+      +language/rem is player-usable only to resolve removals required by
+      reducing Language/Multilingual merit dots.
+
     Examples:
       +language
       +language Spanish
       +language none
       +language/add French
+      +language/add French/language
+      +language/add Japanese/multilingual
       +language/all
       +language/set Bob=English,Spanish,French
       +language/view Bob
@@ -41,6 +52,25 @@ class CmdLanguage(MuxCommand):
 
     LANGUAGE_SOURCE = "language"
     MULTILINGUAL_SOURCE = "multilingual"
+
+    def _get_language_removal_allowance(self, target):
+        """Return normalized pending language-removal allowance by source."""
+        raw = getattr(target.db, "language_removal_allowance", None) or {}
+        if not isinstance(raw, Mapping):
+            return {self.LANGUAGE_SOURCE: 0, self.MULTILINGUAL_SOURCE: 0}
+        return {
+            self.LANGUAGE_SOURCE: int(raw.get(self.LANGUAGE_SOURCE, 0) or 0),
+            self.MULTILINGUAL_SOURCE: int(raw.get(self.MULTILINGUAL_SOURCE, 0) or 0),
+        }
+
+    def _consume_language_removal_allowance(self, target, source):
+        """Consume one pending removal slot for the given source if available."""
+        allowance = self._get_language_removal_allowance(target)
+        if allowance.get(source, 0) <= 0:
+            return False
+        allowance[source] -= 1
+        target.db.language_removal_allowance = allowance
+        return True
 
     def _extract_merit_dots(self, merit_data):
         """Extract numeric dots from merit storage."""
@@ -600,10 +630,6 @@ class CmdLanguage(MuxCommand):
             target = self.caller
             language = self.args
 
-        if target == self.caller and self.caller.db.approved and not is_staff:
-            self.caller.msg("Approved characters cannot remove languages. You can still add languages if you have points.")
-            return
-
         language = language.strip()
         
         # Can't remove English
@@ -615,16 +641,35 @@ class CmdLanguage(MuxCommand):
         current_languages = target.get_languages()
         native_language = target.db.native_language or "English"
         proficiencies = self._get_language_proficiencies(target, current_languages, native_language)
+        allowance = self._get_language_removal_allowance(target)
         
         # Try to find the proper case version
         found = False
         for lang_key, proper_lang in AVAILABLE_LANGUAGES.items():
             if lang_key.lower() == language.lower():
                 if proper_lang in current_languages:
+                    source = self._parse_language_source(proficiencies.get(proper_lang)) or self.LANGUAGE_SOURCE
+
+                    # Players may only remove languages when resolving merit-dot reductions.
+                    if target == self.caller and not is_staff:
+                        total_allowed = allowance.get(self.LANGUAGE_SOURCE, 0) + allowance.get(self.MULTILINGUAL_SOURCE, 0)
+                        if total_allowed <= 0:
+                            self.caller.msg(
+                                "You can only use +language/rem when reducing Language or Multilingual merit dots."
+                            )
+                            return
+                        if allowance.get(source, 0) <= 0:
+                            if source == self.MULTILINGUAL_SOURCE:
+                                self.caller.msg("You must remove a read/write language first.")
+                            else:
+                                self.caller.msg("You must remove a conversational language first.")
+                            return
+
                     current_languages.remove(proper_lang)
                     target.db.languages = current_languages
                     proficiencies.pop(proper_lang, None)
                     target.db.language_proficiencies = proficiencies
+                    self._consume_language_removal_allowance(target, source)
                     
                     # If they were speaking the removed language, reset to English
                     if target.get_speaking_language() == proper_lang:
@@ -634,6 +679,16 @@ class CmdLanguage(MuxCommand):
                     # Notify both staff and target
                     if target == self.caller:
                         self.caller.msg(f"You have removed {proper_lang} from your known languages.")
+                        remaining = self._get_language_removal_allowance(target)
+                        remaining_total = (
+                            remaining.get(self.LANGUAGE_SOURCE, 0)
+                            + remaining.get(self.MULTILINGUAL_SOURCE, 0)
+                        )
+                        if remaining_total > 0:
+                            self.caller.msg(
+                                f"You still need to remove {remaining_total} language"
+                                f"{'' if remaining_total == 1 else 's'} to match merit dots."
+                            )
                     else:
                         self.caller.msg(f"You have removed {proper_lang} from {target.name}'s known languages.")
                         target.msg(f"{proper_lang} has been removed from your known languages.")

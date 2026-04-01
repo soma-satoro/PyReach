@@ -1307,6 +1307,16 @@ class CmdStat(MuxCommand):
                 target.db.geist_stats = None
             if hasattr(target.db, 'mage_stats'):
                 target.db.mage_stats = None
+
+            # Reset language state to defaults for fresh chargen after template change.
+            native_language = target.db.native_language or "English"
+            default_languages = ["English"]
+            if native_language != "English":
+                default_languages.append(native_language)
+            target.db.languages = default_languages
+            target.db.language_proficiencies = {lang: "language" for lang in default_languages}
+            target.db.speaking_language = "English"
+            target.db.language_removal_allowance = {}
             
             # Clear other character-specific data
             target.db.willpower_current = None
@@ -1720,6 +1730,7 @@ class CmdStat(MuxCommand):
                 
                 # Parse base merit name and instance
                 base_merit_name, instance_name = parse_merit_instance(stat)
+                normalized_base_merit = base_merit_name.strip().lower().replace(" ", "_").replace("-", "_").replace("'", "")
                 
                 # Check all merit dictionaries
                 all_merit_dicts = [
@@ -1740,6 +1751,23 @@ class CmdStat(MuxCommand):
                     return
                 
                 if merit:
+                    # Capture prior dots so we can detect reductions.
+                    old_dots = 0
+                    existing_merits = target.db.stats.get("merits", {}) or {}
+                    existing_merit_data = existing_merits.get(stat)
+                    if not existing_merit_data:
+                        if instance_name:
+                            normalized_instance = instance_name.strip().lower().replace(" ", "_").replace("-", "_").replace("'", "")
+                            existing_merit_data = existing_merits.get(f"{normalized_base_merit}:{normalized_instance}")
+                        else:
+                            existing_merit_data = existing_merits.get(normalized_base_merit)
+                    if isinstance(existing_merit_data, dict):
+                        try:
+                            old_dots = int(existing_merit_data.get("dots", existing_merit_data.get("perm", 0)) or 0)
+                        except (TypeError, ValueError):
+                            old_dots = 0
+                    elif isinstance(existing_merit_data, int):
+                        old_dots = existing_merit_data
                     
                     # Check if character is approved (staff override bypasses)
                     if not staff_override:
@@ -1761,6 +1789,24 @@ class CmdStat(MuxCommand):
                     self.caller.msg(message)
                     if not success:
                         return
+
+                    # If Language/Multilingual dots were reduced, enforce manual removals.
+                    if normalized_base_merit in {"language", "multilingual"} and isinstance(value, int) and value < old_dots:
+                        dots_removed = old_dots - value
+                        removals_needed = dots_removed * (2 if normalized_base_merit == "multilingual" else 1)
+                        allowance = getattr(target.db, "language_removal_allowance", None) or {}
+                        allowance_key = "multilingual" if normalized_base_merit == "multilingual" else "language"
+                        allowance[allowance_key] = int(allowance.get(allowance_key, 0) or 0) + removals_needed
+                        target.db.language_removal_allowance = allowance
+
+                        source_label = "Multilingual (conversational)" if allowance_key == "multilingual" else "Language (read/write)"
+                        prompt = (
+                            f"Remove {removals_needed} language"
+                            f"{'' if removals_needed == 1 else 's'} via +language/rem to match the {source_label} dot reduction."
+                        )
+                        self.caller.msg(prompt)
+                        if target != self.caller:
+                            target.msg(f"|y{self.caller.name} reduced your {source_label} merit dots.|n {prompt}")
                     
                     # Merit was set successfully
                     stat_set = True

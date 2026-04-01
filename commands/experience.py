@@ -1,4 +1,6 @@
+import copy
 import re
+from datetime import datetime, timedelta, timezone
 from evennia.commands.default.muxcommand import MuxCommand
 from world.cofd.merits.general_merits import merits_dict, all_merits
 from world.utils.formatting import footer, get_theme_colors, sheet_section_header
@@ -21,6 +23,8 @@ class CmdExperience(MuxCommand):
         +xp/award <character>=<beats>   - Award beats to a character (staff only)
         +xp/spend <stat>=<dots>         - Spend experience on any stat
         +xp/spend <stat:instance>=<dots> - Spend experience on instanced merit
+        +xp/refund                      - Refund your most recent XP spend (within 24 hours)
+        +xp/refund/list                 - List recent refundable XP spends
         +xp/costs                       - Show experience point costs for your template
 
     Valid beat sources:
@@ -53,7 +57,7 @@ class CmdExperience(MuxCommand):
     Examples:
         +xp/spend strength=4                    - Raise Strength to 4 dots
         +xp/spend unseen_sense:ghosts=2         - Buy Unseen Sense (Ghosts) merit
-        +xp/spend athletics_specialty=running   - Add Running specialty to Athletics
+        +xp/spend athletics/specialty=running   - Add Running specialty to Athletics
         +xp/spend contract=crown_of_thorns      - Learn a contract as known
         +xp/spend contract/benefit=light_shy/darkling - Buy a non-native seeming benefit
         +xp/spend willpower=7                   - Restore lost Willpower
@@ -68,6 +72,7 @@ class CmdExperience(MuxCommand):
     key = "+xp"
     aliases = ["+experience", "+beat"]
     help_category = "Chargen & Character Info"
+    REFUND_WINDOW_HOURS = 24
 
     def func(self):
         """Execute the command."""
@@ -120,6 +125,11 @@ class CmdExperience(MuxCommand):
                 return
             self.buy_merit(exp_handler)
         elif self.switches[0] == "refund":
+            if not require_approved_character(self.caller, "+xp/refund"):
+                return
+            if len(self.switches) > 1 and self.switches[1] == "list":
+                self.list_refunds()
+                return
             self.refund_merit(exp_handler)
         elif self.switches[0] == "list":
             self.list_merits()
@@ -541,7 +551,7 @@ class CmdExperience(MuxCommand):
             self.caller.msg("Examples:")
             self.caller.msg("  +xp/spend strength=4")
             self.caller.msg("  +xp/spend unseen_sense:ghosts=2")
-            self.caller.msg("  +xp/spend athletics_specialty=running")
+            self.caller.msg("  +xp/spend athletics/specialty=running")
             return
         
         # Check if werewolf character is in a form that allows stat modification
@@ -579,16 +589,16 @@ class CmdExperience(MuxCommand):
         stats = self.caller.db.stats
         template = stats.get("other", {}).get("template", "Mortal").lower()
         
-        # Parse stat input for instances (merit:instance or skill_specialty)
+        # Parse stat input for instances (merit:instance or skill/specialty)
         instance = None
         if ":" in stat_input:
             # Instanced merit or similar
             stat_name, instance = stat_input.split(":", 1)
             stat_name = stat_name.strip().lower().replace(" ", "_")
             instance = instance.strip()
-        elif "_specialty" in stat_input:
-            # Skill specialty
-            skill_name = stat_input.replace("_specialty", "").strip().lower()
+        elif stat_input.endswith("/specialty"):
+            # Skill specialty with syntax: <skill>/specialty=<specialty>
+            skill_name = stat_input[:-len("/specialty")].strip().lower().replace(" ", "_")
             return self._spend_on_specialty(exp_handler, skill_name, value_str)
         else:
             stat_name = stat_input.replace(" ", "_")
@@ -611,6 +621,10 @@ class CmdExperience(MuxCommand):
         current_dots = 0
         max_dots = 5
         stat_category = None
+        advantage_power_stats = {
+            "wyrd", "blood_potency", "gnosis", "primal_urge",
+            "synergy", "primum", "azoth", "deviation"
+        }
         
         # Check for attributes
         if stat_name in attribute_dictionary:
@@ -625,7 +639,7 @@ class CmdExperience(MuxCommand):
             current_dots = stats.get("skills", {}).get(stat_name, 0)
             max_dots = 5
         # Check for integrity/morality stats
-        elif stat_name in ['integrity', 'humanity', 'wisdom', 'harmony', 'clarity', 'cover', 'synergy', 'pilgrimage', 'satiety', 'memory']:
+        elif stat_name in ['integrity', 'humanity', 'wisdom', 'harmony', 'clarity', 'cover', 'pilgrimage', 'satiety', 'memory']:
             # Special handling for Demon Cover (multiple covers)
             if stat_name == 'cover' and template == 'demon':
                 # Demons need to specify which cover to raise
@@ -642,6 +656,11 @@ class CmdExperience(MuxCommand):
             stat_type = 'integrity'
             stat_category = 'other'
             current_dots = stats["other"].get("integrity", 7)
+            max_dots = 10
+        elif stat_name in advantage_power_stats:
+            stat_type = 'advantage_power'
+            stat_category = 'advantages'
+            current_dots = stats.get("advantages", {}).get(stat_name, 1)
             max_dots = 10
         # Check for willpower restoration
         elif stat_name == 'willpower':
@@ -687,11 +706,16 @@ class CmdExperience(MuxCommand):
             self.caller.msg(f"{stat_name.title()} cannot exceed {max_dots} dots.")
             return
             
-        # Calculate cost using xp_costs module
-        cost, xp_type = calculate_xp_cost(
-            self.caller, stat_type, stat_name, current_dots, target_dots,
-            instance=instance
-        )
+        # Calculate cost using fixed pricing for advantage power stats,
+        # otherwise defer to template/general calculators.
+        if stat_type == "advantage_power":
+            cost = (target_dots - current_dots) * 5
+            xp_type = "normal"
+        else:
+            cost, xp_type = calculate_xp_cost(
+                self.caller, stat_type, stat_name, current_dots, target_dots,
+                instance=instance
+            )
         
         if cost == 0:
             self.caller.msg(f"Unable to calculate cost for {stat_name}.")
@@ -703,7 +727,11 @@ class CmdExperience(MuxCommand):
             return
         
         # Spend the XP
-        exp_handler.spend_experience(cost)
+        display_name = f"{stat_name.title()} ({instance})" if instance else stat_name.title()
+        if not self._spend_experience_with_refund(
+            exp_handler, cost, f"{display_name}: {current_dots} > {target_dots}"
+        ):
+            return
         
         # Update the stat
         if instance:
@@ -719,7 +747,6 @@ class CmdExperience(MuxCommand):
         # Log the expenditure
         from world.xp_logger import get_xp_logger
         logger = get_xp_logger(self.caller)
-        display_name = f"{stat_name.title()} ({instance})" if instance else stat_name.title()
         logger.log_experience(-cost, f"{display_name}: {current_dots} > {target_dots}")
         
         self.caller.msg(f"|gSpent {cost} XP to raise {display_name} to {target_dots} dots.|n")
@@ -729,11 +756,33 @@ class CmdExperience(MuxCommand):
         """Check if a stat name is a valid merit."""
         from world.cofd.merits.general_merits import merits_dict
         return stat_name in merits_dict
+
+    def _spend_experience_with_refund(self, exp_handler, amount, description):
+        """Spend XP and store rollback data for refunding."""
+        previous_stats = copy.deepcopy(self.caller.db.stats or {})
+        if not exp_handler.spend_experience(amount):
+            return False
+
+        history = list(self.caller.attributes.get("xp_refund_history", default=[]))
+        history.append({
+            "timestamp": datetime.now(timezone.utc),
+            "cost": amount,
+            "description": description,
+            "previous_stats": previous_stats,
+            "refunded": False,
+        })
+        self.caller.attributes.add("xp_refund_history", history)
+        return True
     
     def _spend_on_specialty(self, exp_handler, skill_name, specialty_name):
         """Handle spending XP on a skill specialty."""
         from world.cofd.stat_dictionary import skill_dictionary
         from world.xp_logger import get_xp_logger
+        
+        specialty_name = self._to_sentence_case(specialty_name)
+        if not specialty_name:
+            self.caller.msg("Please provide a specialty name.")
+            return
         
         # Validate skill exists
         if skill_name not in skill_dictionary:
@@ -761,7 +810,10 @@ class CmdExperience(MuxCommand):
             return
         
         # Spend the XP
-        exp_handler.spend_experience(cost)
+        if not self._spend_experience_with_refund(
+            exp_handler, cost, f"Specialty: {skill_name.title()} ({specialty_name})"
+        ):
+            return
         
         # Add the specialty
         if skill_name not in specialties:
@@ -775,6 +827,13 @@ class CmdExperience(MuxCommand):
         
         self.caller.msg(f"|gSpent {cost} XP to add '{specialty_name}' specialty to {skill_name.title()}.|n")
         self.caller.msg(f"Remaining experience: {exp_handler.experience}")
+
+    def _to_sentence_case(self, value):
+        """Normalize a label to sentence case."""
+        normalized = " ".join(str(value or "").strip().split())
+        if not normalized:
+            return ""
+        return normalized[0].upper() + normalized[1:].lower()
     
     def _spend_on_willpower(self, exp_handler, target_dots):
         """Handle restoring lost willpower dots."""
@@ -807,7 +866,10 @@ class CmdExperience(MuxCommand):
             return
         
         # Spend the XP
-        exp_handler.spend_experience(cost)
+        if not self._spend_experience_with_refund(
+            exp_handler, cost, f"Willpower Restored: {current_willpower} > {target_dots}"
+        ):
+            return
         
         # Restore willpower
         if "advantages" not in self.caller.db.stats:
@@ -882,7 +944,10 @@ class CmdExperience(MuxCommand):
             return
         
         # Spend the XP
-        exp_handler.spend_experience(cost)
+        if not self._spend_experience_with_refund(
+            exp_handler, cost, f"Cover '{cover_name}' (#{cover_id}): {current_rating} > {target_dots}"
+        ):
+            return
         
         # Update the cover rating
         cover_data['rating'] = target_dots
@@ -988,7 +1053,11 @@ class CmdExperience(MuxCommand):
             return
         
         # Spend the XP
-        exp_handler.spend_experience(xp_cost)
+        display_name = power_data.get('name', power_name.replace('_', ' ').title()) if power_data else power_name.replace('_', ' ').title()
+        if not self._spend_experience_with_refund(
+            exp_handler, xp_cost, f"{display_name} ({power_type.replace('_', ' ').title()})"
+        ):
+            return
         
         # Add the power using handle_semantic_power (which will set it correctly)
         # But we've already validated prerequisites and spent XP, so we need to make sure it succeeds
@@ -1003,7 +1072,6 @@ class CmdExperience(MuxCommand):
         
         # Log the expenditure
         logger = get_xp_logger(self.caller)
-        display_name = power_data.get('name', power_name.replace('_', ' ').title()) if power_data else power_name.replace('_', ' ').title()
         logger.log_experience(-xp_cost, f"{display_name} ({power_type.replace('_', ' ').title()})")
         
         self.caller.msg(f"|gSpent {xp_cost} XP to learn {display_name} ({power_type.replace('_', ' ').title()}).|n")
@@ -1106,7 +1174,10 @@ class CmdExperience(MuxCommand):
             self.caller.msg(f"Insufficient experience. Need {cost} XP, have {exp_handler.experience} XP.")
             return
 
-        exp_handler.spend_experience(cost)
+        if not self._spend_experience_with_refund(
+            exp_handler, cost, f"{contract_key.replace('_', ' ').title()} benefit ({seeming_key.title()})"
+        ):
+            return
         if "powers" not in stats:
             stats["powers"] = {}
         stats["powers"][benefit_key] = "known"
@@ -1198,7 +1269,10 @@ class CmdExperience(MuxCommand):
                 self.caller.msg(f"You already have {stat_name.title()} at {current_dots} dots.")
                 return
             cost, xp_type = calculate_xp_cost(self.caller, 'renown', stat_name, current_dots, target_dots)
-            exp_handler.spend_experience(cost)
+            if not self._spend_experience_with_refund(
+                exp_handler, cost, f"{stat_name.title()} (Renown): {current_dots} > {target_dots}"
+            ):
+                return
             powers[stat_name] = target_dots
             stats["powers"] = powers
             logger = get_xp_logger(self.caller)
@@ -1214,7 +1288,10 @@ class CmdExperience(MuxCommand):
                 self.caller.msg(f"You already have Primal Urge at {current_dots} dots.")
                 return
             cost, xp_type = calculate_xp_cost(self.caller, 'primal_urge', stat_name, current_dots, target_dots)
-            exp_handler.spend_experience(cost)
+            if not self._spend_experience_with_refund(
+                exp_handler, cost, f"Primal Urge: {current_dots} > {target_dots}"
+            ):
+                return
             if "advantages" not in stats:
                 stats["advantages"] = {}
             stats["advantages"]["primal_urge"] = target_dots
@@ -1235,7 +1312,10 @@ class CmdExperience(MuxCommand):
                 self.caller.msg(f"You already have {stat_name.title()} gifts at {current_dots} dots.")
                 return
             cost, xp_type = calculate_xp_cost(self.caller, 'gift', stat_name, current_dots, target_dots)
-            exp_handler.spend_experience(cost)
+            if not self._spend_experience_with_refund(
+                exp_handler, cost, f"{stat_name.replace('_', ' ').title()} (Gift): {current_dots} > {target_dots}"
+            ):
+                return
             powers[stat_name] = target_dots
             stats["powers"] = powers
             logger = get_xp_logger(self.caller)
@@ -1266,7 +1346,10 @@ class CmdExperience(MuxCommand):
                 if exp_handler.experience < cost:
                     self.caller.msg(f"Insufficient experience. Need {cost} XP, have {exp_handler.experience} XP.")
                     return
-                exp_handler.spend_experience(cost)
+                if not self._spend_experience_with_refund(
+                    exp_handler, cost, f"Rite: {rite_data['name']}"
+                ):
+                    return
                 # Add rite to powers with rite: prefix
                 powers[rite_key] = "known"
                 stats["powers"] = powers
@@ -1301,7 +1384,10 @@ class CmdExperience(MuxCommand):
                 self.caller.msg(f"You already have {stat_name.title()} at {current_dots} dots.")
                 return
             cost, xp_type = calculate_xp_cost(self.caller, 'discipline', stat_name, current_dots, target_dots)
-            exp_handler.spend_experience(cost)
+            if not self._spend_experience_with_refund(
+                exp_handler, cost, f"{stat_name.title()} (Discipline): {current_dots} > {target_dots}"
+            ):
+                return
             powers[stat_name] = target_dots
             stats["powers"] = powers
             logger = get_xp_logger(self.caller)
@@ -1317,7 +1403,10 @@ class CmdExperience(MuxCommand):
                 self.caller.msg(f"You already have Blood Potency at {current_dots} dots.")
                 return
             cost, xp_type = calculate_xp_cost(self.caller, 'blood_potency', stat_name, current_dots, target_dots)
-            exp_handler.spend_experience(cost)
+            if not self._spend_experience_with_refund(
+                exp_handler, cost, f"Blood Potency: {current_dots} > {target_dots}"
+            ):
+                return
             if "advantages" not in stats:
                 stats["advantages"] = {}
             stats["advantages"]["blood_potency"] = target_dots
@@ -1334,7 +1423,10 @@ class CmdExperience(MuxCommand):
                 self.caller.msg(f"You already have {stat_name.replace('_', ' ').title()} at {current_dots} dots.")
                 return
             cost, xp_type = calculate_xp_cost(self.caller, stat_name, stat_name, current_dots, target_dots)
-            exp_handler.spend_experience(cost)
+            if not self._spend_experience_with_refund(
+                exp_handler, cost, f"{stat_name.replace('_', ' ').title()}: {current_dots} > {target_dots}"
+            ):
+                return
             powers[stat_name] = target_dots
             stats["powers"] = powers
             logger = get_xp_logger(self.caller)
@@ -1421,7 +1513,10 @@ class CmdExperience(MuxCommand):
                 self.caller.msg(f"You already have Wyrd at {current_dots} dots.")
                 return
             cost, xp_type = calculate_xp_cost(self.caller, 'wyrd', stat_name, current_dots, target_dots)
-            exp_handler.spend_experience(cost)
+            if not self._spend_experience_with_refund(
+                exp_handler, cost, f"Wyrd: {current_dots} > {target_dots}"
+            ):
+                return
             if "advantages" not in stats:
                 stats["advantages"] = {}
             stats["advantages"]["wyrd"] = target_dots
@@ -1453,13 +1548,14 @@ class CmdExperience(MuxCommand):
                 self.caller.msg(f"Insufficient experience. Need {cost} XP, have {exp_handler.experience} XP.")
                 return
             
-            exp_handler.spend_experience(cost)
-            powers[stat_name] = target_dots
-            stats["powers"] = powers
-            
-            # Indicate if favored
             is_favored = is_changeling_contract_favored(self.caller, stat_name)
             favored_text = " (Favored)" if is_favored else ""
+            if not self._spend_experience_with_refund(
+                exp_handler, cost, f"{stat_name.replace('_', ' ').title()} (Contract){favored_text}: {current_dots} > {target_dots}"
+            ):
+                return
+            powers[stat_name] = target_dots
+            stats["powers"] = powers
             
             logger = get_xp_logger(self.caller)
             logger.log_experience(-cost, f"{stat_name.replace('_', ' ').title()} (Contract){favored_text}: {current_dots} > {target_dots}")
@@ -1486,7 +1582,10 @@ class CmdExperience(MuxCommand):
                 self.caller.msg(f"You already have Synergy at {current_dots} dots.")
                 return
             cost, xp_type = calculate_xp_cost(self.caller, 'synergy', stat_name, current_dots, target_dots)
-            exp_handler.spend_experience(cost)
+            if not self._spend_experience_with_refund(
+                exp_handler, cost, f"Synergy: {current_dots} > {target_dots}"
+            ):
+                return
             if "advantages" not in stats:
                 stats["advantages"] = {}
             stats["advantages"]["synergy"] = target_dots
@@ -1505,7 +1604,10 @@ class CmdExperience(MuxCommand):
                 self.caller.msg(f"You already have {stat_name.replace('_', ' ').title()} at {current_dots} dots.")
                 return
             cost, xp_type = calculate_xp_cost(self.caller, 'haunt', stat_name, current_dots, target_dots)
-            exp_handler.spend_experience(cost)
+            if not self._spend_experience_with_refund(
+                exp_handler, cost, f"{stat_name.replace('_', ' ').title()} (Haunt): {current_dots} > {target_dots}"
+            ):
+                return
             powers[stat_name] = target_dots
             stats["powers"] = powers
             logger = get_xp_logger(self.caller)
@@ -1531,7 +1633,10 @@ class CmdExperience(MuxCommand):
                 self.caller.msg(f"You already have Primum at {current_dots} dots.")
                 return
             cost, xp_type = calculate_xp_cost(self.caller, 'primum', stat_name, current_dots, target_dots)
-            exp_handler.spend_experience(cost)
+            if not self._spend_experience_with_refund(
+                exp_handler, cost, f"Primum: {current_dots} > {target_dots}"
+            ):
+                return
             if "advantages" not in stats:
                 stats["advantages"] = {}
             stats["advantages"]["primum"] = target_dots
@@ -1557,7 +1662,10 @@ class CmdExperience(MuxCommand):
             if exp_handler.experience < cost:
                 self.caller.msg(f"Insufficient experience. Need {cost} XP, have {exp_handler.experience} XP.")
                 return
-            exp_handler.spend_experience(cost)
+            if not self._spend_experience_with_refund(
+                exp_handler, cost, f"Embed/Exploit: {stat_name.replace('_', ' ').title()}"
+            ):
+                return
             powers[stat_name] = "known"
             stats["powers"] = powers
             logger = get_xp_logger(self.caller)
@@ -1582,7 +1690,10 @@ class CmdExperience(MuxCommand):
             if exp_handler.experience < cost:
                 self.caller.msg(f"Insufficient experience. Need {cost} XP, have {exp_handler.experience} XP.")
                 return
-            exp_handler.spend_experience(cost)
+            if not self._spend_experience_with_refund(
+                exp_handler, cost, f"Endowment: {stat_name.replace('_', ' ').title()}"
+            ):
+                return
             powers[stat_name] = "known"
             stats["powers"] = powers
             logger = get_xp_logger(self.caller)
@@ -1641,7 +1752,10 @@ class CmdExperience(MuxCommand):
                 self.caller.msg(f"Insufficient normal experience. Need {normal_cost} XP, have {exp_handler.experience} XP.")
                 return
             
-            exp_handler.spend_experience(normal_cost)
+            if not self._spend_experience_with_refund(
+                exp_handler, normal_cost, f"Azoth: {current_dots} > {target_dots}"
+            ):
+                return
             if "advantages" not in stats:
                 stats["advantages"] = {}
             stats["advantages"]["azoth"] = target_dots
@@ -1756,7 +1870,10 @@ class CmdExperience(MuxCommand):
             return
             
         # Purchase merit
-        exp_handler.spend_experience(total_cost)
+        if not self._spend_experience_with_refund(
+            exp_handler, total_cost, f"Merit: {merit.name} ({dots} dots)"
+        ):
+            return
         
         # Log the XP expenditure
         from world.xp_logger import get_xp_logger
@@ -1891,39 +2008,111 @@ class CmdExperience(MuxCommand):
         return False
 
     def refund_merit(self, exp_handler):
-        """Refund a merit for experience (staff only)."""
-        if not self.caller.check_permstring("Builder"):
-            self.caller.msg("Only staff can refund merits.")
+        """Refund the most recent XP spend if used within 24 hours."""
+        history = list(self.caller.attributes.get("xp_refund_history", default=[]))
+        if not history:
+            self.caller.msg("|yNo refundable XP spends found.|n")
+            self.caller.msg(
+                f"Use |w+xp/spend|n first, then |w+xp/refund|n within {self.REFUND_WINDOW_HOURS} hours."
+            )
             return
-            
-        merit_name = self.args.strip().lower().replace(" ", "_")
-        if not merit_name:
-            self.caller.msg("Usage: +xp/refund <merit>")
+
+        latest_index = None
+        latest_entry = None
+        for idx in range(len(history) - 1, -1, -1):
+            if not history[idx].get("refunded"):
+                latest_index = idx
+                latest_entry = history[idx]
+                break
+
+        if latest_entry is None:
+            self.caller.msg("|yNo refundable XP spends found.|n")
             return
-            
-        current_merits = self.caller.db.stats.get("merits", {})
-        if merit_name not in current_merits:
-            self.caller.msg(f"You don't have the merit '{merit_name}'.")
+
+        timestamp = latest_entry.get("timestamp")
+        if not timestamp:
+            self.caller.msg("|rRefund data for your latest spend is incomplete. Contact staff.|n")
             return
-            
-        merit_data = current_merits[merit_name]
-        refund_amount = merit_data["dots"]
-        
-        # Remove merit and refund experience
-        del current_merits[merit_name]
+
+        now = datetime.now(timezone.utc)
+        if now - timestamp > timedelta(hours=self.REFUND_WINDOW_HOURS):
+            self.caller.msg(
+                f"|rRefund window expired.|n +xp/refund must be used within {self.REFUND_WINDOW_HOURS} hours of spending XP."
+            )
+            return
+
+        previous_stats = latest_entry.get("previous_stats")
+        refund_amount = int(latest_entry.get("cost", 0))
+        description = latest_entry.get("description", "Unknown purchase")
+        if previous_stats is None or refund_amount <= 0:
+            self.caller.msg("|rRefund data for your latest spend is invalid. Contact staff.|n")
+            return
+
+        self.caller.attributes.add("stats", previous_stats)
         exp_handler.add_experience(refund_amount)
-        
-        # Recalculate derived stats in case merit affected them
+
         if hasattr(self.caller, 'calculate_derived_stats'):
             self.caller.calculate_derived_stats()
-        
-        # Log the XP refund
+
+        history[latest_index]["refunded"] = True
+        history[latest_index]["refunded_at"] = now
+        self.caller.attributes.add("xp_refund_history", history)
+
         from world.xp_logger import get_xp_logger
         logger = get_xp_logger(self.caller)
-        logger.log_experience(refund_amount, f"Merit Refund: {merit_name.replace('_', ' ').title()} ({refund_amount} dots)")
-        
-        self.caller.msg(f"|gRefunded {merit_name.replace('_', ' ').title()} for {refund_amount} XP.|n")
-        self.caller.msg(f"Current experience: {exp_handler.experience}")
+        logger.log_experience(refund_amount, f"XP Refund: {description}")
+
+        self.caller.msg(f"|gRefunded {refund_amount} XP from your most recent spend.|n")
+        self.caller.msg(f"|xReverted purchase:|n {description}")
+
+    def list_refunds(self):
+        """List recent XP spends and refund eligibility."""
+        history = list(self.caller.attributes.get("xp_refund_history", default=[]))
+        if not history:
+            self.caller.msg("|yNo XP spend history found for refunds.|n")
+            return
+
+        now = datetime.now(timezone.utc)
+        output = []
+        output.append(footer(78, char="="))
+        _, text_color, _ = get_theme_colors()
+        output.append(f"|{text_color}{'XP REFUND HISTORY'.center(78)}|n")
+        output.append(footer(78, char="="))
+        output.append("")
+
+        shown = 0
+        for entry in reversed(history):
+            if shown >= 10:
+                break
+            shown += 1
+
+            timestamp = entry.get("timestamp")
+            description = entry.get("description", "Unknown purchase")
+            cost = int(entry.get("cost", 0))
+            refunded = bool(entry.get("refunded", False))
+
+            when_text = "Unknown time"
+            if timestamp:
+                when_text = timestamp.strftime("%Y-%m-%d %H:%M UTC")
+
+            if refunded:
+                status_text = "|xrefunded|n"
+            elif not timestamp:
+                status_text = "|rinvalid timestamp|n"
+            else:
+                remaining = timedelta(hours=self.REFUND_WINDOW_HOURS) - (now - timestamp)
+                if remaining.total_seconds() <= 0:
+                    status_text = "|rexpired|n"
+                else:
+                    hours, rem = divmod(int(remaining.total_seconds()), 3600)
+                    minutes = rem // 60
+                    status_text = f"|grefundable|n ({hours}h {minutes}m left)"
+
+            output.append(f"|w-{cost} XP|n  {description}")
+            output.append(f"  {when_text}  |  {status_text}")
+            output.append("")
+
+        self.caller.msg("\n".join(output))
 
     def list_merits(self):
         """List available merits by category."""
@@ -2377,7 +2566,7 @@ class CmdExperience(MuxCommand):
         output.append("|gExamples:|n")
         output.append("  +xp/spend strength=4                  - Raise Strength")
         output.append("  +xp/spend unseen_sense:ghosts=2       - Buy instanced merit")
-        output.append("  +xp/spend athletics_specialty=running - Add specialty")
+        output.append("  +xp/spend athletics/specialty=running - Add specialty")
         output.append("")
         output.append(footer(78, char="="))
         

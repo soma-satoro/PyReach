@@ -1033,8 +1033,22 @@ def can_modify_stats_while_shifted(character):
     has_chrysalis_forms = False
     if template == "changeling":
         powers = (character.db.stats or {}).get("powers", {}) or {}
-        selected = command._get_selected_chrysalis_forms(character)
-        has_chrysalis_forms = powers.get("contract:chrysalis") == "known" and len(selected) > 0
+        selected_raw = getattr(character.db, "chrysalis_forms", None)
+        if selected_raw is None:
+            selected = []
+        elif isinstance(selected_raw, (list, tuple, set)):
+            selected = list(selected_raw)
+        else:
+            try:
+                selected = list(selected_raw)
+            except TypeError:
+                selected = []
+        normalized = []
+        for entry in selected:
+            key = normalize_chrysalis_form_name(entry)
+            if key and key in CHRYSALIS_FORMS and key not in normalized:
+                normalized.append(key)
+        has_chrysalis_forms = powers.get("contract:chrysalis") == "known" and len(normalized) > 0
     
     # Check for changing breed in legacy mode
     is_changing_breed = False

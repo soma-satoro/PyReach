@@ -144,10 +144,9 @@ def remove_stat_from_character(character, stat, caller):
             is_npc = hasattr(character, 'db') and character.db.is_npc
             if character.db.approved and not is_npc:
                 error_msg = f"Character is approved. Merits cannot be removed directly with +stat."
+                error_msg += "\nUse '+xp/refund' within 24 hours of your most recent XP spend to roll it back."
                 if caller.check_permstring("Builder"):
-                    error_msg += f"\nUse '+xp/refund {stat}' to refund the merit and return experience points."
-                else:
-                    error_msg += f"\nOnly staff can refund merits. Contact staff for assistance."
+                    error_msg += "\nStaff can still assist with manual corrections when needed."
                 return False, error_msg
             # For unapproved characters and NPCs, allow direct removal (handled below)
     except ImportError:
@@ -169,6 +168,10 @@ def remove_stat_from_character(character, stat, caller):
     # Try to find stat in all categories
     for category in ["attributes", "skills", "advantages", "bio", "anchors", "merits", "powers", "other"]:
         if stat in character.db.stats.get(category, {}):
+            merit_data = None
+            if category == "merits":
+                merit_data = character.db.stats.get("merits", {}).get(stat)
+
             # Special handling for template (staff only)
             if stat == "template" and category == "other":
                 if not caller.check_permstring("Builder"):
@@ -196,6 +199,31 @@ def remove_stat_from_character(character, stat, caller):
                 character.db.stats.get("anchors", {}).pop(stat, None)
             else:
                 del character.db.stats[category][stat]
+
+            # If Language/Multilingual merit was removed, require matching language removals.
+            pending_language_removals_msg = ""
+            if category == "merits":
+                merit_base = stat.split(":", 1)[0].strip().lower().replace(" ", "_")
+                if merit_base in {"language", "multilingual"}:
+                    dots_removed = 0
+                    if isinstance(merit_data, dict):
+                        try:
+                            dots_removed = int(merit_data.get("dots", merit_data.get("perm", 0)) or 0)
+                        except (TypeError, ValueError):
+                            dots_removed = 0
+                    elif isinstance(merit_data, int):
+                        dots_removed = merit_data
+
+                    if dots_removed > 0:
+                        removals_needed = dots_removed * (2 if merit_base == "multilingual" else 1)
+                        allowance = getattr(character.db, "language_removal_allowance", None) or {}
+                        allowance_key = "multilingual" if merit_base == "multilingual" else "language"
+                        allowance[allowance_key] = int(allowance.get(allowance_key, 0) or 0) + removals_needed
+                        character.db.language_removal_allowance = allowance
+                        pending_language_removals_msg = (
+                            f" Remove {removals_needed} language"
+                            f"{'' if removals_needed == 1 else 's'} via +language/rem."
+                        )
             
             # Recalculate derived stats if merit was removed
             if category == "merits" and hasattr(character, 'calculate_derived_stats'):
@@ -235,7 +263,7 @@ def remove_stat_from_character(character, stat, caller):
                 
                 display_stat = display_stat.replace('_', ' ').title()
             
-            return True, f"Removed {display_stat} from {character.name}."
+            return True, f"Removed {display_stat} from {character.name}.{pending_language_removals_msg}"
     
     return False, f"{character.name} doesn't have a stat called {stat}."
 

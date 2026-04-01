@@ -500,6 +500,35 @@ changeling_merits = [
         merit_type="changeling",
         prerequisite="motley_membership:1"
     ),
+
+    # Entitlement Merits
+    # Baron of the Lesser Ones
+    Merit(
+        name="Baron's Bond",
+        min_value=4,
+        max_value=4,
+        description="You are a Baron of the Lesser Ones. You are a diplomat and mediator accepted among hobgoblins. \n\n This merit provides the following blessing options:\n\n- Gain half Wyrd as Allies among a subset of hobgoblins.\n - Glamour regain \n - Enhanced new specialty. \n -Gain Allies (Wyrd/2, rounded up) for a particular group of hobgoblins, such as all merchantsof a specific Goblin Market, or all briarwolves; these Allies remember favors previous Barons did for them. (Conditional) \n\n - Gain a hostile oath (Changeling, p. 214) to one specific changeling, whether the character knows that changeling already or not, leftover from unresolved enmity resulting from a predecessor's actions as Baron. Definitively fulfilling this oath refills all spent Willpower. \n\n - Touchstone: A mortal the Baron rescued from danger in the Hedge. \n\n - Curse: Clarity attacks suffered while favoring hobgoblin interests over changeling ones add damage dice equal to ranks invested in this Merit. \n\n - Beat: The Baron resolves a conflict with goblins, peacefully or otherwise, in a way that personally inconveniences himself or his motley.",
+        merit_type="changeling",
+        prerequisite="entitlement:baron_of_the_lesser_ones,empathy:2,[intimidation:2,persuasion:2],gentrified_bearing:1,hob_kin:1,interdisciplinary_specialty:goblins"
+    ),
+    # Dauphines of Wayward Children
+    Merit(
+        name="Dauphine's Gift",
+        min_value=4,
+        max_value=4,
+        description="You are a Dauphine of Wayward Children. You are a cooperative caretaker for youth without homes.\n\n This merit provides the following blessing options:\n\n- Glamour gain\n - Enhanced new Specialty\n - Additional Thread\n - Gain a token with a rating equal to (Wyrd/2, rounded up) that your character inherited, representing a gift from one of her title's previous wards. The gift was a mundane object but becoming part of the entitlement granted it power. Use the rules on p. 55 to design this token with the Storyteller or use an example from either chapter 4 of this book or starting on p. 224 of the Changeling core book. \n\n - The Dauphine's non-changeling wards all gain the Lucid Dreamer Merit (Changeling, p. 123). She always treats their Bastions as possessing Fortitude 1 (Changeling, p. 221). Successful mundane actions inside a ward's Bastion gain one additional success that can only be used to generate dreamweaving shifts; if this would give the player enough successes for an exceptional success, it counts as such. (Conditional) \n\n - Touchstone: One of the Dauphine's mortal wards. (Conditional) \n\n - Curse: Clarity attacks suffered as a result of losing a ward for any reason, including because they grew up or left of their own accord, add damage dice equal to ranks invested in this Merit. \n\n - Beat: The Dauphine abandons an important responsibility or suffers harm to herself or her motley in the process of chasing and collecting a new ward",
+        merit_type="changeling",
+        prerequisite="entitlement:dauphines_of_wayward_children,presence:2,[manipulation:2,composure:2],persuasion:2,[empathy:2,intimidation:2],wyrd:3"
+    ),
+    # Master of Keys
+    Merit(
+        name="Key Mastery",
+        min_value=4,
+        max_value=4,
+        description="You are a Master of Keys. You are an inquisitive seeker charged with unlocking the discovery of secrets and revelations. \n\n This merit provides the following blessing options:\n\n- Glamour gain\n - Enhanced new Specialty\n - Additional Thread\n - Gain one dot of the Safe Place Merit (Changeling, p. 125), which contains a 2-dot Library (Changeling, p. 123) for a Mental Skill of the player's choice. The Master can use the Last Key to make any door in the mundane world lead there, as a form of portaling (Changeling, p. 109). (Conditional)\n\n - If the Master spends an extra Glamour when portaling into or out of the Hedge through a closeable portal, he may specify a new Key that opens the dormant Hedgeway he leaves behind, as long as it's something that could be researched and is possible for mortals to possess or do. The old Key no longer works. \n\n - Touchstone: A mortal whose secret the Master knows and keeps. (Conditional) \n\n - Curse: Clarity attacks suffered while choosing to keep a secret when its revelation would aid him, or an ally, add damage dice equal to ranks invested in this Merit. \n\n - Beat: Upon investing at least one dot in this Merit, the Master gains an additional Aspiration tied to pursuing a dangerous secret. Once he fulfills it, he replaces it at the end of the chapter with a new one.",
+        merit_type="changeling",
+        prerequisite="entitlement:master_of_keys, investigation:2, empathy:2, any Merit pertaining to uncovering secrets (e.g. Diviner, Hedge Sense, Trained Observer, etc.)"
+    ),
 ]
 
 # Create dictionary for easy lookup

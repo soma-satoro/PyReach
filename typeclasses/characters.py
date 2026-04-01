@@ -346,6 +346,16 @@ class Character(DefaultCharacter):
             self.db.geist_stats = None
         if hasattr(self.db, 'mage_stats'):
             self.db.mage_stats = None
+
+        # Reset language state for fresh chargen after template reset.
+        native_language = self.db.native_language or "English"
+        default_languages = ["English"]
+        if native_language != "English":
+            default_languages.append(native_language)
+        self.db.languages = default_languages
+        self.db.language_proficiencies = {lang: "language" for lang in default_languages}
+        self.db.speaking_language = "English"
+        self.db.language_removal_allowance = {}
         
         # Clean up any legacy attributes that might exist
         legacy_cleanup_attrs = [

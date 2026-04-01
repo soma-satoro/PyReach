@@ -77,6 +77,24 @@ def _count_specialties(character, stats):
     return specialty_count
 
 
+def _sum_template_merit_costs(tracker_data):
+    """
+    Sum template-defined merit costs (keys ending in `_merit_cost`).
+    """
+    total = 0
+    if not isinstance(tracker_data, Mapping):
+        return 0
+
+    for key, value in tracker_data.items():
+        if not (isinstance(key, str) and key.endswith("_merit_cost")):
+            continue
+        try:
+            total += int(value or 0)
+        except (TypeError, ValueError):
+            continue
+    return total
+
+
 def calculate_chargen_points(character):
     """
     Calculate character generation points for a character.
@@ -277,6 +295,13 @@ def calculate_chargen_points(character):
         result['demon'] = demon_data
         # Demon has 4 specialties (one must threaten Cover)
         result['specialties_available'] = 4
+
+    # Template power-stat increases and similar chargen exchanges consume merit dots.
+    # Add any template-reported *_merit_cost values into the core merit budget.
+    template_merit_cost = 0
+    for value in result.values():
+        template_merit_cost += _sum_template_merit_costs(value)
+    result['merits_spent'] += template_merit_cost
     
     return result
 
@@ -484,7 +509,7 @@ def calculate_vampire_chargen(character, stats, merits):
             covenant_power_dots += dots
     
     # Blood Potency tracking
-    blood_potency = stats.get('other', {}).get('blood_potency', 1)
+    blood_potency = stats.get('advantages', {}).get('blood_potency', stats.get('other', {}).get('blood_potency', 1))
     bp_from_merits = max(0, blood_potency - 1)  # Subtract the free dot
     bp_merit_cost = bp_from_merits * 5  # 5 merits per dot
     
@@ -709,8 +734,7 @@ def calculate_werewolf_chargen(character, stats, merits):
     rites_from_merits = max(0, rite_dots - 2)
     
     # Primal Urge tracking
-    other = stats.get('other', {})
-    primal_urge = other.get('primal_urge', 1)
+    primal_urge = stats.get('advantages', {}).get('primal_urge', stats.get('other', {}).get('primal_urge', 1))
     pu_from_merits = max(0, primal_urge - 1)
     pu_merit_cost = pu_from_merits * 5
     

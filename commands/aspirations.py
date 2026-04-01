@@ -10,7 +10,7 @@ class CmdAspiration(MuxCommand):
         +aspiration - List your current aspirations
         +aspiration <character> - View another character's aspirations (staff only)
         +aspiration/list - List your current aspirations (same as no switch)
-        +aspiration/add <short|long> <description> - Add an aspiration
+        +aspiration/add <short|long>=<description> - Add an aspiration
         +aspiration/change <number> <new description> - Change an existing aspiration
         +aspiration/remove <number> - Remove an aspiration
         +aspiration/fulfill <number> - Mark an aspiration as fulfilled and gain a beat
@@ -25,8 +25,8 @@ class CmdAspiration(MuxCommand):
     Examples:
         +aspiration
         +aspiration John (staff only)
-        +aspiration/add short Learn about the vampire who sired my friend
-        +aspiration/add long Become the primogen of my clan
+        +aspiration/add short=Learn about the vampire who sired my friend
+        +aspiration/add long=Become the primogen of my clan
         +aspiration/change 2 Destroy the vampire who sired my friend
         +aspiration/fulfill 1
         +aspiration/remove 3
@@ -177,17 +177,23 @@ class CmdAspiration(MuxCommand):
     def add_aspiration(self):
         """Add a new aspiration"""
         try:
-            asp_type, description = self.args.split(" ", 1)
-            asp_type = asp_type.lower()
+            asp_type, description = self.args.split("=", 1)
+            asp_type = asp_type.strip().lower()
+            description = description.strip()
         except ValueError:
-            self.caller.msg("Usage: +aspiration/add <short|long> <description>")
-            self.caller.msg("Example: +aspiration/add short Find the missing artifact")
+            self.caller.msg("Usage: +aspiration/add <short|long>=<description>")
+            self.caller.msg("Example: +aspiration/add short=Find the missing artifact")
+            return
+        
+        if not description:
+            self.caller.msg("Usage: +aspiration/add <short|long>=<description>")
+            self.caller.msg("Example: +aspiration/add short=Find the missing artifact")
             return
         
         # Validate type
         if asp_type not in ["short", "long", "short-term", "long-term"]:
             self.caller.msg("Aspiration type must be 'short' or 'long'")
-            self.caller.msg("Example: +aspiration/add short Find the missing artifact")
+            self.caller.msg("Example: +aspiration/add short=Find the missing artifact")
             return
         
         # Normalize type
