@@ -6,12 +6,16 @@ Commands for world building including areas, rooms, and mapping.
 
 from evennia.commands.default.muxcommand import MuxCommand
 from evennia.utils.evtable import EvTable
-from evennia.utils import utils
+from evennia.utils import create, utils
 from evennia.utils.search import search_object
+from evennia.server.models import ServerConfig
 from utils.text import process_special_characters
 from world.area_manager import get_area_manager
+from world.utils.permission_utils import check_staff_permission
 from world.utils import ansi_subs  # noqa: F401
 from world.utils.formatting import get_theme_colors
+import re
+import time
 
 
 class CmdAreaManage(MuxCommand):
@@ -226,6 +230,10 @@ class CmdRoomSetup(MuxCommand):
       +room/hisil <target>=<description>    - Set Shadow/Hisil description
       +room/gauntlet <target>=<0-5>         - Set Gauntlet strength rating
       +room/chargen <target>=on/off         - Convert room to/from ChargenRoom typeclass
+      +room/lock <exit>=<rules>             - Lock an exit in your current room
+      +room/unlock <exit>                   - Remove lock from an exit in your current room
+      +room/hide <exit>=<rules>             - Hide an exit with template/type/stat/merit visibility rules
+      +room/unhide <exit>                   - Make a hidden exit visible to all again
       
     Target must be specified:
       - 'here' for current room
@@ -250,6 +258,12 @@ class CmdRoomSetup(MuxCommand):
       +room/hisil here=A twisted reflection...  - Set Shadow description
       +room/gauntlet here=3                     - Set Gauntlet strength
       +room/chargen here=on                     - Convert room to ChargenRoom (shows point tracking)
+      +room/lock Main Door=templates:changeling,mage;streetwise:3
+      +room/unlock Main Door
+      +room/hide Hedge Gate=changeling
+      +room/hide Avernian Gate=geist
+      +room/hide Tomb Gate=mummy
+      +room/hide Secret Door=changeling;mortalplus:fae_touched;streetwise:3;merit:status=2
     
     Common Room Tags:
       Research & Knowledge:
@@ -365,21 +379,368 @@ class CmdRoomSetup(MuxCommand):
                 return obj
         
         return None
+
+    def _normalize_lock_id(self, value):
+        return str(value or "").strip().lower().replace("-", "_").replace(" ", "_")
+
+    def _parse_visibility_groups(self, raw_groups):
+        """
+        Parse visibility groups for hidden exits.
+        """
+        alias_map = {
+            "sin_eater": "geist",
+            "sin_eaters": "geist",
+            "sineater": "geist",
+            "sineaters": "geist",
+            "hunters": "hunter",
+            "mummies": "mummy",
+        }
+        allowed = {
+            "changeling", "geist", "werewolf", "vampire",
+            "mage", "promethean", "deviant", "demon", "hunter", "mummy",
+        }
+        parsed = []
+        for group in raw_groups.split(","):
+            normalized = self._normalize_lock_id(group)
+            if not normalized:
+                continue
+            normalized = alias_map.get(normalized, normalized)
+            if normalized not in allowed:
+                raise ValueError(
+                    f"Unknown group '{group.strip()}'. "
+                    f"Allowed: {', '.join(sorted(allowed))}"
+                )
+            parsed.append(normalized)
+        parsed = sorted(set(parsed))
+        if not parsed:
+            raise ValueError("You must specify at least one group.")
+        return parsed
+
+    def _parse_hide_rules(self, raw_rules):
+        """
+        Parse hidden-exit visibility requirements.
+
+        Supported examples:
+          changeling
+          changeling,mummy
+          changeling;streetwise:3;merit:status=2
+          templates:changeling,mage;mortalplus:fae_touched
+        """
+        raw_rules = (raw_rules or "").strip()
+        if not raw_rules:
+            raise ValueError("No hide rules supplied.")
+
+        # Simple form: "<group1>,<group2>"
+        if ";" not in raw_rules and ":" not in raw_rules:
+            return {
+                "templates": self._parse_visibility_groups(raw_rules),
+                "mortalplus": [],
+                "stats": [],
+                "merits": [],
+            }
+
+        attribute_fields = {
+            "strength", "dexterity", "stamina", "presence", "manipulation",
+            "composure", "intelligence", "wits", "resolve",
+        }
+        skill_fields = {
+            "academics", "computer", "crafts", "investigation", "medicine",
+            "occult", "politics", "science", "athletics", "brawl", "drive",
+            "firearms", "larceny", "stealth", "survival", "weaponry",
+            "animal_ken", "empathy", "expression", "intimidation",
+            "persuasion", "socialize", "streetwise", "subterfuge",
+        }
+
+        parsed = {
+            "templates": [],
+            "mortalplus": [],
+            "stats": [],
+            "merits": [],
+        }
+
+        tokenized = [token.strip() for token in raw_rules.split(";") if token.strip()]
+        for token in tokenized:
+            if ":" not in token:
+                parsed["templates"].extend(self._parse_visibility_groups(token))
+                continue
+
+            key, value = token.split(":", 1)
+            key = self._normalize_lock_id(key)
+            value = value.strip()
+
+            if key in {"template", "templates", "group", "groups"}:
+                parsed["templates"].extend(self._parse_visibility_groups(value))
+                continue
+
+            if key in {"mortalplus", "mortal_plus", "type", "template_type"}:
+                values = [self._normalize_lock_id(v) for v in value.split(",") if v.strip()]
+                parsed["mortalplus"].extend(values)
+                continue
+
+            if key == "skill":
+                # Legacy support: skill:streetwise=3
+                match = re.match(r"^\s*([a-zA-Z_][a-zA-Z0-9_ ]*)\s*(>=|<=|==|=|>|<)?\s*(\d+)\s*$", value)
+                if not match:
+                    raise ValueError(f"Invalid skill rule '{token}'.")
+                stat_name, operator, amount = match.groups()
+                normalized_op = ">="
+                if operator in {"<=", "<"}:
+                    normalized_op = operator
+                parsed["stats"].append(
+                    {
+                        "name": self._normalize_lock_id(stat_name),
+                        "op": normalized_op,
+                        "value": int(amount),
+                    }
+                )
+                continue
+
+            if key in attribute_fields or key in skill_fields:
+                match = re.match(r"^\s*(>=|<=|==|=|>|<)?\s*(\d+)\s*$", value)
+                if not match:
+                    raise ValueError(f"Invalid stat requirement '{token}'. Use {key}:3.")
+                operator, amount = match.groups()
+                normalized_op = ">="
+                if operator in {"<=", "<"}:
+                    normalized_op = operator
+                parsed["stats"].append(
+                    {
+                        "name": key,
+                        "op": normalized_op,
+                        "value": int(amount),
+                    }
+                )
+                continue
+
+            if key in {"merit", "merits"}:
+                # merit:status=2,resources=3 OR merit:status (defaults to 1+)
+                merit_parts = [part.strip() for part in value.split(",") if part.strip()]
+                if not merit_parts:
+                    raise ValueError("Merit rules must include at least one merit.")
+                for merit_part in merit_parts:
+                    merit_match = re.match(
+                        r"^\s*([a-zA-Z0-9_ \-]+)\s*(>=|<=|==|=|>|<)?\s*(\d+)?\s*$",
+                        merit_part,
+                    )
+                    if not merit_match:
+                        raise ValueError(f"Invalid merit requirement '{merit_part}'.")
+                    merit_name, operator, amount = merit_match.groups()
+                    normalized_op = ">="
+                    if operator in {"<=", "<"}:
+                        normalized_op = operator
+                    parsed["merits"].append(
+                        {
+                            "name": self._normalize_lock_id(merit_name),
+                            "op": normalized_op,
+                            "value": int(amount) if amount else 1,
+                        }
+                    )
+                continue
+
+            # Allow a comma-list of template groups inside any unknown key only if value is empty.
+            raise ValueError(
+                f"Unknown hide rule key '{key}'. "
+                "Use templates:, mortalplus:, <stat>:<value>, or merit:."
+            )
+
+        parsed["templates"] = sorted(set(parsed["templates"]))
+        parsed["mortalplus"] = sorted(set(parsed["mortalplus"]))
+
+        unique_stats = {}
+        for req in parsed["stats"]:
+            unique_stats[(req["name"], req["op"], req["value"])] = req
+        parsed["stats"] = list(unique_stats.values())
+
+        unique_merits = {}
+        for req in parsed["merits"]:
+            unique_merits[(req["name"], req["op"], req["value"])] = req
+        parsed["merits"] = list(unique_merits.values())
+
+        if not (parsed["templates"] or parsed["mortalplus"] or parsed["stats"] or parsed["merits"]):
+            raise ValueError("No valid hide rules were supplied.")
+        return parsed
+
+    def _parse_lock_rules(self, raw_rules):
+        """
+        Parse room-entry rules from a semicolon-separated string.
+
+        Supported tokens:
+          staff (preferred), players / staffonly (legacy)
+          template:<a,b,c>
+          templates:<a,b,c>
+          mortalplus:<a,b,c>
+          skill:<name><op><value>   (legacy/optional)
+          <stat_name>:<value>       (preferred, minimum-threshold)
+          bio:<field>=<a,b,c>
+          court:<a,b> / seeming:<a,b> / kith:<a,b> / tribe:<a,b> ...
+        """
+        tokenized = [token.strip() for token in raw_rules.split(";") if token.strip()]
+        if not tokenized:
+            raise ValueError("No lock rules supplied.")
+
+        rules = {
+            "staff_only": False,
+            "templates": [],
+            "mortalplus": [],
+            "skills": [],
+            "stats": [],
+            "bio": {},
+        }
+
+        direct_bio_fields = {
+            "court", "seeming", "kith", "tribe", "auspice",
+            "clan", "order", "path", "guild", "decree",
+            "judge", "cult", "tomb", "needle", "thread",
+            "subtype", "profession", "organization", "creed",
+        }
+        attribute_fields = {
+            "strength", "dexterity", "stamina", "presence", "manipulation",
+            "composure", "intelligence", "wits", "resolve",
+        }
+        skill_fields = {
+            "academics", "computer", "crafts", "investigation", "medicine",
+            "occult", "politics", "science", "athletics", "brawl", "drive",
+            "firearms", "larceny", "stealth", "survival", "weaponry",
+            "animal_ken", "empathy", "expression", "intimidation",
+            "persuasion", "socialize", "streetwise", "subterfuge",
+        }
+
+        for token in tokenized:
+            lower = token.lower()
+
+            if lower in {"staff", "players", "staffonly", "staff_only"}:
+                rules["staff_only"] = True
+                continue
+
+            if ":" not in token:
+                raise ValueError(f"Invalid lock token '{token}'. Use key:value format.")
+
+            key, value = token.split(":", 1)
+            key = self._normalize_lock_id(key)
+            value = value.strip()
+
+            if key in {"template", "templates"}:
+                values = [self._normalize_lock_id(v) for v in value.split(",") if v.strip()]
+                rules["templates"].extend(values)
+                continue
+
+            if key in {"mortalplus", "mortal_plus", "type", "template_type"}:
+                values = [self._normalize_lock_id(v) for v in value.split(",") if v.strip()]
+                rules["mortalplus"].extend(values)
+                continue
+
+            if key == "skill":
+                # Minimum requirement syntax (merit-prereq style):
+                #   skill:streetwise=3   -> Streetwise 3+
+                # Backward compatible with older operator forms.
+                match = re.match(r"^\s*([a-zA-Z_][a-zA-Z0-9_ ]*)\s*(>=|<=|==|=|>|<)?\s*(\d+)\s*$", value)
+                if not match:
+                    raise ValueError(f"Invalid skill rule '{token}'.")
+                skill_name, operator, amount = match.groups()
+                # Use minimum requirement semantics by default.
+                normalized_op = ">="
+                if operator in {"<=", "<"}:
+                    normalized_op = operator
+                rules["skills"].append(
+                    {
+                        "name": self._normalize_lock_id(skill_name),
+                        "op": normalized_op,
+                        "value": int(amount),
+                    }
+                )
+                continue
+
+            # Preferred shorthand: streetwise:3, occult:2, presence:4, etc.
+            if key in attribute_fields or key in skill_fields:
+                match = re.match(r"^\s*(>=|<=|==|=|>|<)?\s*(\d+)\s*$", value)
+                if not match:
+                    raise ValueError(
+                        f"Invalid stat requirement '{token}'. Use {key}:3 or {key}>=3."
+                    )
+                operator, amount = match.groups()
+                normalized_op = ">="
+                if operator in {"<=", "<"}:
+                    normalized_op = operator
+                rules["stats"].append(
+                    {
+                        "name": key,
+                        "op": normalized_op,
+                        "value": int(amount),
+                    }
+                )
+                continue
+
+            if key == "bio":
+                if "=" not in value:
+                    raise ValueError(f"Invalid bio rule '{token}'. Use bio:<field>=<value1,value2>.")
+                field, values = value.split("=", 1)
+                field = self._normalize_lock_id(field)
+                parsed_values = [self._normalize_lock_id(v) for v in values.split(",") if v.strip()]
+                if not parsed_values:
+                    raise ValueError(f"Bio rule '{token}' has no values.")
+                rules["bio"][field] = parsed_values
+                continue
+
+            if key in direct_bio_fields:
+                parsed_values = [self._normalize_lock_id(v) for v in value.split(",") if v.strip()]
+                if not parsed_values:
+                    raise ValueError(f"Bio field rule '{token}' has no values.")
+                rules["bio"][key] = parsed_values
+                continue
+
+            raise ValueError(f"Unknown lock rule key '{key}'.")
+
+        # De-duplicate lists for cleaner storage.
+        rules["templates"] = sorted(set(rules["templates"]))
+        rules["mortalplus"] = sorted(set(rules["mortalplus"]))
+        unique_stats = {}
+        for req in rules["stats"]:
+            unique_stats[(req["name"], req["op"], req["value"])] = req
+        rules["stats"] = list(unique_stats.values())
+        return rules
+
+    def _get_room_exits(self, room):
+        """
+        Return exits that exist in the target room.
+        """
+        return list(room.exits)
+
+    def _match_room_exits(self, room, exit_name):
+        """
+        Match current-room exits by key or alias.
+        """
+        target = self._normalize_lock_id(exit_name)
+        room_exits = self._get_room_exits(room)
+        matches = []
+        for ex in room_exits:
+            key_match = self._normalize_lock_id(ex.key) == target
+            alias_match = any(self._normalize_lock_id(alias) == target for alias in ex.aliases.all())
+            if key_match or alias_match:
+                matches.append(ex)
+        return matches
     
     def func(self):
         caller = self.caller
+        switch = self.switches[0].lower() if self.switches else None
         
         # Determine target room
         if self.switches:
-            # Using switch syntax, get target room
-            target_room = self.get_target_room(self.target_room)
-            if not target_room:
-                if self.target_room and self.target_room.lower() != "here":
-                    caller.msg(f"Room '{self.target_room}' not found.")
-                else:
+            # /lock, /unlock, /hide, /unhide operate on current room exits.
+            if switch in ["lock", "unlock", "hide", "unhide"]:
+                location = caller.location
+                if not location:
                     caller.msg("You must be in a room to use this command.")
-                return
-            location = target_room
+                    return
+            else:
+                # Using switch syntax, get target room
+                target_room = self.get_target_room(self.target_room)
+                if not target_room:
+                    if self.target_room and self.target_room.lower() != "here":
+                        caller.msg(f"Room '{self.target_room}' not found.")
+                    else:
+                        caller.msg("You must be in a room to use this command.")
+                    return
+                location = target_room
         else:
             # Using old syntax, use current location
             location = caller.location
@@ -394,10 +755,9 @@ class CmdRoomSetup(MuxCommand):
             
         # Handle switch-based syntax
         if self.switches:
-            switch = self.switches[0].lower()
-            
-            # Check if target and value are properly specified (except for /tags which doesn't need value)
-            if switch not in ["tags"] and (not self.target_room or not self.switch_value):
+            # Check if target and value are properly specified.
+            # /tags does not use "=", and /lock,/unlock,/hide,/unhide default to current room.
+            if switch not in ["tags", "lock", "unlock", "hide", "unhide"] and (not self.target_room or not self.switch_value):
                 caller.msg(f"Usage: +room/{switch} <target>=<value>")
                 caller.msg("Target must be 'here', a room name, or #dbref")
                 caller.msg(f"Example: +room/{switch} here=<value>")
@@ -634,9 +994,154 @@ class CmdRoomSetup(MuxCommand):
                     caller.msg("Character generation progress display has been disabled.")
                 else:
                     caller.msg("Chargen setting must be 'on' or 'off'.")
+
+            elif switch == "lock":
+                # Lock exits in this room with dynamic entry checks.
+                lock_args = self.args.strip()
+                if "=" not in lock_args:
+                    caller.msg("Usage: +room/lock <exit>=<rules>")
+                    caller.msg("Example: +room/lock Main Door=templates:changeling,mage;streetwise:3")
+                    return
+
+                exit_part, rule_part = lock_args.split("=", 1)
+                exit_name = exit_part.strip()
+                if not exit_name:
+                    caller.msg("You must specify which inbound exit to lock.")
+                    return
+
+                try:
+                    parsed_rules = self._parse_lock_rules(rule_part.strip())
+                except ValueError as err:
+                    caller.msg(f"Lock parse error: {err}")
+                    return
+
+                matches = self._match_room_exits(location, exit_name)
+                if not matches:
+                    caller.msg(f"No exits named '{exit_name}' were found in room {location.name}.")
+                    return
+
+                for ex in matches:
+                    if ex.db.room_entry_prev_traverse is None:
+                        ex.db.room_entry_prev_traverse = ex.locks.get("traverse")
+                    ex.db.room_entry_requirements = parsed_rules
+                    ex.db.room_entry_locked_by = caller
+                    ex.locks.add("traverse:entrycheck()")
+
+                room_info = f"#{location.id}" if location != caller.location else "here"
+                caller.msg(
+                    f"Applied room-entry lock to {len(matches)} exit(s) in "
+                    f"{location.name} ({room_info})."
+                )
+
+            elif switch == "unlock":
+                # Remove entry locks from exits in this room.
+                unlock_args = self.args.strip()
+                if "=" in unlock_args:
+                    # Backward compatibility: +room/unlock <target>=<exit>
+                    _, unlock_args = unlock_args.split("=", 1)
+
+                exit_name = unlock_args.strip()
+                if not exit_name:
+                    caller.msg("Usage: +room/unlock <exit>")
+                    return
+
+                matches = self._match_room_exits(location, exit_name)
+                if not matches:
+                    caller.msg(f"No exits named '{exit_name}' were found in room {location.name}.")
+                    return
+
+                for ex in matches:
+                    prev = ex.db.room_entry_prev_traverse
+                    if prev:
+                        ex.locks.add(f"traverse:{prev}")
+                    else:
+                        ex.locks.add("traverse:all()")
+                    ex.attributes.remove("room_entry_requirements")
+                    ex.attributes.remove("room_entry_locked_by")
+                    ex.attributes.remove("room_entry_prev_traverse")
+
+                room_info = f"#{location.id}" if location != caller.location else "here"
+                caller.msg(
+                    f"Removed room-entry lock from {len(matches)} exit(s) in "
+                    f"{location.name} ({room_info})."
+                )
+
+            elif switch == "hide":
+                hide_args = self.args.strip()
+                if "=" not in hide_args:
+                    caller.msg("Usage: +room/hide <exit>=<rules>")
+                    caller.msg("Example: +room/hide Hedge Gate=changeling;streetwise:3;merit:status=2")
+                    return
+                exit_name, groups_text = hide_args.split("=", 1)
+                exit_name = exit_name.strip()
+                if not exit_name:
+                    caller.msg("You must specify an exit name or alias to hide.")
+                    return
+                try:
+                    visibility_rules = self._parse_hide_rules(groups_text)
+                except ValueError as err:
+                    caller.msg(str(err))
+                    return
+
+                matches = self._match_room_exits(location, exit_name)
+                if not matches:
+                    caller.msg(f"No exits named '{exit_name}' were found in room {location.name}.")
+                    return
+
+                for ex in matches:
+                    if ex.db.exit_prev_view_lock is None:
+                        ex.db.exit_prev_view_lock = ex.locks.get("view")
+                    ex.db.exit_hidden = True
+                    ex.db.exit_view_templates = visibility_rules.get("templates", [])
+                    ex.db.exit_view_requirements = visibility_rules
+                    ex.locks.add("view:exitviewcheck()")
+
+                summary_bits = []
+                if visibility_rules.get("templates"):
+                    summary_bits.append(f"templates={','.join(visibility_rules['templates'])}")
+                if visibility_rules.get("mortalplus"):
+                    summary_bits.append(f"mortalplus={','.join(visibility_rules['mortalplus'])}")
+                if visibility_rules.get("stats"):
+                    summary_bits.append(f"stats={len(visibility_rules['stats'])}")
+                if visibility_rules.get("merits"):
+                    summary_bits.append(f"merits={len(visibility_rules['merits'])}")
+                summary = "; ".join(summary_bits) if summary_bits else "rules applied"
+                caller.msg(
+                    f"Hidden {len(matches)} exit(s). {summary}."
+                )
+
+            elif switch == "unhide":
+                exit_name = self.args.strip()
+                if "=" in exit_name:
+                    _, exit_name = exit_name.split("=", 1)
+                exit_name = exit_name.strip()
+                if not exit_name:
+                    caller.msg("Usage: +room/unhide <exit>")
+                    return
+
+                matches = self._match_room_exits(location, exit_name)
+                if not matches:
+                    caller.msg(f"No exits named '{exit_name}' were found in room {location.name}.")
+                    return
+
+                for ex in matches:
+                    prev_view = ex.db.exit_prev_view_lock
+                    if prev_view:
+                        ex.locks.add(f"view:{prev_view}")
+                    else:
+                        ex.locks.add("view:all()")
+                    ex.attributes.remove("exit_hidden")
+                    ex.attributes.remove("exit_view_templates")
+                    ex.attributes.remove("exit_view_requirements")
+                    ex.attributes.remove("exit_prev_view_lock")
+
+                caller.msg(f"Unhid {len(matches)} exit(s) in {location.name}.")
                     
             else:
-                caller.msg("Valid switches: /area, /code, /coords, /hierarchy, /places, /tag, /tags, /hisil, /gauntlet, /chargen")
+                caller.msg(
+                    "Valid switches: /area, /code, /coords, /hierarchy, /places, /tag, "
+                    "/tags, /hisil, /gauntlet, /chargen, /lock, /unlock, /hide, /unhide"
+                )
         else:
             # Old syntax fallback for backwards compatibility
             if "=" not in self.args:
@@ -982,6 +1487,376 @@ class CmdRoomInfo(MuxCommand):
         for char in characters:
             shortdesc = char.db.shortdesc or "No short description"
             caller.msg(f"  {char.name}: {shortdesc}")
+
+
+class CmdTempRoom(MuxCommand):
+    """
+    Create and manage temporary RP rooms.
+
+    Usage:
+      temproom <room name>
+      temproom/desc <description>
+      temproom/hierarch <location1>,<location2>
+      temproom/priv
+      temproom/pub
+      temproom/perm
+      temproom/!perm
+      temproom/destroy
+      temproom/undo
+    """
+
+    key = "temproom"
+    locks = "cmd:all()"
+    help_category = "Roleplaying Tools"
+
+    def _normalized(self, value):
+        return str(value).strip().lower()
+
+    def _room_tags(self, room):
+        tags = set()
+        if hasattr(room, "tags"):
+            for tag in room.tags.all(return_key_and_category=False):
+                tags.add(self._normalized(tag))
+        raw_tags = getattr(room.db, "tags", None) or []
+        if isinstance(raw_tags, str):
+            raw_tags = [raw_tags]
+        try:
+            for tag in raw_tags:
+                tags.add(self._normalized(tag))
+        except TypeError:
+            tags.add(self._normalized(raw_tags))
+        return tags
+
+    def _is_ooc_room(self, room):
+        if not room:
+            return False
+
+        ooc_markers = {"ooc", "ooc area"}
+        room_tags = self._room_tags(room)
+        if room_tags & ooc_markers:
+            return True
+
+        hierarchy = room.db.location_hierarchy or []
+        if isinstance(hierarchy, str):
+            hierarchy = [hierarchy]
+        for location_name in hierarchy:
+            if self._normalized(location_name) == "ooc area":
+                return True
+        return False
+
+    def _is_exception_source(self, room):
+        if not room:
+            return False
+
+        if bool(getattr(room.db, "temproom_allow_source", False)):
+            return True
+
+        room_tags = self._room_tags(room)
+        tag_markers = {"rp nexus", "rp_nexus", "temproom_exception", "temproom_ok"}
+        if room_tags & tag_markers:
+            return True
+
+        configured_dbrefs = ServerConfig.objects.conf("TEMPROOM_SOURCE_EXCEPTIONS", default=[])
+        if isinstance(configured_dbrefs, str):
+            configured_dbrefs = [entry.strip() for entry in configured_dbrefs.split(",") if entry.strip()]
+        normalized = set()
+        for entry in configured_dbrefs or []:
+            normalized.add(str(entry).strip().lstrip("#"))
+        return str(room.id) in normalized
+
+    def _can_build_from(self, source_room):
+        if not source_room:
+            return False
+        if self._is_exception_source(source_room):
+            return True
+        return not self._is_ooc_room(source_room)
+
+    def _is_temproom(self, room):
+        return bool(room and room.is_typeclass("typeclasses.rooms.TempRoom", exact=False))
+
+    def _is_owner_or_staff(self, caller, room):
+        if check_staff_permission(caller):
+            return True
+        owner = getattr(room.db, "temproom_owner", None)
+        return owner == caller
+
+    def _normalize_hierarchy(self, hierarchy_value):
+        """
+        Normalize hierarchy input into exactly two location strings.
+        """
+        if isinstance(hierarchy_value, str):
+            if "," in hierarchy_value:
+                parts = [part.strip() for part in hierarchy_value.split(",", 1)]
+            else:
+                parts = [hierarchy_value.strip()]
+        elif hierarchy_value:
+            parts = [str(part).strip() for part in list(hierarchy_value)]
+        else:
+            parts = []
+
+        parts = [part for part in parts if part]
+
+        if not parts:
+            return ["Unknown", "Unknown"]
+        if len(parts) == 1:
+            return [parts[0], "Unknown"]
+        return [parts[0], parts[1]]
+
+    def _build_alias(self, room_name, location):
+        words = re.findall(r"[A-Za-z0-9]+", room_name)
+        if words:
+            base = "".join(word[0].lower() for word in words)
+        else:
+            compact = "".join(ch for ch in room_name.lower() if ch.isalnum())
+            base = compact[:2] if compact else "tr"
+
+        used = set()
+        for exit_obj in location.exits:
+            used.add(self._normalized(exit_obj.key))
+            for alias in exit_obj.aliases.all():
+                used.add(self._normalized(alias))
+
+        if base not in used:
+            return base
+
+        idx = 1
+        while f"{base}{idx}" in used:
+            idx += 1
+        return f"{base}{idx}"
+
+    def _set_entrance_private(self, room, is_private):
+        entrance = getattr(room.db, "temproom_entrance_exit", None)
+        if not entrance:
+            return False
+        if is_private:
+            entrance.locks.add("view:false();traverse:false()")
+        else:
+            entrance.locks.add("view:all();traverse:all()")
+        room.db.temproom_private = bool(is_private)
+        return True
+
+    def _destroy_temproom(self, room, caller=None, reason="expired"):
+        source_room = getattr(room.db, "temproom_source_room", None)
+        entrance = getattr(room.db, "temproom_entrance_exit", None)
+        return_exit = getattr(room.db, "temproom_return_exit", None)
+
+        if caller and caller.location == room:
+            destination = source_room if source_room else caller.home
+            if destination:
+                caller.move_to(destination, quiet=True, move_type="teleport")
+
+        if entrance:
+            entrance.delete()
+        if return_exit:
+            return_exit.delete()
+
+        owner = getattr(room.db, "temproom_owner", None)
+        room_name = room.name
+        room.delete()
+
+        if owner and owner.sessions.all():
+            owner.msg(f"|yYour temporary room '{room_name}' was destroyed ({reason}).|n")
+        return True
+
+    def _is_empty_for_destroy(self, room, caller):
+        for obj in room.contents:
+            if obj == caller:
+                continue
+            if obj.destination:  # exits inside the room
+                continue
+            return False
+        return True
+
+    def _ensure_cleanup_script(self):
+        from world.scripts.temproom_cleanup_script import start_temproom_cleanup_script
+
+        start_temproom_cleanup_script()
+
+    def _create_temproom(self):
+        caller = self.caller
+        source_room = caller.location
+        room_name = self.args.strip()
+
+        if not source_room:
+            caller.msg("You must be in a room to create a temproom.")
+            return
+        if not room_name:
+            caller.msg("Usage: temproom <room name>")
+            return
+        if not self._can_build_from(source_room):
+            caller.msg(
+                "You can only create temprooms from IC locations "
+                "(or approved exception rooms)."
+            )
+            return
+        if self._is_temproom(source_room):
+            caller.msg("You cannot create a temproom from inside another temproom.")
+            return
+
+        alias = self._build_alias(room_name, source_room)
+        source_hierarchy = self._normalize_hierarchy(
+            getattr(source_room.db, "location_hierarchy", None)
+        )
+
+        new_room = create.create_object(
+            typeclass="typeclasses.rooms.TempRoom",
+            key=room_name,
+            location=None,
+        )
+        new_room.db.desc = "A temporary scene space."
+        new_room.db.temproom_owner = caller
+        new_room.db.temproom_source_room = source_room
+        new_room.db.temproom_created_at = time.time()
+        new_room.db.temproom_last_activity = time.time()
+        new_room.db.temproom_private = False
+        new_room.db.temproom_permanent = False
+        new_room.db.area_name = source_room.db.area_name or "Unknown Area"
+        new_room.db.area_code = source_room.db.area_code or "XX00"
+        new_room.db.location_hierarchy = source_hierarchy
+
+        entrance_exit = create.create_object(
+            typeclass="typeclasses.exits.Exit",
+            key=room_name,
+            location=source_room,
+            destination=new_room,
+            aliases=[alias],
+        )
+        entrance_exit.locks.add("view:all();traverse:all()")
+        entrance_exit.db.temproom_exit = True
+        entrance_exit.db.temproom_owner = caller
+        entrance_exit.db.temproom_room = new_room
+
+        return_exit = create.create_object(
+            typeclass="typeclasses.exits.Exit",
+            key="Out",
+            location=new_room,
+            destination=source_room,
+            aliases=["o", "out"],
+        )
+        return_exit.locks.add("view:all();traverse:all()")
+        return_exit.db.temproom_exit = True
+        return_exit.db.temproom_room = new_room
+
+        new_room.db.temproom_entrance_exit = entrance_exit
+        new_room.db.temproom_return_exit = return_exit
+
+        self._ensure_cleanup_script()
+
+        caller.msg(
+            f"|gTemporary room created:|n {new_room.name}. "
+            f"Entrance exit here: {entrance_exit.key} <{alias}>"
+        )
+        source_room.msg_contents(
+            f"A temporary entrance to {new_room.name} appears.",
+            exclude=[caller],
+        )
+
+    def _set_desc(self):
+        caller = self.caller
+        room = caller.location
+        if not self._is_temproom(room):
+            caller.msg("You must be inside a temproom to use /desc.")
+            return
+        if not self._is_owner_or_staff(caller, room):
+            caller.msg("Only the owner or staff can change this room's description.")
+            return
+        if not self.args.strip():
+            caller.msg("Usage: temproom/desc <description>")
+            return
+        room.db.desc = process_special_characters(self.args.strip())
+        room.db.temproom_last_activity = time.time()
+        caller.msg("Temproom description updated.")
+
+    def _set_hierarchy(self):
+        caller = self.caller
+        room = caller.location
+        if not self._is_temproom(room):
+            caller.msg("You must be inside a temproom to use /hierarch.")
+            return
+        if not self._is_owner_or_staff(caller, room):
+            caller.msg("Only the owner or staff can change hierarchy.")
+            return
+        if "," not in self.args:
+            caller.msg("Usage: temproom/hierarch <location1>,<location2>")
+            return
+
+        hierarchy = self._normalize_hierarchy(self.args.strip())
+        room.db.location_hierarchy = hierarchy
+        room.db.temproom_last_activity = time.time()
+        caller.msg(f"Temproom hierarchy set to: {hierarchy[0]} - {hierarchy[1]}")
+
+    def _set_private(self, value):
+        caller = self.caller
+        room = caller.location
+        if not self._is_temproom(room):
+            caller.msg("You must be inside a temproom to use this switch.")
+            return
+        if not self._is_owner_or_staff(caller, room):
+            caller.msg("Only the owner or staff can change privacy.")
+            return
+        if not self._set_entrance_private(room, value):
+            caller.msg("This temproom has no valid entrance exit to update.")
+            return
+        room.db.temproom_last_activity = time.time()
+        if value:
+            caller.msg("Temproom is now private. Entrance is hidden and locked.")
+        else:
+            caller.msg("Temproom is now public. Entrance is visible and unlocked.")
+
+    def _set_perm(self, value):
+        caller = self.caller
+        room = caller.location
+        if not self._is_temproom(room):
+            caller.msg("You must be inside a temproom to use this switch.")
+            return
+        if not check_staff_permission(caller):
+            caller.msg("Only staff can set or unset permanent temprooms.")
+            return
+        room.db.temproom_permanent = bool(value)
+        if value:
+            caller.msg("Temproom is now permanent-temporary (will not auto-expire).")
+        else:
+            caller.msg("Temproom auto-expiration restored.")
+
+    def _destroy_here(self):
+        caller = self.caller
+        room = caller.location
+        if not self._is_temproom(room):
+            caller.msg("You must be inside a temproom to destroy it.")
+            return
+        if not self._is_owner_or_staff(caller, room):
+            caller.msg("Only the owner or staff can destroy this temproom.")
+            return
+        if not self._is_empty_for_destroy(room, caller):
+            caller.msg("This temproom is not empty. Clear it before destroying.")
+            return
+        self._destroy_temproom(room, caller=caller, reason="manual destroy")
+        caller.msg("Temproom destroyed.")
+
+    def func(self):
+        if not self.switches:
+            self._create_temproom()
+            return
+
+        switch = self.switches[0].lower()
+        if switch == "desc":
+            self._set_desc()
+        elif switch in ("hierarch", "hierarchy"):
+            self._set_hierarchy()
+        elif switch == "priv":
+            self._set_private(True)
+        elif switch == "pub":
+            self._set_private(False)
+        elif switch == "perm":
+            self._set_perm(True)
+        elif switch in ("!perm", "unperm"):
+            self._set_perm(False)
+        elif switch in ("destroy", "undo"):
+            self._destroy_here()
+        else:
+            self.caller.msg(
+                "Valid switches: /desc, /hierarch, /priv, /pub, /perm, /!perm, /destroy, /undo"
+            )
 
 
 class CmdMap(MuxCommand):

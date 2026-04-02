@@ -34,7 +34,7 @@ from .npc import CmdNPC
 from .CmdHealth import CmdHealth
 from .template_admin import CmdTemplate
 from .admin import CmdConfigOOCIC, CmdApprove, CmdUnapprove, CmdFixGroupTypes
-from .building import (CmdAreaManage, CmdRoomSetup, CmdPlaces, CmdRoomInfo, CmdMap)
+from .building import (CmdAreaManage, CmdRoomSetup, CmdPlaces, CmdRoomInfo, CmdMap, CmdTempRoom)
 from .admin_area_init import CmdInitAreaManager
 from .mystery_commands import CmdMystery
 from .storyteller_admin import CmdStoryteller
@@ -164,6 +164,7 @@ class CharacterCmdSet(default_cmds.CharacterCmdSet):
         self.add(CmdRoomInfo())
         self.add(CmdPlaces())
         self.add(CmdMap())
+        self.add(CmdTempRoom())
         
         # OOC/IC Movement commands
         self.add(CmdGo())

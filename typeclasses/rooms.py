@@ -130,6 +130,77 @@ class Room(DefaultRoom):
                 return colors[0], colors[1], colors[2]
         # Default colors (green)
         return 'g', 'g', 'g'
+
+    def _normalize_template(self, value):
+        normalized = str(value or "").strip().lower().replace("-", "_").replace(" ", "_")
+        alias_map = {
+            "sin_eater": "geist",
+            "sin_eaters": "geist",
+            "sineater": "geist",
+            "sineaters": "geist",
+            "hunters": "hunter",
+            "mummies": "mummy",
+            "promixus": "proximus",
+            "demonblooded": "demon_blooded",
+        }
+        return alias_map.get(normalized, normalized)
+
+    def _get_exit_template_color(self, exit_obj, looker):
+        """
+        Return ANSI color code for template-gated hidden exits.
+        """
+        requirements = getattr(exit_obj.db, "exit_view_requirements", None) or {}
+        templates = requirements.get("templates") or getattr(exit_obj.db, "exit_view_templates", None) or []
+        templates = [self._normalize_template(t) for t in templates if str(t).strip()]
+
+        # If only Mortal+ subtype gating exists, infer parent template color.
+        mortalplus = [self._normalize_template(t) for t in (requirements.get("mortalplus", []) or []) if str(t).strip()]
+        if mortalplus and not templates:
+            parent_by_type = {
+                "fae_touched": "changeling",
+                "wolf_blooded": "werewolf",
+                "ghoul": "vampire",
+                "dhampir": "vampire",
+                "proximus": "mage",
+                "sleepwalker": "mage",
+                "stigmatic": "demon",
+                "demon_blooded": "demon",
+                "immortal": "mummy",
+            }
+            for subtype in mortalplus:
+                parent = parent_by_type.get(subtype)
+                if parent:
+                    templates.append(parent)
+
+        if not templates:
+            return None
+
+        color_by_template = {
+            "changeling": "y",   # yellow
+            "geist": "b",        # blue
+            "werewolf": "g",     # green
+            "vampire": "r",      # red
+            "mage": "m",         # magenta
+            "promethean": "w",   # white
+            "deviant": "c",      # cyan
+            "demon": "x",        # dark grey
+            "mummy": "[c",       # light blue background
+        }
+
+        # Prefer the looker's own template color when multiple are allowed.
+        looker_template = None
+        if getattr(looker, "db", None):
+            stats = getattr(looker.db, "stats", None) or {}
+            other = stats.get("other", {}) or {}
+            looker_template = self._normalize_template(other.get("template", ""))
+
+        if looker_template in templates and looker_template in color_by_template:
+            return color_by_template[looker_template]
+
+        for template in templates:
+            if template in color_by_template:
+                return color_by_template[template]
+        return None
     
     def get_display_header(self, looker, **kwargs):
         """
@@ -213,12 +284,11 @@ class Room(DefaultRoom):
         # Format description with proper indentation and spacing
         formatted_desc = "\n\n"
         
-        # Split into paragraphs and add proper spacing
+        # Split into paragraphs and preserve explicit line/tab formatting.
         paragraphs = desc.split('\n\n')
         for i, paragraph in enumerate(paragraphs):
-            # Clean up the paragraph and add tab indentation
-            clean_paragraph = ' '.join(paragraph.split())
-            formatted_desc += f"\t{clean_paragraph}\n"
+            for line in paragraph.split('\n'):
+                formatted_desc += f"\t{line.rstrip()}\n"
             if i < len(paragraphs) - 1:  # Add spacing between paragraphs
                 formatted_desc += "\n"
                 
@@ -520,6 +590,8 @@ class Room(DefaultRoom):
         
         # Get all exits and filter for cardinal directions
         for exit_obj in self.exits:
+            if not exit_obj.access(looker, "view", default=True):
+                continue
             exit_name = exit_obj.key.lower()
             exit_aliases = [alias.lower() for alias in exit_obj.aliases.all()]
             
@@ -542,7 +614,10 @@ class Room(DefaultRoom):
             
             if is_cardinal:
                 # Display the exit itself, not the destination room name.
-                exit_display = exit_obj.get_display_name(looker)
+                exit_display = exit_obj.key
+                exit_color = self._get_exit_template_color(exit_obj, looker)
+                if exit_color:
+                    exit_display = f"|{exit_color}{exit_display}|n"
                 directions.append(f"{exit_display} <{matched_abbrev}>")
                     
         if not directions:
@@ -580,6 +655,8 @@ class Room(DefaultRoom):
         
         # Get all exits and filter for non-cardinal directions
         for exit_obj in self.exits:
+            if not exit_obj.access(looker, "view", default=True):
+                continue
             # Check if viewer can see this exit (Hedge Gates)
             try:
                 from world.reality_systems import can_see_hedge_gate
@@ -608,11 +685,14 @@ class Room(DefaultRoom):
             if not is_cardinal:
                 # Get the exit display (usually just the key, but could include aliases)
                 exit_display = exit_obj.key
+                exit_color = self._get_exit_template_color(exit_obj, looker)
+                if exit_color:
+                    exit_display = f"|{exit_color}{exit_display}|n"
                 
                 # Check if it's a Hedge Gate and color it appropriately
                 try:
                     from world.reality_systems import is_hedge_gate
-                    if is_hedge_gate(exit_obj):
+                    if is_hedge_gate(exit_obj) and not exit_color:
                         # Get theme colors for hedge gates
                         header_color, _, _ = self.get_theme_colors()
                         exit_display = f"|{header_color}{exit_display}|n"
@@ -698,7 +778,10 @@ class Room(DefaultRoom):
         
         area_type = "OOC Area" if is_ooc else "IC Area"
         
-        footer_content = f" {area_type} - {area_code} "
+        if self.is_typeclass("typeclasses.rooms.TempRoom", exact=False):
+            footer_content = f" {area_type} "
+        else:
+            footer_content = f" {area_type} - {area_code} "
         total_width = 80
         # Calculate equals needed: total_width - len(content) - 2 (for > and <)
         total_equals = total_width - len(footer_content) - 2
@@ -764,6 +847,79 @@ class Room(DefaultRoom):
         }
         
         return place_number
+
+
+class TempRoom(Room):
+    """
+    Temporary room typeclass.
+
+    Behaves like a normal room but tracks activity for automatic expiration.
+    """
+
+    EXPIRY_SECONDS = 24 * 60 * 60
+
+    def at_object_creation(self):
+        super().at_object_creation()
+        now = time.time()
+        self.db.temproom_created_at = now
+        self.db.temproom_last_activity = now
+        self.db.temproom_private = False
+        self.db.temproom_permanent = False
+        self.db.temproom_owner = None
+        self.db.temproom_source_room = None
+        self.db.temproom_entrance_exit = None
+        self.db.temproom_return_exit = None
+
+    def touch_activity(self):
+        """Refresh this room's activity timestamp."""
+        self.db.temproom_last_activity = time.time()
+
+    def has_online_players(self):
+        """Return True if any connected player is in the room."""
+        for obj in self.contents:
+            if getattr(obj, "has_account", False) and obj.sessions.all():
+                return True
+        return False
+
+    def at_object_receive(self, moved_obj, source_location, move_type="move", **kwargs):
+        super().at_object_receive(moved_obj, source_location, move_type=move_type, **kwargs)
+        if getattr(moved_obj, "has_account", False) and moved_obj.sessions.all():
+            self.touch_activity()
+
+    def is_expired(self):
+        """Check if this room should auto-expire now."""
+        if bool(getattr(self.db, "temproom_permanent", False)):
+            return False
+        if self.has_online_players():
+            self.touch_activity()
+            return False
+        last_activity = float(getattr(self.db, "temproom_last_activity", 0) or 0)
+        if last_activity <= 0:
+            return False
+        return (time.time() - last_activity) >= self.EXPIRY_SECONDS
+
+    def cleanup_temproom(self, reason="expired"):
+        """
+        Remove exits and delete this temp room.
+
+        Returns:
+            bool: True if cleanup ran successfully.
+        """
+        entrance = getattr(self.db, "temproom_entrance_exit", None)
+        return_exit = getattr(self.db, "temproom_return_exit", None)
+        owner = getattr(self.db, "temproom_owner", None)
+        room_name = self.name
+
+        if entrance:
+            entrance.delete()
+        if return_exit:
+            return_exit.delete()
+
+        self.delete()
+
+        if owner and owner.sessions.all():
+            owner.msg(f"|yYour temporary room '{room_name}' was destroyed ({reason}).|n")
+        return True
 
 
 class ChargenRoom(Room):
