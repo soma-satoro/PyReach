@@ -649,7 +649,7 @@ class Room(DefaultRoom):
         Get the footer with IC/OOC Area information.
         
         Format: ======> IC Area - AREACODE <====
-                ======> OOC Area - AREACODE <=== (if room has 'ooc' tag)
+                ======> OOC Area - AREACODE <=== (if room is marked OOC)
         """
         # Get theme colors
         header_color, text_color, divider_color = self.get_theme_colors()
@@ -657,24 +657,44 @@ class Room(DefaultRoom):
         area_name = self.db.area_name or "Unknown Area"
         area_code = self.db.area_code or "XX00"
         
-        # Check if room has 'ooc' tag (check both Evennia tags and db.tags attribute)
+        # Check if room should be treated as OOC:
+        # - tagged as "ooc" or "ooc area"
+        # - or with "OOC Area" present in location_hierarchy
+        ooc_markers = {"ooc", "ooc area"}
         is_ooc = False
-        
-        # Check Evennia's tag system
-        if self.tags.get("ooc", category=None):
-            is_ooc = True
-        
-        # Also check db.tags attribute (for legacy/alternative tag storage)
-        # db.tags can be a _SaverList (Evennia's list wrapper) or regular list/string
-        if hasattr(self.db, 'tags') and self.db.tags:
+
+        def _normalized(value):
+            return str(value).strip().lower()
+
+        # Check Evennia's tag handler first
+        for marker in ooc_markers:
+            if self.tags.get(marker, category=None):
+                is_ooc = True
+                break
+
+        # Check db.tags attribute (legacy/alternative tag storage)
+        if not is_ooc and hasattr(self.db, 'tags') and self.db.tags:
+            raw_tags = self.db.tags
+            if isinstance(raw_tags, str):
+                raw_tags = [raw_tags]
             try:
-                # Try to check if 'ooc' is in the tags (works for lists, _SaverList, etc.)
-                if 'ooc' in self.db.tags:
-                    is_ooc = True
+                for tag in raw_tags:
+                    if _normalized(tag) in ooc_markers:
+                        is_ooc = True
+                        break
             except TypeError:
-                # If 'in' operator fails, check if it's a string
-                if isinstance(self.db.tags, str) and self.db.tags == 'ooc':
+                if _normalized(raw_tags) in ooc_markers:
                     is_ooc = True
+
+        # Check location hierarchy entries for explicit OOC area marker
+        if not is_ooc:
+            hierarchy = self.db.location_hierarchy or []
+            if isinstance(hierarchy, str):
+                hierarchy = [hierarchy]
+            try:
+                is_ooc = any(_normalized(location) == "ooc area" for location in hierarchy)
+            except TypeError:
+                is_ooc = _normalized(hierarchy) == "ooc area"
         
         area_type = "OOC Area" if is_ooc else "IC Area"
         

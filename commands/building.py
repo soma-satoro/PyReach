@@ -10,6 +10,8 @@ from evennia.utils import utils
 from evennia.utils.search import search_object
 from utils.text import process_special_characters
 from world.area_manager import get_area_manager
+from world.utils import ansi_subs  # noqa: F401
+from world.utils.formatting import get_theme_colors
 
 
 class CmdAreaManage(MuxCommand):
@@ -65,15 +67,39 @@ class CmdAreaManage(MuxCommand):
     def list_areas(self, area_manager):
         """List all defined areas."""
         areas = area_manager.get_areas()
-        
-        table = EvTable("Code", "Name", "Rooms", "Next #", border="cells")
-        
+        width = 78
+        header_color, text_color, _ = get_theme_colors()
+
+        def centered_dash_line(text):
+            label = f" {text} "
+            if len(label) >= width:
+                return f"|{text_color}{label}|n"
+            left = (width - len(label)) // 2
+            right = width - len(label) - left
+            return (
+                f"|{header_color}{'-' * left}|n"
+                f"|{text_color}{label}|n"
+                f"|{header_color}{'-' * right}|n"
+            )
+
+        lines = [
+            centered_dash_line("Area Directory"),
+            "",
+            f"|{text_color}Use +area/info <code> for details and +area/rooms <code> to list room mappings.|n",
+            centered_dash_line("Defined Areas"),
+        ]
+
         for code, info in sorted(areas.items()):
             room_count = len(info['rooms'])
             next_num = info['next_room']
-            table.add_row(code, info['name'], room_count, f"{code}{next_num:02d}")
-        
-        self.caller.msg(f"Defined Areas:\n{table}")
+            room_label = "room" if room_count == 1 else "rooms"
+            lines.append(
+                f"|{text_color}{code}|n {info['name']} - {room_count} {room_label} - "
+                f"next: |{text_color}{code}{next_num:02d}|n"
+            )
+
+        lines.append(f"|{header_color}{'-' * width}|n")
+        self.caller.msg("\n".join(lines))
     
     def add_area(self, area_manager):
         """Add a new area."""
