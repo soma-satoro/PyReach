@@ -191,9 +191,9 @@ def _format_powers(powers: dict) -> list[str]:
     """Format powers for display."""
     labels = set()
     try:
-        from world.cofd.powers.changeling_contracts import get_contract_by_key
+        from world.cofd.powers.changeling_contracts import get_contract
     except Exception:
-        get_contract_by_key = None
+        get_contract = None
 
     for power_name, power_value in _flatten_powers(powers):
         status = str(power_value or "").strip().lower()
@@ -206,8 +206,10 @@ def _format_powers(powers: dict) -> list[str]:
             power_type, short_name = "", power_name
 
         contract_data = None
-        if get_contract_by_key:
-            contract_data = get_contract_by_key(_normalize_stat_key(short_name))
+        if get_contract:
+            contract_data = get_contract(_normalize_stat_key(short_name))
+            if not contract_data:
+                contract_data = get_contract(_normalize_stat_key(power_name))
 
         if contract_data:
             labels.add(_format_contract_power_label(short_name, contract_data))
