@@ -296,6 +296,55 @@ function getRequestHelpText() {
     ].join("\n");
 }
 
+function getConditionsHelpText() {
+    return [
+        "Conditions workflow quick guide:",
+        "- View your active conditions: +condition",
+        "- List available conditions: +condition/list",
+        "- View one condition in detail: +condition/view <name>",
+        "- Add condition to yourself: +condition/add <name>",
+        "- Remove condition from yourself: +condition/remove <name>",
+        "- Alias shortcuts: +conditions and +cond",
+        "",
+    ].join("\n");
+}
+
+function getTiltsHelpText() {
+    return [
+        "Tilts workflow quick guide:",
+        "- View your active tilts: +tilt",
+        "- List all tilts: +tilt/list",
+        "- View one tilt in detail: +tilt/view <name>",
+        "- Add tilt to yourself: +tilt/add <name>",
+        "- Remove tilt from yourself: +tilt/remove <name>",
+        "- Environmental tilts: +tilt/env/list, +tilt/env/add <name>, +tilt/env/remove <name>",
+        "- Alias shortcut: +tilts",
+        "",
+    ].join("\n");
+}
+
+function getAspirationsHelpText() {
+    return [
+        "Aspirations workflow quick guide:",
+        "- View current aspirations: +aspiration",
+        "- Add short-term aspiration: +aspiration/add short=<description>",
+        "- Add long-term aspiration: +aspiration/add long=<description>",
+        "- Change aspiration: +aspiration/change <number> <new description>",
+        "- Remove aspiration: +aspiration/remove <number>",
+        "- Fulfill aspiration (awards beat): +aspiration/fulfill <number>",
+        "- Alias shortcuts: +asp and +aspirations",
+        "",
+    ].join("\n");
+}
+
+function getWorkflowHelpByType(helpType) {
+    if (helpType === "requests") return getRequestHelpText();
+    if (helpType === "conditions") return getConditionsHelpText();
+    if (helpType === "tilts") return getTiltsHelpText();
+    if (helpType === "aspirations") return getAspirationsHelpText();
+    return "";
+}
+
 function renderSheetView(payload) {
     const container = document.getElementById("sheet-view");
     const sheet = payload.sheet_display;
@@ -498,11 +547,11 @@ function renderSceneDetail(scene) {
                 <button type="button" class="btn btn-sm btn-secondary scene-tool-preset" data-command="+xp">XP Totals</button>
                 <button type="button" class="btn btn-sm btn-secondary scene-tool-preset" data-command="+xp/costs">XP Costs</button>
                 <button type="button" class="btn btn-sm btn-secondary scene-tool-preset" data-command="+xp/beat story">Gain Beat</button>
-                <button type="button" class="btn btn-sm btn-secondary scene-tool-preset" data-command="+jobs" data-request-help="1">My Requests</button>
+                <button type="button" class="btn btn-sm btn-secondary scene-tool-preset" data-command="+jobs" data-help-type="requests">My Requests</button>
                 <button type="button" class="btn btn-sm btn-secondary scene-tool-preset" data-command="+roll wits + composure">Roll Dice</button>
-                <button type="button" class="btn btn-sm btn-secondary scene-tool-preset" data-command="+condition">Conditions</button>
-                <button type="button" class="btn btn-sm btn-secondary scene-tool-preset" data-command="+tilt">Tilts</button>
-                <button type="button" class="btn btn-sm btn-secondary scene-tool-preset" data-command="+aspiration">Aspirations</button>
+                <button type="button" class="btn btn-sm btn-secondary scene-tool-preset" data-command="+condition" data-help-type="conditions">Conditions</button>
+                <button type="button" class="btn btn-sm btn-secondary scene-tool-preset" data-command="+tilt" data-help-type="tilts">Tilts</button>
+                <button type="button" class="btn btn-sm btn-secondary scene-tool-preset" data-command="+aspiration" data-help-type="aspirations">Aspirations</button>
             </div>
             <label for="scene-tools-command" style="margin-top:0.5rem;">Command</label>
             <input id="scene-tools-command" class="form-control" value="+xp" />
@@ -803,8 +852,9 @@ async function loadSceneDetail(sceneId) {
         document.querySelectorAll(".scene-tool-preset").forEach((button) => {
             button.addEventListener("click", () => {
                 toolsCommandInput.value = button.dataset.command || "";
-                if (button.dataset.requestHelp) {
-                    toolsOutput.textContent = getRequestHelpText();
+                const workflowHelp = getWorkflowHelpByType(button.dataset.helpType);
+                if (workflowHelp) {
+                    toolsOutput.textContent = workflowHelp;
                 }
             });
         });
@@ -832,9 +882,11 @@ async function loadSceneDetail(sceneId) {
                 });
                 const lines = payload.lines || [];
                 const outputLines = [];
-                if (command.toLowerCase().startsWith("+jobs") || command.toLowerCase().startsWith("+requests")) {
-                    outputLines.push(getRequestHelpText());
-                }
+                const lowered = command.toLowerCase();
+                if (lowered.startsWith("+jobs") || lowered.startsWith("+requests")) outputLines.push(getRequestHelpText());
+                if (lowered.startsWith("+condition") || lowered.startsWith("+conditions") || lowered.startsWith("+cond")) outputLines.push(getConditionsHelpText());
+                if (lowered.startsWith("+tilt") || lowered.startsWith("+tilts")) outputLines.push(getTiltsHelpText());
+                if (lowered.startsWith("+aspiration") || lowered.startsWith("+aspirations") || lowered.startsWith("+asp")) outputLines.push(getAspirationsHelpText());
                 if (payload.posted_to_scene) {
                     outputLines.push("Roll result posted to scene.");
                 }
