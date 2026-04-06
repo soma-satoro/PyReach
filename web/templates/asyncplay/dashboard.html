@@ -51,7 +51,7 @@
         <input id="scene-tags" class="form-control" maxlength="240" />
         <label for="scene-summary">Summary / Scene Set</label>
         <textarea id="scene-summary" class="form-control" rows="3"></textarea>
-        <button id="create-scene" class="btn btn-primary">Create Scene</button>
+        <button id="create-scene" type="button" class="btn btn-primary">Create Scene</button>
     </div>
 </div>
 
@@ -75,27 +75,12 @@
     <div id="scene-detail">Select a scene.</div>
 </div>
 
-<div class="character-card" style="margin-bottom: 1.5rem;">
-    <h3 style="margin-top: 0;">Submit Async Action</h3>
-    <label for="action-title">Title</label>
-    <input id="action-title" class="form-control" maxlength="120" />
-    <label for="action-content" style="margin-top:0.4rem;">Details</label>
-    <textarea id="action-content" class="form-control" rows="4"></textarea>
-    <button id="submit-action" class="btn btn-primary" style="margin-top:0.5rem;">Submit Action</button>
-</div>
-
-<div class="character-card">
-    <h3 style="margin-top: 0;">Submitted Async Actions</h3>
-    <div id="actions-list"></div>
-</div>
 {% endblock %}
 
 {% block extra_scripts %}
 <script>
 const API_MY_CHARACTERS = "{% url 'asyncplay:api_my_characters' %}";
 const API_CHARACTER_SHEET_TEMPLATE = "{% url 'asyncplay:api_character_sheet' character_id=0 %}";
-const API_MY_ACTIONS = "{% url 'asyncplay:api_my_actions' %}";
-const API_SUBMIT_ACTION = "{% url 'asyncplay:api_submit_action' %}";
 const API_SCENES = "{% url 'asyncplay:api_scene_list' %}";
 const API_SCENE_LOCATIONS = "{% url 'asyncplay:api_scene_locations' %}";
 const API_CREATE_SCENE = "{% url 'asyncplay:api_scene_create' %}";
@@ -117,8 +102,16 @@ function getCookie(name) {
 
 async function fetchJson(url, options = {}) {
     const response = await fetch(url, options);
-    const data = await response.json();
-    if (!response.ok) throw new Error(data.error || "Request failed");
+    let data = {};
+    const responseText = await response.text();
+    if (responseText) {
+        try {
+            data = JSON.parse(responseText);
+        } catch (_parseError) {
+            data = {error: responseText.slice(0, 300) || "Unexpected response format."};
+        }
+    }
+    if (!response.ok) throw new Error(data.error || `Request failed (${response.status})`);
     return data;
 }
 
@@ -153,19 +146,10 @@ function renderSheetView(payload) {
 }
 
 function sceneUrl(templateUrl, sceneId, suffix) {
-    return templateUrl.replace(`/0/${suffix}/`, `/${sceneId}/${suffix}/`).replace("/0/", `/${sceneId}/`);
-}
-
-function renderActions(actions) {
-    const container = document.getElementById("actions-list");
-    if (!actions.length) {
-        container.innerHTML = "<p>No async actions submitted yet.</p>";
-        return;
+    if (!suffix) {
+        return templateUrl.replace("/0/", `/${sceneId}/`);
     }
-    container.innerHTML = actions.map((action) => `
-        <div style="padding:0.6rem 0;border-bottom:1px solid var(--color-border);">
-            <strong>${action.title}</strong> - ${action.character_name} <small>[${action.status}]</small>
-        </div>`).join("");
+    return templateUrl.replace(`/0/${suffix}/`, `/${sceneId}/${suffix}/`);
 }
 
 function renderSceneCollection(containerId, scenes, emptyText) {
@@ -184,8 +168,12 @@ function renderSceneCollection(containerId, scenes, emptyText) {
         </div>`).join("");
     container.querySelectorAll(".scene-open").forEach((button) => {
         button.addEventListener("click", async () => {
-            activeSceneId = parseInt(button.dataset.sceneId, 10);
-            await loadSceneDetail(activeSceneId);
+            try {
+                activeSceneId = parseInt(button.dataset.sceneId, 10);
+                await loadSceneDetail(activeSceneId);
+            } catch (error) {
+                alert(error.message);
+            }
         });
     });
 }
@@ -272,25 +260,6 @@ async function loadSheet(characterId) {
     renderSheetView(await fetchJson(url));
 }
 
-async function loadActions() {
-    renderActions((await fetchJson(API_MY_ACTIONS)).actions || []);
-}
-
-async function submitAction() {
-    await fetchJson(API_SUBMIT_ACTION, {
-        method: "POST",
-        headers: {"Content-Type": "application/json", "X-CSRFToken": getCookie("csrftoken")},
-        body: JSON.stringify({
-            character_id: parseInt(document.getElementById("character-select").value, 10),
-            title: document.getElementById("action-title").value.trim(),
-            content: document.getElementById("action-content").value.trim()
-        })
-    });
-    document.getElementById("action-title").value = "";
-    document.getElementById("action-content").value = "";
-    await loadActions();
-}
-
 async function loadScenes() {
     const payload = await fetchJson(API_SCENES);
     renderSceneCollection("scene-list-public-ongoing", payload.public_ongoing || [], "No public ongoing scenes.");
@@ -303,60 +272,76 @@ async function loadSceneDetail(sceneId) {
     renderSceneDetail(scene);
 
     document.getElementById("scene-join").addEventListener("click", async () => {
-        const characterId = parseInt(document.getElementById("scene-post-character").value, 10);
-        await fetchJson(sceneUrl(API_SCENE_JOIN_TEMPLATE, sceneId, "join"), {
-            method: "POST",
-            headers: {"Content-Type": "application/json", "X-CSRFToken": getCookie("csrftoken")},
-            body: JSON.stringify({character_id: characterId})
-        });
-        await loadSceneDetail(sceneId);
-        await loadScenes();
+        try {
+            const characterId = parseInt(document.getElementById("scene-post-character").value, 10);
+            await fetchJson(sceneUrl(API_SCENE_JOIN_TEMPLATE, sceneId, "join"), {
+                method: "POST",
+                headers: {"Content-Type": "application/json", "X-CSRFToken": getCookie("csrftoken")},
+                body: JSON.stringify({character_id: characterId})
+            });
+            await loadSceneDetail(sceneId);
+            await loadScenes();
+        } catch (error) {
+            alert(error.message);
+        }
     });
 
     document.getElementById("scene-post-submit").addEventListener("click", async () => {
-        const characterId = parseInt(document.getElementById("scene-post-character").value, 10);
-        await fetchJson(sceneUrl(API_SCENE_POST_TEMPLATE, sceneId, "post"), {
-            method: "POST",
-            headers: {"Content-Type": "application/json", "X-CSRFToken": getCookie("csrftoken")},
-            body: JSON.stringify({
-                character_id: characterId,
-                post_type: document.getElementById("scene-post-type").value,
-                content: document.getElementById("scene-post-content").value.trim()
-            })
-        });
-        await loadSceneDetail(sceneId);
-        await loadScenes();
+        try {
+            const characterId = parseInt(document.getElementById("scene-post-character").value, 10);
+            await fetchJson(sceneUrl(API_SCENE_POST_TEMPLATE, sceneId, "post"), {
+                method: "POST",
+                headers: {"Content-Type": "application/json", "X-CSRFToken": getCookie("csrftoken")},
+                body: JSON.stringify({
+                    character_id: characterId,
+                    post_type: document.getElementById("scene-post-type").value,
+                    content: document.getElementById("scene-post-content").value.trim()
+                })
+            });
+            await loadSceneDetail(sceneId);
+            await loadScenes();
+        } catch (error) {
+            alert(error.message);
+        }
     });
 
     const editButton = document.getElementById("scene-save-edit");
     const stopButton = document.getElementById("scene-stop");
     if (editButton) {
         editButton.addEventListener("click", async () => {
-            await fetchJson(sceneUrl(API_SCENE_UPDATE_TEMPLATE, sceneId, "update"), {
-                method: "POST",
-                headers: {"Content-Type": "application/json", "X-CSRFToken": getCookie("csrftoken")},
-                body: JSON.stringify({
-                    title: document.getElementById("scene-edit-title").value.trim(),
-                    location: document.getElementById("scene-edit-location").value.trim(),
-                    summary: document.getElementById("scene-edit-summary").value.trim()
-                })
-            });
-            await loadSceneDetail(sceneId);
-            await loadScenes();
+            try {
+                await fetchJson(sceneUrl(API_SCENE_UPDATE_TEMPLATE, sceneId, "update"), {
+                    method: "POST",
+                    headers: {"Content-Type": "application/json", "X-CSRFToken": getCookie("csrftoken")},
+                    body: JSON.stringify({
+                        title: document.getElementById("scene-edit-title").value.trim(),
+                        location: document.getElementById("scene-edit-location").value.trim(),
+                        summary: document.getElementById("scene-edit-summary").value.trim()
+                    })
+                });
+                await loadSceneDetail(sceneId);
+                await loadScenes();
+            } catch (error) {
+                alert(error.message);
+            }
         });
     }
     if (stopButton) {
         stopButton.addEventListener("click", async () => {
-            await fetchJson(sceneUrl(API_SCENE_COMPLETE_TEMPLATE, sceneId, "complete"), {
-                method: "POST",
-                headers: {"Content-Type": "application/json", "X-CSRFToken": getCookie("csrftoken")},
-                body: JSON.stringify({
-                    summary: document.getElementById("scene-edit-summary").value.trim(),
-                    publish_public_log: !!document.getElementById("scene-publish-log").checked
-                })
-            });
-            await loadSceneDetail(sceneId);
-            await loadScenes();
+            try {
+                await fetchJson(sceneUrl(API_SCENE_COMPLETE_TEMPLATE, sceneId, "complete"), {
+                    method: "POST",
+                    headers: {"Content-Type": "application/json", "X-CSRFToken": getCookie("csrftoken")},
+                    body: JSON.stringify({
+                        summary: document.getElementById("scene-edit-summary").value.trim(),
+                        publish_public_log: !!document.getElementById("scene-publish-log").checked
+                    })
+                });
+                await loadSceneDetail(sceneId);
+                await loadScenes();
+            } catch (error) {
+                alert(error.message);
+            }
         });
     }
 }
@@ -388,7 +373,6 @@ document.addEventListener("DOMContentLoaded", async () => {
     try {
         await loadCharacters();
         await loadLocations();
-        await loadActions();
         await loadScenes();
         document.getElementById("scene-ic-date").value = new Date().toISOString().slice(0, 10);
         document.getElementById("character-select").addEventListener("change", async (event) => {
@@ -397,13 +381,6 @@ document.addEventListener("DOMContentLoaded", async () => {
         document.getElementById("create-scene").addEventListener("click", async () => {
             try {
                 await createScene();
-            } catch (error) {
-                alert(error.message);
-            }
-        });
-        document.getElementById("submit-action").addEventListener("click", async () => {
-            try {
-                await submitAction();
             } catch (error) {
                 alert(error.message);
             }

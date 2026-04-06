@@ -262,11 +262,56 @@ def _format_room_label(room) -> str:
     return " -- ".join(parts)
 
 
+def _has_ooc_db_tag(room) -> bool:
+    """Check room.db.tags for explicit OOC markers."""
+    raw_tags = getattr(room.db, "tags", None)
+    if not raw_tags:
+        return False
+    if isinstance(raw_tags, str):
+        tokens = [raw_tags.strip().lower()]
+    elif isinstance(raw_tags, dict):
+        tokens = [str(key).strip().lower() for key in raw_tags.keys()]
+    else:
+        tokens = [str(tag).strip().lower() for tag in raw_tags]
+    return any(token in {"ooc", "ooc area"} for token in tokens if token)
+
+
+def _is_chargen_room(room) -> bool:
+    """Identify chargen rooms by typeclass, key, or db tag."""
+    try:
+        if room.is_typeclass("typeclasses.rooms.ChargenRoom", exact=False):
+            return True
+    except Exception:
+        pass
+
+    key = (room.key or "").strip().lower()
+    if "chargen" in key:
+        return True
+
+    raw_tags = getattr(room.db, "tags", None)
+    if not raw_tags:
+        return False
+    if isinstance(raw_tags, str):
+        tokens = [raw_tags.strip().lower()]
+    elif isinstance(raw_tags, dict):
+        tokens = [str(key).strip().lower() for key in raw_tags.keys()]
+    else:
+        tokens = [str(tag).strip().lower() for tag in raw_tags]
+    return "chargen" in tokens
+
+
 def _available_room_locations():
     """Return all rooms with hierarchy labels for scene creation."""
     Room = class_from_module("typeclasses.rooms.Room")
     rooms = Room.objects.all().order_by("db_key")
-    return [{"id": room.id, "label": _format_room_label(room), "name": room.key} for room in rooms]
+    output = []
+    for room in rooms:
+        if _is_chargen_room(room):
+            continue
+        if _has_ooc_db_tag(room):
+            continue
+        output.append({"id": room.id, "label": _format_room_label(room), "name": room.key})
+    return output
 
 
 def _publish_scene_log_to_wiki(scene) -> tuple[bool, str]:
