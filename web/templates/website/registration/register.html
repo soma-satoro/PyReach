@@ -1,0 +1,32 @@
+{% extends "website/base.html" %}
+
+{% block title %}Register{% endblock %}
+
+{% block content %}
+<div class="section-header">
+    <h1 class="section-title"><i class="fas fa-user-plus"></i> Register</h1>
+    <p class="section-subtitle">Create your account to begin playing.</p>
+</div>
+
+<div class="character-card" style="max-width: 640px; margin: 0 auto;">
+    <form method="post" action="">
+        {% csrf_token %}
+        {% if form.non_field_errors %}
+            <div class="alert alert-error" style="margin-bottom: 1rem;">
+                {{ form.non_field_errors }}
+            </div>
+        {% endif %}
+
+        <div style="display: grid; gap: 1rem;">
+            {{ form.as_p }}
+            <button type="submit" class="btn btn-primary">
+                <i class="fas fa-user-plus"></i> Register
+            </button>
+        </div>
+    </form>
+
+    <div style="margin-top: 1rem;">
+        <a href="/auth/login/">Already have an account? Login</a>
+    </div>
+</div>
+{% endblock %}
