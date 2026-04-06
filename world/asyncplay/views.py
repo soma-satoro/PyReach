@@ -12,6 +12,7 @@ from django.shortcuts import get_object_or_404, render
 from django.utils.text import slugify
 from django.utils import timezone
 from django.views.decorators.http import require_GET, require_http_methods
+from evennia.utils.ansi import strip_ansi
 from evennia.utils.utils import class_from_module
 
 from .models import AsyncAction, AsyncScene, AsyncScenePost
@@ -107,33 +108,60 @@ def _format_merits(merits: dict) -> list[dict]:
         return []
     rows = []
     for merit_name, merit_value in (merits or {}).items():
-        dots = merit_value.get("dots", 0) if isinstance(merit_value, dict) else 0
+        if isinstance(merit_value, Mapping):
+            dots = merit_value.get("dots", merit_value.get("perm", merit_value.get("value", 0)))
+        else:
+            dots = merit_value
+        try:
+            dots_num = int(dots or 0)
+        except (TypeError, ValueError):
+            dots_num = 0
         base_name = merit_name
         if ":" in merit_name:
             base_name, instance = merit_name.split(":", 1)
             label = f"{_format_name(base_name)} ({_format_name(instance)})"
         else:
             label = _format_name(base_name)
-        rows.append({"label": label, "dots": _dots(dots)})
+        rows.append({"label": label, "dots": _dots(dots_num), "value": dots_num})
     rows.sort(key=lambda item: item["label"])
     return rows
 
 
+def _flatten_powers(value, prefix: str = "") -> list[tuple[str, object]]:
+    """Flatten nested power structures into key/value entries."""
+    entries = []
+    if isinstance(value, Mapping):
+        for key, subvalue in value.items():
+            key_str = str(key)
+            full_key = f"{prefix}:{key_str}" if prefix else key_str
+            if isinstance(subvalue, Mapping):
+                entries.extend(_flatten_powers(subvalue, full_key))
+            elif isinstance(subvalue, list):
+                if not subvalue:
+                    entries.append((full_key, "known"))
+                for item in subvalue:
+                    entries.append((f"{full_key}:{item}", "known"))
+            else:
+                entries.append((full_key, subvalue))
+    elif isinstance(value, list):
+        for item in value:
+            entries.append((str(item), "known"))
+    return entries
+
+
 def _format_powers(powers: dict) -> list[str]:
     """Format powers for display."""
-    if isinstance(powers, Mapping):
-        power_names = powers.keys()
-    elif isinstance(powers, list):
-        power_names = powers
-    else:
-        power_names = []
-    labels = []
-    for power_name in power_names:
+    labels = set()
+    for power_name, power_value in _flatten_powers(powers):
+        status = str(power_value or "").strip().lower()
+        if status in {"", "0", "false", "none"}:
+            continue
         if ":" in power_name:
-            _, short_name = power_name.split(":", 1)
-            labels.append(_format_name(short_name))
+            power_type, short_name = power_name.split(":", 1)
+            label = f"{_format_name(short_name)} ({_format_name(power_type)})"
         else:
-            labels.append(_format_name(power_name))
+            label = _format_name(power_name)
+        labels.add(label)
     return sorted(labels)
 
 
@@ -146,6 +174,8 @@ def _build_sheet_display(character) -> dict:
     bio = _as_mapping(stats.get("bio", {}))
     merits = stats.get("merits", {})
     powers = stats.get("powers", {})
+    if not powers:
+        powers = getattr(character.db, "powers", {}) or {}
     other = _as_mapping(stats.get("other", {}))
 
     section_map = {
@@ -175,10 +205,15 @@ def _build_sheet_display(character) -> dict:
         for section, skill_names in skill_groups.items()
     }
 
-    advantages_display = [
-        {"label": _format_name(name), "value": value}
-        for name, value in advantages.items()
-    ]
+    advantages_display = []
+    for name, value in advantages.items():
+        if isinstance(value, Mapping):
+            value_display = ", ".join(f"{_format_name(k)}: {v}" for k, v in value.items()) or "-"
+        elif isinstance(value, list):
+            value_display = ", ".join(str(item) for item in value) or "-"
+        else:
+            value_display = value
+        advantages_display.append({"label": _format_name(name), "value": value_display})
     advantages_display.sort(key=lambda item: item["label"])
 
     return {
@@ -256,7 +291,12 @@ def _serialize_scene(scene, include_posts: bool = False, account=None):
         "summary": scene.summary,
         "creator": scene.creator.username,
         "participants": [
-            {"id": char.id, "name": char.key, "owner": char.account.username if char.account else None}
+            {
+                "id": char.id,
+                "name": char.key,
+                "owner": char.account.username if char.account else None,
+                "description": (getattr(char.db, "desc", "") or "").strip(),
+            }
             for char in scene.participants.all()
         ],
         "related_scene_ids": list(scene.related_scenes.values_list("id", flat=True)),
@@ -403,7 +443,8 @@ def _publish_scene_log_to_wiki(scene) -> tuple[bool, str]:
             ]
         )
 
-    page_text = "\n".join(header_lines + transcript_lines).strip()
+    category_lines = ["", "[[Category:Logs]]"]
+    page_text = "\n".join(header_lines + transcript_lines + category_lines).strip()
     edit_summary = f"Async scene log generated from scene #{scene.id}."
 
     session = requests.Session()
@@ -484,6 +525,44 @@ def _validate_choice(value: str, choices: tuple[tuple[str, str], ...], field_nam
     return None
 
 
+_WEB_COMMAND_PREFIXES = ("+xp", "+vote", "+jobs", "+requests", "+roll", "roll")
+
+
+def _is_allowed_web_command(command: str) -> bool:
+    """Allow only explicitly approved command families for web execution."""
+    lowered = command.strip().lower()
+    return any(lowered == prefix or lowered.startswith(f"{prefix}/") or lowered.startswith(f"{prefix} ") for prefix in _WEB_COMMAND_PREFIXES)
+
+
+def _execute_web_command(character, command: str) -> list[str]:
+    """Execute command as character and capture caller-facing output."""
+    output = []
+    account = getattr(character, "account", None)
+
+    original_char_msg = character.msg
+    original_account_msg = getattr(account, "msg", None) if account else None
+
+    def _capture_message(text=None, **kwargs):
+        if text is None:
+            return
+        cleaned = strip_ansi(str(text))
+        if cleaned:
+            output.append(cleaned)
+
+    character.msg = _capture_message
+    if account and original_account_msg:
+        account.msg = _capture_message
+
+    try:
+        character.execute_cmd(command)
+    finally:
+        character.msg = original_char_msg
+        if account and original_account_msg:
+            account.msg = original_account_msg
+
+    return output
+
+
 @login_required
 def dashboard(request):
     """Render the async-play dashboard page."""
@@ -541,6 +620,34 @@ def api_character_sheet(request, character_id: int):
     payload = build_character_sheet_payload(character)
     payload["sheet_display"] = _build_sheet_display(character)
     return JsonResponse(payload)
+
+
+@login_required
+@require_http_methods(["POST"])
+def api_command_execute(request):
+    """Run a restricted set of in-game commands from the async web client."""
+    body = _parse_json_body(request)
+    if body is None:
+        return HttpResponseBadRequest("Invalid JSON body.")
+
+    character_id = body.get("character_id")
+    if not character_id:
+        return JsonResponse({"error": "character_id is required."}, status=400)
+    command = (body.get("command") or "").strip()
+    if not command:
+        return JsonResponse({"error": "command is required."}, status=400)
+    if not _is_allowed_web_command(command):
+        return JsonResponse({"error": "Command not allowed in async web tools."}, status=400)
+
+    try:
+        character = _character_by_id(int(character_id))
+    except (TypeError, ValueError):
+        return JsonResponse({"error": "character_id must be an integer."}, status=400)
+    if not _can_access_character(request.user, character):
+        return JsonResponse({"error": "You do not have access to this character."}, status=403)
+
+    lines = _execute_web_command(character, command)
+    return JsonResponse({"ok": True, "lines": lines, "command": command})
 
 
 @login_required
@@ -670,7 +777,10 @@ def api_scene_create(request):
     if not character_id:
         return JsonResponse({"error": "character_id is required."}, status=400)
 
-    character = _character_by_id(int(character_id))
+    try:
+        character = _character_by_id(int(character_id))
+    except (TypeError, ValueError):
+        return JsonResponse({"error": "character_id must be an integer."}, status=400)
     if not _can_access_character(request.user, character):
         return JsonResponse({"error": "You do not own this character."}, status=403)
 
@@ -793,8 +903,6 @@ def api_scene_update(request, scene_id: int):
         return HttpResponseBadRequest("Invalid JSON body.")
 
     scene = get_object_or_404(AsyncScene, id=scene_id)
-    if scene.is_completed:
-        return JsonResponse({"error": "Scene is stopped. Restart it to edit."}, status=400)
     if not _can_manage_scene(scene, request.user):
         return JsonResponse({"error": "You do not have permission to edit this scene."}, status=403)
 
@@ -809,7 +917,7 @@ def api_scene_update(request, scene_id: int):
     if "tags" in body:
         scene.tags = (body.get("tags") or "").strip()
     if "summary" in body:
-        scene.summary = (body.get("summary") or "").strip()
+        return JsonResponse({"error": "Scene set/summary cannot be edited after scene creation."}, status=400)
     if "privacy" in body:
         privacy = (body.get("privacy") or "").strip()
         choice_error = _validate_choice(privacy, AsyncScene.PRIVACY_CHOICES, "privacy")
@@ -838,6 +946,34 @@ def api_scene_update(request, scene_id: int):
 
     scene.last_activity_at = timezone.now()
     scene.save()
+    return JsonResponse({"ok": True, "scene": _serialize_scene(scene, account=request.user)})
+
+
+@login_required
+@require_http_methods(["POST"])
+def api_scene_invite(request, scene_id: int):
+    """Invite an approved character into a scene (creator/admin)."""
+    body = _parse_json_body(request)
+    if body is None:
+        return HttpResponseBadRequest("Invalid JSON body.")
+
+    scene = get_object_or_404(AsyncScene, id=scene_id)
+    if not _can_manage_scene(scene, request.user):
+        return JsonResponse({"error": "You do not have permission to invite to this scene."}, status=403)
+
+    character_id = body.get("character_id")
+    if not character_id:
+        return JsonResponse({"error": "character_id is required."}, status=400)
+
+    character = _character_by_id(int(character_id))
+    if not getattr(character.db, "approved", False):
+        return JsonResponse({"error": "Only approved characters can be invited."}, status=400)
+    if scene.participants.filter(id=character.id).exists():
+        return JsonResponse({"error": "Character is already in this scene."}, status=400)
+
+    scene.participants.add(character)
+    scene.last_activity_at = timezone.now()
+    scene.save(update_fields=["last_activity_at", "updated_at"])
     return JsonResponse({"ok": True, "scene": _serialize_scene(scene, account=request.user)})
 
 

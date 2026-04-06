@@ -17,6 +17,26 @@
 .async-hidden {
     display: none;
 }
+.async-modal {
+    position: fixed;
+    inset: 0;
+    background: rgba(0, 0, 0, 0.65);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 1rem;
+    z-index: 1200;
+}
+.async-modal-card {
+    max-width: 640px;
+    width: 100%;
+    max-height: 75vh;
+    overflow: auto;
+    background: var(--color-bg, #111);
+    border: 1px solid var(--color-border);
+    border-radius: 8px;
+    padding: 1rem;
+}
 @media (max-width: 1024px) {
     .async-layout {
         grid-template-columns: 1fr;
@@ -39,6 +59,7 @@
         <div class="character-card" style="margin-bottom: 1rem;">
             <button id="open-create-scene" type="button" class="btn btn-primary" style="width: 100%;">Create New Scene</button>
             <button id="return-to-scenes" type="button" class="btn btn-secondary async-hidden" style="width: 100%; margin-top: 0.5rem;">Back to Scene Lists</button>
+            <button id="toggle-scene-sheet" type="button" class="btn btn-secondary async-hidden" style="width: 100%; margin-top: 0.5rem;">Show Character Sheet</button>
         </div>
 
         <div class="character-card" style="margin-bottom: 1rem;">
@@ -99,8 +120,12 @@
                 <input id="scene-tags" class="form-control" maxlength="240" />
                 <label for="scene-summary">Summary / Scene Set</label>
                 <textarea id="scene-summary" class="form-control" rows="3"></textarea>
-                <label for="scene-invite-characters">Invite Approved Characters</label>
-                <select id="scene-invite-characters" class="form-control" multiple size="6"></select>
+                <label for="scene-invite-select">Invite Approved Characters</label>
+                <div style="display:flex;gap:0.5rem;align-items:center;">
+                    <select id="scene-invite-select" class="form-control"></select>
+                    <button id="scene-invite-add" type="button" class="btn btn-secondary">Add</button>
+                </div>
+                <div id="scene-invite-selected" style="display:grid;gap:0.4rem;"></div>
                 <div style="display: flex; gap: 0.5rem;">
                     <button id="create-scene" type="button" class="btn btn-primary">Create Scene</button>
                     <button id="cancel-create-scene" type="button" class="btn btn-secondary">Cancel</button>
@@ -121,6 +146,16 @@
         </div>
     </section>
 </div>
+
+<div id="participant-modal" class="async-modal async-hidden">
+    <div class="async-modal-card">
+        <div style="display:flex;justify-content:space-between;align-items:center;gap:0.5rem;">
+            <h4 id="participant-modal-title" style="margin:0;">Character</h4>
+            <button id="participant-modal-close" type="button" class="btn btn-sm btn-secondary">Close</button>
+        </div>
+        <div id="participant-modal-body" style="margin-top:0.8rem;white-space:pre-wrap;"></div>
+    </div>
+</div>
 {% endblock %}
 
 {% block extra_scripts %}
@@ -134,18 +169,39 @@ const API_CREATE_SCENE = "{% url 'asyncplay:api_scene_create' %}";
 const API_SCENE_DETAIL_TEMPLATE = "{% url 'asyncplay:api_scene_detail' scene_id=0 %}";
 const API_SCENE_JOIN_TEMPLATE = "{% url 'asyncplay:api_scene_join' scene_id=0 %}";
 const API_SCENE_UPDATE_TEMPLATE = "{% url 'asyncplay:api_scene_update' scene_id=0 %}";
+const API_SCENE_INVITE_TEMPLATE = "{% url 'asyncplay:api_scene_invite' scene_id=0 %}";
 const API_SCENE_COMPLETE_TEMPLATE = "{% url 'asyncplay:api_scene_complete' scene_id=0 %}";
 const API_SCENE_REOPEN_TEMPLATE = "{% url 'asyncplay:api_scene_reopen' scene_id=0 %}";
 const API_SCENE_POST_TEMPLATE = "{% url 'asyncplay:api_scene_post' scene_id=0 %}";
+const API_COMMAND_EXECUTE = "{% url 'asyncplay:api_command_execute' %}";
 
 let activeSceneId = null;
 let cachedCharacters = [];
+let cachedInviteCandidates = [];
+const selectedInviteIds = new Set();
+let isSceneSheetVisible = false;
 
 function getCookie(name) {
     const value = `; ${document.cookie}`;
     const parts = value.split(`; ${name}=`);
     if (parts.length === 2) return parts.pop().split(';').shift();
     return null;
+}
+
+function escapeHtml(value) {
+    return String(value ?? "")
+        .replaceAll("&", "&amp;")
+        .replaceAll("<", "&lt;")
+        .replaceAll(">", "&gt;")
+        .replaceAll("\"", "&quot;")
+        .replaceAll("'", "&#39;");
+}
+
+function updateSheetToggleButton(mode) {
+    const toggleButton = document.getElementById("toggle-scene-sheet");
+    if (!toggleButton) return;
+    toggleButton.classList.toggle("async-hidden", mode !== "scene");
+    toggleButton.textContent = isSceneSheetVisible ? "Hide Character Sheet" : "Show Character Sheet";
 }
 
 function setWorkspaceMode(mode) {
@@ -158,8 +214,9 @@ function setWorkspaceMode(mode) {
     landingCard.classList.toggle("async-hidden", mode !== "list");
     createSceneCard.classList.toggle("async-hidden", mode !== "create");
     sceneDetailCard.classList.toggle("async-hidden", mode !== "scene");
-    sceneSheetCard.classList.toggle("async-hidden", mode !== "scene");
+    sceneSheetCard.classList.toggle("async-hidden", mode !== "scene" || !isSceneSheetVisible);
     backButton.classList.toggle("async-hidden", mode === "list");
+    updateSheetToggleButton(mode);
 }
 
 async function fetchJson(url, options = {}) {
@@ -191,6 +248,23 @@ function renderDottedRows(rows) {
         </div>`).join("");
 }
 
+function renderKeyValueRows(rows, emptyText = "None listed.") {
+    if (!rows.length) {
+        return `<p><small>${emptyText}</small></p>`;
+    }
+    return rows.map((row) => `
+        <div style="display:flex;justify-content:space-between;border-bottom:1px solid var(--color-border);padding:0.2rem 0;">
+            <span>${row.label}</span><span>${row.value}</span>
+        </div>`).join("");
+}
+
+function renderSimpleList(values, emptyText = "None listed.") {
+    if (!values.length) {
+        return `<li><small>${emptyText}</small></li>`;
+    }
+    return values.map((entry) => `<li>${entry}</li>`).join("");
+}
+
 function renderSheetView(payload) {
     const container = document.getElementById("sheet-view");
     const sheet = payload.sheet_display;
@@ -201,6 +275,7 @@ function renderSheetView(payload) {
     container.innerHTML = `
         <h4>${sheet.header.name} (${sheet.header.template})</h4>
         <div><strong>Concept:</strong> ${sheet.header.concept || "-"}</div>
+        ${(sheet.header.seeming || sheet.header.kith) ? `<div><strong>Seeming/Kith:</strong> ${sheet.header.seeming || "-"} / ${sheet.header.kith || "-"}</div>` : ""}
         <div class="grid grid-3" style="gap:1rem;margin-top:0.75rem;">
             <div><h5>Mental</h5>${renderDottedRows(sheet.attributes.mental || [])}</div>
             <div><h5>Physical</h5>${renderDottedRows(sheet.attributes.physical || [])}</div>
@@ -210,6 +285,20 @@ function renderSheetView(payload) {
             <div><h5>Mental Skills</h5>${renderDottedRows(sheet.skills.mental || [])}</div>
             <div><h5>Physical Skills</h5>${renderDottedRows(sheet.skills.physical || [])}</div>
             <div><h5>Social Skills</h5>${renderDottedRows(sheet.skills.social || [])}</div>
+        </div>
+        <div style="margin-top:0.9rem;">
+            <h5>Advantages</h5>
+            ${renderKeyValueRows(sheet.advantages || [], "No advantages set.")}
+        </div>
+        <div style="margin-top:0.9rem;">
+            <h5>Merits</h5>
+            ${renderDottedRows(sheet.merits || []) || "<p><small>No merits set.</small></p>"}
+        </div>
+        <div style="margin-top:0.9rem;">
+            <h5>Powers / Contracts</h5>
+            <ul style="padding-left:1.2rem;margin:0.25rem 0 0 0;">
+                ${renderSimpleList(sheet.powers || [], "No powers set.")}
+            </ul>
         </div>
     `;
 }
@@ -260,12 +349,31 @@ function renderSceneDetail(scene) {
             <div><strong>${post.character_name || post.account}</strong> <small>[${post.post_type}]</small></div>
             <div>${post.content}</div>
         </div>`).join("");
+    const participantsMarkup = (scene.participants || []).map((participant) => `
+        <button
+            type="button"
+            class="btn btn-sm btn-secondary scene-participant-open"
+            data-participant-name="${escapeHtml(participant.name || "Unknown")}"
+            data-participant-description="${escapeHtml(participant.description || "No description set.")}"
+            style="margin:0 0.35rem 0.35rem 0;"
+        >${participant.name || "Unknown"}</button>
+    `).join("");
+    const sceneInviteOptions = cachedInviteCandidates
+        .filter((candidate) => !participantIds.has(candidate.id))
+        .map((candidate) => {
+            const owner = candidate.owner ? `@${candidate.owner}` : "@Unknown";
+            return `<option value="${candidate.id}">${candidate.name} (${candidate.template}) ${owner}</option>`;
+        }).join("");
+    const toolCharacterOptions = cachedCharacters.map((charData) =>
+        `<option value="${charData.id}" ${selectedCharacterId === charData.id ? "selected" : ""}>${charData.name} (${charData.template})</option>`
+    ).join("");
 
     container.innerHTML = `
         <h4>${scene.title}</h4>
         <div><small>${scene.scene_type} / ${scene.pacing} / ${scene.privacy}</small></div>
         <div><small>Status: ${scene.is_completed ? "Stopped" : "Ongoing"}</small></div>
         <div><strong>Location:</strong> ${scene.location || "-"}</div>
+        <div style="margin-top:0.45rem;"><strong>Players in Scene:</strong><div style="margin-top:0.3rem;">${participantsMarkup || "<small>No participants listed.</small>"}</div></div>
         ${scene.wiki_log_url ? `<div><strong>Wiki Log:</strong> <a href="${scene.wiki_log_url}" target="_blank">${scene.wiki_log_url}</a></div>` : ""}
         <div style="margin-top:0.8rem;"><h5>Posts</h5>${posts || "<p>No posts yet.</p>"}</div>
         ${scene.is_completed ? `
@@ -289,19 +397,73 @@ function renderSceneDetail(scene) {
             </div>
         </div>
         `}
-        ${scene.can_manage && !scene.is_completed ? `
+        ${scene.can_manage ? `
             <div style="margin-top:0.8rem;">
                 <h5>Manage</h5>
+                <label style="margin-top:0.4rem;">Title</label>
                 <input id="scene-edit-title" class="form-control" value="${scene.title || ""}" />
-                <input id="scene-edit-location" class="form-control" value="${scene.location || ""}" style="margin-top:0.4rem;" />
-                <textarea id="scene-edit-summary" class="form-control" rows="2" style="margin-top:0.4rem;">${scene.summary || ""}</textarea>
-                <label style="display:flex;gap:0.4rem;align-items:center;margin-top:0.4rem;"><input type="checkbox" id="scene-publish-log"> Post public log to wiki</label>
+                <label style="margin-top:0.4rem;">Location</label>
+                <input id="scene-edit-location" class="form-control" value="${scene.location || ""}" />
+                <label style="margin-top:0.4rem;">IC Date</label>
+                <input id="scene-edit-ic-date" class="form-control" value="${scene.ic_date || ""}" />
+                <label style="margin-top:0.4rem;">Privacy</label>
+                <select id="scene-edit-privacy" class="form-control">
+                    <option value="open" ${scene.privacy === "open" ? "selected" : ""}>public</option>
+                    <option value="private" ${scene.privacy === "private" ? "selected" : ""}>private</option>
+                </select>
+                <label style="margin-top:0.4rem;">Scene Type</label>
+                <select id="scene-edit-type" class="form-control">
+                    <option value="social" ${scene.scene_type === "social" ? "selected" : ""}>social</option>
+                    <option value="combat" ${scene.scene_type === "combat" ? "selected" : ""}>combat</option>
+                    <option value="investigation" ${scene.scene_type === "investigation" ? "selected" : ""}>investigation</option>
+                    <option value="downtime" ${scene.scene_type === "downtime" ? "selected" : ""}>downtime</option>
+                    <option value="event" ${scene.scene_type === "event" ? "selected" : ""}>event</option>
+                </select>
+                <label style="margin-top:0.4rem;">Pacing</label>
+                <select id="scene-edit-pacing" class="form-control">
+                    <option value="slow" ${scene.pacing === "slow" ? "selected" : ""}>slow</option>
+                    <option value="normal" ${scene.pacing === "normal" ? "selected" : ""}>normal</option>
+                    <option value="fast" ${scene.pacing === "fast" ? "selected" : ""}>fast</option>
+                </select>
+                <label style="margin-top:0.4rem;">Notes</label>
+                <textarea id="scene-edit-notes" class="form-control" rows="2">${scene.notes || ""}</textarea>
+                <label style="margin-top:0.4rem;">Plot</label>
+                <input id="scene-edit-plot" class="form-control" value="${scene.plot || ""}" />
+                <label style="margin-top:0.4rem;">Tags</label>
+                <input id="scene-edit-tags" class="form-control" value="${scene.tags || ""}" />
+                <label style="margin-top:0.6rem;">Invite approved character</label>
+                <div style="display:flex;gap:0.5rem;margin-top:0.3rem;">
+                    <select id="scene-manage-invite-select" class="form-control" style="flex:1;">
+                        ${sceneInviteOptions || '<option value="">No additional approved characters available</option>'}
+                    </select>
+                    <button id="scene-manage-invite-add" type="button" class="btn btn-sm btn-secondary">Invite</button>
+                </div>
+                ${!scene.is_completed ? `<label style="display:flex;gap:0.4rem;align-items:center;margin-top:0.6rem;"><input type="checkbox" id="scene-publish-log"> Post public log to wiki</label>` : ""}
                 <div style="display:flex;gap:0.5rem;margin-top:0.5rem;">
                     <button id="scene-save-edit" class="btn btn-sm btn-secondary">Edit Scene</button>
-                    <button id="scene-stop" class="btn btn-sm btn-secondary">Stop Scene</button>
+                    ${!scene.is_completed ? `<button id="scene-stop" class="btn btn-sm btn-secondary">Stop Scene</button>` : ""}
                 </div>
             </div>
         ` : ""}
+        <div style="margin-top:0.95rem;">
+            <h5>Character Tools</h5>
+            <small>Use existing game commands from web (XP, votes, jobs/requests, rolls).</small>
+            <label for="scene-tools-character" style="margin-top:0.35rem;">Run As Character</label>
+            <select id="scene-tools-character" class="form-control">${toolCharacterOptions}</select>
+            <div style="display:flex;flex-wrap:wrap;gap:0.4rem;margin-top:0.5rem;">
+                <button type="button" class="btn btn-sm btn-secondary scene-tool-preset" data-command="+xp">XP Totals</button>
+                <button type="button" class="btn btn-sm btn-secondary scene-tool-preset" data-command="+xp/costs">XP Costs</button>
+                <button type="button" class="btn btn-sm btn-secondary scene-tool-preset" data-command="+xp/beat story">Gain Beat</button>
+                <button type="button" class="btn btn-sm btn-secondary scene-tool-preset" data-command="+jobs">My Requests</button>
+                <button type="button" class="btn btn-sm btn-secondary scene-tool-preset" data-command="+roll wits + composure">Roll Dice</button>
+            </div>
+            <label for="scene-tools-command" style="margin-top:0.5rem;">Command</label>
+            <input id="scene-tools-command" class="form-control" value="+xp" />
+            <div style="display:flex;gap:0.5rem;margin-top:0.5rem;">
+                <button id="scene-tools-run" type="button" class="btn btn-sm btn-primary">Run Command</button>
+            </div>
+            <pre id="scene-tools-output" style="margin-top:0.5rem;white-space:pre-wrap;max-height:220px;overflow:auto;padding:0.6rem;border:1px solid var(--color-border);border-radius:6px;">No command output yet.</pre>
+        </div>
     `;
 
     const postCharacterSelect = document.getElementById("scene-post-character");
@@ -320,6 +482,14 @@ function renderSceneDetail(scene) {
         postCharacterSelect.addEventListener("change", updateJoinState);
         updateJoinState();
     }
+
+    container.querySelectorAll(".scene-participant-open").forEach((button) => {
+        button.addEventListener("click", () => {
+            document.getElementById("participant-modal-title").textContent = button.dataset.participantName || "Character";
+            document.getElementById("participant-modal-body").textContent = button.dataset.participantDescription || "No description set.";
+            document.getElementById("participant-modal").classList.remove("async-hidden");
+        });
+    });
 }
 
 async function loadCharacters() {
@@ -355,14 +525,61 @@ async function loadLocations() {
 
 async function loadInviteCandidates() {
     const payload = await fetchJson(API_SCENE_INVITE_CANDIDATES);
-    const select = document.getElementById("scene-invite-characters");
+    cachedInviteCandidates = payload.candidates || [];
+    refreshInviteOptions();
+    renderSelectedInvites();
+}
+
+function refreshInviteOptions() {
+    const select = document.getElementById("scene-invite-select");
+    const currentCharacterId = parseInt(document.getElementById("scene-character").value, 10);
     select.innerHTML = "";
-    (payload.candidates || []).forEach((candidate) => {
+
+    const available = cachedInviteCandidates.filter((candidate) => (
+        candidate.id !== currentCharacterId && !selectedInviteIds.has(candidate.id)
+    ));
+
+    if (!available.length) {
         const option = document.createElement("option");
-        option.value = candidate.id;
+        option.value = "";
+        option.textContent = "No more characters available";
+        select.appendChild(option);
+        return;
+    }
+
+    available.forEach((candidate) => {
+        const option = document.createElement("option");
+        option.value = String(candidate.id);
         const owner = candidate.owner ? `@${candidate.owner}` : "@Unknown";
         option.textContent = `${candidate.name} (${candidate.template}) ${owner}`;
         select.appendChild(option);
+    });
+}
+
+function renderSelectedInvites() {
+    const container = document.getElementById("scene-invite-selected");
+    if (!selectedInviteIds.size) {
+        container.innerHTML = "<small>No additional invites selected.</small>";
+        return;
+    }
+
+    const selected = cachedInviteCandidates.filter((candidate) => selectedInviteIds.has(candidate.id));
+    container.innerHTML = selected.map((candidate) => {
+        const owner = candidate.owner ? `@${candidate.owner}` : "@Unknown";
+        return `
+            <div style="display:flex;justify-content:space-between;align-items:center;border:1px solid var(--color-border);padding:0.35rem 0.5rem;border-radius:6px;">
+                <span>${candidate.name} (${candidate.template}) ${owner}</span>
+                <button type="button" class="btn btn-sm btn-secondary invite-remove" data-invite-id="${candidate.id}">Remove</button>
+            </div>
+        `;
+    }).join("");
+
+    container.querySelectorAll(".invite-remove").forEach((button) => {
+        button.addEventListener("click", () => {
+            selectedInviteIds.delete(parseInt(button.dataset.inviteId, 10));
+            refreshInviteOptions();
+            renderSelectedInvites();
+        });
     });
 }
 
@@ -388,7 +605,7 @@ async function loadSceneDetail(sceneId) {
     if (sceneCharacterSelect && sheetCharacterSelect && !sheetCharacterSelect.value) {
         sheetCharacterSelect.value = sceneCharacterSelect.value;
     }
-    if (sheetCharacterSelect && sheetCharacterSelect.value) {
+    if (isSceneSheetVisible && sheetCharacterSelect && sheetCharacterSelect.value) {
         await loadSheet(sheetCharacterSelect.value);
     }
 
@@ -450,6 +667,8 @@ async function loadSceneDetail(sceneId) {
 
     const editButton = document.getElementById("scene-save-edit");
     const stopButton = document.getElementById("scene-stop");
+    const inviteButton = document.getElementById("scene-manage-invite-add");
+    const inviteSelect = document.getElementById("scene-manage-invite-select");
     if (editButton) {
         editButton.addEventListener("click", async () => {
             try {
@@ -459,7 +678,13 @@ async function loadSceneDetail(sceneId) {
                     body: JSON.stringify({
                         title: document.getElementById("scene-edit-title").value.trim(),
                         location: document.getElementById("scene-edit-location").value.trim(),
-                        summary: document.getElementById("scene-edit-summary").value.trim()
+                        ic_date: document.getElementById("scene-edit-ic-date").value.trim(),
+                        privacy: document.getElementById("scene-edit-privacy").value,
+                        scene_type: document.getElementById("scene-edit-type").value,
+                        pacing: document.getElementById("scene-edit-pacing").value,
+                        notes: document.getElementById("scene-edit-notes").value.trim(),
+                        plot: document.getElementById("scene-edit-plot").value.trim(),
+                        tags: document.getElementById("scene-edit-tags").value.trim()
                     })
                 });
                 await loadSceneDetail(sceneId);
@@ -476,7 +701,6 @@ async function loadSceneDetail(sceneId) {
                     method: "POST",
                     headers: {"Content-Type": "application/json", "X-CSRFToken": getCookie("csrftoken")},
                     body: JSON.stringify({
-                        summary: document.getElementById("scene-edit-summary").value.trim(),
                         publish_public_log: !!document.getElementById("scene-publish-log").checked
                     })
                 });
@@ -487,11 +711,68 @@ async function loadSceneDetail(sceneId) {
             }
         });
     }
+    if (inviteButton && inviteSelect) {
+        inviteButton.addEventListener("click", async () => {
+            try {
+                const characterId = parseInt(inviteSelect.value, 10);
+                if (!characterId) {
+                    alert("Choose a character to invite.");
+                    return;
+                }
+                await fetchJson(sceneUrl(API_SCENE_INVITE_TEMPLATE, sceneId, "invite"), {
+                    method: "POST",
+                    headers: {"Content-Type": "application/json", "X-CSRFToken": getCookie("csrftoken")},
+                    body: JSON.stringify({character_id: characterId})
+                });
+                await loadSceneDetail(sceneId);
+                await loadScenes();
+            } catch (error) {
+                alert(error.message);
+            }
+        });
+    }
+
+    const toolsCharacterSelect = document.getElementById("scene-tools-character");
+    const toolsCommandInput = document.getElementById("scene-tools-command");
+    const toolsRunButton = document.getElementById("scene-tools-run");
+    const toolsOutput = document.getElementById("scene-tools-output");
+    if (toolsCharacterSelect && toolsCommandInput && toolsRunButton && toolsOutput) {
+        document.querySelectorAll(".scene-tool-preset").forEach((button) => {
+            button.addEventListener("click", () => {
+                toolsCommandInput.value = button.dataset.command || "";
+            });
+        });
+        toolsRunButton.addEventListener("click", async () => {
+            try {
+                const characterId = parseInt(toolsCharacterSelect.value, 10);
+                const command = toolsCommandInput.value.trim();
+                if (!characterId) {
+                    alert("Choose a character to run commands as.");
+                    return;
+                }
+                if (!command) {
+                    alert("Enter a command.");
+                    return;
+                }
+                const payload = await fetchJson(API_COMMAND_EXECUTE, {
+                    method: "POST",
+                    headers: {"Content-Type": "application/json", "X-CSRFToken": getCookie("csrftoken")},
+                    body: JSON.stringify({character_id: characterId, command: command})
+                });
+                const lines = payload.lines || [];
+                toolsOutput.textContent = lines.length ? lines.join("\n") : "Command executed with no direct output.";
+                if (activeSceneId) {
+                    await loadScenes();
+                }
+            } catch (error) {
+                alert(error.message);
+            }
+        });
+    }
 }
 
 async function createScene() {
-    const inviteSelect = document.getElementById("scene-invite-characters");
-    const inviteIds = Array.from(inviteSelect.selectedOptions || []).map((option) => parseInt(option.value, 10));
+    const inviteIds = Array.from(selectedInviteIds.values());
     const result = await fetchJson(API_CREATE_SCENE, {
         method: "POST",
         headers: {"Content-Type": "application/json", "X-CSRFToken": getCookie("csrftoken")},
@@ -510,6 +791,9 @@ async function createScene() {
             invite_character_ids: inviteIds
         })
     });
+    selectedInviteIds.clear();
+    refreshInviteOptions();
+    renderSelectedInvites();
     activeSceneId = result.scene.id;
     setWorkspaceMode("scene");
     await loadScenes();
@@ -538,7 +822,8 @@ document.addEventListener("DOMContentLoaded", async () => {
         await loadInviteCandidates();
     } catch (error) {
         console.error(error);
-        document.getElementById("scene-invite-characters").innerHTML = "";
+        document.getElementById("scene-invite-select").innerHTML = "<option value=''>Unable to load invite candidates</option>";
+        document.getElementById("scene-invite-selected").innerHTML = "";
     }
 
     try {
@@ -554,6 +839,42 @@ document.addEventListener("DOMContentLoaded", async () => {
     document.getElementById("open-create-scene").addEventListener("click", () => setWorkspaceMode("create"));
     document.getElementById("cancel-create-scene").addEventListener("click", () => setWorkspaceMode("list"));
     document.getElementById("return-to-scenes").addEventListener("click", () => setWorkspaceMode("list"));
+    document.getElementById("toggle-scene-sheet").addEventListener("click", async () => {
+        isSceneSheetVisible = !isSceneSheetVisible;
+        setWorkspaceMode("scene");
+        if (isSceneSheetVisible) {
+            const selectedCharacterId = document.getElementById("character-select").value;
+            if (selectedCharacterId) {
+                try {
+                    await loadSheet(selectedCharacterId);
+                } catch (error) {
+                    alert(error.message);
+                }
+            }
+        }
+    });
+    document.getElementById("participant-modal-close").addEventListener("click", () => {
+        document.getElementById("participant-modal").classList.add("async-hidden");
+    });
+    document.getElementById("participant-modal").addEventListener("click", (event) => {
+        if (event.target.id === "participant-modal") {
+            document.getElementById("participant-modal").classList.add("async-hidden");
+        }
+    });
+    document.getElementById("scene-character").addEventListener("change", () => {
+        refreshInviteOptions();
+        renderSelectedInvites();
+    });
+    document.getElementById("scene-invite-add").addEventListener("click", () => {
+        const select = document.getElementById("scene-invite-select");
+        const selected = parseInt(select.value, 10);
+        if (!selected) {
+            return;
+        }
+        selectedInviteIds.add(selected);
+        refreshInviteOptions();
+        renderSelectedInvites();
+    });
 
     document.getElementById("character-select").addEventListener("change", async (event) => {
         try {
