@@ -95,6 +95,7 @@ class AsyncScene(models.Model):
     tags = models.CharField(max_length=240, blank=True)
     summary = models.TextField(blank=True)
     wiki_log_slug = models.CharField(max_length=200, blank=True)
+    initiative_state = models.JSONField(default=dict, blank=True)
     participants = models.ManyToManyField("objects.ObjectDB", related_name="async_scenes", blank=True)
     related_scenes = models.ManyToManyField("self", symmetrical=False, blank=True)
     created_at = models.DateTimeField(auto_now_add=True)

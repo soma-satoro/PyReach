@@ -378,6 +378,8 @@ function getInitiativeHelpText() {
         "Initiative workflow quick guide:",
         "- Roll or show initiative: initiative (or init)",
         "- Join another combatant's team: init/team <character>",
+        "- Advance turn: init/turn",
+        "- End combat for this scene: init/end",
         "- Show turn order/status: initiative (when already in order)",
         "- In async tools, initiative roll/team actions can be posted to scene",
         "- Status checks stay private in your output panel",
@@ -669,6 +671,10 @@ function renderSceneDetail(scene) {
                     ${sceneVoteTargetOptions || '<option value="">No participants available</option>'}
                 </select>
                 <button id="scene-tools-team-join" type="button" class="btn btn-sm btn-secondary">Join Team</button>
+            </div>
+            <div style="display:flex;gap:0.5rem;margin-top:0.45rem;">
+                <button id="scene-tools-next-turn" type="button" class="btn btn-sm btn-secondary">Next Turn</button>
+                <button id="scene-tools-end-combat" type="button" class="btn btn-sm btn-secondary">End Combat</button>
             </div>
             <label for="scene-tools-command" style="margin-top:0.5rem;">Command</label>
             <input id="scene-tools-command" class="form-control" value="+xp" />
@@ -973,6 +979,8 @@ async function loadSceneDetail(sceneId) {
     const toolsVoteButton = document.getElementById("scene-tools-vote");
     const toolsTeamTarget = document.getElementById("scene-tools-team-target");
     const toolsTeamJoinButton = document.getElementById("scene-tools-team-join");
+    const toolsNextTurnButton = document.getElementById("scene-tools-next-turn");
+    const toolsEndCombatButton = document.getElementById("scene-tools-end-combat");
     if (toolsCharacterSelect && toolsCommandInput && toolsRunButton && toolsOutput) {
         document.querySelectorAll(".scene-tool-preset").forEach((button) => {
             button.addEventListener("click", () => {
@@ -1043,6 +1051,20 @@ async function loadSceneDetail(sceneId) {
                     return;
                 }
                 toolsCommandInput.value = `init/team ${targetName}`;
+                toolsOutput.textContent = getInitiativeHelpText();
+                toolsRunButton.click();
+            });
+        }
+        if (toolsNextTurnButton) {
+            toolsNextTurnButton.addEventListener("click", async () => {
+                toolsCommandInput.value = "init/turn";
+                toolsOutput.textContent = getInitiativeHelpText();
+                toolsRunButton.click();
+            });
+        }
+        if (toolsEndCombatButton) {
+            toolsEndCombatButton.addEventListener("click", async () => {
+                toolsCommandInput.value = "init/end";
                 toolsOutput.textContent = getInitiativeHelpText();
                 toolsRunButton.click();
             });

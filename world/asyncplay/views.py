@@ -1,6 +1,7 @@
 """Views and API hooks for asynchronous web-based play."""
 
 import json
+import random
 from collections.abc import Mapping
 from urllib.parse import quote
 
@@ -701,6 +702,172 @@ def _execute_web_command(character, command: str) -> list[str]:
     return output
 
 
+def _is_initiative_command(command: str) -> bool:
+    """Check if a command is initiative-related."""
+    lowered = command.strip().lower()
+    return (
+        lowered == "initiative"
+        or lowered == "init"
+        or lowered.startswith("initiative/")
+        or lowered.startswith("init/")
+        or lowered.startswith("initiative ")
+        or lowered.startswith("init ")
+    )
+
+
+def _get_scene_initiative_state(scene) -> dict:
+    """Get normalized initiative state for one scene."""
+    raw = scene.initiative_state if isinstance(scene.initiative_state, dict) else {}
+    participants = raw.get("participants", {})
+    order = raw.get("order", [])
+    current_actor_id = raw.get("current_actor_id")
+    return {
+        "participants": participants if isinstance(participants, dict) else {},
+        "order": order if isinstance(order, list) else [],
+        "current_actor_id": int(current_actor_id) if str(current_actor_id).isdigit() else None,
+    }
+
+
+def _save_scene_initiative_state(scene, state: dict):
+    """Persist initiative state and activity timestamp."""
+    scene.initiative_state = state
+    scene.last_activity_at = timezone.now()
+    scene.save(update_fields=["initiative_state", "last_activity_at", "updated_at"])
+
+
+def _sort_scene_initiative_order(state: dict):
+    """Sort initiative order by score (descending)."""
+    participants = state.get("participants", {})
+    order = [str(char_id) for char_id in state.get("order", []) if str(char_id) in participants]
+    order.sort(key=lambda char_id: int(participants.get(char_id, {}).get("initiative", 0) or 0), reverse=True)
+    state["order"] = order
+    if order and str(state.get("current_actor_id")) not in order:
+        state["current_actor_id"] = int(order[0])
+    if not order:
+        state["current_actor_id"] = None
+
+
+def _format_scene_initiative_status_lines(scene, state: dict) -> list[str]:
+    """Return readable initiative status for output."""
+    order = state.get("order", [])
+    if not order:
+        return ["No active initiative order in this scene."]
+
+    Character = class_from_module("typeclasses.characters.Character")
+    ids = [int(char_id) for char_id in order if str(char_id).isdigit()]
+    by_id = {char.id: char for char in Character.objects.filter(id__in=ids)}
+    current_actor_id = state.get("current_actor_id")
+
+    lines = ["Initiative Order:"]
+    for idx, char_id in enumerate(order, start=1):
+        char_int = int(char_id)
+        pdata = state["participants"].get(char_id, {})
+        name = by_id.get(char_int).key if by_id.get(char_int) else f"Character #{char_int}"
+        initiative_value = pdata.get("initiative", 0)
+        team = pdata.get("team", "Solo")
+        marker = "->" if current_actor_id == char_int else "  "
+        lines.append(f"{marker} {idx}. {name} | Team: {team} | Init: {initiative_value}")
+    return lines
+
+
+def _find_scene_character_by_name(scene, name: str):
+    """Find a participant character in scene by name."""
+    needle = (name or "").strip().lower()
+    if not needle:
+        return None
+    for participant in scene.participants.all():
+        if participant.key.lower() == needle:
+            return participant
+    return None
+
+
+def _execute_scene_initiative_command(scene, character, account, command: str) -> tuple[list[str], bool]:
+    """Run initiative command scoped to one scene."""
+    lowered = command.strip().lower()
+    state = _get_scene_initiative_state(scene)
+    participants = state["participants"]
+    order = state["order"]
+    char_id = str(character.id)
+    should_post = False
+
+    if lowered in {"initiative", "init"}:
+        # Status if already in initiative, otherwise roll into this scene only.
+        if char_id in order:
+            return _format_scene_initiative_status_lines(scene, state), False
+
+        init_attr = int(_as_mapping(getattr(character.db, "stats", {}) or {}).get("advantages", {}).get("initiative", 0) or 0)
+        roll = random.randint(1, 10)
+        total = roll + init_attr
+        existing = participants.get(char_id, {})
+        existing["initiative"] = total
+        existing.setdefault("team", "Solo")
+        participants[char_id] = existing
+        if char_id not in order:
+            order.append(char_id)
+        _sort_scene_initiative_order(state)
+        _save_scene_initiative_state(scene, state)
+        should_post = True
+
+        lines = [f"Initiative Roll: {character.key} enters at {total} ({roll} + {init_attr})"]
+        lines.extend(_format_scene_initiative_status_lines(scene, state))
+        return lines, should_post
+
+    if lowered.startswith("init/team ") or lowered.startswith("initiative/team "):
+        target_name = command.split(" ", 1)[1].strip() if " " in command else ""
+        target = _find_scene_character_by_name(scene, target_name)
+        if not target:
+            return [f"Character '{target_name}' not found in this scene."], False
+
+        target_id = str(target.id)
+        target_data = participants.get(target_id)
+        if not target_data:
+            return [f"{target.key} is not in initiative order for this scene yet."], False
+
+        target_team = target_data.get("team", "Solo")
+        caller_data = participants.get(char_id, {})
+        caller_data["team"] = target_team
+        participants[char_id] = caller_data
+        if char_id not in order:
+            init_attr = int(_as_mapping(getattr(character.db, "stats", {}) or {}).get("advantages", {}).get("initiative", 0) or 0)
+            roll = random.randint(1, 10)
+            caller_data["initiative"] = roll + init_attr
+            order.append(char_id)
+
+        _sort_scene_initiative_order(state)
+        _save_scene_initiative_state(scene, state)
+        should_post = True
+        lines = [f"{character.key} joins team {target_team} with {target.key}."]
+        lines.extend(_format_scene_initiative_status_lines(scene, state))
+        return lines, should_post
+
+    if lowered in {"init/turn", "initiative/turn"}:
+        if not order:
+            return ["No active initiative order in this scene."], False
+        current_actor_id = state.get("current_actor_id")
+        is_manager = _can_manage_scene(scene, account)
+        if not is_manager and current_actor_id != int(char_id):
+            return ["Only the current actor can advance the turn."], False
+
+        current_idx = order.index(str(current_actor_id)) if str(current_actor_id) in order else -1
+        next_idx = (current_idx + 1) % len(order)
+        state["current_actor_id"] = int(order[next_idx])
+        _save_scene_initiative_state(scene, state)
+        should_post = True
+        lines = ["Turn advanced."]
+        lines.extend(_format_scene_initiative_status_lines(scene, state))
+        return lines, should_post
+
+    if lowered in {"init/end", "initiative/end"}:
+        if not _can_manage_scene(scene, account):
+            return ["Only scene managers can end combat."], False
+        state = {"participants": {}, "order": [], "current_actor_id": None}
+        _save_scene_initiative_state(scene, state)
+        should_post = True
+        return ["Combat ended for this scene. Initiative order cleared."], should_post
+
+    return ["Unsupported initiative command. Use initiative, init/team <name>, init/turn, or init/end."], False
+
+
 @login_required
 def dashboard(request):
     """Render the async-play dashboard page."""
@@ -784,37 +951,42 @@ def api_command_execute(request):
     if not _can_access_character(request.user, character):
         return JsonResponse({"error": "You do not have access to this character."}, status=403)
 
-    lines = _execute_web_command(character, command)
-
     scene_id = body.get("scene_id")
     post_to_scene = bool(body.get("post_to_scene"))
-    did_post = False
-    if post_to_scene and scene_id:
+    initiative_command = _is_initiative_command(command)
+    scene = None
+    if scene_id:
         try:
             scene = get_object_or_404(AsyncScene, id=int(scene_id))
         except (TypeError, ValueError):
             return JsonResponse({"error": "scene_id must be an integer."}, status=400)
+        if not _can_view_scene(scene, request.user):
+            return JsonResponse({"error": "You do not have access to this scene."}, status=403)
+        if initiative_command and scene.is_completed:
+            return JsonResponse({"error": "Scene is stopped. Restart it before using initiative."}, status=400)
 
+    # Initiative is scene-scoped when scene_id is provided.
+    initiative_should_post = False
+    if scene and initiative_command:
+        lines, initiative_should_post = _execute_scene_initiative_command(scene, character, request.user, command)
+    else:
+        lines = _execute_web_command(character, command)
+
+    did_post = False
+    if post_to_scene and scene:
         if scene.is_completed:
             return JsonResponse({"error": "Scene is stopped. Restart it to post rolls."}, status=400)
         if not _can_post_to_scene(scene, request.user):
             return JsonResponse({"error": "You do not have posting access to this scene."}, status=403)
 
         lowered = command.lower().strip()
-        output_blob = "\n".join(lines).lower()
-        should_post = False
+        should_post = initiative_should_post
         post_header = f"Command: {command}"
 
-        if lowered.startswith("+roll") or lowered.startswith("roll"):
+        if not should_post and (lowered.startswith("+roll") or lowered.startswith("roll")):
             should_post = True
-        elif lowered == "initiative" or lowered == "init" or lowered.startswith("initiative ") or lowered.startswith("init ") or lowered.startswith("init/") or lowered.startswith("initiative/"):
-            # Post only for initiative actions (roll/team changes), not status lookups.
-            if "initiative roll" in output_blob:
-                should_post = True
-            elif lowered.startswith("init/team") or lowered.startswith("initiative/team"):
-                should_post = True
-            if should_post:
-                post_header = f"Initiative: {command}"
+        if initiative_should_post:
+            post_header = f"Initiative: {command}"
 
         if should_post:
             content_lines = [f"Command: {command}"]
