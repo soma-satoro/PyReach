@@ -34,6 +34,12 @@ def _owned_characters(account):
     ]
 
 
+def _approved_characters():
+    """Return all approved characters for invitation lists."""
+    Character = class_from_module("typeclasses.characters.Character")
+    return [char for char in Character.objects.all() if getattr(char.db, "approved", False)]
+
+
 def _character_by_id(character_id: int):
     """Load a Character typeclass instance by id."""
     Character = class_from_module("typeclasses.characters.Character")
@@ -504,6 +510,26 @@ def api_my_characters(request):
 
 @login_required
 @require_GET
+def api_scene_invite_candidates(request):
+    """List approved characters that can be invited to scenes."""
+    candidates = []
+    for char in _approved_characters():
+        owner_name = getattr(getattr(char, "account", None), "username", None)
+        candidates.append(
+            {
+                "id": char.id,
+                "name": char.key,
+                "owner": owner_name,
+                "template": _as_mapping(
+                    _as_mapping(getattr(char.db, "stats", {}) or {}).get("other", {})
+                ).get("template", "Mortal"),
+            }
+        )
+    return JsonResponse({"candidates": sorted(candidates, key=lambda item: (item["owner"] or "", item["name"]))})
+
+
+@login_required
+@require_GET
 def api_character_sheet(request, character_id: int):
     """Return the full sheet payload for one character."""
     Character = class_from_module("typeclasses.characters.Character")
@@ -696,12 +722,30 @@ def api_scene_create(request):
     )
     scene.participants.add(character)
 
+    invite_ids = _parse_int_list(body.get("invite_character_ids"))
+    if invite_ids:
+        for invited in _approved_characters():
+            if invited.id in invite_ids:
+                scene.participants.add(invited)
+
     related_ids = _parse_int_list(body.get("related_scene_ids"))
     if related_ids:
         scene.related_scenes.add(*AsyncScene.objects.filter(id__in=related_ids))
 
     scene.last_activity_at = timezone.now()
     scene.save(update_fields=["last_activity_at", "updated_at"])
+
+    summary_text = (scene.summary or "").strip()
+    if summary_text:
+        AsyncScenePost.objects.create(
+            scene=scene,
+            account=request.user,
+            character=character,
+            post_type=AsyncScenePost.TYPE_SCENE_SET,
+            content=summary_text,
+        )
+        scene.last_activity_at = timezone.now()
+        scene.save(update_fields=["last_activity_at", "updated_at"])
 
     return JsonResponse({"ok": True, "scene": _serialize_scene(scene, account=request.user)}, status=201)
 

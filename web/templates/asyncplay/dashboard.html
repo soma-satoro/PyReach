@@ -99,6 +99,8 @@
                 <input id="scene-tags" class="form-control" maxlength="240" />
                 <label for="scene-summary">Summary / Scene Set</label>
                 <textarea id="scene-summary" class="form-control" rows="3"></textarea>
+                <label for="scene-invite-characters">Invite Approved Characters</label>
+                <select id="scene-invite-characters" class="form-control" multiple size="6"></select>
                 <div style="display: flex; gap: 0.5rem;">
                     <button id="create-scene" type="button" class="btn btn-primary">Create Scene</button>
                     <button id="cancel-create-scene" type="button" class="btn btn-secondary">Cancel</button>
@@ -125,6 +127,7 @@
 <script>
 const API_MY_CHARACTERS = "{% url 'asyncplay:api_my_characters' %}";
 const API_CHARACTER_SHEET_TEMPLATE = "{% url 'asyncplay:api_character_sheet' character_id=0 %}";
+const API_SCENE_INVITE_CANDIDATES = "{% url 'asyncplay:api_scene_invite_candidates' %}";
 const API_SCENES = "{% url 'asyncplay:api_scene_list' %}";
 const API_SCENE_LOCATIONS = "{% url 'asyncplay:api_scene_locations' %}";
 const API_CREATE_SCENE = "{% url 'asyncplay:api_scene_create' %}";
@@ -302,19 +305,21 @@ function renderSceneDetail(scene) {
     `;
 
     const postCharacterSelect = document.getElementById("scene-post-character");
-    if (selectedCharacterId !== null) {
-        postCharacterSelect.value = String(selectedCharacterId);
-    }
-
     const joinButton = document.getElementById("scene-join");
-    const updateJoinState = () => {
-        const selectedId = parseInt(postCharacterSelect.value, 10);
-        const alreadyInScene = participantIds.has(selectedId);
-        joinButton.disabled = alreadyInScene;
-        joinButton.textContent = alreadyInScene ? "Already Joined" : "Join";
-    };
-    postCharacterSelect.addEventListener("change", updateJoinState);
-    updateJoinState();
+    if (postCharacterSelect && joinButton) {
+        if (selectedCharacterId !== null) {
+            postCharacterSelect.value = String(selectedCharacterId);
+        }
+
+        const updateJoinState = () => {
+            const selectedId = parseInt(postCharacterSelect.value, 10);
+            const alreadyInScene = participantIds.has(selectedId);
+            joinButton.disabled = alreadyInScene;
+            joinButton.textContent = alreadyInScene ? "Already Joined" : "Join";
+        };
+        postCharacterSelect.addEventListener("change", updateJoinState);
+        updateJoinState();
+    }
 }
 
 async function loadCharacters() {
@@ -344,6 +349,19 @@ async function loadLocations() {
         const option = document.createElement("option");
         option.value = location.id;
         option.textContent = location.label;
+        select.appendChild(option);
+    });
+}
+
+async function loadInviteCandidates() {
+    const payload = await fetchJson(API_SCENE_INVITE_CANDIDATES);
+    const select = document.getElementById("scene-invite-characters");
+    select.innerHTML = "";
+    (payload.candidates || []).forEach((candidate) => {
+        const option = document.createElement("option");
+        option.value = candidate.id;
+        const owner = candidate.owner ? `@${candidate.owner}` : "@Unknown";
+        option.textContent = `${candidate.name} (${candidate.template}) ${owner}`;
         select.appendChild(option);
     });
 }
@@ -472,6 +490,8 @@ async function loadSceneDetail(sceneId) {
 }
 
 async function createScene() {
+    const inviteSelect = document.getElementById("scene-invite-characters");
+    const inviteIds = Array.from(inviteSelect.selectedOptions || []).map((option) => parseInt(option.value, 10));
     const result = await fetchJson(API_CREATE_SCENE, {
         method: "POST",
         headers: {"Content-Type": "application/json", "X-CSRFToken": getCookie("csrftoken")},
@@ -486,7 +506,8 @@ async function createScene() {
             notes: document.getElementById("scene-notes").value.trim(),
             plot: document.getElementById("scene-plot").value.trim(),
             tags: document.getElementById("scene-tags").value.trim(),
-            summary: document.getElementById("scene-summary").value.trim()
+            summary: document.getElementById("scene-summary").value.trim(),
+            invite_character_ids: inviteIds
         })
     });
     activeSceneId = result.scene.id;
@@ -511,6 +532,13 @@ document.addEventListener("DOMContentLoaded", async () => {
     } catch (error) {
         console.error(error);
         document.getElementById("scene-location-id").innerHTML = "<option value=''>Unable to load locations</option>";
+    }
+
+    try {
+        await loadInviteCandidates();
+    } catch (error) {
+        console.error(error);
+        document.getElementById("scene-invite-characters").innerHTML = "";
     }
 
     try {
