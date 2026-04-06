@@ -100,6 +100,7 @@
                 <button type="button" class="btn btn-sm btn-secondary global-tool-preset" data-command="+tilt" data-help-type="tilts">Tilts</button>
                 <button type="button" class="btn btn-sm btn-secondary global-tool-preset" data-command="+aspiration" data-help-type="aspirations">Aspirations</button>
                 <button type="button" class="btn btn-sm btn-secondary global-tool-preset" data-command="+vote" data-help-type="vote">Vote</button>
+                <button type="button" class="btn btn-sm btn-secondary global-tool-preset" data-command="initiative" data-help-type="initiative">Initiative</button>
             </div>
             <label for="global-tools-command" style="margin-top:0.5rem;">Command</label>
             <input id="global-tools-command" class="form-control" value="+xp" />
@@ -372,12 +373,25 @@ function getVoteHelpText() {
     ].join("\n");
 }
 
+function getInitiativeHelpText() {
+    return [
+        "Initiative workflow quick guide:",
+        "- Roll or show initiative: initiative (or init)",
+        "- Join another combatant's team: init/team <character>",
+        "- Show turn order/status: initiative (when already in order)",
+        "- In async tools, initiative roll/team actions can be posted to scene",
+        "- Status checks stay private in your output panel",
+        "",
+    ].join("\n");
+}
+
 function getWorkflowHelpByType(helpType) {
     if (helpType === "requests") return getRequestHelpText();
     if (helpType === "conditions") return getConditionsHelpText();
     if (helpType === "tilts") return getTiltsHelpText();
     if (helpType === "aspirations") return getAspirationsHelpText();
     if (helpType === "vote") return getVoteHelpText();
+    if (helpType === "initiative") return getInitiativeHelpText();
     return "";
 }
 
@@ -388,6 +402,7 @@ function appendWorkflowHelpFromCommand(command, outputLines) {
     if (lowered.startsWith("+tilt") || lowered.startsWith("+tilts")) outputLines.push(getTiltsHelpText());
     if (lowered.startsWith("+aspiration") || lowered.startsWith("+aspirations") || lowered.startsWith("+asp")) outputLines.push(getAspirationsHelpText());
     if (lowered.startsWith("+vote")) outputLines.push(getVoteHelpText());
+    if (lowered === "initiative" || lowered === "init" || lowered.startsWith("initiative/") || lowered.startsWith("init/") || lowered.startsWith("initiative ") || lowered.startsWith("init ")) outputLines.push(getInitiativeHelpText());
 }
 
 function renderSheetView(payload) {
@@ -481,11 +496,50 @@ function renderSceneDetail(scene) {
     const defaultAlreadyInScene = selectedCharacterId !== null && participantIds.has(selectedCharacterId);
     const characterOptions = cachedCharacters.map((charData) =>
         `<option value="${charData.id}">${charData.name} (${charData.template})</option>`).join("");
-    const posts = (scene.posts || []).map((post) => `
-        <div style="padding:0.5rem 0;border-bottom:1px solid var(--color-border);">
-            <div><strong>${post.character_name || post.account}</strong> <small>[${post.post_type}]</small></div>
-            <div>${post.content}</div>
-        </div>`).join("");
+    const posts = (scene.posts || []).map((post) => {
+        const speaker = escapeHtml(post.character_name || post.account || "Unknown");
+        const rawContent = String(post.content || "");
+        const postType = String(post.post_type || "").toLowerCase();
+
+        if (postType === "gm_emit") {
+            const quoted = rawContent.split("\n").map((line) => `| ${line}`).join("\n");
+            const quotedHtml = escapeHtml(quoted).replaceAll("\n", "<br>");
+            return `
+                <div style="padding:0.5rem 0;border-bottom:1px solid var(--color-border);">
+                    <div><strong>${speaker}</strong></div>
+                    <div style="margin-top:0.25rem;padding-left:0.6rem;border-left:3px solid var(--color-border);">${quotedHtml}</div>
+                </div>
+            `;
+        }
+
+        if (postType === "ooc") {
+            const oocHtml = escapeHtml(rawContent).replaceAll("\n", "<br>");
+            return `
+                <div style="padding:0.5rem 0;border-bottom:1px solid var(--color-border);">
+                    <div><strong>${speaker}</strong></div>
+                    <div>OOC: ${oocHtml}</div>
+                </div>
+            `;
+        }
+
+        if (postType === "scene_set") {
+            const setHtml = escapeHtml(rawContent).replaceAll("\n", "<br>");
+            return `
+                <div style="padding:0.5rem 0;border-bottom:1px solid var(--color-border);">
+                    <div><strong>${speaker}</strong></div>
+                    <div><em>Scene Set:</em> ${setHtml}</div>
+                </div>
+            `;
+        }
+
+        const poseHtml = escapeHtml(rawContent).replaceAll("\n", "<br>");
+        return `
+            <div style="padding:0.5rem 0;border-bottom:1px solid var(--color-border);">
+                <div><strong>${speaker}</strong></div>
+                <div>${poseHtml}</div>
+            </div>
+        `;
+    }).join("");
     const participantsMarkup = (scene.participants || []).map((participant) => `
         <button
             type="button"
@@ -528,7 +582,6 @@ function renderSceneDetail(scene) {
                 <option value="pose">Pose</option>
                 <option value="ooc">OOC</option>
                 <option value="gm_emit">GM Emit</option>
-                <option value="scene_set">Scene Set</option>
             </select>
             <select id="scene-post-character" class="form-control" style="margin-top:0.4rem;">${characterOptions}</select>
             <textarea id="scene-post-content" class="form-control" rows="3" style="margin-top:0.4rem;"></textarea>
@@ -601,6 +654,7 @@ function renderSceneDetail(scene) {
                 <button type="button" class="btn btn-sm btn-secondary scene-tool-preset" data-command="+tilt" data-help-type="tilts">Tilts</button>
                 <button type="button" class="btn btn-sm btn-secondary scene-tool-preset" data-command="+aspiration" data-help-type="aspirations">Aspirations</button>
                 <button type="button" class="btn btn-sm btn-secondary scene-tool-preset" data-command="+vote" data-help-type="vote">Vote</button>
+                <button type="button" class="btn btn-sm btn-secondary scene-tool-preset" data-command="initiative" data-help-type="initiative">Initiative</button>
             </div>
             <label for="scene-tools-vote-target" style="margin-top:0.5rem;">Vote for Scene Participant</label>
             <div style="display:flex;gap:0.5rem;margin-top:0.35rem;">
@@ -609,11 +663,18 @@ function renderSceneDetail(scene) {
                 </select>
                 <button id="scene-tools-vote" type="button" class="btn btn-sm btn-secondary">Vote</button>
             </div>
+            <label for="scene-tools-team-target" style="margin-top:0.5rem;">Join Initiative Team With</label>
+            <div style="display:flex;gap:0.5rem;margin-top:0.35rem;">
+                <select id="scene-tools-team-target" class="form-control" style="flex:1;">
+                    ${sceneVoteTargetOptions || '<option value="">No participants available</option>'}
+                </select>
+                <button id="scene-tools-team-join" type="button" class="btn btn-sm btn-secondary">Join Team</button>
+            </div>
             <label for="scene-tools-command" style="margin-top:0.5rem;">Command</label>
             <input id="scene-tools-command" class="form-control" value="+xp" />
             <label style="display:flex;gap:0.4rem;align-items:center;margin-top:0.5rem;">
                 <input type="checkbox" id="scene-tools-post-roll" checked>
-                Post roll results into this scene's posts
+                Post roll/initiative action results into this scene's posts
             </label>
             <div style="display:flex;gap:0.5rem;margin-top:0.5rem;">
                 <button id="scene-tools-run" type="button" class="btn btn-sm btn-primary">Run Command</button>
@@ -910,6 +971,8 @@ async function loadSceneDetail(sceneId) {
     const toolsPostRollCheckbox = document.getElementById("scene-tools-post-roll");
     const toolsVoteTarget = document.getElementById("scene-tools-vote-target");
     const toolsVoteButton = document.getElementById("scene-tools-vote");
+    const toolsTeamTarget = document.getElementById("scene-tools-team-target");
+    const toolsTeamJoinButton = document.getElementById("scene-tools-team-join");
     if (toolsCharacterSelect && toolsCommandInput && toolsRunButton && toolsOutput) {
         document.querySelectorAll(".scene-tool-preset").forEach((button) => {
             button.addEventListener("click", () => {
@@ -969,6 +1032,18 @@ async function loadSceneDetail(sceneId) {
                 }
                 toolsCommandInput.value = `+vote ${targetName}`;
                 toolsOutput.textContent = getVoteHelpText();
+                toolsRunButton.click();
+            });
+        }
+        if (toolsTeamJoinButton && toolsTeamTarget) {
+            toolsTeamJoinButton.addEventListener("click", async () => {
+                const targetName = (toolsTeamTarget.value || "").trim();
+                if (!targetName) {
+                    alert("Choose a participant to join team with.");
+                    return;
+                }
+                toolsCommandInput.value = `init/team ${targetName}`;
+                toolsOutput.textContent = getInitiativeHelpText();
                 toolsRunButton.click();
             });
         }

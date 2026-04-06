@@ -661,6 +661,8 @@ _WEB_COMMAND_PREFIXES = (
     "+aspiration",
     "+aspirations",
     "+asp",
+    "initiative",
+    "init",
 )
 
 
@@ -799,8 +801,25 @@ def api_command_execute(request):
             return JsonResponse({"error": "You do not have posting access to this scene."}, status=403)
 
         lowered = command.lower().strip()
+        output_blob = "\n".join(lines).lower()
+        should_post = False
+        post_header = f"Command: {command}"
+
         if lowered.startswith("+roll") or lowered.startswith("roll"):
+            should_post = True
+        elif lowered == "initiative" or lowered == "init" or lowered.startswith("initiative ") or lowered.startswith("init ") or lowered.startswith("init/") or lowered.startswith("initiative/"):
+            # Post only for initiative actions (roll/team changes), not status lookups.
+            if "initiative roll" in output_blob:
+                should_post = True
+            elif lowered.startswith("init/team") or lowered.startswith("initiative/team"):
+                should_post = True
+            if should_post:
+                post_header = f"Initiative: {command}"
+
+        if should_post:
             content_lines = [f"Command: {command}"]
+            if post_header != f"Command: {command}":
+                content_lines = [post_header]
             content_lines.extend(lines or ["(Roll executed with no direct output.)"])
             AsyncScenePost.objects.create(
                 scene=scene,
@@ -1233,6 +1252,8 @@ def api_scene_post(request, scene_id: int):
     valid_post_types = {choice[0] for choice in AsyncScenePost.TYPE_CHOICES}
     if post_type not in valid_post_types:
         return JsonResponse({"error": "Invalid post_type."}, status=400)
+    if post_type == AsyncScenePost.TYPE_SCENE_SET:
+        return JsonResponse({"error": "Scene Set can only be created when starting the scene."}, status=400)
 
     post = AsyncScenePost.objects.create(
         scene=scene,
