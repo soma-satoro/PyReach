@@ -1,6 +1,7 @@
 """Views and API hooks for asynchronous web-based play."""
 
 import json
+from collections.abc import Mapping
 
 from django.conf import settings
 from django.contrib.auth import get_user_model
@@ -80,6 +81,13 @@ def _dots(value: int, max_value: int = 5) -> str:
     return ("●" * safe_value) + ("○" * (max_value - safe_value))
 
 
+def _as_mapping(value):
+    """Return dict-like values as a plain dict, otherwise empty dict."""
+    if isinstance(value, Mapping):
+        return dict(value)
+    return {}
+
+
 def _format_name(value: str) -> str:
     """Humanize a stat key."""
     return str(value).replace("_", " ").title()
@@ -87,7 +95,7 @@ def _format_name(value: str) -> str:
 
 def _format_merits(merits: dict) -> list[dict]:
     """Normalize merit data for display."""
-    if not isinstance(merits, dict):
+    if not isinstance(merits, Mapping):
         return []
     rows = []
     for merit_name, merit_value in (merits or {}).items():
@@ -105,7 +113,7 @@ def _format_merits(merits: dict) -> list[dict]:
 
 def _format_powers(powers: dict) -> list[str]:
     """Format powers for display."""
-    if isinstance(powers, dict):
+    if isinstance(powers, Mapping):
         power_names = powers.keys()
     elif isinstance(powers, list):
         power_names = powers
@@ -123,24 +131,14 @@ def _format_powers(powers: dict) -> list[str]:
 
 def _build_sheet_display(character) -> dict:
     """Build a CoD-friendly sheet display payload."""
-    stats = getattr(character.db, "stats", {}) or {}
-    if not isinstance(stats, dict):
-        stats = {}
-
-    attributes = stats.get("attributes", {})
-    if not isinstance(attributes, dict):
-        attributes = {}
-    skills = stats.get("skills", {})
-    if not isinstance(skills, dict):
-        skills = {}
-    advantages = stats.get("advantages", {})
-    if not isinstance(advantages, dict):
-        advantages = {}
-    bio = stats.get("bio", {})
-    if not isinstance(bio, dict):
-        bio = {}
+    stats = _as_mapping(getattr(character.db, "stats", {}) or {})
+    attributes = _as_mapping(stats.get("attributes", {}))
+    skills = _as_mapping(stats.get("skills", {}))
+    advantages = _as_mapping(stats.get("advantages", {}))
+    bio = _as_mapping(stats.get("bio", {}))
     merits = stats.get("merits", {})
     powers = stats.get("powers", {})
+    other = _as_mapping(stats.get("other", {}))
 
     section_map = {
         "mental": ("intelligence", "wits", "resolve"),
@@ -178,11 +176,7 @@ def _build_sheet_display(character) -> dict:
     return {
         "header": {
             "name": character.key,
-            "template": (
-                stats.get("other", {}).get("template", "Mortal")
-                if isinstance(stats.get("other", {}), dict)
-                else "Mortal"
-            ),
+            "template": other.get("template", "Mortal"),
             "concept": bio.get("concept", ""),
             "seeming": bio.get("seeming", ""),
             "kith": bio.get("kith", ""),

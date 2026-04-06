@@ -14,6 +14,9 @@
     position: sticky;
     top: 1rem;
 }
+.async-hidden {
+    display: none;
+}
 @media (max-width: 1024px) {
     .async-layout {
         grid-template-columns: 1fr;
@@ -28,11 +31,16 @@
 {% block content %}
 <div class="section-header">
     <h1 class="section-title"><i class="fas fa-hourglass-half"></i> Async Play</h1>
-    <p class="section-subtitle">Public scenes and logs, plus command-style posting for play-by-post.</p>
+    <p class="section-subtitle">Browse scenes, create new scenes, and post/play asynchronously.</p>
 </div>
 
 <div class="async-layout">
     <aside class="async-sidebar">
+        <div class="character-card" style="margin-bottom: 1rem;">
+            <button id="open-create-scene" type="button" class="btn btn-primary" style="width: 100%;">Create New Scene</button>
+            <button id="return-to-scenes" type="button" class="btn btn-secondary async-hidden" style="width: 100%; margin-top: 0.5rem;">Back to Scene Lists</button>
+        </div>
+
         <div class="character-card" style="margin-bottom: 1rem;">
             <h3 style="margin-top: 0;">Public Ongoing Scenes</h3>
             <div id="scene-list-public-ongoing"></div>
@@ -43,26 +51,19 @@
             <div id="scene-list-public-completed"></div>
         </div>
 
-        <div class="character-card" style="margin-bottom: 1rem;">
+        <div class="character-card">
             <h3 style="margin-top: 0;">Your Scenes</h3>
             <div id="scene-list-mine"></div>
-        </div>
-
-        <div class="character-card">
-            <h3 style="margin-top: 0;">Scene Detail</h3>
-            <div id="scene-detail">Select a scene.</div>
         </div>
     </aside>
 
     <section>
-        <div class="character-card" style="margin-bottom: 1.5rem;">
-            <h3 style="margin-top: 0;">Character Sheet</h3>
-            <label for="character-select">Character</label>
-            <select id="character-select" class="form-control"></select>
-            <div id="sheet-view" style="margin-top: 1rem;"><p>Select a character.</p></div>
+        <div id="landing-card" class="character-card">
+            <h3 style="margin-top: 0;">Scene Hub</h3>
+            <p>Select a scene from the left, or create a new scene.</p>
         </div>
 
-        <div class="character-card">
+        <div id="create-scene-card" class="character-card async-hidden">
             <h3 style="margin-top: 0;">Create New Scene</h3>
             <div style="display:grid;gap:0.75rem;">
                 <label for="scene-character">As Character</label>
@@ -98,12 +99,26 @@
                 <input id="scene-tags" class="form-control" maxlength="240" />
                 <label for="scene-summary">Summary / Scene Set</label>
                 <textarea id="scene-summary" class="form-control" rows="3"></textarea>
-                <button id="create-scene" type="button" class="btn btn-primary">Create Scene</button>
+                <div style="display: flex; gap: 0.5rem;">
+                    <button id="create-scene" type="button" class="btn btn-primary">Create Scene</button>
+                    <button id="cancel-create-scene" type="button" class="btn btn-secondary">Cancel</button>
+                </div>
             </div>
+        </div>
+
+        <div id="scene-detail-card" class="character-card async-hidden" style="margin-top: 1rem;">
+            <h3 style="margin-top: 0;">Scene Detail</h3>
+            <div id="scene-detail">Select a scene.</div>
+        </div>
+
+        <div id="scene-sheet-card" class="character-card async-hidden" style="margin-top: 1rem;">
+            <h3 style="margin-top: 0;">Character Sheet</h3>
+            <label for="character-select">Character</label>
+            <select id="character-select" class="form-control"></select>
+            <div id="sheet-view" style="margin-top: 1rem;"><p>Select a character.</p></div>
         </div>
     </section>
 </div>
-
 {% endblock %}
 
 {% block extra_scripts %}
@@ -127,6 +142,20 @@ function getCookie(name) {
     const parts = value.split(`; ${name}=`);
     if (parts.length === 2) return parts.pop().split(';').shift();
     return null;
+}
+
+function setWorkspaceMode(mode) {
+    const landingCard = document.getElementById("landing-card");
+    const createSceneCard = document.getElementById("create-scene-card");
+    const sceneDetailCard = document.getElementById("scene-detail-card");
+    const sceneSheetCard = document.getElementById("scene-sheet-card");
+    const backButton = document.getElementById("return-to-scenes");
+
+    landingCard.classList.toggle("async-hidden", mode !== "list");
+    createSceneCard.classList.toggle("async-hidden", mode !== "create");
+    sceneDetailCard.classList.toggle("async-hidden", mode !== "scene");
+    sceneSheetCard.classList.toggle("async-hidden", mode !== "scene");
+    backButton.classList.toggle("async-hidden", mode === "list");
 }
 
 async function fetchJson(url, options = {}) {
@@ -207,6 +236,7 @@ function renderSceneCollection(containerId, scenes, emptyText) {
             try {
                 activeSceneId = parseInt(button.dataset.sceneId, 10);
                 await loadSceneDetail(activeSceneId);
+                setWorkspaceMode("scene");
             } catch (error) {
                 alert(error.message);
             }
@@ -263,21 +293,19 @@ function renderSceneDetail(scene) {
 
 async function loadCharacters() {
     const payload = await fetchJson(API_MY_CHARACTERS);
-    const select = document.getElementById("character-select");
-    const sceneSelect = document.getElementById("scene-character");
+    const sheetSelect = document.getElementById("character-select");
+    const createSelect = document.getElementById("scene-character");
     cachedCharacters = payload.characters || [];
-    select.innerHTML = "";
-    sceneSelect.innerHTML = "";
+    sheetSelect.innerHTML = "";
+    createSelect.innerHTML = "";
     cachedCharacters.forEach((charData) => {
         const option = document.createElement("option");
         option.value = charData.id;
         option.textContent = `${charData.name} (${charData.template})`;
-        select.appendChild(option);
-        sceneSelect.appendChild(option.cloneNode(true));
+        sheetSelect.appendChild(option);
+        createSelect.appendChild(option.cloneNode(true));
     });
-    if (cachedCharacters.length) {
-        await loadSheet(select.value);
-    } else {
+    if (!cachedCharacters.length) {
         document.getElementById("sheet-view").innerHTML = "<p>No approved characters found for this account.</p>";
     }
 }
@@ -310,6 +338,13 @@ async function loadScenes() {
 async function loadSceneDetail(sceneId) {
     const scene = (await fetchJson(sceneUrl(API_SCENE_DETAIL_TEMPLATE, sceneId, ""))).scene;
     renderSceneDetail(scene);
+
+    const sceneCharacterSelect = document.getElementById("scene-post-character");
+    const sheetCharacterSelect = document.getElementById("character-select");
+    if (sceneCharacterSelect && sheetCharacterSelect && !sheetCharacterSelect.value) {
+        sheetCharacterSelect.value = sceneCharacterSelect.value;
+    }
+    await loadSheet(sheetCharacterSelect.value);
 
     document.getElementById("scene-join").addEventListener("click", async () => {
         try {
@@ -405,11 +440,13 @@ async function createScene() {
         })
     });
     activeSceneId = result.scene.id;
+    setWorkspaceMode("scene");
     await loadScenes();
     await loadSceneDetail(activeSceneId);
 }
 
 document.addEventListener("DOMContentLoaded", async () => {
+    setWorkspaceMode("list");
     document.getElementById("scene-ic-date").value = new Date().toISOString().slice(0, 10);
 
     try {
@@ -436,6 +473,10 @@ document.addEventListener("DOMContentLoaded", async () => {
         document.getElementById("scene-list-mine").innerHTML = message;
     }
 
+    document.getElementById("open-create-scene").addEventListener("click", () => setWorkspaceMode("create"));
+    document.getElementById("cancel-create-scene").addEventListener("click", () => setWorkspaceMode("list"));
+    document.getElementById("return-to-scenes").addEventListener("click", () => setWorkspaceMode("list"));
+
     document.getElementById("character-select").addEventListener("change", async (event) => {
         try {
             await loadSheet(event.target.value);
@@ -443,6 +484,7 @@ document.addEventListener("DOMContentLoaded", async () => {
             alert(error.message);
         }
     });
+
     document.getElementById("create-scene").addEventListener("click", async () => {
         try {
             await createScene();
