@@ -2,77 +2,106 @@
 
 {% block title %}Async Play{% endblock %}
 
+{% block extra_head %}
+<style>
+.async-layout {
+    display: grid;
+    grid-template-columns: 320px minmax(0, 1fr);
+    gap: 1.25rem;
+    align-items: start;
+}
+.async-sidebar {
+    position: sticky;
+    top: 1rem;
+}
+@media (max-width: 1024px) {
+    .async-layout {
+        grid-template-columns: 1fr;
+    }
+    .async-sidebar {
+        position: static;
+    }
+}
+</style>
+{% endblock %}
+
 {% block content %}
 <div class="section-header">
     <h1 class="section-title"><i class="fas fa-hourglass-half"></i> Async Play</h1>
     <p class="section-subtitle">Public scenes and logs, plus command-style posting for play-by-post.</p>
 </div>
 
-<div class="character-card" style="margin-bottom: 1.5rem;">
-    <h3 style="margin-top: 0;">Character Sheet</h3>
-    <label for="character-select">Character</label>
-    <select id="character-select" class="form-control"></select>
-    <div id="sheet-view" style="margin-top: 1rem;"><p>Select a character.</p></div>
-</div>
+<div class="async-layout">
+    <aside class="async-sidebar">
+        <div class="character-card" style="margin-bottom: 1rem;">
+            <h3 style="margin-top: 0;">Public Ongoing Scenes</h3>
+            <div id="scene-list-public-ongoing"></div>
+        </div>
 
-<div class="character-card" style="margin-bottom: 1.5rem;">
-    <h3 style="margin-top: 0;">Create New Scene</h3>
-    <div style="display:grid;gap:0.75rem;">
-        <label for="scene-character">As Character</label>
-        <select id="scene-character" class="form-control"></select>
-        <label for="scene-title">Title</label>
-        <input id="scene-title" class="form-control" maxlength="140" />
-        <label for="scene-location-id">Location</label>
-        <select id="scene-location-id" class="form-control"></select>
-        <label for="scene-ic-date">IC Date</label>
-        <input id="scene-ic-date" class="form-control" type="date" />
-        <label for="scene-privacy">Privacy</label>
-        <select id="scene-privacy" class="form-control">
-            <option value="private">Private</option>
-            <option value="open">Public</option>
-        </select>
-        <label for="scene-type">Scene Type</label>
-        <select id="scene-type" class="form-control">
-            <option value="social">Social</option>
-            <option value="event">Event</option>
-            <option value="vignette">Vignette</option>
-        </select>
-        <label for="scene-pacing">Scene Pacing</label>
-        <select id="scene-pacing" class="form-control">
-            <option value="traditional">Traditional</option>
-            <option value="distracted">Distracted</option>
-            <option value="asynchronous">Asynchronous</option>
-        </select>
-        <label for="scene-notes">Notes</label>
-        <textarea id="scene-notes" class="form-control" rows="2"></textarea>
-        <label for="scene-plot">Plot</label>
-        <input id="scene-plot" class="form-control" maxlength="140" />
-        <label for="scene-tags">Tags</label>
-        <input id="scene-tags" class="form-control" maxlength="240" />
-        <label for="scene-summary">Summary / Scene Set</label>
-        <textarea id="scene-summary" class="form-control" rows="3"></textarea>
-        <button id="create-scene" type="button" class="btn btn-primary">Create Scene</button>
-    </div>
-</div>
+        <div class="character-card" style="margin-bottom: 1rem;">
+            <h3 style="margin-top: 0;">Public Scene Logs</h3>
+            <div id="scene-list-public-completed"></div>
+        </div>
 
-<div class="character-card" style="margin-bottom: 1.5rem;">
-    <h3 style="margin-top: 0;">Public Ongoing Scenes</h3>
-    <div id="scene-list-public-ongoing"></div>
-</div>
+        <div class="character-card" style="margin-bottom: 1rem;">
+            <h3 style="margin-top: 0;">Your Scenes</h3>
+            <div id="scene-list-mine"></div>
+        </div>
 
-<div class="character-card" style="margin-bottom: 1.5rem;">
-    <h3 style="margin-top: 0;">Public Scene Logs</h3>
-    <div id="scene-list-public-completed"></div>
-</div>
+        <div class="character-card">
+            <h3 style="margin-top: 0;">Scene Detail</h3>
+            <div id="scene-detail">Select a scene.</div>
+        </div>
+    </aside>
 
-<div class="character-card" style="margin-bottom: 1.5rem;">
-    <h3 style="margin-top: 0;">Your Scenes</h3>
-    <div id="scene-list-mine"></div>
-</div>
+    <section>
+        <div class="character-card" style="margin-bottom: 1.5rem;">
+            <h3 style="margin-top: 0;">Character Sheet</h3>
+            <label for="character-select">Character</label>
+            <select id="character-select" class="form-control"></select>
+            <div id="sheet-view" style="margin-top: 1rem;"><p>Select a character.</p></div>
+        </div>
 
-<div class="character-card" style="margin-bottom: 1.5rem;">
-    <h3 style="margin-top: 0;">Scene Detail</h3>
-    <div id="scene-detail">Select a scene.</div>
+        <div class="character-card">
+            <h3 style="margin-top: 0;">Create New Scene</h3>
+            <div style="display:grid;gap:0.75rem;">
+                <label for="scene-character">As Character</label>
+                <select id="scene-character" class="form-control"></select>
+                <label for="scene-title">Title</label>
+                <input id="scene-title" class="form-control" maxlength="140" />
+                <label for="scene-location-id">Location</label>
+                <select id="scene-location-id" class="form-control"></select>
+                <label for="scene-ic-date">IC Date</label>
+                <input id="scene-ic-date" class="form-control" type="date" />
+                <label for="scene-privacy">Privacy</label>
+                <select id="scene-privacy" class="form-control">
+                    <option value="private">Private</option>
+                    <option value="open">Public</option>
+                </select>
+                <label for="scene-type">Scene Type</label>
+                <select id="scene-type" class="form-control">
+                    <option value="social">Social</option>
+                    <option value="event">Event</option>
+                    <option value="vignette">Vignette</option>
+                </select>
+                <label for="scene-pacing">Scene Pacing</label>
+                <select id="scene-pacing" class="form-control">
+                    <option value="traditional">Traditional</option>
+                    <option value="distracted">Distracted</option>
+                    <option value="asynchronous">Asynchronous</option>
+                </select>
+                <label for="scene-notes">Notes</label>
+                <textarea id="scene-notes" class="form-control" rows="2"></textarea>
+                <label for="scene-plot">Plot</label>
+                <input id="scene-plot" class="form-control" maxlength="140" />
+                <label for="scene-tags">Tags</label>
+                <input id="scene-tags" class="form-control" maxlength="240" />
+                <label for="scene-summary">Summary / Scene Set</label>
+                <textarea id="scene-summary" class="form-control" rows="3"></textarea>
+                <button id="create-scene" type="button" class="btn btn-primary">Create Scene</button>
+            </div>
+        </div>
+    </section>
 </div>
 
 {% endblock %}
