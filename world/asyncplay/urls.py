@@ -19,5 +19,6 @@ urlpatterns = [
     path("api/scenes/<int:scene_id>/join/", views.api_scene_join, name="api_scene_join"),
     path("api/scenes/<int:scene_id>/update/", views.api_scene_update, name="api_scene_update"),
     path("api/scenes/<int:scene_id>/complete/", views.api_scene_complete, name="api_scene_complete"),
+    path("api/scenes/<int:scene_id>/reopen/", views.api_scene_reopen, name="api_scene_reopen"),
     path("api/scenes/<int:scene_id>/post/", views.api_scene_post, name="api_scene_post"),
 ]

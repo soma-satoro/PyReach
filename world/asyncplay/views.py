@@ -224,7 +224,10 @@ def _scene_wiki_url(scene) -> str:
     base_url = getattr(settings, "ASYNC_WIKI_LOG_BASE_URL", "").strip()
     if not base_url:
         return ""
-    return f"{base_url.rstrip('/')}/{quote(scene.wiki_log_slug)}"
+    encoded_title = quote(scene.wiki_log_slug, safe="/:")
+    if "title=" in base_url:
+        return f"{base_url}{encoded_title}"
+    return f"{base_url.rstrip('/')}/{encoded_title}"
 
 
 def _serialize_scene(scene, include_posts: bool = False, account=None):
@@ -258,6 +261,11 @@ def _serialize_scene(scene, include_posts: bool = False, account=None):
     if account is not None:
         payload["can_manage"] = _can_manage_scene(scene, account)
         payload["can_post"] = _can_post_to_scene(scene, account)
+        payload["can_reopen"] = (
+            scene.is_completed and (
+                _can_manage_scene(scene, account) or bool(_scene_member_characters(scene, account))
+            )
+        )
     if include_posts:
         payload["posts"] = [
             {
@@ -355,14 +363,14 @@ def _publish_scene_log_to_wiki(scene) -> tuple[bool, str]:
     bot_username = getattr(settings, "ASYNC_MEDIAWIKI_USERNAME", "").strip()
     bot_password = getattr(settings, "ASYNC_MEDIAWIKI_PASSWORD", "").strip()
     storyteller_name = getattr(settings, "ASYNC_WIKI_LOG_USERNAME", "").strip() or bot_username or "AsyncSystem"
-    title_prefix = getattr(settings, "ASYNC_MEDIAWIKI_TITLE_PREFIX", "Wiki/scene-log").strip()
+    title_prefix = getattr(settings, "ASYNC_MEDIAWIKI_TITLE_PREFIX", "scene-log").strip()
 
     if not api_url or not base_url or not bot_username or not bot_password:
         return False, "MediaWiki API settings are incomplete."
 
     participants = sorted({char.key for char in scene.participants.all()})
     participants_markup = " ".join(f"[[{name}]]" for name in participants) if participants else ""
-    page_title = f"{title_prefix}-{scene.id}-{slugify(scene.title) or 'log'}"
+    page_title = f"{title_prefix}-{scene.id}-{slugify(scene.title) or 'log'}".strip("-")
     date_text = str(scene.ic_date)
 
     header_lines = [
@@ -714,6 +722,8 @@ def api_scene_join(request, scene_id: int):
         return HttpResponseBadRequest("Invalid JSON body.")
 
     scene = get_object_or_404(AsyncScene, id=scene_id)
+    if scene.is_completed:
+        return JsonResponse({"error": "Scene is stopped. Restart it to join."}, status=400)
     if not _can_view_scene(scene, request.user):
         return JsonResponse({"error": "You do not have access to this scene."}, status=403)
 
@@ -739,6 +749,8 @@ def api_scene_update(request, scene_id: int):
         return HttpResponseBadRequest("Invalid JSON body.")
 
     scene = get_object_or_404(AsyncScene, id=scene_id)
+    if scene.is_completed:
+        return JsonResponse({"error": "Scene is stopped. Restart it to edit."}, status=400)
     if not _can_manage_scene(scene, request.user):
         return JsonResponse({"error": "You do not have permission to edit this scene."}, status=403)
 
@@ -797,6 +809,9 @@ def api_scene_complete(request, scene_id: int):
     if not _can_manage_scene(scene, request.user):
         return JsonResponse({"error": "You do not have permission to complete this scene."}, status=403)
 
+    if scene.is_completed:
+        return JsonResponse({"error": "Scene is already stopped."}, status=400)
+
     scene.is_completed = True
     if "summary" in body:
         scene.summary = (body.get("summary") or "").strip()
@@ -805,6 +820,8 @@ def api_scene_complete(request, scene_id: int):
 
     publish_log = bool(body.get("publish_public_log", False))
     if publish_log:
+        if scene.is_public_log:
+            return JsonResponse({"error": "A public log has already been published for this scene."}, status=400)
         scene.privacy = AsyncScene.PRIVACY_OPEN
         scene.save(update_fields=["privacy", "updated_at"])
         ok, message = _publish_scene_log_to_wiki(scene)
@@ -823,6 +840,24 @@ def api_scene_complete(request, scene_id: int):
 
 @login_required
 @require_http_methods(["POST"])
+def api_scene_reopen(request, scene_id: int):
+    """Restart a stopped scene for creator/admin or prior participants."""
+    scene = get_object_or_404(AsyncScene, id=scene_id)
+    if not scene.is_completed:
+        return JsonResponse({"error": "Scene is already active."}, status=400)
+
+    can_reopen = _can_manage_scene(scene, request.user) or bool(_scene_member_characters(scene, request.user))
+    if not can_reopen:
+        return JsonResponse({"error": "You do not have permission to restart this scene."}, status=403)
+
+    scene.is_completed = False
+    scene.last_activity_at = timezone.now()
+    scene.save(update_fields=["is_completed", "last_activity_at", "updated_at"])
+    return JsonResponse({"ok": True, "scene": _serialize_scene(scene, account=request.user)})
+
+
+@login_required
+@require_http_methods(["POST"])
 def api_scene_post(request, scene_id: int):
     """Add a new post to a scene."""
     body = _parse_json_body(request)
@@ -830,6 +865,8 @@ def api_scene_post(request, scene_id: int):
         return HttpResponseBadRequest("Invalid JSON body.")
 
     scene = get_object_or_404(AsyncScene, id=scene_id)
+    if scene.is_completed:
+        return JsonResponse({"error": "Scene is stopped. Restart it to post again."}, status=400)
     if not _can_post_to_scene(scene, request.user):
         return JsonResponse({"error": "You do not have posting access to this scene."}, status=403)
 
