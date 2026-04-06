@@ -2,12 +2,14 @@
 
 import json
 from collections.abc import Mapping
+from urllib.parse import quote
 
+import requests
 from django.conf import settings
-from django.contrib.auth import get_user_model
 from django.contrib.auth.decorators import login_required
 from django.http import HttpResponseBadRequest, JsonResponse
 from django.shortcuts import get_object_or_404, render
+from django.utils.text import slugify
 from django.utils import timezone
 from django.views.decorators.http import require_GET, require_http_methods
 from evennia.utils.utils import class_from_module
@@ -222,7 +224,7 @@ def _scene_wiki_url(scene) -> str:
     base_url = getattr(settings, "ASYNC_WIKI_LOG_BASE_URL", "").strip()
     if not base_url:
         return ""
-    return f"{base_url.rstrip('/')}/{scene.wiki_log_slug}"
+    return f"{base_url.rstrip('/')}/{quote(scene.wiki_log_slug)}"
 
 
 def _serialize_scene(scene, include_posts: bool = False, account=None):
@@ -343,74 +345,121 @@ def _available_room_locations():
 
 def _publish_scene_log_to_wiki(scene) -> tuple[bool, str]:
     """
-    Publish scene log to internal wiki and return status/message.
+    Publish scene log to MediaWiki API and return status/message.
 
-    Uses `ASYNC_WIKI_LOG_USERNAME` to attribute edits to a dedicated service user.
+    This uses bot/service account credentials from settings (preferably in
+    `secret_settings.py`) and writes a page using the Log template format.
     """
-    try:
-        from world.wiki.models import WikiCategory, WikiPage
-    except Exception as err:  # pragma: no cover - defensive for deploy mismatch
-        return False, f"Wiki app unavailable: {err}"
+    api_url = getattr(settings, "ASYNC_MEDIAWIKI_API_URL", "").strip()
+    base_url = getattr(settings, "ASYNC_WIKI_LOG_BASE_URL", "").strip()
+    bot_username = getattr(settings, "ASYNC_MEDIAWIKI_USERNAME", "").strip()
+    bot_password = getattr(settings, "ASYNC_MEDIAWIKI_PASSWORD", "").strip()
+    storyteller_name = getattr(settings, "ASYNC_WIKI_LOG_USERNAME", "").strip() or bot_username or "AsyncSystem"
+    title_prefix = getattr(settings, "ASYNC_MEDIAWIKI_TITLE_PREFIX", "Wiki/scene-log").strip()
 
-    UserModel = get_user_model()
-    service_username = getattr(settings, "ASYNC_WIKI_LOG_USERNAME", "").strip()
-    category_slug = getattr(settings, "ASYNC_WIKI_LOG_CATEGORY_SLUG", "").strip()
+    if not api_url or not base_url or not bot_username or not bot_password:
+        return False, "MediaWiki API settings are incomplete."
 
-    author = scene.creator
-    if service_username:
-        author = UserModel.objects.filter(username=service_username).first() or scene.creator
+    participants = sorted({char.key for char in scene.participants.all()})
+    participants_markup = " ".join(f"[[{name}]]" for name in participants) if participants else ""
+    page_title = f"{title_prefix}-{scene.id}-{slugify(scene.title) or 'log'}"
+    date_text = str(scene.ic_date)
 
-    category = None
-    if category_slug:
-        category = WikiCategory.objects.filter(slug=category_slug).first()
-
-    participant_names = ", ".join(sorted({char.key for char in scene.participants.all()}))
-    header = [
-        f"# Scene {scene.id}: {scene.title}",
+    header_lines = [
+        "{{Log",
+        f"| title={scene.title}",
+        f"| participants={participants_markup}",
+        f"| storyteller=[[{storyteller_name}]]",
+        f"| location={scene.location or 'Unknown'}",
+        f"| dateandtime={date_text}",
+        f"| summary={scene.summary or 'No summary provided.'}",
+        "}}",
         "",
-        f"- **IC Date:** {scene.ic_date}",
-        f"- **Location:** {scene.location or 'Unknown'}",
-        f"- **Type:** {scene.scene_type}",
-        f"- **Pacing:** {scene.pacing}",
-        f"- **Participants:** {participant_names or 'Unknown'}",
     ]
-    if scene.plot:
-        header.append(f"- **Plot:** {scene.plot}")
-    if scene.tags:
-        header.append(f"- **Tags:** {scene.tags}")
-    if scene.summary:
-        header.extend(["", "## Summary", scene.summary])
 
-    body_lines = ["", "## Scene Log"]
+    transcript_lines = []
     for post in scene.posts.select_related("account", "character").all():
         speaker = post.character.db_key if post.character else post.account.username
-        body_lines.extend(
+        cleaned_content = str(post.content).replace("\r", "")
+        transcript_lines.extend(
             [
+                f"'''{speaker}''' ({post.post_type}):",
+                cleaned_content,
                 "",
-                f"### {speaker} [{post.post_type}]",
-                post.content,
             ]
         )
 
-    title = f"Scene Log {scene.id}: {scene.title}"
-    content = "\n".join(header + body_lines)
+    page_text = "\n".join(header_lines + transcript_lines).strip()
+    edit_summary = f"Async scene log generated from scene #{scene.id}."
 
-    page = WikiPage.objects.create(
-        title=title,
-        content=content,
-        summary=f"Async scene log generated from scene #{scene.id}.",
-        category=category,
-        tags=f"scene-log,{scene.tags}".strip(","),
-        published=True,
-        staff_only=False,
-        featured=False,
-        created_by=author,
-        updated_by=author,
-    )
-    scene.wiki_log_slug = page.slug
+    session = requests.Session()
+    timeout_seconds = 15
+
+    try:
+        login_token_resp = session.get(
+            api_url,
+            params={
+                "action": "query",
+                "meta": "tokens",
+                "type": "login",
+                "format": "json",
+            },
+            timeout=timeout_seconds,
+        )
+        login_token_resp.raise_for_status()
+        login_token = login_token_resp.json()["query"]["tokens"]["logintoken"]
+
+        login_resp = session.post(
+            api_url,
+            data={
+                "action": "login",
+                "lgname": bot_username,
+                "lgpassword": bot_password,
+                "lgtoken": login_token,
+                "format": "json",
+            },
+            timeout=timeout_seconds,
+        )
+        login_resp.raise_for_status()
+        login_result = login_resp.json().get("login", {}).get("result")
+        if login_result != "Success":
+            return False, f"MediaWiki login failed ({login_result})."
+
+        csrf_resp = session.get(
+            api_url,
+            params={"action": "query", "meta": "tokens", "format": "json"},
+            timeout=timeout_seconds,
+        )
+        csrf_resp.raise_for_status()
+        csrf_token = csrf_resp.json()["query"]["tokens"]["csrftoken"]
+
+        edit_resp = session.post(
+            api_url,
+            data={
+                "action": "edit",
+                "title": page_title,
+                "text": page_text,
+                "summary": edit_summary,
+                "token": csrf_token,
+                "format": "json",
+            },
+            timeout=timeout_seconds,
+        )
+        edit_resp.raise_for_status()
+        edit_data = edit_resp.json()
+        if "error" in edit_data:
+            return False, f"MediaWiki edit error: {edit_data['error'].get('info', 'unknown error')}"
+        if edit_data.get("edit", {}).get("result") != "Success":
+            return False, "MediaWiki edit did not return success."
+    except requests.RequestException as err:
+        return False, f"MediaWiki request failed: {err}"
+    except (KeyError, ValueError, TypeError) as err:
+        return False, f"MediaWiki response parse failed: {err}"
+
+    scene.wiki_log_slug = page_title
     scene.is_public_log = True
     scene.save(update_fields=["wiki_log_slug", "is_public_log", "updated_at"])
-    return True, page.slug
+    return True, page_title
 
 
 def _validate_choice(value: str, choices: tuple[tuple[str, str], ...], field_name: str):

@@ -61,3 +61,5 @@ TEMPLATE_SYSTEM_QUICK_FIX.md
 /docs
 docs/README.md
 server/conf/settings.py
+server/conf/settings.py
+/server/conf
