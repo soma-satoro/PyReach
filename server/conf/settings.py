@@ -67,7 +67,14 @@ INSTALLED_APPS += [
     'world.cofd',
     'world.jobs',
     'world.wiki',
+    'world.asyncplay',
 ]
+
+# Canonical URL for the async play portal.
+# Set this to a full external URL if you place async play behind a separate
+# hostname/reverse proxy and want templates to link there.
+# Example: "https://play.pyreach.com/async/"
+ASYNC_PLAY_PUBLIC_URL = "/async/"
 """
 BASE ANSI MARKUP CONFIGURATION
 See below for more specific color markup configurations.

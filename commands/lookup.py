@@ -411,10 +411,19 @@ class CmdLookup(MuxCommand):
             parts = args.split()
             if len(parts) > 1:
                 # Check if it's a contract category filter or a stat name
-                contract_categories = ["crown", "jewel", "mirror", "shield", "steed", "sword", 
-                                     "chalice", "coin", "stars", "thorn", "goblin"]
-                if parts[1] in contract_categories:
-                    self.show_changeling_contracts(parts[1])
+                contract_arg = " ".join(parts[1:]).strip()
+                normalized_category = contract_arg.lower().replace("-", "_").replace(" ", "_")
+                contract_categories = {
+                    "crown", "jewel", "jewels", "mirror", "shield", "steed", "sword",
+                    "chalice", "coin", "stars", "thorn", "goblin", "independent",
+                    "spring", "summer", "autumn", "winter",
+                    "high_tide", "low_tide", "flood_tide", "ebb_tide",
+                }
+                if normalized_category in contract_categories:
+                    # Canonicalize common alias.
+                    if normalized_category == "jewels":
+                        normalized_category = "jewel"
+                    self.show_changeling_contracts(normalized_category)
                 else:
                     # It's a stat name lookup with category filter
                     stat_name = " ".join(parts[1:])
@@ -2877,15 +2886,18 @@ class CmdLookup(MuxCommand):
             self.caller.msg("|cFor contract details:|n +lookup <contract_name> (e.g., +lookup hostile_takeover)")
             return
         
-        # Get contracts by category
-        contracts = get_contracts_by_category(filter_arg)
+        # Get contracts by category (accept spaces/hyphens as user input)
+        normalized_filter = str(filter_arg).lower().replace("-", "_").replace(" ", "_")
+        if normalized_filter == "jewels":
+            normalized_filter = "jewel"
+        contracts = get_contracts_by_category(normalized_filter)
         if not contracts:
             self.caller.msg(f"No contracts found for category: {filter_arg}")
             self.caller.msg("|cValid categories:|n Use |y+lookup contracts|n to see all categories")
             return
         
         # Display contracts
-        category_display = filter_arg.replace("_", " ").replace("-", " ").title()
+        category_display = normalized_filter.replace("_", " ").title()
         title = f"|wChangeling Contracts - {category_display}|n"
         self.caller.msg(title)
         self.caller.msg("=" * len(title.replace("|w", "").replace("|n", "")))

@@ -72,7 +72,7 @@ changeling_merits = [
         max_value=1,
         description="Your character's extensive training in oneiromancy allows her to benefit from the flexibility of the dream. By blending dreamscaping and martial techniques, strikes land faster as the dream bends to aid her blows. Whenever you allocate any successes generated with a Brawl or Weaponry attack (depending on which Specialty you have) to a subtle oneiromantic shift, gain one bonus success to spend on that shift as long as you spend it to impact the fight in some direct way. If you have a Specialty in both Skills, you gain these benefits on both types of attack.",
         merit_type="changeling",
-        prerequisite="wyrd:2,presence:3,brawl_specialty:1"
+        prerequisite="wyrd:2,presence:3,[brawl_specialty:1,weaponry_specialty:1]"
     ),
     Merit(
         name="Dreamweaver",

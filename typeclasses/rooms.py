@@ -1107,6 +1107,9 @@ class ChargenRoom(Room):
             lines.append(f"  |wMerits:|n       {merit_color}{merit_spent}/{merit_avail}|n  (Remaining: {merit_color}{merit_remaining}|n)")
             if 'changeling' in points and points['changeling'].get('mantle_free_dot_applied', False):
                 lines.append("  |c  (Court free Mantle dot excluded from merit spend)|n")
+            if 'changeling' in points and points['changeling'].get('ghostheart_free_retainers_dots', 0) > 0:
+                free_retainers = points['changeling'].get('ghostheart_free_retainers_dots', 0)
+                lines.append(f"  |c  (Ghostheart free Retainers dots excluded: {free_retainers})|n")
             
             # Show favored stat if set
             favored_stat = points.get('favored_stat', None)
@@ -1395,6 +1398,7 @@ class ChargenRoom(Room):
         # Court
         court = changeling_data['court'].replace('_', ' ').title() if changeling_data['court'] else '|yNone (optional)|n'
         lines.append(f"  |wCourt:|n        {court}")
+        lines.append(f"    |y(Set with +stat seeming=<name>, +stat kith=<name>, +stat court=<name>)|n")
         
         # Favored Attribute (from seeming)
         if changeling_data['favored_attributes']:
@@ -1419,6 +1423,7 @@ class ChargenRoom(Room):
         needle_status = '|gok!|n' if changeling_data['has_needle'] else '|rx|n'
         thread_status = '|gok!|n' if changeling_data['has_thread'] else '|rx|n'
         lines.append(f"  |wNeedle:|n       {needle_status}    |wThread:|n {thread_status}")
+        lines.append(f"    |y(Set with +stat needle=<concept> and +stat thread=<concept>)|n")
         
         # Contracts
         common_taken = changeling_data['common_contracts']
@@ -1449,7 +1454,7 @@ class ChargenRoom(Room):
         if regalia_parts:
             lines.append(f"    Favored Regalia: {', '.join(regalia_parts)}")
             if not chosen_regalia:
-                lines.append(f"    |y(Use +stat favored regalia=<name> to choose 2nd)|n")
+                lines.append(f"    |y(Use +stat regalia=<name> to choose 2nd)|n")
         
         # List contracts taken
         if changeling_data['contracts']:
@@ -1481,6 +1486,19 @@ class ChargenRoom(Room):
                     lines.append(f"  |wMantle:|n       |yPresent but no dots set|n")
             else:
                 lines.append(f"  |wMantle:|n       |rx|n |y(Get Mantle merit for court benefits)|n")
+
+        # Ghostheart kith Retainers benefit (first 3 dots free at chargen).
+        if changeling_data.get('is_ghostheart', False):
+            retainers_dots = changeling_data.get('retainers_dots', 0)
+            free_dots = changeling_data.get('ghostheart_free_retainers_dots', 0)
+            paid_dots = changeling_data.get('ghostheart_paid_retainers_dots', max(0, retainers_dots - free_dots))
+            if retainers_dots > 0:
+                lines.append(
+                    f"  |wRetainers:|n    {retainers_dots} dot{'s' if retainers_dots != 1 else ''} "
+                    f"|g({free_dots} free from Ghostheart, {paid_dots} paid)|n"
+                )
+            else:
+                lines.append("  |wRetainers:|n    |y0 dots (Ghostheart gets first 3 dots free at chargen)|n")
         
         # Touchstone reminder
         touchstone_count = changeling_data.get('touchstones_count', 0)
@@ -2735,7 +2753,7 @@ class ChargenRoom(Room):
         if favored_regalia:
             lines.append(f"  |wFavored Regalia:|n {favored_regalia.title()} |gok!|n")
         else:
-            lines.append(f"  |wFavored Regalia:|n |rx|n |y(Use +stat favored regalia=<name>)|n")
+            lines.append(f"  |wFavored Regalia:|n |rx|n |y(Use +stat regalia=<name>)|n")
         
         # Contracts
         contract_count = faetouched_data['contract_count']
@@ -3012,6 +3030,9 @@ class ChargenRoom(Room):
             lines.append(f"  |wMerits:|n       {merit_color}{merit_spent}/{merit_avail}|n  (Remaining: {merit_color}{merit_remaining}|n)")
             if 'changeling' in points and points['changeling'].get('mantle_free_dot_applied', False):
                 lines.append("  |c  (Court free Mantle dot excluded from merit spend)|n")
+            if 'changeling' in points and points['changeling'].get('ghostheart_free_retainers_dots', 0) > 0:
+                free_retainers = points['changeling'].get('ghostheart_free_retainers_dots', 0)
+                lines.append(f"  |c  (Ghostheart free Retainers dots excluded: {free_retainers})|n")
             
             # Show favored stat if set
             favored_stat = points.get('favored_stat', None)
@@ -3314,6 +3335,7 @@ class ChargenRoom(Room):
         # Court
         court = changeling_data['court'].replace('_', ' ').title() if changeling_data['court'] else '|yNone (optional)|n'
         lines.append(f"  |wCourt:|n        {court}")
+        lines.append(f"    |y(Set with +stat seeming=<name>, +stat kith=<name>, +stat court=<name>)|n")
         
         # Favored Attribute (from seeming)
         if changeling_data['favored_attributes']:
@@ -3338,6 +3360,7 @@ class ChargenRoom(Room):
         needle_status = '|gok!|n' if changeling_data['has_needle'] else '|rx|n'
         thread_status = '|gok!|n' if changeling_data['has_thread'] else '|rx|n'
         lines.append(f"  |wNeedle:|n       {needle_status}    |wThread:|n {thread_status}")
+        lines.append(f"    |y(Set with +stat needle=<concept> and +stat thread=<concept>)|n")
         
         # Contracts
         common_taken = changeling_data['common_contracts']
@@ -3368,7 +3391,7 @@ class ChargenRoom(Room):
         if regalia_parts:
             lines.append(f"    Favored Regalia: {', '.join(regalia_parts)}")
             if not chosen_regalia:
-                lines.append(f"    |y(Use +stat favored regalia=<name> to choose 2nd)|n")
+                lines.append(f"    |y(Use +stat regalia=<name> to choose 2nd)|n")
         
         # List contracts taken
         if changeling_data['contracts']:
@@ -3400,6 +3423,19 @@ class ChargenRoom(Room):
                     lines.append(f"  |wMantle:|n       |yPresent but no dots set|n")
             else:
                 lines.append(f"  |wMantle:|n       |rx|n |y(Get Mantle merit for court benefits)|n")
+
+        # Ghostheart kith Retainers benefit (first 3 dots free at chargen).
+        if changeling_data.get('is_ghostheart', False):
+            retainers_dots = changeling_data.get('retainers_dots', 0)
+            free_dots = changeling_data.get('ghostheart_free_retainers_dots', 0)
+            paid_dots = changeling_data.get('ghostheart_paid_retainers_dots', max(0, retainers_dots - free_dots))
+            if retainers_dots > 0:
+                lines.append(
+                    f"  |wRetainers:|n    {retainers_dots} dot{'s' if retainers_dots != 1 else ''} "
+                    f"|g({free_dots} free from Ghostheart, {paid_dots} paid)|n"
+                )
+            else:
+                lines.append("  |wRetainers:|n    |y0 dots (Ghostheart gets first 3 dots free at chargen)|n")
         
         # Touchstone reminder
         touchstone_count = changeling_data.get('touchstones_count', 0)
@@ -4654,7 +4690,7 @@ class ChargenRoom(Room):
         if favored_regalia:
             lines.append(f"  |wFavored Regalia:|n {favored_regalia.title()} |gok!|n")
         else:
-            lines.append(f"  |wFavored Regalia:|n |rx|n |y(Use +stat favored regalia=<name>)|n")
+            lines.append(f"  |wFavored Regalia:|n |rx|n |y(Use +stat regalia=<name>)|n")
         
         # Contracts
         contract_count = faetouched_data['contract_count']

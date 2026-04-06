@@ -20,6 +20,7 @@ class CmdStat(MuxCommand):
         +stat/list [name]
         +stat/remove <stat>
         +stat/favored <attribute>
+        +stat regalia=<regalia>
         +stat/geist <stat>=<value>
         +stat/mage <stat>=<value>
         +stat/demon <stat>=<value>
@@ -27,6 +28,13 @@ class CmdStat(MuxCommand):
     Common examples:
         +stat dex=3
         +stat wits=3
+        +stat seeming=Fairest
+        +stat kith=Artist
+        +stat court=Spring
+        +stat needle=Performer
+        +stat thread=Acceptance
+        +stat/favored presence
+        +stat regalia=Crown
         +stat specialty/investigation=Forensics
         +stat contract=thirty_pieces
         +stat contract/thirty_pieces=known
@@ -348,8 +356,8 @@ class CmdStat(MuxCommand):
             "integrity", "size", "beats", "experience", "loyalty", "conviction",
             "fullname", "full_name", "birthdate", "concept", "virtue", "vice",
             "path", "order", "clan", "covenant", "auspice", "tribe", "seeming",
-            "court", "kith", "needle", "thread", "template", "template_type",
-            "subtype", "organization", "profession", "tactics", "favored_regalia",
+            "court", "kith", "needle", "thread", "motley", "template", "template_type",
+            "subtype", "organization", "profession", "tactics", "regalia", "favored_regalia",
             "mask", "dirge", "burden", "lineage", "refinement", "athanor",
             "ab", "ba", "ka", "ren", "sheut", "sekhem", "pilgrimage"
         }
@@ -878,7 +886,7 @@ class CmdStat(MuxCommand):
                      "destiny", "doom", "affliction", "curse", "method", "investment", "dynasty", "blessing_arcanum",
                      "promise", "promise_type",
                      "geist_name", "embrace_date", "legacy", "shadow_name", "cabal", "lodge",
-                     "pack", "deed_name", "throng", "creator", "pilgrimage", "athanor",
+                     "pack", "motley", "deed_name", "throng", "creator", "pilgrimage", "athanor",
                      "template_type", "subtype", "game_line", "abilities", "guild", "decree", "judge", "cult", "tomb",
                      "keeper", "entitlement", "bloodline", "conspiracy"]:
             
@@ -1423,25 +1431,64 @@ class CmdStat(MuxCommand):
             self.caller.msg("Your cell gains 8-again when performing these tactics.")
             stat_set = True
         
-        # Favored regalia (Changeling second favored regalia choice)
-        elif stat == "favored_regalia" or (stat.startswith("favored") and "regalia" in self.args.lower()):
+        # Changeling second favored regalia choice.
+        # Preferred syntax: +stat regalia=<name>
+        # Legacy syntax +stat favored_regalia=<name> remains supported.
+        elif stat in {"regalia", "favored_regalia"} or (stat.startswith("favored") and "regalia" in self.args.lower()):
             template = target.db.stats.get("other", {}).get("template", "Mortal")
             if template.lower() != "changeling":
-                self.caller.msg(f"Favored regalia can only be set for Changeling characters. Your template is: {template}")
+                self.caller.msg(f"Regalia can only be set for Changeling characters. Your template is: {template}")
                 return
             
             # Validate value is a string
             if not isinstance(value, str) or not value:
-                self.caller.msg("Favored regalia must be a regalia name (e.g., mirror, crown, sword).")
+                self.caller.msg("Usage: +stat regalia=<crown|jewels|mirror|shield|steed|sword|chalice|coin|stars>")
+                return
+
+            regalia = value.lower().replace(" ", "_").replace("-", "_")
+            allowed_regalia = {
+                "crown", "jewels", "mirror", "shield", "steed", "sword", "chalice", "coin", "stars"
+            }
+            disallowed_court_regalia = {
+                "spring", "summer", "autumn", "winter",
+                "high_tide", "low_tide", "flood_tide", "ebb_tide",
+                "morning", "day", "night", "barter", "coins", "favors", "shady_deals"
+            }
+
+            if regalia in disallowed_court_regalia:
+                self.caller.msg("|rCourt regalia cannot be chosen as favored regalia.|n")
+                self.caller.msg("Choose one of: Crown, Jewels, Mirror, Shield, Steed, Sword, Chalice, Coin, Stars.")
+                return
+
+            if regalia not in allowed_regalia:
+                self.caller.msg("|rInvalid regalia choice.|n")
+                self.caller.msg("Valid options: Crown, Jewels, Mirror, Shield, Steed, Sword, Chalice, Coin, Stars.")
+                return
+
+            seeming = target.db.stats.get("bio", {}).get("seeming", "").lower().replace(" ", "_").replace("-", "_")
+            seeming_regalia = {
+                "beast": "steed",
+                "darkling": "mirror",
+                "elemental": "sword",
+                "fairest": "crown",
+                "ogre": "shield",
+                "wizened": "jewels",
+            }.get(seeming)
+
+            if seeming_regalia and regalia == seeming_regalia:
+                self.caller.msg(
+                    f"|r{regalia.title()} is already your seeming's favored regalia ({seeming.title()}).|n"
+                )
+                self.caller.msg("Choose a different second favored regalia.")
                 return
             
             # Store the favored regalia in other section
             if 'other' not in target.db.stats:
                 target.db.stats['other'] = {}
-            target.db.stats['other']['favored_regalia'] = value.lower().replace(' ', '_')
+            target.db.stats['other']['favored_regalia'] = regalia
             target.db.stats = target.db.stats  # Trigger persistence
             
-            self.caller.msg(f"Set favored regalia to: {value.title()}")
+            self.caller.msg(f"Set favored regalia to: {regalia.title()}")
             self.caller.msg("This is your second favored regalia (first comes from seeming).")
             self.caller.msg("You need 2 contracts from your favored regalia during chargen.")
             stat_set = True
@@ -2096,7 +2143,7 @@ class CmdStat(MuxCommand):
                          "lineage", "refinement", "athanor", "creator", "pilgrimage", "throng",
                          "mask", "dirge", "burden", "krewe", "incarnation", "agenda", "origin", "clade",
                          "profession", "organization", "creed", "template_type", "subtype", "elpis", "torment",
-                         "legacy", "shadow_name", "cabal", "lodge", "pack", "deed_name", "embrace_date", "sire",
+                         "legacy", "shadow_name", "cabal", "lodge", "pack", "motley", "deed_name", "embrace_date", "sire",
                          "bloodline", "family", "inheritance", "divergence", "needle", "thread", "hunger", "agency"]:
                 stat_display = stat.replace('_', ' ').title()
                 self.caller.msg(f"Set {target.name}'s {stat_display} to {value}.")
@@ -2545,7 +2592,12 @@ class CmdStat(MuxCommand):
                     base_merit = ""
                     if isinstance(merit_data, dict):
                         base_merit = str(merit_data.get("base_merit", "")).lower().replace(" ", "_")
-                    if merit_key == "retainers" or merit_key.startswith("retainers:") or base_merit == "retainers":
+                    if (
+                        merit_key in {"retainer", "retainers"}
+                        or merit_key.startswith("retainer:")
+                        or merit_key.startswith("retainers:")
+                        or base_merit in {"retainer", "retainers"}
+                    ):
                         if isinstance(merit_data, dict):
                             retainers_dots += int(merit_data.get("dots", 0) or 0)
                         else:
@@ -2720,13 +2772,51 @@ class CmdStat(MuxCommand):
     
     def set_favored_stat(self):
         """Mark a stat as receiving the free template bonus dot and add the dot"""
+        target = self.caller
+        template = target.db.stats.get("other", {}).get("template", "Mortal") if target.db.stats else "Mortal"
+
+        # Import attribute category constants once so we can use them for help output.
+        from world.cofd.stat_dictionary import (
+            POWER_ATTRIBUTES, FINESSE_ATTRIBUTES, RESISTANCE_ATTRIBUTES
+        )
+
         if not self.args:
             self.caller.msg("Usage: +stat/favored <stat>")
             self.caller.msg("This marks which stat receives your free template bonus dot and adds 1 dot to it.")
             self.caller.msg("The dot is free and won't count against your chargen point total.")
+            template_lower = str(template).lower()
+            if template_lower == "vampire":
+                self.caller.msg("Vampire favored options come from your clan.")
+                self.caller.msg("Set clan first: +stat clan=<name>")
+            elif template_lower == "werewolf":
+                self.caller.msg("Werewolf favored options come from your auspice skills.")
+                self.caller.msg("Set auspice first: +stat auspice=<name>")
+            elif template_lower == "changeling":
+                seeming = target.db.stats.get("bio", {}).get("seeming", "").lower()
+                seeming_categories = {
+                    "beast": "resistance",
+                    "darkling": "finesse",
+                    "elemental": "resistance",
+                    "fairest": "power",
+                    "ogre": "power",
+                    "wizened": "finesse",
+                }
+                category = seeming_categories.get(seeming)
+                if not category:
+                    self.caller.msg("Changeling favored options come from your seeming's attribute category.")
+                    self.caller.msg("Set seeming first: +stat seeming=<beast|darkling|elemental|fairest|ogre|wizened>")
+                elif category == "power":
+                    opts = ", ".join(s.title() for s in POWER_ATTRIBUTES)
+                    self.caller.msg(f"Current seeming category: Power. Valid options: {opts}")
+                elif category == "finesse":
+                    opts = ", ".join(s.title() for s in FINESSE_ATTRIBUTES)
+                    self.caller.msg(f"Current seeming category: Finesse. Valid options: {opts}")
+                elif category == "resistance":
+                    opts = ", ".join(s.title() for s in RESISTANCE_ATTRIBUTES)
+                    self.caller.msg(f"Current seeming category: Resistance. Valid options: {opts}")
+            elif template_lower == "mage":
+                self.caller.msg("Mage favored options: Composure, Resolve, or Stamina.")
             return
-        
-        target = self.caller
         
         # Check if this is a player character that's approved (staff can bypass)
         is_npc = hasattr(target, 'db') and target.db.is_npc
@@ -2740,11 +2830,6 @@ class CmdStat(MuxCommand):
         
         stat = self.args.strip().lower().replace(' ', '_')
         template = target.db.stats.get("other", {}).get("template", "Mortal")
-        
-        # Import attribute category constants
-        from world.cofd.stat_dictionary import (
-            POWER_ATTRIBUTES, FINESSE_ATTRIBUTES, RESISTANCE_ATTRIBUTES
-        )
         
         valid_stats = []
         stat_type = None

@@ -32,7 +32,12 @@ def _count_retainers_dots(merits):
         base_merit = ""
         if isinstance(merit_data, Mapping):
             base_merit = str(merit_data.get("base_merit", "")).lower().replace(" ", "_")
-        if merit_key == "retainers" or merit_key.startswith("retainers:") or base_merit == "retainers":
+        if (
+            merit_key in {"retainer", "retainers"}
+            or merit_key.startswith("retainer:")
+            or merit_key.startswith("retainers:")
+            or base_merit in {"retainer", "retainers"}
+        ):
             total += _get_merit_dots(merit_data)
     return total
 

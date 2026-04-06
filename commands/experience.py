@@ -1,6 +1,7 @@
 import copy
 import re
 from datetime import datetime, timedelta, timezone
+from collections.abc import Mapping
 from evennia.commands.default.muxcommand import MuxCommand
 from world.cofd.merits.general_merits import merits_dict, all_merits
 from world.utils.formatting import footer, get_theme_colors, sheet_section_header
@@ -669,6 +670,18 @@ class CmdExperience(MuxCommand):
         elif instance or self._is_merit(stat_name):
             stat_type = 'merit'
             stat_category = 'merits'
+            if instance:
+                # Normalize merit instance keys to canonical storage format.
+                # This ensures inputs like "flood tide" match stored keys like
+                # "flood_tide" and prevents overcharging from misread current dots.
+                instance = (
+                    str(instance)
+                    .strip()
+                    .lower()
+                    .replace(" ", "_")
+                    .replace("-", "_")
+                    .replace("'", "")
+                )
             if stat_name == "defensive_combat":
                 normalized_instance = (
                     str(instance).strip().lower().replace(" ", "_").replace("-", "_")
@@ -682,7 +695,10 @@ class CmdExperience(MuxCommand):
                     return
                 instance = normalized_instance
             merit_key = f"{stat_name}:{instance}" if instance else stat_name
-            current_dots = stats.get("merits", {}).get(merit_key, {}).get("dots", 0) if isinstance(stats.get("merits", {}).get(merit_key), dict) else 0
+            if instance:
+                current_dots = self.caller._get_specific_merit_dots(stat_name, instance)
+            else:
+                current_dots = self.caller._get_merit_dots_for_prereq(stat_name)
             max_dots = 5  # Will be validated against merit definition
         # Check for semantic power purchases (devotions, discipline_powers, etc.)
         elif not is_dot_rated and stat_name in ["devotion", "discipline_power", "coil", "scale", "theban", "cruac", "contract"]:
@@ -742,7 +758,15 @@ class CmdExperience(MuxCommand):
             stats[stat_category][merit_key]["base_merit"] = stat_name
             stats[stat_category][merit_key]["instance"] = instance
         else:
-            stats[stat_category][stat_name] = target_dots
+            if stat_category == "merits":
+                existing_merit = stats[stat_category].get(stat_name, {})
+                if not isinstance(existing_merit, Mapping):
+                    existing_merit = {}
+                existing_merit["dots"] = target_dots
+                existing_merit["base_merit"] = stat_name
+                stats[stat_category][stat_name] = existing_merit
+            else:
+                stats[stat_category][stat_name] = target_dots
         
         # Log the expenditure
         from world.xp_logger import get_xp_logger
@@ -2459,7 +2483,7 @@ class CmdExperience(MuxCommand):
                 output.append(", ".join([r.title() for r in favored_regalia]))
                 output.append("")
             else:
-                output.append("|rNo favored regalia set.|n Use +stat to set kith and favored_regalia.")
+                output.append("|rNo favored regalia set.|n Use +stat to set seeming and regalia.")
                 output.append("")
         
         elif template == 'geist':
@@ -2558,7 +2582,7 @@ class CmdExperience(MuxCommand):
                     output.append("|cYour Favored Regalia:|n")
                     output.append(", ".join([r.title() for r in favored_regalia]))
                 else:
-                    output.append("|rNo favored regalia set.|n Use +stat favored_regalia=<regalia>")
+                    output.append("|rNo favored regalia set.|n Use +stat regalia=<regalia>")
             else:
                 output.append("See staff for template-specific costs.")
             output.append("")

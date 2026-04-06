@@ -40,6 +40,11 @@
                 <a href="/channels/" class="nav-link">
                     <i class="fas fa-comments"></i> Channels
                 </a>
+                {% if account %}
+                <a href="{{ async_play_url }}" class="nav-link">
+                    <i class="fas fa-hourglass-half"></i> Async
+                </a>
+                {% endif %}
                 <a href="/wiki/" class="nav-link">
                     <i class="fas fa-book"></i> Wiki
                 </a>

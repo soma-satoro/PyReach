@@ -1,0 +1,156 @@
+{% extends "website/base.html" %}
+
+{% block title %}Async Play{% endblock %}
+
+{% block content %}
+<div class="section-header">
+    <h1 class="section-title"><i class="fas fa-hourglass-half"></i> Async Play</h1>
+    <p class="section-subtitle">Submit downtime actions and view your sheet data from any browser.</p>
+</div>
+
+<div class="character-card" style="margin-bottom: 1.5rem;">
+    <h3 style="margin-top: 0;">Submit Action</h3>
+    <div style="display: grid; gap: 0.75rem;">
+        <label for="character-select">Character</label>
+        <select id="character-select" class="form-control"></select>
+
+        <label for="action-title">Title</label>
+        <input id="action-title" class="form-control" maxlength="120" placeholder="Short summary" />
+
+        <label for="action-content">Action Details</label>
+        <textarea id="action-content" class="form-control" rows="6" placeholder="Describe your action and intent."></textarea>
+
+        <button id="submit-action" class="btn btn-primary">
+            <i class="fas fa-paper-plane"></i> Submit Async Action
+        </button>
+    </div>
+</div>
+
+<div class="character-card" style="margin-bottom: 1.5rem;">
+    <h3 style="margin-top: 0;">Character Sheet Hook (JSON)</h3>
+    <pre id="sheet-json" style="white-space: pre-wrap; overflow-x: auto; max-height: 24rem;"></pre>
+</div>
+
+<div class="character-card">
+    <h3 style="margin-top: 0;">Submitted Actions</h3>
+    <div id="actions-list"></div>
+</div>
+{% endblock %}
+
+{% block extra_scripts %}
+<script>
+const API_MY_CHARACTERS = "{% url 'asyncplay:api_my_characters' %}";
+const API_CHARACTER_SHEET_TEMPLATE = "{% url 'asyncplay:api_character_sheet' character_id=0 %}";
+const API_MY_ACTIONS = "{% url 'asyncplay:api_my_actions' %}";
+const API_SUBMIT_ACTION = "{% url 'asyncplay:api_submit_action' %}";
+
+function getCookie(name) {
+    const value = `; ${document.cookie}`;
+    const parts = value.split(`; ${name}=`);
+    if (parts.length === 2) return parts.pop().split(';').shift();
+    return null;
+}
+
+async function fetchJson(url, options = {}) {
+    const response = await fetch(url, options);
+    const data = await response.json();
+    if (!response.ok) {
+        throw new Error(data.error || "Request failed");
+    }
+    return data;
+}
+
+function renderActions(actions) {
+    const container = document.getElementById("actions-list");
+    if (!actions.length) {
+        container.innerHTML = "<p>No async actions submitted yet.</p>";
+        return;
+    }
+    container.innerHTML = actions.map((action) => `
+        <div style="padding: 0.75rem 0; border-bottom: 1px solid var(--color-border);">
+            <strong>${action.title}</strong> - ${action.character_name}
+            <div><small>Status: ${action.status}</small></div>
+            <div style="margin-top: 0.35rem;">${action.content}</div>
+            ${action.staff_response ? `<div style="margin-top: 0.35rem;"><em>Staff: ${action.staff_response}</em></div>` : ""}
+        </div>
+    `).join("");
+}
+
+async function loadCharacters() {
+    const payload = await fetchJson(API_MY_CHARACTERS);
+    const select = document.getElementById("character-select");
+    select.innerHTML = "";
+
+    payload.characters.forEach((charData) => {
+        const option = document.createElement("option");
+        option.value = charData.id;
+        option.textContent = `${charData.name} (${charData.template})`;
+        select.appendChild(option);
+    });
+
+    if (!payload.characters.length) {
+        select.innerHTML = "<option value=''>No approved characters available</option>";
+        document.getElementById("sheet-json").textContent = "No approved characters found.";
+        return;
+    }
+
+    await loadSheet(select.value);
+}
+
+async function loadSheet(characterId) {
+    if (!characterId) return;
+    const url = API_CHARACTER_SHEET_TEMPLATE.replace("/0/sheet/", `/${characterId}/sheet/`);
+    const payload = await fetchJson(url);
+    document.getElementById("sheet-json").textContent = JSON.stringify(payload, null, 2);
+}
+
+async function loadActions() {
+    const payload = await fetchJson(API_MY_ACTIONS);
+    renderActions(payload.actions);
+}
+
+async function submitAction() {
+    const characterId = parseInt(document.getElementById("character-select").value, 10);
+    const title = document.getElementById("action-title").value.trim();
+    const content = document.getElementById("action-content").value.trim();
+
+    await fetchJson(API_SUBMIT_ACTION, {
+        method: "POST",
+        headers: {
+            "Content-Type": "application/json",
+            "X-CSRFToken": getCookie("csrftoken")
+        },
+        body: JSON.stringify({
+            character_id: characterId,
+            title: title,
+            content: content
+        })
+    });
+
+    document.getElementById("action-title").value = "";
+    document.getElementById("action-content").value = "";
+    await loadActions();
+}
+
+document.addEventListener("DOMContentLoaded", async () => {
+    try {
+        await loadCharacters();
+        await loadActions();
+
+        document.getElementById("character-select").addEventListener("change", async (event) => {
+            await loadSheet(event.target.value);
+        });
+
+        document.getElementById("submit-action").addEventListener("click", async () => {
+            try {
+                await submitAction();
+            } catch (error) {
+                alert(error.message);
+            }
+        });
+    } catch (error) {
+        alert(error.message);
+    }
+});
+</script>
+{% endblock %}
