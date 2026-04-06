@@ -75,16 +75,38 @@
             <div id="scene-list-public-completed"></div>
         </div>
 
-        <div class="character-card">
-            <h3 style="margin-top: 0;">Your Scenes</h3>
-            <div id="scene-list-mine"></div>
-        </div>
     </aside>
 
     <section>
         <div id="landing-card" class="character-card">
             <h3 style="margin-top: 0;">Scene Hub</h3>
             <p>Select a scene from the left, or create a new scene.</p>
+            <div style="margin-top: 0.9rem;">
+                <h4 style="margin-top: 0;">Your Scenes</h4>
+                <div id="scene-list-mine"></div>
+            </div>
+        </div>
+
+        <div id="global-tools-card" class="character-card" style="margin-top: 1rem;">
+            <h3 style="margin-top: 0;">Character Utilities</h3>
+            <small>Use character commands outside a scene context (XP, requests, conditions, tilts, aspirations, vote, etc.).</small>
+            <label for="global-tools-character" style="margin-top:0.45rem;">Run As Character</label>
+            <select id="global-tools-character" class="form-control"></select>
+            <div style="display:flex;flex-wrap:wrap;gap:0.4rem;margin-top:0.5rem;">
+                <button type="button" class="btn btn-sm btn-secondary global-tool-preset" data-command="+xp">XP Totals</button>
+                <button type="button" class="btn btn-sm btn-secondary global-tool-preset" data-command="+xp/costs">XP Costs</button>
+                <button type="button" class="btn btn-sm btn-secondary global-tool-preset" data-command="+jobs" data-help-type="requests">My Requests</button>
+                <button type="button" class="btn btn-sm btn-secondary global-tool-preset" data-command="+condition" data-help-type="conditions">Conditions</button>
+                <button type="button" class="btn btn-sm btn-secondary global-tool-preset" data-command="+tilt" data-help-type="tilts">Tilts</button>
+                <button type="button" class="btn btn-sm btn-secondary global-tool-preset" data-command="+aspiration" data-help-type="aspirations">Aspirations</button>
+                <button type="button" class="btn btn-sm btn-secondary global-tool-preset" data-command="+vote" data-help-type="vote">Vote</button>
+            </div>
+            <label for="global-tools-command" style="margin-top:0.5rem;">Command</label>
+            <input id="global-tools-command" class="form-control" value="+xp" />
+            <div style="display:flex;gap:0.5rem;margin-top:0.5rem;">
+                <button id="global-tools-run" type="button" class="btn btn-sm btn-primary">Run Command</button>
+            </div>
+            <pre id="global-tools-output" style="margin-top:0.5rem;white-space:pre-wrap;max-height:220px;overflow:auto;padding:0.6rem;border:1px solid var(--color-border);border-radius:6px;">No command output yet.</pre>
         </div>
 
         <div id="create-scene-card" class="character-card async-hidden">
@@ -212,12 +234,14 @@ function updateSheetToggleButton(mode) {
 function setWorkspaceMode(mode) {
     currentWorkspaceMode = mode;
     const landingCard = document.getElementById("landing-card");
+    const globalToolsCard = document.getElementById("global-tools-card");
     const createSceneCard = document.getElementById("create-scene-card");
     const sceneDetailCard = document.getElementById("scene-detail-card");
     const sceneSheetCard = document.getElementById("scene-sheet-card");
     const backButton = document.getElementById("return-to-scenes");
 
     landingCard.classList.toggle("async-hidden", mode !== "list");
+    globalToolsCard.classList.toggle("async-hidden", mode === "create");
     createSceneCard.classList.toggle("async-hidden", mode !== "create");
     sceneDetailCard.classList.toggle("async-hidden", mode !== "scene");
     const canShowSheetInMode = (mode === "scene" || mode === "list");
@@ -337,12 +361,33 @@ function getAspirationsHelpText() {
     ].join("\n");
 }
 
+function getVoteHelpText() {
+    return [
+        "Voting workflow quick guide:",
+        "- Vote for a player: +vote <character>",
+        "- Example: +vote Alice",
+        "- You can vote for each player once per week",
+        "- Voting grants beats/XP to the target, not to you",
+        "",
+    ].join("\n");
+}
+
 function getWorkflowHelpByType(helpType) {
     if (helpType === "requests") return getRequestHelpText();
     if (helpType === "conditions") return getConditionsHelpText();
     if (helpType === "tilts") return getTiltsHelpText();
     if (helpType === "aspirations") return getAspirationsHelpText();
+    if (helpType === "vote") return getVoteHelpText();
     return "";
+}
+
+function appendWorkflowHelpFromCommand(command, outputLines) {
+    const lowered = command.toLowerCase();
+    if (lowered.startsWith("+jobs") || lowered.startsWith("+requests")) outputLines.push(getRequestHelpText());
+    if (lowered.startsWith("+condition") || lowered.startsWith("+conditions") || lowered.startsWith("+cond")) outputLines.push(getConditionsHelpText());
+    if (lowered.startsWith("+tilt") || lowered.startsWith("+tilts")) outputLines.push(getTiltsHelpText());
+    if (lowered.startsWith("+aspiration") || lowered.startsWith("+aspirations") || lowered.startsWith("+asp")) outputLines.push(getAspirationsHelpText());
+    if (lowered.startsWith("+vote")) outputLines.push(getVoteHelpText());
 }
 
 function renderSheetView(payload) {
@@ -459,6 +504,9 @@ function renderSceneDetail(scene) {
     const toolCharacterOptions = cachedCharacters.map((charData) =>
         `<option value="${charData.id}" ${selectedCharacterId === charData.id ? "selected" : ""}>${charData.name} (${charData.template})</option>`
     ).join("");
+    const sceneVoteTargetOptions = (scene.participants || [])
+        .map((participant) => `<option value="${escapeHtml(participant.name || "")}">${participant.name || "Unknown"}</option>`)
+        .join("");
     const isManageOpen = expandedManageScenes.has(scene.id);
 
     container.innerHTML = `
@@ -552,6 +600,14 @@ function renderSceneDetail(scene) {
                 <button type="button" class="btn btn-sm btn-secondary scene-tool-preset" data-command="+condition" data-help-type="conditions">Conditions</button>
                 <button type="button" class="btn btn-sm btn-secondary scene-tool-preset" data-command="+tilt" data-help-type="tilts">Tilts</button>
                 <button type="button" class="btn btn-sm btn-secondary scene-tool-preset" data-command="+aspiration" data-help-type="aspirations">Aspirations</button>
+                <button type="button" class="btn btn-sm btn-secondary scene-tool-preset" data-command="+vote" data-help-type="vote">Vote</button>
+            </div>
+            <label for="scene-tools-vote-target" style="margin-top:0.5rem;">Vote for Scene Participant</label>
+            <div style="display:flex;gap:0.5rem;margin-top:0.35rem;">
+                <select id="scene-tools-vote-target" class="form-control" style="flex:1;">
+                    ${sceneVoteTargetOptions || '<option value="">No participants available</option>'}
+                </select>
+                <button id="scene-tools-vote" type="button" class="btn btn-sm btn-secondary">Vote</button>
             </div>
             <label for="scene-tools-command" style="margin-top:0.5rem;">Command</label>
             <input id="scene-tools-command" class="form-control" value="+xp" />
@@ -596,18 +652,22 @@ async function loadCharacters() {
     const payload = await fetchJson(API_MY_CHARACTERS);
     const sheetSelect = document.getElementById("character-select");
     const createSelect = document.getElementById("scene-character");
+    const globalToolsSelect = document.getElementById("global-tools-character");
     cachedCharacters = payload.characters || [];
     sheetSelect.innerHTML = "";
     createSelect.innerHTML = "";
+    globalToolsSelect.innerHTML = "";
     cachedCharacters.forEach((charData) => {
         const option = document.createElement("option");
         option.value = charData.id;
         option.textContent = `${charData.name} (${charData.template})`;
         sheetSelect.appendChild(option);
         createSelect.appendChild(option.cloneNode(true));
+        globalToolsSelect.appendChild(option.cloneNode(true));
     });
     if (!cachedCharacters.length) {
         document.getElementById("sheet-view").innerHTML = "<p>No approved characters found for this account.</p>";
+        document.getElementById("global-tools-output").textContent = "No approved characters available for command tools.";
     }
 }
 
@@ -848,6 +908,8 @@ async function loadSceneDetail(sceneId) {
     const toolsRunButton = document.getElementById("scene-tools-run");
     const toolsOutput = document.getElementById("scene-tools-output");
     const toolsPostRollCheckbox = document.getElementById("scene-tools-post-roll");
+    const toolsVoteTarget = document.getElementById("scene-tools-vote-target");
+    const toolsVoteButton = document.getElementById("scene-tools-vote");
     if (toolsCharacterSelect && toolsCommandInput && toolsRunButton && toolsOutput) {
         document.querySelectorAll(".scene-tool-preset").forEach((button) => {
             button.addEventListener("click", () => {
@@ -882,11 +944,7 @@ async function loadSceneDetail(sceneId) {
                 });
                 const lines = payload.lines || [];
                 const outputLines = [];
-                const lowered = command.toLowerCase();
-                if (lowered.startsWith("+jobs") || lowered.startsWith("+requests")) outputLines.push(getRequestHelpText());
-                if (lowered.startsWith("+condition") || lowered.startsWith("+conditions") || lowered.startsWith("+cond")) outputLines.push(getConditionsHelpText());
-                if (lowered.startsWith("+tilt") || lowered.startsWith("+tilts")) outputLines.push(getTiltsHelpText());
-                if (lowered.startsWith("+aspiration") || lowered.startsWith("+aspirations") || lowered.startsWith("+asp")) outputLines.push(getAspirationsHelpText());
+                appendWorkflowHelpFromCommand(command, outputLines);
                 if (payload.posted_to_scene) {
                     outputLines.push("Roll result posted to scene.");
                 }
@@ -902,6 +960,18 @@ async function loadSceneDetail(sceneId) {
                 alert(error.message);
             }
         });
+        if (toolsVoteButton && toolsVoteTarget) {
+            toolsVoteButton.addEventListener("click", async () => {
+                const targetName = (toolsVoteTarget.value || "").trim();
+                if (!targetName) {
+                    alert("Choose a participant to vote for.");
+                    return;
+                }
+                toolsCommandInput.value = `+vote ${targetName}`;
+                toolsOutput.textContent = getVoteHelpText();
+                toolsRunButton.click();
+            });
+        }
     }
 }
 
@@ -1021,6 +1091,45 @@ document.addEventListener("DOMContentLoaded", async () => {
     document.getElementById("create-scene").addEventListener("click", async () => {
         try {
             await createScene();
+        } catch (error) {
+            alert(error.message);
+        }
+    });
+
+    const globalToolsCharacter = document.getElementById("global-tools-character");
+    const globalToolsCommand = document.getElementById("global-tools-command");
+    const globalToolsRun = document.getElementById("global-tools-run");
+    const globalToolsOutput = document.getElementById("global-tools-output");
+    document.querySelectorAll(".global-tool-preset").forEach((button) => {
+        button.addEventListener("click", () => {
+            globalToolsCommand.value = button.dataset.command || "";
+            const workflowHelp = getWorkflowHelpByType(button.dataset.helpType);
+            if (workflowHelp) {
+                globalToolsOutput.textContent = workflowHelp;
+            }
+        });
+    });
+    globalToolsRun.addEventListener("click", async () => {
+        try {
+            const characterId = parseInt(globalToolsCharacter.value, 10);
+            const command = globalToolsCommand.value.trim();
+            if (!characterId) {
+                alert("Choose a character to run commands as.");
+                return;
+            }
+            if (!command) {
+                alert("Enter a command.");
+                return;
+            }
+            const payload = await fetchJson(API_COMMAND_EXECUTE, {
+                method: "POST",
+                headers: {"Content-Type": "application/json", "X-CSRFToken": getCookie("csrftoken")},
+                body: JSON.stringify({character_id: characterId, command: command})
+            });
+            const outputLines = [];
+            appendWorkflowHelpFromCommand(command, outputLines);
+            outputLines.push((payload.lines || []).length ? payload.lines.join("\n") : "Command executed with no direct output.");
+            globalToolsOutput.textContent = outputLines.join("\n");
         } catch (error) {
             alert(error.message);
         }
