@@ -72,7 +72,11 @@ def _can_manage_scene(scene, account) -> bool:
 
 def _dots(value: int, max_value: int = 5) -> str:
     """Render UTF-8 dot rating."""
-    safe_value = max(0, min(int(value or 0), max_value))
+    try:
+        numeric = int(value or 0)
+    except (TypeError, ValueError):
+        numeric = 0
+    safe_value = max(0, min(numeric, max_value))
     return ("●" * safe_value) + ("○" * (max_value - safe_value))
 
 
@@ -83,6 +87,8 @@ def _format_name(value: str) -> str:
 
 def _format_merits(merits: dict) -> list[dict]:
     """Normalize merit data for display."""
+    if not isinstance(merits, dict):
+        return []
     rows = []
     for merit_name, merit_value in (merits or {}).items():
         dots = merit_value.get("dots", 0) if isinstance(merit_value, dict) else 0
@@ -99,8 +105,14 @@ def _format_merits(merits: dict) -> list[dict]:
 
 def _format_powers(powers: dict) -> list[str]:
     """Format powers for display."""
+    if isinstance(powers, dict):
+        power_names = powers.keys()
+    elif isinstance(powers, list):
+        power_names = powers
+    else:
+        power_names = []
     labels = []
-    for power_name in (powers or {}).keys():
+    for power_name in power_names:
         if ":" in power_name:
             _, short_name = power_name.split(":", 1)
             labels.append(_format_name(short_name))
@@ -112,10 +124,21 @@ def _format_powers(powers: dict) -> list[str]:
 def _build_sheet_display(character) -> dict:
     """Build a CoD-friendly sheet display payload."""
     stats = getattr(character.db, "stats", {}) or {}
+    if not isinstance(stats, dict):
+        stats = {}
+
     attributes = stats.get("attributes", {})
+    if not isinstance(attributes, dict):
+        attributes = {}
     skills = stats.get("skills", {})
+    if not isinstance(skills, dict):
+        skills = {}
     advantages = stats.get("advantages", {})
+    if not isinstance(advantages, dict):
+        advantages = {}
     bio = stats.get("bio", {})
+    if not isinstance(bio, dict):
+        bio = {}
     merits = stats.get("merits", {})
     powers = stats.get("powers", {})
 
@@ -155,7 +178,11 @@ def _build_sheet_display(character) -> dict:
     return {
         "header": {
             "name": character.key,
-            "template": stats.get("other", {}).get("template", "Mortal"),
+            "template": (
+                stats.get("other", {}).get("template", "Mortal")
+                if isinstance(stats.get("other", {}), dict)
+                else "Mortal"
+            ),
             "concept": bio.get("concept", ""),
             "seeming": bio.get("seeming", ""),
             "kith": bio.get("kith", ""),
