@@ -14,12 +14,26 @@ Search the Django documentation for "URL dispatcher" for more help.
 """
 
 from django.urls import include, path
+from django.views.generic import RedirectView
 
 # default evennia patterns
 from evennia.web.urls import urlpatterns as evennia_default_urlpatterns
 
 # add patterns
 urlpatterns = [
+    # compatibility alias for login URLs used by some Evennia deployments
+    path(
+        "auth/login/",
+        RedirectView.as_view(url="/accounts/login/", permanent=False, query_string=True),
+    ),
+    path(
+        "auth/logout/",
+        RedirectView.as_view(url="/accounts/logout/", permanent=False, query_string=True),
+    ),
+    path(
+        "auth/register/",
+        RedirectView.as_view(url="/accounts/register/", permanent=False, query_string=True),
+    ),
     # website
     path("", include("web.website.urls")),
     # asynchronous browser play
