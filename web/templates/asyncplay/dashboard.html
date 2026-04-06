@@ -393,10 +393,11 @@ async function loadSceneDetail(sceneId) {
 
     const joinButton = document.getElementById("scene-join");
     const postButton = document.getElementById("scene-post-submit");
-    if (joinButton && postButton) {
+    const postCharacterSelect = document.getElementById("scene-post-character");
+    if (joinButton && postButton && postCharacterSelect) {
         joinButton.addEventListener("click", async () => {
             try {
-                const characterId = parseInt(document.getElementById("scene-post-character").value, 10);
+                const characterId = parseInt(postCharacterSelect.value, 10);
                 await fetchJson(sceneUrl(API_SCENE_JOIN_TEMPLATE, sceneId, "join"), {
                     method: "POST",
                     headers: {"Content-Type": "application/json", "X-CSRFToken": getCookie("csrftoken")},
@@ -411,7 +412,7 @@ async function loadSceneDetail(sceneId) {
 
         postButton.addEventListener("click", async () => {
             try {
-                const characterId = parseInt(document.getElementById("scene-post-character").value, 10);
+                const characterId = parseInt(postCharacterSelect.value, 10);
                 await fetchJson(sceneUrl(API_SCENE_POST_TEMPLATE, sceneId, "post"), {
                     method: "POST",
                     headers: {"Content-Type": "application/json", "X-CSRFToken": getCookie("csrftoken")},
