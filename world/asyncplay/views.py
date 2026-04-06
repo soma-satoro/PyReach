@@ -272,7 +272,10 @@ def _has_ooc_db_tag(room) -> bool:
     elif isinstance(raw_tags, dict):
         tokens = [str(key).strip().lower() for key in raw_tags.keys()]
     else:
-        tokens = [str(tag).strip().lower() for tag in raw_tags]
+        try:
+            tokens = [str(tag).strip().lower() for tag in raw_tags]
+        except TypeError:
+            tokens = [str(raw_tags).strip().lower()]
     return any(token in {"ooc", "ooc area"} for token in tokens if token)
 
 
@@ -296,7 +299,10 @@ def _is_chargen_room(room) -> bool:
     elif isinstance(raw_tags, dict):
         tokens = [str(key).strip().lower() for key in raw_tags.keys()]
     else:
-        tokens = [str(tag).strip().lower() for tag in raw_tags]
+        try:
+            tokens = [str(tag).strip().lower() for tag in raw_tags]
+        except TypeError:
+            tokens = [str(raw_tags).strip().lower()]
     return "chargen" in tokens
 
 
