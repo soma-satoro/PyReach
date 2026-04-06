@@ -14,6 +14,7 @@ Search the Django documentation for "URL dispatcher" for more help.
 """
 
 from django.urls import include, path
+from django.contrib.auth.views import LogoutView
 from django.views.generic import RedirectView
 
 # default evennia patterns
@@ -21,14 +22,13 @@ from evennia.web.urls import urlpatterns as evennia_default_urlpatterns
 
 # add patterns
 urlpatterns = [
+    # explicit logout routes so logout never 404s across auth namespaces
+    path("auth/logout/", LogoutView.as_view(next_page="/"), name="auth_logout"),
+    path("accounts/logout/", LogoutView.as_view(next_page="/"), name="accounts_logout"),
     # compatibility aliases: forward /accounts/* to Evennia's /auth/* routes
     path(
         "accounts/login/",
         RedirectView.as_view(url="/auth/login/", permanent=False, query_string=True),
-    ),
-    path(
-        "accounts/logout/",
-        RedirectView.as_view(url="/auth/logout/", permanent=False, query_string=True),
     ),
     path(
         "accounts/register/",

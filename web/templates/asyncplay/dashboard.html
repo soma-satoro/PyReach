@@ -246,6 +246,9 @@ function renderSceneCollection(containerId, scenes, emptyText) {
 
 function renderSceneDetail(scene) {
     const container = document.getElementById("scene-detail");
+    const participantIds = new Set((scene.participants || []).map((participant) => participant.id));
+    const selectedCharacterId = cachedCharacters.length ? cachedCharacters[0].id : null;
+    const defaultAlreadyInScene = selectedCharacterId !== null && participantIds.has(selectedCharacterId);
     const characterOptions = cachedCharacters.map((charData) =>
         `<option value="${charData.id}">${charData.name} (${charData.template})</option>`).join("");
     const posts = (scene.posts || []).map((post) => `
@@ -259,6 +262,7 @@ function renderSceneDetail(scene) {
         <div><small>${scene.scene_type} / ${scene.pacing} / ${scene.privacy}</small></div>
         <div><strong>Location:</strong> ${scene.location || "-"}</div>
         ${scene.wiki_log_url ? `<div><strong>Wiki Log:</strong> <a href="${scene.wiki_log_url}" target="_blank">${scene.wiki_log_url}</a></div>` : ""}
+        <div style="margin-top:0.8rem;"><h5>Posts</h5>${posts || "<p>No posts yet.</p>"}</div>
         <div style="margin-top:0.8rem;">
             <h5>Commands</h5>
             <select id="scene-post-type" class="form-control">
@@ -270,7 +274,7 @@ function renderSceneDetail(scene) {
             <select id="scene-post-character" class="form-control" style="margin-top:0.4rem;">${characterOptions}</select>
             <textarea id="scene-post-content" class="form-control" rows="3" style="margin-top:0.4rem;"></textarea>
             <div style="display:flex;gap:0.5rem;margin-top:0.5rem;">
-                <button id="scene-join" class="btn btn-sm btn-secondary">Join</button>
+                <button id="scene-join" class="btn btn-sm btn-secondary" ${defaultAlreadyInScene ? "disabled" : ""}>${defaultAlreadyInScene ? "Already Joined" : "Join"}</button>
                 <button id="scene-post-submit" class="btn btn-sm btn-primary">Post</button>
             </div>
         </div>
@@ -287,8 +291,22 @@ function renderSceneDetail(scene) {
                 </div>
             </div>
         ` : ""}
-        <div style="margin-top:0.8rem;"><h5>Posts</h5>${posts || "<p>No posts yet.</p>"}</div>
     `;
+
+    const postCharacterSelect = document.getElementById("scene-post-character");
+    if (selectedCharacterId !== null) {
+        postCharacterSelect.value = String(selectedCharacterId);
+    }
+
+    const joinButton = document.getElementById("scene-join");
+    const updateJoinState = () => {
+        const selectedId = parseInt(postCharacterSelect.value, 10);
+        const alreadyInScene = participantIds.has(selectedId);
+        joinButton.disabled = alreadyInScene;
+        joinButton.textContent = alreadyInScene ? "Already Joined" : "Join";
+    };
+    postCharacterSelect.addEventListener("change", updateJoinState);
+    updateJoinState();
 }
 
 async function loadCharacters() {
