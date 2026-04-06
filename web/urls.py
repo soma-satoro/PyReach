@@ -21,18 +21,18 @@ from evennia.web.urls import urlpatterns as evennia_default_urlpatterns
 
 # add patterns
 urlpatterns = [
-    # compatibility alias for login URLs used by some Evennia deployments
+    # compatibility aliases: forward /accounts/* to Evennia's /auth/* routes
     path(
-        "auth/login/",
-        RedirectView.as_view(url="/accounts/login/", permanent=False, query_string=True),
+        "accounts/login/",
+        RedirectView.as_view(url="/auth/login/", permanent=False, query_string=True),
     ),
     path(
-        "auth/logout/",
-        RedirectView.as_view(url="/accounts/logout/", permanent=False, query_string=True),
+        "accounts/logout/",
+        RedirectView.as_view(url="/auth/logout/", permanent=False, query_string=True),
     ),
     path(
-        "auth/register/",
-        RedirectView.as_view(url="/accounts/register/", permanent=False, query_string=True),
+        "accounts/register/",
+        RedirectView.as_view(url="/auth/register/", permanent=False, query_string=True),
     ),
     # website
     path("", include("web.website.urls")),
