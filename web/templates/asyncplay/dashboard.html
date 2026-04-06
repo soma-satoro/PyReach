@@ -241,7 +241,7 @@ function setWorkspaceMode(mode) {
     const backButton = document.getElementById("return-to-scenes");
 
     landingCard.classList.toggle("async-hidden", mode !== "list");
-    globalToolsCard.classList.toggle("async-hidden", mode === "create");
+    globalToolsCard.classList.toggle("async-hidden", mode !== "list");
     createSceneCard.classList.toggle("async-hidden", mode !== "create");
     sceneDetailCard.classList.toggle("async-hidden", mode !== "scene");
     const canShowSheetInMode = (mode === "scene" || mode === "list");
