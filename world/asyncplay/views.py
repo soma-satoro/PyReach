@@ -149,19 +149,72 @@ def _flatten_powers(value, prefix: str = "") -> list[tuple[str, object]]:
     return entries
 
 
+def _normalize_stat_key(value: str) -> str:
+    """Normalize data keys for robust comparisons."""
+    return str(value or "").strip().lower().replace(" ", "_").replace("-", "_").replace("'", "")
+
+
+def _contract_category_and_tier(contract_type: str) -> tuple[str, str]:
+    """Map changeling contract type to display category and tier."""
+    normalized = _normalize_stat_key(contract_type)
+    tier = "Royal" if normalized.endswith("_royal") or normalized.endswith("royal") else "Common"
+    base = normalized.replace("_royal", "").replace("_common", "")
+
+    court_buckets = {"spring", "summer", "autumn", "winter", "high_tide", "low_tide", "flood_tide", "ebb_tide"}
+    regalia_map = {
+        "crown": "Crown",
+        "jewels": "Jewels",
+        "mirror": "Mirror",
+        "shield": "Shield",
+        "steed": "Steed",
+        "sword": "Sword",
+        "chalice": "Chalice",
+        "coin": "Coin",
+        "stars": "Stars",
+        "thorn": "Thorn",
+        "goblin": "Goblin",
+        "independent": "Independent",
+    }
+    if base in court_buckets:
+        return "Court", tier
+    return regalia_map.get(base, _format_name(base)), tier
+
+
+def _format_contract_power_label(contract_key: str, contract_data: Mapping) -> str:
+    """Format a changeling contract with category and tier metadata."""
+    contract_name = str(contract_data.get("name") or _format_name(contract_key))
+    category, tier = _contract_category_and_tier(str(contract_data.get("contract_type", "")))
+    return f"{contract_name} ({category}, {tier})"
+
+
 def _format_powers(powers: dict) -> list[str]:
     """Format powers for display."""
     labels = set()
+    try:
+        from world.cofd.powers.changeling_contracts import get_contract_by_key
+    except Exception:
+        get_contract_by_key = None
+
     for power_name, power_value in _flatten_powers(powers):
         status = str(power_value or "").strip().lower()
         if status in {"", "0", "false", "none"}:
             continue
+
         if ":" in power_name:
             power_type, short_name = power_name.split(":", 1)
-            label = f"{_format_name(short_name)} ({_format_name(power_type)})"
         else:
-            label = _format_name(power_name)
-        labels.add(label)
+            power_type, short_name = "", power_name
+
+        contract_data = None
+        if get_contract_by_key:
+            contract_data = get_contract_by_key(_normalize_stat_key(short_name))
+
+        if contract_data:
+            labels.add(_format_contract_power_label(short_name, contract_data))
+        elif power_type:
+            labels.add(f"{_format_name(short_name)} ({_format_name(power_type)})")
+        else:
+            labels.add(_format_name(power_name))
     return sorted(labels)
 
 
@@ -216,6 +269,69 @@ def _build_sheet_display(character) -> dict:
         advantages_display.append({"label": _format_name(name), "value": value_display})
     advantages_display.sort(key=lambda item: item["label"])
 
+    pools_display = []
+    template = str(other.get("template", "")).strip().lower()
+    resource_pools = {
+        "geist": ("Plasm", "plasm"),
+        "changeling": ("Glamour", "glamour"),
+        "werewolf": ("Essence", "essence"),
+        "mage": ("Mana", "mana"),
+        "demon": ("Aether", "aether"),
+        "promethean": ("Pyros", "pyros"),
+    }
+    if template in resource_pools:
+        pool_name, pool_key = resource_pools[template]
+        pool_max = int(other.get(pool_key, 0) or 0)
+        pool_current = getattr(character.db, f"{pool_key}_current", None)
+        if pool_current is None:
+            pool_current = pool_max
+        pools_display.append({"label": pool_name, "value": f"{pool_current}/{pool_max}"})
+
+    extra_pools = _as_mapping(getattr(character.db, "pools", {}) or {})
+    for pool_name, pool_value in sorted(extra_pools.items(), key=lambda item: str(item[0])):
+        if isinstance(pool_value, Mapping):
+            current = pool_value.get("current", pool_value.get("value", 0))
+            maximum = pool_value.get("max", pool_value.get("maximum", current))
+            value_display = f"{current}/{maximum}"
+        else:
+            value_display = str(pool_value)
+        pools_display.append({"label": _format_name(pool_name), "value": value_display})
+
+    try:
+        from world.utils.health_utils import get_health_track
+
+        health_max = int(advantages.get("health", 0) or 0)
+        health_track = get_health_track(character)
+        bashing = sum(1 for damage in health_track if damage == "bashing")
+        lethal = sum(1 for damage in health_track if damage == "lethal")
+        aggravated = sum(1 for damage in health_track if damage == "aggravated")
+        total_damage = bashing + lethal + aggravated
+        current_health = max(0, health_max - total_damage)
+        damage_parts = [part for part in [f"B:{bashing}" if bashing else "", f"L:{lethal}" if lethal else "", f"A:{aggravated}" if aggravated else ""] if part]
+        health_display = f"{current_health}/{health_max}" if health_max else "-"
+        if damage_parts:
+            health_display = f"{health_display} ({', '.join(damage_parts)})"
+    except Exception:
+        health_display = str(advantages.get("health", "-"))
+
+    aspirations_display = []
+    raw_aspirations = getattr(character.db, "aspirations", []) or []
+    for aspiration in raw_aspirations:
+        if isinstance(aspiration, Mapping):
+            description = str(aspiration.get("description", "")).strip()
+            if not description:
+                continue
+            asp_type = str(aspiration.get("type", "short-term")).strip().lower()
+            if asp_type in {"short", "short-term"}:
+                label = "Short-Term"
+            elif asp_type in {"long", "long-term"}:
+                label = "Long-Term"
+            else:
+                label = _format_name(asp_type)
+            aspirations_display.append({"label": label, "value": description})
+        elif isinstance(aspiration, str) and aspiration.strip():
+            aspirations_display.append({"label": "Aspiration", "value": aspiration.strip()})
+
     return {
         "header": {
             "name": character.key,
@@ -228,6 +344,9 @@ def _build_sheet_display(character) -> dict:
         "attributes": attributes_display,
         "skills": skills_display,
         "advantages": advantages_display,
+        "health": health_display,
+        "pools": pools_display,
+        "aspirations": aspirations_display,
         "merits": _format_merits(merits),
         "powers": _format_powers(powers),
     }
@@ -525,7 +644,22 @@ def _validate_choice(value: str, choices: tuple[tuple[str, str], ...], field_nam
     return None
 
 
-_WEB_COMMAND_PREFIXES = ("+xp", "+vote", "+jobs", "+requests", "+roll", "roll")
+_WEB_COMMAND_PREFIXES = (
+    "+xp",
+    "+vote",
+    "+jobs",
+    "+requests",
+    "+roll",
+    "roll",
+    "+tilt",
+    "+tilts",
+    "+condition",
+    "+conditions",
+    "+cond",
+    "+aspiration",
+    "+aspirations",
+    "+asp",
+)
 
 
 def _is_allowed_web_command(command: str) -> bool:

@@ -272,6 +272,17 @@ function renderSimpleList(values, emptyText = "None listed.") {
     return values.map((entry) => `<li>${entry}</li>`).join("");
 }
 
+function renderLabeledList(rows, emptyText = "None listed.") {
+    if (!rows.length) {
+        return `<p><small>${emptyText}</small></p>`;
+    }
+    return rows.map((row) => `
+        <div style="border-bottom:1px solid var(--color-border);padding:0.2rem 0;">
+            <strong>${row.label}:</strong> ${row.value}
+        </div>
+    `).join("");
+}
+
 function getRequestHelpText() {
     return [
         "Request workflow quick guide:",
@@ -309,6 +320,18 @@ function renderSheetView(payload) {
         <div style="margin-top:0.9rem;">
             <h5>Advantages</h5>
             ${renderKeyValueRows(sheet.advantages || [], "No advantages set.")}
+        </div>
+        <div style="margin-top:0.9rem;">
+            <h5>Health</h5>
+            <div>${sheet.health || "-"}</div>
+        </div>
+        <div style="margin-top:0.9rem;">
+            <h5>Pools</h5>
+            ${renderKeyValueRows(sheet.pools || [], "No pools set.")}
+        </div>
+        <div style="margin-top:0.9rem;">
+            <h5>Aspirations</h5>
+            ${renderLabeledList(sheet.aspirations || [], "No aspirations set.")}
         </div>
         <div style="margin-top:0.9rem;">
             <h5>Merits</h5>
@@ -477,6 +500,9 @@ function renderSceneDetail(scene) {
                 <button type="button" class="btn btn-sm btn-secondary scene-tool-preset" data-command="+xp/beat story">Gain Beat</button>
                 <button type="button" class="btn btn-sm btn-secondary scene-tool-preset" data-command="+jobs" data-request-help="1">My Requests</button>
                 <button type="button" class="btn btn-sm btn-secondary scene-tool-preset" data-command="+roll wits + composure">Roll Dice</button>
+                <button type="button" class="btn btn-sm btn-secondary scene-tool-preset" data-command="+condition">Conditions</button>
+                <button type="button" class="btn btn-sm btn-secondary scene-tool-preset" data-command="+tilt">Tilts</button>
+                <button type="button" class="btn btn-sm btn-secondary scene-tool-preset" data-command="+aspiration">Aspirations</button>
             </div>
             <label for="scene-tools-command" style="margin-top:0.5rem;">Command</label>
             <input id="scene-tools-command" class="form-control" value="+xp" />
