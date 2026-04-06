@@ -647,7 +647,38 @@ def api_command_execute(request):
         return JsonResponse({"error": "You do not have access to this character."}, status=403)
 
     lines = _execute_web_command(character, command)
-    return JsonResponse({"ok": True, "lines": lines, "command": command})
+
+    scene_id = body.get("scene_id")
+    post_to_scene = bool(body.get("post_to_scene"))
+    did_post = False
+    if post_to_scene and scene_id:
+        try:
+            scene = get_object_or_404(AsyncScene, id=int(scene_id))
+        except (TypeError, ValueError):
+            return JsonResponse({"error": "scene_id must be an integer."}, status=400)
+
+        if scene.is_completed:
+            return JsonResponse({"error": "Scene is stopped. Restart it to post rolls."}, status=400)
+        if not _can_post_to_scene(scene, request.user):
+            return JsonResponse({"error": "You do not have posting access to this scene."}, status=403)
+
+        lowered = command.lower().strip()
+        if lowered.startswith("+roll") or lowered.startswith("roll"):
+            content_lines = [f"Command: {command}"]
+            content_lines.extend(lines or ["(Roll executed with no direct output.)"])
+            AsyncScenePost.objects.create(
+                scene=scene,
+                account=request.user,
+                character=character,
+                post_type=AsyncScenePost.TYPE_OOC,
+                content="\n".join(content_lines).strip(),
+            )
+            scene.participants.add(character)
+            scene.last_activity_at = timezone.now()
+            scene.save(update_fields=["last_activity_at", "updated_at"])
+            did_post = True
+
+    return JsonResponse({"ok": True, "lines": lines, "command": command, "posted_to_scene": did_post})
 
 
 @login_required

@@ -183,6 +183,8 @@ let cachedCharacters = [];
 let cachedInviteCandidates = [];
 const selectedInviteIds = new Set();
 let isSceneSheetVisible = false;
+let currentWorkspaceMode = "list";
+const expandedManageScenes = new Set();
 
 function getCookie(name) {
     const value = `; ${document.cookie}`;
@@ -203,11 +205,12 @@ function escapeHtml(value) {
 function updateSheetToggleButton(mode) {
     const toggleButton = document.getElementById("toggle-scene-sheet");
     if (!toggleButton) return;
-    toggleButton.classList.toggle("async-hidden", mode !== "scene");
+    toggleButton.classList.toggle("async-hidden", mode === "create");
     toggleButton.textContent = isSceneSheetVisible ? "Hide Character Sheet" : "Show Character Sheet";
 }
 
 function setWorkspaceMode(mode) {
+    currentWorkspaceMode = mode;
     const landingCard = document.getElementById("landing-card");
     const createSceneCard = document.getElementById("create-scene-card");
     const sceneDetailCard = document.getElementById("scene-detail-card");
@@ -217,7 +220,8 @@ function setWorkspaceMode(mode) {
     landingCard.classList.toggle("async-hidden", mode !== "list");
     createSceneCard.classList.toggle("async-hidden", mode !== "create");
     sceneDetailCard.classList.toggle("async-hidden", mode !== "scene");
-    sceneSheetCard.classList.toggle("async-hidden", mode !== "scene" || !isSceneSheetVisible);
+    const canShowSheetInMode = (mode === "scene" || mode === "list");
+    sceneSheetCard.classList.toggle("async-hidden", !isSceneSheetVisible || !canShowSheetInMode);
     backButton.classList.toggle("async-hidden", mode === "list");
     updateSheetToggleButton(mode);
 }
@@ -266,6 +270,19 @@ function renderSimpleList(values, emptyText = "None listed.") {
         return `<li><small>${emptyText}</small></li>`;
     }
     return values.map((entry) => `<li>${entry}</li>`).join("");
+}
+
+function getRequestHelpText() {
+    return [
+        "Request workflow quick guide:",
+        "- View your open requests: +jobs",
+        "- View one request: +jobs <id>",
+        "- Create a request: +jobs/create REQ/Title=Details",
+        "- Add comment/update: +jobs/comment <id>=Update text",
+        "- For bug reports: +jobs/create BUG/Short title=Repro steps",
+        "- Alias +requests works the same as +jobs",
+        "",
+    ].join("\n");
 }
 
 function renderSheetView(payload) {
@@ -370,6 +387,7 @@ function renderSceneDetail(scene) {
     const toolCharacterOptions = cachedCharacters.map((charData) =>
         `<option value="${charData.id}" ${selectedCharacterId === charData.id ? "selected" : ""}>${charData.name} (${charData.template})</option>`
     ).join("");
+    const isManageOpen = expandedManageScenes.has(scene.id);
 
     container.innerHTML = `
         <h4>${scene.title}</h4>
@@ -402,49 +420,49 @@ function renderSceneDetail(scene) {
         `}
         ${scene.can_manage ? `
             <div style="margin-top:0.8rem;">
-                <h5>Manage</h5>
-                <label style="margin-top:0.4rem;">Title</label>
-                <input id="scene-edit-title" class="form-control" value="${scene.title || ""}" />
-                <label style="margin-top:0.4rem;">Location</label>
-                <input id="scene-edit-location" class="form-control" value="${scene.location || ""}" />
-                <label style="margin-top:0.4rem;">IC Date</label>
-                <input id="scene-edit-ic-date" class="form-control" value="${scene.ic_date || ""}" />
-                <label style="margin-top:0.4rem;">Privacy</label>
-                <select id="scene-edit-privacy" class="form-control">
-                    <option value="open" ${scene.privacy === "open" ? "selected" : ""}>public</option>
-                    <option value="private" ${scene.privacy === "private" ? "selected" : ""}>private</option>
-                </select>
-                <label style="margin-top:0.4rem;">Scene Type</label>
-                <select id="scene-edit-type" class="form-control">
-                    <option value="social" ${scene.scene_type === "social" ? "selected" : ""}>social</option>
-                    <option value="combat" ${scene.scene_type === "combat" ? "selected" : ""}>combat</option>
-                    <option value="investigation" ${scene.scene_type === "investigation" ? "selected" : ""}>investigation</option>
-                    <option value="downtime" ${scene.scene_type === "downtime" ? "selected" : ""}>downtime</option>
-                    <option value="event" ${scene.scene_type === "event" ? "selected" : ""}>event</option>
-                </select>
-                <label style="margin-top:0.4rem;">Pacing</label>
-                <select id="scene-edit-pacing" class="form-control">
-                    <option value="slow" ${scene.pacing === "slow" ? "selected" : ""}>slow</option>
-                    <option value="normal" ${scene.pacing === "normal" ? "selected" : ""}>normal</option>
-                    <option value="fast" ${scene.pacing === "fast" ? "selected" : ""}>fast</option>
-                </select>
-                <label style="margin-top:0.4rem;">Notes</label>
-                <textarea id="scene-edit-notes" class="form-control" rows="2">${scene.notes || ""}</textarea>
-                <label style="margin-top:0.4rem;">Plot</label>
-                <input id="scene-edit-plot" class="form-control" value="${scene.plot || ""}" />
-                <label style="margin-top:0.4rem;">Tags</label>
-                <input id="scene-edit-tags" class="form-control" value="${scene.tags || ""}" />
-                <label style="margin-top:0.6rem;">Invite approved character</label>
-                <div style="display:flex;gap:0.5rem;margin-top:0.3rem;">
-                    <select id="scene-manage-invite-select" class="form-control" style="flex:1;">
-                        ${sceneInviteOptions || '<option value="">No additional approved characters available</option>'}
+                <button id="scene-manage-toggle" type="button" class="btn btn-sm btn-secondary">${isManageOpen ? "Hide Manage Scene" : "Manage Scene"}</button>
+                <div id="scene-manage-panel" class="${isManageOpen ? "" : "async-hidden"}" style="margin-top:0.6rem;">
+                    <label style="margin-top:0.4rem;">Title</label>
+                    <input id="scene-edit-title" class="form-control" value="${scene.title || ""}" />
+                    <label style="margin-top:0.4rem;">Location</label>
+                    <input id="scene-edit-location" class="form-control" value="${scene.location || ""}" />
+                    <label style="margin-top:0.4rem;">IC Date</label>
+                    <input id="scene-edit-ic-date" class="form-control" value="${scene.ic_date || ""}" />
+                    <label style="margin-top:0.4rem;">Privacy</label>
+                    <select id="scene-edit-privacy" class="form-control">
+                        <option value="open" ${scene.privacy === "open" ? "selected" : ""}>public</option>
+                        <option value="private" ${scene.privacy === "private" ? "selected" : ""}>private</option>
                     </select>
-                    <button id="scene-manage-invite-add" type="button" class="btn btn-sm btn-secondary">Invite</button>
-                </div>
-                ${!scene.is_completed ? `<label style="display:flex;gap:0.4rem;align-items:center;margin-top:0.6rem;"><input type="checkbox" id="scene-publish-log"> Post public log to wiki</label>` : ""}
-                <div style="display:flex;gap:0.5rem;margin-top:0.5rem;">
-                    <button id="scene-save-edit" class="btn btn-sm btn-secondary">Edit Scene</button>
-                    ${!scene.is_completed ? `<button id="scene-stop" class="btn btn-sm btn-secondary">Stop Scene</button>` : ""}
+                    <label style="margin-top:0.4rem;">Scene Type</label>
+                    <select id="scene-edit-type" class="form-control">
+                        <option value="social" ${scene.scene_type === "social" ? "selected" : ""}>social</option>
+                        <option value="event" ${scene.scene_type === "event" ? "selected" : ""}>event</option>
+                        <option value="vignette" ${scene.scene_type === "vignette" ? "selected" : ""}>vignette</option>
+                    </select>
+                    <label style="margin-top:0.4rem;">Pacing</label>
+                    <select id="scene-edit-pacing" class="form-control">
+                        <option value="traditional" ${scene.pacing === "traditional" ? "selected" : ""}>traditional</option>
+                        <option value="distracted" ${scene.pacing === "distracted" ? "selected" : ""}>distracted</option>
+                        <option value="asynchronous" ${scene.pacing === "asynchronous" ? "selected" : ""}>asynchronous</option>
+                    </select>
+                    <label style="margin-top:0.4rem;">Notes</label>
+                    <textarea id="scene-edit-notes" class="form-control" rows="2">${scene.notes || ""}</textarea>
+                    <label style="margin-top:0.4rem;">Plot</label>
+                    <input id="scene-edit-plot" class="form-control" value="${scene.plot || ""}" />
+                    <label style="margin-top:0.4rem;">Tags</label>
+                    <input id="scene-edit-tags" class="form-control" value="${scene.tags || ""}" />
+                    <label style="margin-top:0.6rem;">Invite approved character</label>
+                    <div style="display:flex;gap:0.5rem;margin-top:0.3rem;">
+                        <select id="scene-manage-invite-select" class="form-control" style="flex:1;">
+                            ${sceneInviteOptions || '<option value="">No additional approved characters available</option>'}
+                        </select>
+                        <button id="scene-manage-invite-add" type="button" class="btn btn-sm btn-secondary">Invite</button>
+                    </div>
+                    ${!scene.is_completed ? `<label style="display:flex;gap:0.4rem;align-items:center;margin-top:0.6rem;"><input type="checkbox" id="scene-publish-log"> Post public log to wiki</label>` : ""}
+                    <div style="display:flex;gap:0.5rem;margin-top:0.5rem;">
+                        <button id="scene-save-edit" class="btn btn-sm btn-secondary">Edit Scene</button>
+                        ${!scene.is_completed ? `<button id="scene-stop" class="btn btn-sm btn-secondary">Stop Scene</button>` : ""}
+                    </div>
                 </div>
             </div>
         ` : ""}
@@ -457,11 +475,15 @@ function renderSceneDetail(scene) {
                 <button type="button" class="btn btn-sm btn-secondary scene-tool-preset" data-command="+xp">XP Totals</button>
                 <button type="button" class="btn btn-sm btn-secondary scene-tool-preset" data-command="+xp/costs">XP Costs</button>
                 <button type="button" class="btn btn-sm btn-secondary scene-tool-preset" data-command="+xp/beat story">Gain Beat</button>
-                <button type="button" class="btn btn-sm btn-secondary scene-tool-preset" data-command="+jobs">My Requests</button>
+                <button type="button" class="btn btn-sm btn-secondary scene-tool-preset" data-command="+jobs" data-request-help="1">My Requests</button>
                 <button type="button" class="btn btn-sm btn-secondary scene-tool-preset" data-command="+roll wits + composure">Roll Dice</button>
             </div>
             <label for="scene-tools-command" style="margin-top:0.5rem;">Command</label>
             <input id="scene-tools-command" class="form-control" value="+xp" />
+            <label style="display:flex;gap:0.4rem;align-items:center;margin-top:0.5rem;">
+                <input type="checkbox" id="scene-tools-post-roll" checked>
+                Post roll results into this scene's posts
+            </label>
             <div style="display:flex;gap:0.5rem;margin-top:0.5rem;">
                 <button id="scene-tools-run" type="button" class="btn btn-sm btn-primary">Run Command</button>
             </div>
@@ -672,6 +694,17 @@ async function loadSceneDetail(sceneId) {
     const stopButton = document.getElementById("scene-stop");
     const inviteButton = document.getElementById("scene-manage-invite-add");
     const inviteSelect = document.getElementById("scene-manage-invite-select");
+    const manageToggleButton = document.getElementById("scene-manage-toggle");
+    if (manageToggleButton) {
+        manageToggleButton.addEventListener("click", async () => {
+            if (expandedManageScenes.has(sceneId)) {
+                expandedManageScenes.delete(sceneId);
+            } else {
+                expandedManageScenes.add(sceneId);
+            }
+            await loadSceneDetail(sceneId);
+        });
+    }
     if (editButton) {
         editButton.addEventListener("click", async () => {
             try {
@@ -739,10 +772,14 @@ async function loadSceneDetail(sceneId) {
     const toolsCommandInput = document.getElementById("scene-tools-command");
     const toolsRunButton = document.getElementById("scene-tools-run");
     const toolsOutput = document.getElementById("scene-tools-output");
+    const toolsPostRollCheckbox = document.getElementById("scene-tools-post-roll");
     if (toolsCharacterSelect && toolsCommandInput && toolsRunButton && toolsOutput) {
         document.querySelectorAll(".scene-tool-preset").forEach((button) => {
             button.addEventListener("click", () => {
                 toolsCommandInput.value = button.dataset.command || "";
+                if (button.dataset.requestHelp) {
+                    toolsOutput.textContent = getRequestHelpText();
+                }
             });
         });
         toolsRunButton.addEventListener("click", async () => {
@@ -760,12 +797,28 @@ async function loadSceneDetail(sceneId) {
                 const payload = await fetchJson(API_COMMAND_EXECUTE, {
                     method: "POST",
                     headers: {"Content-Type": "application/json", "X-CSRFToken": getCookie("csrftoken")},
-                    body: JSON.stringify({character_id: characterId, command: command})
+                    body: JSON.stringify({
+                        character_id: characterId,
+                        command: command,
+                        scene_id: sceneId,
+                        post_to_scene: !!(toolsPostRollCheckbox && toolsPostRollCheckbox.checked)
+                    })
                 });
                 const lines = payload.lines || [];
-                toolsOutput.textContent = lines.length ? lines.join("\n") : "Command executed with no direct output.";
+                const outputLines = [];
+                if (command.toLowerCase().startsWith("+jobs") || command.toLowerCase().startsWith("+requests")) {
+                    outputLines.push(getRequestHelpText());
+                }
+                if (payload.posted_to_scene) {
+                    outputLines.push("Roll result posted to scene.");
+                }
+                outputLines.push(lines.length ? lines.join("\n") : "Command executed with no direct output.");
+                toolsOutput.textContent = outputLines.join("\n");
                 if (activeSceneId) {
                     await loadScenes();
+                    if (payload.posted_to_scene) {
+                        await loadSceneDetail(sceneId);
+                    }
                 }
             } catch (error) {
                 alert(error.message);
@@ -844,7 +897,7 @@ document.addEventListener("DOMContentLoaded", async () => {
     document.getElementById("return-to-scenes").addEventListener("click", () => setWorkspaceMode("list"));
     document.getElementById("toggle-scene-sheet").addEventListener("click", async () => {
         isSceneSheetVisible = !isSceneSheetVisible;
-        setWorkspaceMode("scene");
+        setWorkspaceMode(currentWorkspaceMode);
         if (isSceneSheetVisible) {
             const selectedCharacterId = document.getElementById("character-select").value;
             if (selectedCharacterId) {
