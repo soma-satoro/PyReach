@@ -985,7 +985,7 @@ dreamer_merits = [
         name="Subliminal Conditioning",
         min_value=1,
         max_value=5,
-        description="(-) Basic Control: Store temporary Memory when facing breaking point, up to Resolve. Spend Memory to ignore penalties to harm another. Suffer Missing Time when out of Memory. (--) Extended Awareness: Spend Memory for rote quality on perception roll. (---) Steady on Target: Spend Memory to prevent collateral damage. (----) Between the Lines: Store extra Memory on successful breaking point roll. (-----) New Parameters: Spend Memory to trigger Missing Time with designated target. Dispatch mortal through Down and Dirty Combat",
+        description="(*) Basic Control: Store temporary Memory when facing breaking point, up to Resolve. Spend Memory to ignore penalties to harm another. Suffer Missing Time when out of Memory. (**) Extended Awareness: Spend Memory for rote quality on perception roll. (***) Steady on Target: Spend Memory to prevent collateral damage. (****) Between the Lines: Store extra Memory on successful breaking point roll. (*****) New Parameters: Spend Memory to trigger Missing Time with designated target. Dispatch mortal through Down and Dirty Combat",
         merit_type="style",
         prerequisite="template_type:dreamer"
     ),
@@ -993,7 +993,7 @@ dreamer_merits = [
         name="Field Handler",
         min_value=1,
         max_value=5,
-        description="(-) Pencil Pusher: Handler provides Field Handler rating as auxiliary Contacts or Resources once a story. (--) Clock Watcher: Handler provides Mentor or Ally once a story. (---) Company Man: Handler calls on supernatural influences to remove threats once a story. (----) Bought Out: Use dirt on handler to call on aid a second time each story. (-----) Friend Inside: Handler sympathetic to your troubles, will intervene to protect you even at cost of mission once per story",
+        description="(*) Pencil Pusher: Handler provides Field Handler rating as auxiliary Contacts or Resources once a story. (**) Clock Watcher: Handler provides Mentor or Ally once a story. (***) Company Man: Handler calls on supernatural influences to remove threats once a story. (****) Bought Out: Use dirt on handler to call on aid a second time each story. (*****) Friend Inside: Handler sympathetic to your troubles, will intervene to protect you even at cost of mission once per story",
         merit_type="style",
         prerequisite="template_type:dreamer"
     ),
@@ -1111,7 +1111,7 @@ infected_merits = [
         name="Virulent",
         min_value=2,
         max_value=4,
-        description="(--) The Bug: Attempt to inflict a target with the moderate Sick Tilt for a scene. (---) The Virus: Inflict grave Sick Tilt for a scene. (----) The Pestilence: Inflict Poison Tilt for a scene",
+        description="(**) The Bug: Attempt to inflict a target with the moderate Sick Tilt for a scene. (***) The Virus: Inflict grave Sick Tilt for a scene. (****) The Pestilence: Inflict Poison Tilt for a scene",
         merit_type="style",
         prerequisite="template_type:infected,merit:carrier:2"
     ),
@@ -1125,7 +1125,7 @@ lost_boys_merits = [
         name="The Protocol",
         min_value=1,
         max_value=5,
-        description="(-) Mk 1: Unlocks augmentation Merits. Receive monthly Serum. Withdrawal advances after a month without Serum until weekly lethal damage. (--) Mk 2: Withdrawal advances after a week until daily damage. (---) Mk 3: Withdrawal advances daily until half-daily damage. (----) Mk 4: Withdrawal advances half-daily until quarter-daily damage. (-----) Mk 5: Withdrawal advances quarter-daily until quarter-daily damage",
+        description="(*) Mk 1: Unlocks augmentation Merits. Receive monthly Serum. Withdrawal advances after a month without Serum until weekly lethal damage. (**) Mk 2: Withdrawal advances after a week until daily damage. (***) Mk 3: Withdrawal advances daily until half-daily damage. (****) Mk 4: Withdrawal advances half-daily until quarter-daily damage. (*****) Mk 5: Withdrawal advances quarter-daily until quarter-daily damage",
         merit_type="style",
         prerequisite="template_type:lost_boy"
     ),
@@ -1133,7 +1133,7 @@ lost_boys_merits = [
         name="Jumper",
         min_value=1,
         max_value=3,
-        description="(-) Improved: Jump with effective (Strength x 2), half falling damage. While Deprived, suffer lethal to jump with additional (Strength x 2). (--) Enhanced: Jump with effective (Strength x 4), take half falling damage as bashing. (---) Superior: Jump with effective (Strength x 6), ignore falling damage",
+        description="(*) Improved: Jump with effective (Strength x 2), half falling damage. While Deprived, suffer lethal to jump with additional (Strength x 2). (**) Enhanced: Jump with effective (Strength x 4), take half falling damage as bashing. (***) Superior: Jump with effective (Strength x 6), ignore falling damage",
         merit_type="style",
         prerequisite="template_type:lost_boy,merit:the_protocol:1"
     ),
@@ -1141,7 +1141,7 @@ lost_boys_merits = [
         name="Protocol Fixer",
         min_value=1,
         max_value=5,
-        description="(-) 1 dose: Delta Protocol handler provides Serum weekly, or with Status (Lost Boys Network), Lost Boy contact provides counterfeit Serum. (--) 3 doses weekly. (---) 6 doses weekly. (----) 10 doses weekly. (-----) 14 doses weekly",
+        description="(*) 1 dose: Delta Protocol handler provides Serum weekly, or with Status (Lost Boys Network), Lost Boy contact provides counterfeit Serum. (**) 3 doses weekly. (***) 6 doses weekly. (****) 10 doses weekly. (*****) 14 doses weekly",
         merit_type="social",
         prerequisite="template_type:lost_boy,merit:the_protocol:1"
     ),
@@ -1440,7 +1440,7 @@ psychic_vampire_merits = [
         name="Psychic Vampirism",
         min_value=1,
         max_value=5,
-        description="(-) Amateur: Touch to drain, inflict bashing, gain Ephemera. (--) Dilettante: Inflict Willpower loss. (---) Practiced: Inflict lethal damage for more Ephemera. (----) Accomplished: Efficient Willpower drain. (-----) Virtuoso: Drain lethal and Willpower for maximum Ephemera",
+        description="(*) Amateur: Touch to drain, inflict bashing, gain Ephemera. (**) Dilettante: Inflict Willpower loss. (***) Practiced: Inflict lethal damage for more Ephemera. (****) Accomplished: Efficient Willpower drain. (*****) Virtuoso: Drain lethal and Willpower for maximum Ephemera",
         merit_type="style",
         prerequisite="template_type:psychic_vampire"
     ),
@@ -1448,7 +1448,7 @@ psychic_vampire_merits = [
         name="Breath Stealer",
         min_value=1,
         max_value=3,
-        description="Use psychic vampirism through breath. (-) Kiss: Close proximity. (--) Touch: Arm's length. (---) Reach: Willpower in meters distance",
+        description="Use psychic vampirism through breath. (*) Kiss: Close proximity. (**) Touch: Arm's length. (***) Reach: Willpower in meters distance",
         merit_type="style",
         prerequisite="template_type:psychic_vampire,merit:psychic_vampirism:1"
     ),
@@ -1456,7 +1456,7 @@ psychic_vampire_merits = [
         name="Euphoric Touch",
         min_value=1,
         max_value=3,
-        description="Modify psychic vampirism effects. (-) Numbing Touch: Reduce wound penalties. (--) Sensual Touch: Inflict Swooned Condition. (---) Addicting Touch: Inflict Addicted Condition",
+        description="Modify psychic vampirism effects. (*) Numbing Touch: Reduce wound penalties. (**) Sensual Touch: Inflict Swooned Condition. (***) Addicting Touch: Inflict Addicted Condition",
         merit_type="style",
         prerequisite="template_type:psychic_vampire,merit:psychic_vampirism:1"
     ),

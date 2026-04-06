@@ -147,7 +147,7 @@ mental_merits = [
         name="Professional Training",
         min_value=1,
         max_value=5,
-        description="Extensive training in particular profession",
+        description="(*) Networking: Gain two dots of Contacts related to your chosen Profession. (**) Continuing Education: Rolls with your Asset Skills gain 9-again. (***) Breadth of Knowledge: Choose a third Asset Skill and gain two Specialties among your Asset Skills. (****) On the Job Training: Gain one dot in an Asset Skill; whenever you purchase a new Asset Skill dot, gain a Beat. (*****) The Routine: Spend Willpower before rolling an Asset Skill to make it a rote action.",
         merit_type="mental"
     ),
     Merit(
@@ -684,7 +684,7 @@ style_merits = [
         name="Unintended Applications",
         min_value=1,
         max_value=5,
-        description="(-) Improvised... Weapon?: +2 to Intimidation when brandishing something claimed as deadly. (--) Achilles Fuse: Pinpoint weak point in a structure. (---) Creative Discount: Jury-rig an asset up to two dots higher than Resources in Availability, for hour's work per Size. (----) Gremlin: Disable a device without leaving evidence, can disable complicated devices from distance with equipment. (-----) Jury-Rig: Spend Willpower and roll Wits + Crafts or Science to make anything whose Availability doesn't exceed successes, right away for objects under Size 6",
+        description="(*) Improvised... Weapon?: +2 to Intimidation when brandishing something claimed as deadly. (**) Achilles Fuse: Pinpoint weak point in a structure. (***) Creative Discount: Jury-rig an asset up to two dots higher than Resources in Availability, for hour's work per Size. (****) Gremlin: Disable a device without leaving evidence, can disable complicated devices from distance with equipment. (*****) Jury-Rig: Spend Willpower and roll Wits + Crafts or Science to make anything whose Availability doesn't exceed successes, right away for objects under Size 6",
         merit_type="style",
         prerequisite="wits:3,[crafts:2,science:2]"
     ),
@@ -693,7 +693,7 @@ style_merits = [
         name="Aggressive Driving",
         min_value=1,
         max_value=4,
-        description="(-) Powerslide: Take a hard turn for bonus successes in contested pursuit by rolling Dexterity + Drive + Handling, taking Structure damage. (--) Bump and Run: Roll Dexterity + Drive + Handling - Defense to brush bumper and cause traction loss. (---) J-turn: Once a scene, when caught, spend Willpower and roll Dexterity + Drive + Handling - 2 to swerve and restart chase in opposite direction. (----) Swoop and Squat: When you have lead greater than pursuer's Wits in successes, may brake and force pursuer to roll Resolve + Composure + Handling to avoid crash",
+        description="(*) Powerslide: Take a hard turn for bonus successes in contested pursuit by rolling Dexterity + Drive + Handling, taking Structure damage. (**) Bump and Run: Roll Dexterity + Drive + Handling - Defense to brush bumper and cause traction loss. (***) J-turn: Once a scene, when caught, spend Willpower and roll Dexterity + Drive + Handling - 2 to swerve and restart chase in opposite direction. (****) Swoop and Squat: When you have lead greater than pursuer's Wits in successes, may brake and force pursuer to roll Resolve + Composure + Handling to avoid crash",
         merit_type="style",
         prerequisite="resolve:3,drive:3,fast_reflexes:3"
     ),
@@ -701,7 +701,7 @@ style_merits = [
         name="Drone Control",
         min_value=1,
         max_value=3,
-        description="(-) Remote Immersion: Take 9-Again to perception actions using remote device. (--) Interface: Spend Willpower to perform additional non-combat action through device this turn. (---) Overclock: Inflict Structure damage for +2 bonus to device's physical actions this turn",
+        description="(*) Remote Immersion: Take 9-Again to perception actions using remote device. (**) Interface: Spend Willpower to perform additional non-combat action through device this turn. (***) Overclock: Inflict Structure damage for +2 bonus to device's physical actions this turn",
         merit_type="style",
         prerequisite="intelligence:3,computer:3,drive:2"
     ),
@@ -709,7 +709,7 @@ style_merits = [
         name="Falconry",
         min_value=1,
         max_value=4,
-        description="Reflexively issue commands for trained raptor. May spend Willpower to enhance raptor's rolls. (-) Predator's Vigil: Raptor's presence inflicts Shaken on animals its Size or smaller. (--) Flyby: Bird contests Presence + Intimidation vs Resolve + Composure to inflict -3 action penalty. (---) Retrieve Item: Command bird to bring object, can exceptionally Disarm opponent. (----) Rake the Eyes: Bird attacks at -1 to blind target",
+        description="Reflexively issue commands for trained raptor. May spend Willpower to enhance raptor's rolls. (*) Predator's Vigil: Raptor's presence inflicts Shaken on animals its Size or smaller. (**) Flyby: Bird contests Presence + Intimidation vs Resolve + Composure to inflict -3 action penalty. (***) Retrieve Item: Command bird to bring object, can exceptionally Disarm opponent. (****) Rake the Eyes: Bird attacks at -1 to blind target",
         merit_type="style",
         prerequisite="wits:3,animal_ken:3,bonded_condition:1"
     ),
@@ -717,7 +717,7 @@ style_merits = [
         name="K-9",
         min_value=1,
         max_value=4,
-        description="Issue commands to trained dog Size 3 or larger. (-) Detection: Dog takes rote quality to track chosen scent type with Wits + Survival. (--) Targeted Bite: Command dog to make called shots in combat, reducing penalty by -2. (---) Tactical Positioning: When fighting one opponent in tandem, choose roles each turn. One takes +1 Defense, other +2 to attack. Ignore penalties for firing into melee around dog. (----) Takedown Bite: Command dog to initiate biting grapple, immediately Holding or Dropping Prone",
+        description="Issue commands to trained dog Size 3 or larger. (*) Detection: Dog takes rote quality to track chosen scent type with Wits + Survival. (**) Targeted Bite: Command dog to make called shots in combat, reducing penalty by -2. (***) Tactical Positioning: When fighting one opponent in tandem, choose roles each turn. One takes +1 Defense, other +2 to attack. Ignore penalties for firing into melee around dog. (****) Takedown Bite: Command dog to initiate biting grapple, immediately Holding or Dropping Prone",
         merit_type="style",
         prerequisite="wits:3,animal_ken:3,bonded_condition:1"
     ),
@@ -726,7 +726,7 @@ style_merits = [
         name="Etiquette",
         min_value=1,
         max_value=5,
-        description="(-) The Smile: +2 bonus to Socialize with those sharing culture in specific social context. (--) The Trappings: Ignore the first penalty from absence of equipment or appropriate clothing. (---) The Code: Rolls to research a culture take half the time and grant an exceptional success on three successes instead of five. (----) The Flexible Mind: Spend Willpower to ignore all untrained penalties when dealing with a new culture for the scene. (-----) The Cosmopolitan: No untrained penalties when using Etiquette with unfamiliar cultures",
+        description="(*) The Smile: +2 bonus to Socialize with those sharing culture in specific social context. (**) The Trappings: Ignore the first penalty from absence of equipment or appropriate clothing. (***) The Code: Rolls to research a culture take half the time and grant an exceptional success on three successes instead of five. (****) The Flexible Mind: Spend Willpower to ignore all untrained penalties when dealing with a new culture for the scene. (*****) The Cosmopolitan: No untrained penalties when using Etiquette with unfamiliar cultures",
         merit_type="style",
         prerequisite="composure:3,socialize:2"
     ),
@@ -734,16 +734,24 @@ style_merits = [
         name="Pusher",
         min_value=1,
         max_value=5,
-        description="(-) Unsolicited Advice: Roll Manipulation + Persuasion or Expression to tell someone advice, contest Resolve + Composure. Success inflicts Leveraged Condition. (--) Incredible Truths: When generating Leveraged, learn a piece of information about target's Aspirations or Integrity. (---) Pressure: Each uncovered piece of information about Aspirations or Integrity grants Door during Social Maneuvering. (----) Saturation: Once per chapter per target, apply Informed Condition about target. (-----) Svengali: When you know two pieces of information and have inflicted Leveraged in past week, spend Willpower in Social Maneuvering to convert impression to one step better",
+        description="(*) Unsolicited Advice: Roll Manipulation + Persuasion or Expression to tell someone advice, contest Resolve + Composure. Success inflicts Leveraged Condition. (**) Incredible Truths: When generating Leveraged, learn a piece of information about target's Aspirations or Integrity. (***) Pressure: Each uncovered piece of information about Aspirations or Integrity grants Door during Social Maneuvering. (****) Saturation: Once per chapter per target, apply Informed Condition about target. (*****) Svengali: When you know two pieces of information and have inflicted Leveraged in past week, spend Willpower in Social Maneuvering to convert impression to one step better",
         merit_type="style",
         prerequisite="manipulation:3,persuasion:2"
+    ),
+    Merit(
+        name="Fast-Talking",
+        min_value=1,
+        max_value=5,
+        description="(*) Always Be Closing: When a mark contests or resists your Social interactions, apply -1 to their Resolve or Composure. (**) Jargon: Apply one relevant Specialty to any Social roll, even if the Specialty is not tied to the Skill in use. (***) Devil's Advocacy: Reroll one failed Subterfuge roll per scene. (****) Salting: When you open a Door using conversation, spend Willpower to immediately open another Door. (*****) The Nigerian Scam: If a target regains Willpower from Vice while you are present, roll Manipulation + Subterfuge to open a Door regardless of interval or impression level.",
+        merit_type="style",
+        prerequisite="manipulation:3,subterfuge:2"
     ),
     # Combat Styles
     Merit(
         name="Armed Defense",
         min_value=1,
         max_value=5,
-        description="Defensive techniques with weapons",
+        description="(*) Cover the Angles: When Dodging, reduce multiple-attacker Defense penalties by 1. (**) Weak Spot: Against armed attackers, if your Defense reduces their attack pool to 0 (or your Dodge roll reduces successes to 0), you disarm them. (***) Aggressive Defense: While Dodging, if you beat an attacker's roll, inflict 1 lethal per extra success (weapon bonus does not apply). Drawback: Spend 1 Willpower at turn start and cannot combine with Press the Advantage or Weak Spot. (****) Iron Guard: At turn start, reduce weapon bonus (min 0) to raise Defense by equal amount; if Dodging, add full weapon bonus after doubling Defense pool. (*****) Press the Advantage: While Dodging, if your Defense roll reduces an attack to 0 successes, make an immediate unarmed counterattack at -2.",
         merit_type="style",
         prerequisite="dexterity:3,weaponry:2,defensive_combat:weaponry:1"
     ),
@@ -751,7 +759,7 @@ style_merits = [
         name="Close Quarters Combat",
         min_value=1,
         max_value=5,
-        description="Environmental combat techniques",
+        description="(*) Firing Lines: As a reaction to ranged attack, run to cover within twice Speed instead of dropping prone (lose your action this turn). (**) Hard Surfaces: In a grapple, use Damage move to bounce target off hard surface, dealing lethal, then end grapple. (***) Armored Coffin: When grappling, add target's general armor rating to your pool and ignore their armor on Damage moves; cannot combine with Hard Surfaces. (****) Prep Work: Surprise attack Dexterity + Stealth roll becomes rote. Drawback: Cannot be used for sniper attacks; ambush must use Brawl or Weaponry. (*****) Turnabout: Disarm attempts step up one result level (failure drops weapon, success takes weapon, exceptional also inflicts 2 bashing).",
         merit_type="style",
         prerequisite="wits:3,athletics:2,brawl:3"
     ),
@@ -775,7 +783,7 @@ style_merits = [
         name="Firefight",
         min_value=1,
         max_value=3,
-        description="Mobile gunfighting techniques",
+        description="(*) Shoot First: If your gun is drawn, add Firearms to Initiative; with Quick Draw, you can draw and fire with this bonus on first combat turn. (**) Suppressive Fire: With Covering Fire, opponents cannot gain aiming benefits against you; you may apply Defense against Firearms attacks in addition to cover, and may use Suppressive Fire with semi-automatic weapons. (***) Secondary Target: Trade direct hit for collateral impact; attack deals bashing instead of lethal and ignores all cover penalties; weapon damage does not add.",
         merit_type="style",
         prerequisite="composure:3,dexterity:3,athletics:2,firearms:2"
     ),
@@ -783,7 +791,7 @@ style_merits = [
         name="Grappling",
         min_value=1,
         max_value=3,
-        description="Wrestling and grappling martial arts",
+        description="(*) Sprawl: While grappling, your opponent cannot use Drop Prone or Take Cover moves. (**) Takedown: With a normal roll, you may knock target prone instead of establishing grapple, and may inflict bashing equal to successes. (***) Joint Lock: Use Joint Lock move in grapple; next turn opponent suffers bashing equal to your successes. Can lead into Restrain, and your successful overpowering maneuvers inflict +1 lethal in addition to normal effects.",
         merit_type="style",
         prerequisite="stamina:3,strength:2,athletics:2,brawl:2"
     ),
@@ -791,7 +799,7 @@ style_merits = [
         name="Heavy Weapons",
         min_value=1,
         max_value=5,
-        description="Two-handed weapon techniques",
+        description="(*) Sure Strike: Remove three dice from attack pool (to min 0) to add +1 weapon damage for the turn; remove after environmental and Defense penalties. (**) Threat Range: If you do not move or Dodge, any character entering your proximity takes 1 lethal and suffers Defense penalty equal to your weapon damage for one turn. (***) Bring the Pain: Sacrifice Defense and make standard attack; damage dealt also becomes penalty to victim's actions next turn. (****) Warding Stance: Spend Willpower reflexively to add weapon damage rating as armor for the turn (not vs Firearms). (*****) Rending: Spend Willpower before attack to add 1 aggravated damage on successful hit in addition to weapon damage (Willpower does not add dice).",
         merit_type="style",
         prerequisite="stamina:3,strength:3,athletics:2,weaponry:2"
     ),
@@ -799,7 +807,7 @@ style_merits = [
         name="Improvised Weaponry",
         min_value=1,
         max_value=3,
-        description="Using environmental objects as weapons",
+        description="(*) Always Armed: Make reflexive Wits + Weaponry to grab an improvised weapon almost anywhere; default item is +0 damage, -1 initiative, Size 1, Durability 2, Structure 4, and ignores improvised weapon penalty. Exceptional success increases weapon modifier and Size by 1 but initiative penalty becomes -2. (**) In Harm's Way: With an Always Armed weapon, treat its Structure as general armor against one Brawl or Weaponry attack; blocked damage also damages weapon, bypassing Durability. (***) Breaking Point: On all-out attack with Always Armed weapon, reduce its Structure (min 0); every 2 Structure spent adds +1 weapon modifier for that attack. If Structure reaches 0, weapon is destroyed after attack.",
         merit_type="style",
         prerequisite="wits:3,weaponry:1"
     ),
@@ -815,7 +823,7 @@ style_merits = [
         name="Light Weapons",
         min_value=1,
         max_value=5,
-        description="Finesse techniques with small weapons",
+        description="(*) Rapidity: Sacrifice weapon damage rating to add Weaponry to Initiative for the turn; weapon damage becomes 0 that turn. (**) Thrust: Trade Defense for attack dice one-for-one; cannot be used after Defense was already applied and cannot be used with all-out attack. (***) Feint: If attack would deal no damage, your next attack ignores Defense equal to weapon damage plus prior successes and gains extra damage equal to those successes. (****) Flurry: While Defense is available and you are not Dodging, enemies entering your proximity take 1 lethal (once per turn while they remain in range). (*****) Vital Shot: Sacrifice Defense for turn; on successful attack, inflict 1 aggravated damage in addition to weapon damage.",
         merit_type="style",
         prerequisite="[wits:3,fighting_finesse:1],dexterity:3,athletics:2,weaponry:2"
     ),
@@ -823,7 +831,7 @@ style_merits = [
         name="Marksmanship",
         min_value=1,
         max_value=4,
-        description="Precision shooting techniques",
+        description="(*) Through the Crosshairs: Maximum aiming bonus becomes Composure + Firearms instead of 3. (**) Precision Shot: Reduce weapon damage one-for-one to reduce called-shot penalty by same amount. (***) A Shot Rings Out: Fire into crowds without risk of hitting unintended targets; misses go wide. (****) Ghost: Firearms score is a penalty to rolls to notice your vantage point or investigate where you were shooting from.",
         merit_type="style",
         prerequisite="composure:3,resolve:3,firearms:2"
     ),
@@ -831,7 +839,7 @@ style_merits = [
         name="Martial Arts",
         min_value=1,
         max_value=5,
-        description="Formal martial arts training",
+        description="(*) Focused Attack: Reduce penalties for specified targets by 1 and ignore 1 point of armor. (**) Defensive Strike: Add 1 or 2 to Defense and subtract the same from attack dice; only usable on turns you attack and not with Dodge. (***) Whirlwind Strike: While Defense is available and you are not Dodging, enemies entering arm's reach take 1 bashing per turn while in range; spend Willpower to make this 2 bashing until next turn. (****) The Hand As Weapon: Unarmed strikes inflict lethal damage. (*****) The Touch of Death: Unarmed strikes count as weapons with damage rating 2.",
         merit_type="style",
         prerequisite="resolve:3,dexterity:3,athletics:2,brawl:2"
     ),
@@ -839,7 +847,7 @@ style_merits = [
         name="Parkour",
         min_value=1,
         max_value=5,
-        description="Free running and urban movement",
+        description="(*) Flow: In a foot chase, subtract Parkour dots from successes needed to pursue or evade; ignore environmental penalties to Athletics up to Parkour dots. (**) Cat Leap: Gain one automatic success on Dexterity + Athletics to mitigate falling damage; add Parkour to removable damage threshold (not terminal velocity). (***) Wall Run: Scale 10 feet + 5 feet per Athletics dot as an instant action without a roll before traditional climbing. (****) Expert Traceur: Spend Willpower to make one Athletics run/jump/climb roll rote; you cannot apply Defense on that turn. (*****) Freeflow: After successful meditation, take one Athletics action reflexively per turn; spend Willpower in a foot chase Athletics roll to gain three successes instead of three dice.",
         merit_type="style",
         prerequisite="dexterity:3,athletics:2"
     ),
@@ -847,7 +855,7 @@ style_merits = [
         name="Police Tactics",
         min_value=1,
         max_value=3,
-        description="Law enforcement restraint techniques",
+        description="(*) Compliance Hold: Gain +2 to overpowering rolls to disarm or immobilize an opponent. (**) Weapon Retention: Opponents trying to disarm you or turn your weapon against you must exceed your Weaponry in successes. (***) Speed Cuff: Against an immobilized target, apply restraints (handcuffs, cable ties, similar) reflexively.",
         merit_type="style",
         prerequisite="brawl:2,weaponry:1"
     ),
@@ -855,7 +863,7 @@ style_merits = [
         name="Stunt Driver",
         min_value=1,
         max_value=4,
-        description="Advanced driving maneuvers",
+        description="(*) Defensive Driving: Subtract Drive dots from attempts to hit your moving vehicle. (**) Speed Demon: Each success on acceleration rolls increases Speed by 10 instead of 5. (***) Drift: Never need maneuvering roll to turn at high speeds. (****) Clipping: When voluntarily ramming another character or vehicle, ignore damage to your own vehicle equal to Wits before Durability.",
         merit_type="style",
         prerequisite="dexterity:3,drive:3,wits:3"
     ),
@@ -863,7 +871,7 @@ style_merits = [
         name="Street Fighting",
         min_value=1,
         max_value=5,
-        description="Dirty fighting techniques",
+        description="(*) Duck and Weave: Reflexively take -1 to all actions this turn to use higher of Wits or Dexterity for Defense. (**) Knocking the Wind Out: On successful unarmed attack, opponent takes -1 to their next roll. (***) Kick 'Em While They're Down: If attack successes exceed opponent Stamina, may apply Knocked Down Tilt; when close enough as they rise from prone, reflexively deal 2 bashing. (****) One-Two Punch: On successful attack, spend Willpower to deal +2 bashing. (*****) Last-Ditch Effort: When about to be hit or overpowered while suffering wound penalties, spend Willpower and sacrifice Defense to make immediate attack before opponent resolves action.",
         merit_type="style",
         prerequisite="stamina:3,composure:3,brawl:2,streetwise:2"
     ),
@@ -871,7 +879,7 @@ style_merits = [
         name="Unarmed Defense",
         min_value=1,
         max_value=5,
-        description="Defensive unarmed combat techniques",
+        description="(*) Like a Book: Against unarmed opponents while not Dodging, increase Defense by half Brawl (round down). (**) Studied Style: Attacks from one chosen opponent do not reduce Defense; if your Defense reduces their attack pool to 0, their further attacks against you lose 10-again. (***) Redirect: While Dodging, if your Defense roll reduces an attack to 0 successes, force that attacker to roll same attack against another attacker. Drawback: Only one redirect per turn and cannot redirect against same attacker. (****) Joint Strike: Roll Strength + Brawl instead of Defense; if you exceed attacker successes, inflict 1 bashing per extra success and Arm Wrack or Leg Wrack Tilt. Drawback: Spend 1 Willpower to use. (*****) Like the Breeze: While Dodging, if your Defense roll reduces an opponent attack to 0 successes, inflict Knocked Down Tilt. Drawback: Must declare at start of turn before other attacks.",
         merit_type="style",
         prerequisite="dexterity:3,brawl:2,defensive_combat:brawl:1"
     ),
@@ -1040,7 +1048,7 @@ style_merits = [
         name="Bowmanship",
         min_value=1,
         max_value=5,
-        description="(-) Arcing Fire: Ignore cover bonus from objects shorter than you. (--) Arrow Storm: Aim at two targets within short range with a single roll at -2, inflicting damage on both. (---) Arrowcatch: Catch or deflect a projectile as reflexive action with Dexterity + Athletics, Defense applies. Success reduces damage by one per two successes. (----) Precision Shot: Spend Willpower and aim for two turns to take rote quality on attack roll. (-----) Deadly Precision: Reduce target number for exceptional success on aimed shots by one",
+        description="(*) Arcing Fire: Ignore cover bonus from objects shorter than you. (**) Arrow Storm: Aim at two targets within short range with a single roll at -2, inflicting damage on both. (***) Arrowcatch: Catch or deflect a projectile as reflexive action with Dexterity + Athletics, Defense applies. Success reduces damage by one per two successes. (****) Precision Shot: Spend Willpower and aim for two turns to take rote quality on attack roll. (*****) Deadly Precision: Reduce target number for exceptional success on aimed shots by one",
         merit_type="style",
         prerequisite="composure:3,dexterity:3,athletics:2,archery:2"
     ),
@@ -1048,7 +1056,7 @@ style_merits = [
         name="Chain Weapons",
         min_value=1,
         max_value=5,
-        description="(-) Whip Crack: Take a -1 penalty to inflict the Deafened Tilt with an attack. (--) Disarm: Spend Willpower on a called shot to Disarm, don't take called shot penalties. (---) Grapple: Can initiate grapples at one yard per weapon Size. (----) Watchful Devil: Penalize opponents' Defense or Dodge within weapon reach by dots in this Merit minus one. (-----) Snake Charmer: Can make two attacks per turn, second at -3 penalty",
+        description="(*) Whip Crack: Take a -1 penalty to inflict the Deafened Tilt with an attack. (**) Disarm: Spend Willpower on a called shot to Disarm, don't take called shot penalties. (***) Grapple: Can initiate grapples at one yard per weapon Size. (****) Watchful Devil: Penalize opponents' Defense or Dodge within weapon reach by dots in this Merit minus one. (*****) Snake Charmer: Can make two attacks per turn, second at -3 penalty",
         merit_type="style",
         prerequisite="dexterity:3,weaponry:3"
     ),
@@ -1056,7 +1064,7 @@ style_merits = [
         name="Powered Projectile",
         min_value=1,
         max_value=5,
-        description="Crossbows and other powered projectile weapons. (-) Armor Piercing: Ignore two points of armor. (--) Penetration: Reduce effective Durability of objects by dots in Powered Projectile. (---) Precise Aim: Take +1 to aimed shots instead of +2, but need only aim for one turn for three-turn bonus. (----) Punching Bolt: On all-out attacks, roll weapon damage twice and use higher result. (-----) Full Draw: Spend one Willpower and aim for two turns to inflict devastating attacks with 8-again quality",
+        description="Crossbows and other powered projectile weapons. (*) Armor Piercing: Ignore two points of armor. (**) Penetration: Reduce effective Durability of objects by dots in Powered Projectile. (***) Precise Aim: Take +1 to aimed shots instead of +2, but need only aim for one turn for three-turn bonus. (****) Punching Bolt: On all-out attacks, roll weapon damage twice and use higher result. (*****) Full Draw: Spend one Willpower and aim for two turns to inflict devastating attacks with 8-again quality",
         merit_type="style",
         prerequisite="composure:3,dexterity:3,athletics:2"
     ),
@@ -1064,7 +1072,7 @@ style_merits = [
         name="Spear and Bayonet",
         min_value=1,
         max_value=5,
-        description="(-) Thrust and Defend: Add weapon bonus to Defense when you make an attack with spear. (--) Fending Strike: Knock Down when successes exceed target's Strength. (---) Bayonet Drill: Firearms with fixed bayonets have no penalty for moving while aiming and firing. (----) Hold Them Back: With a readied action, strike anyone moving into reach, using better of Defense or Weaponry. (-----) Skewer: Ignore two points of Durability in armor and cover",
+        description="(*) Thrust and Defend: Add weapon bonus to Defense when you make an attack with spear. (**) Fending Strike: Knock Down when successes exceed target's Strength. (***) Bayonet Drill: Firearms with fixed bayonets have no penalty for moving while aiming and firing. (****) Hold Them Back: With a readied action, strike anyone moving into reach, using better of Defense or Weaponry. (*****) Skewer: Ignore two points of Durability in armor and cover",
         merit_type="style",
         prerequisite="strength:3,athletics:2,weaponry:2"
     ),
@@ -1072,7 +1080,7 @@ style_merits = [
         name="Staff Fighting",
         min_value=1,
         max_value=5,
-        description="(-) Defense Bonus: Add one to Defense when using staff. (--) Thwack!: Attacks inflict a temporary -1 penalty and knocking back opponent one yard per net success. (---) Crack: Spend Willpower to reduce opponent's armor by one per Staff Fighting dot for remainder of scene. (----) Bring To Bear: Attacks with staff gain 9-again quality. (-----) Whirlwind: Spend Willpower to make feint and attack in single turn",
+        description="(*) Defense Bonus: Add one to Defense when using staff. (**) Thwack!: Attacks inflict a temporary -1 penalty and knocking back opponent one yard per net success. (***) Crack: Spend Willpower to reduce opponent's armor by one per Staff Fighting dot for remainder of scene. (****) Bring To Bear: Attacks with staff gain 9-again quality. (*****) Whirlwind: Spend Willpower to make feint and attack in single turn",
         merit_type="style",
         prerequisite="wits:3,athletics:2,weaponry:2"
     ),
@@ -1080,7 +1088,7 @@ style_merits = [
         name="Strength Performance",
         min_value=1,
         max_value=4,
-        description="(-) Strength Tricks: Take +1 to nonviolent feats of strength, +2 when using Expression or Intimidation. (--) Lifting: Receive rote quality on Strength + Stamina feats and combat actions to demolish structures. (---) Push/Pull: Double effective Strength to shift objects across plane, or quintuple with wheels. (----) Stronger Than You: Successful Strength rolls add an additional free success",
+        description="(*) Strength Tricks: Take +1 to nonviolent feats of strength, +2 when using Expression or Intimidation. (**) Lifting: Receive rote quality on Strength + Stamina feats and combat actions to demolish structures. (***) Push/Pull: Double effective Strength to shift objects across plane, or quintuple with wheels. (****) Stronger Than You: Successful Strength rolls add an additional free success",
         merit_type="style",
         prerequisite="strength:3,stamina:2,athletics:2"
     ),
@@ -1088,7 +1096,7 @@ style_merits = [
         name="Systema",
         min_value=1,
         max_value=3,
-        description="(-) Rolling: Ignore penalties to attack from prone, roll Dexterity to mitigate bashing damage from impacts. (--) Balance: Contest attempts to bring you prone with two free successes. (---) Combat Posture: Knock Down when you roll victim's Strength in successes to strike them in melee, or add damage point if already Knocking Down",
+        description="(*) Rolling: Ignore penalties to attack from prone, roll Dexterity to mitigate bashing damage from impacts. (**) Balance: Contest attempts to bring you prone with two free successes. (***) Combat Posture: Knock Down when you roll victim's Strength in successes to strike them in melee, or add damage point if already Knocking Down",
         merit_type="style",
         prerequisite="dexterity:3,wits:2,athletics:3"
     ),
@@ -1096,7 +1104,7 @@ style_merits = [
         name="Thrown Weapons",
         min_value=1,
         max_value=2,
-        description="Throw Size 0-1 edged weapons. (-) Practiced Toss: Add Athletics as Initiative bonus while wielding thrown weapons. (--) Impalement Arts: Sacrifice Defense to inflict Impaled Tilt on called shot",
+        description="Throw Size 0-1 edged weapons. (*) Practiced Toss: Add Athletics as Initiative bonus while wielding thrown weapons. (**) Impalement Arts: Sacrifice Defense to inflict Impaled Tilt on called shot",
         merit_type="style",
         prerequisite="dexterity:3,athletics:2,quick_draw_thrown:1"
     ),
@@ -1104,7 +1112,7 @@ style_merits = [
         name="Two Weapon Fighting",
         min_value=1,
         max_value=4,
-        description="Use complementary weapons up to Size 2, doesn't compensate for offhand penalties. (-) Balanced Grip: Don't sum Initiative penalties if off-hand weapon penalty isn't greater than main hand. (--) Protective Striking: Add off-hand weapon rating (minimum +1) to Defense against first attack in turn. (---) Dual Swipe: All-out attacks with both weapons ignore point of Defense and add off-hand weapon rating (minimum +1). Incompatible with Double Strike. (----) Double Strike: Spend Willpower to strike two targets simultaneously. Apply higher Defense plus one to both attacks",
+        description="Use complementary weapons up to Size 2, doesn't compensate for offhand penalties. (*) Balanced Grip: Don't sum Initiative penalties if off-hand weapon penalty isn't greater than main hand. (**) Protective Striking: Add off-hand weapon rating (minimum +1) to Defense against first attack in turn. (***) Dual Swipe: All-out attacks with both weapons ignore point of Defense and add off-hand weapon rating (minimum +1). Incompatible with Double Strike. (****) Double Strike: Spend Willpower to strike two targets simultaneously. Apply higher Defense plus one to both attacks",
         merit_type="style",
         prerequisite="wits:3,weaponry:3,fighting_finesse:1"
     ),
@@ -1112,7 +1120,7 @@ style_merits = [
         name="Weapon and Shield",
         min_value=1,
         max_value=4,
-        description="Use one-handed weapon from behind carried shield. (-) Shield Bash: Add shield's Size as bonus dice when dodging. Dodge successes in excess inflict bashing damage. (--) Boar's Snout: Can make all-out attacks without sacrificing shield Defense bonus, adding +1 Defense to allies also using this maneuver. (---) Pin Weapon: Disarm assailants on missed melee attacks. (----) Tortoise Shell: Treat shield as protective cover with Durability equal to its Size, +1 for each adjacent shielded ally",
+        description="Use one-handed weapon from behind carried shield. (*) Shield Bash: Add shield's Size as bonus dice when dodging. Dodge successes in excess inflict bashing damage. (**) Boar's Snout: Can make all-out attacks without sacrificing shield Defense bonus, adding +1 Defense to allies also using this maneuver. (***) Pin Weapon: Disarm assailants on missed melee attacks. (****) Tortoise Shell: Treat shield as protective cover with Durability equal to its Size, +1 for each adjacent shielded ally",
         merit_type="style",
         prerequisite="strength:3,stamina:3,weaponry:2"
     )

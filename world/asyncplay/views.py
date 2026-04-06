@@ -2,13 +2,16 @@
 
 import json
 
+from django.conf import settings
+from django.contrib.auth import get_user_model
 from django.contrib.auth.decorators import login_required
 from django.http import HttpResponseBadRequest, JsonResponse
 from django.shortcuts import get_object_or_404, render
+from django.utils import timezone
 from django.views.decorators.http import require_GET, require_http_methods
 from evennia.utils.utils import class_from_module
 
-from .models import AsyncAction
+from .models import AsyncAction, AsyncScene, AsyncScenePost
 from .utils import build_character_sheet_payload
 
 
@@ -28,11 +31,322 @@ def _owned_characters(account):
     ]
 
 
+def _character_by_id(character_id: int):
+    """Load a Character typeclass instance by id."""
+    Character = class_from_module("typeclasses.characters.Character")
+    return get_object_or_404(Character, id=character_id)
+
+
 def _can_access_character(account, character) -> bool:
     """Enforce owner-or-admin access to character async data."""
     if _is_admin(account):
         return True
     return character.account == account
+
+
+def _scene_member_characters(scene, account):
+    """Return participant characters in scene owned by this account."""
+    return [char for char in scene.participants.all() if char.account == account]
+
+
+def _can_view_scene(scene, account) -> bool:
+    """Determine if account can view this scene."""
+    if _is_admin(account) or scene.creator == account:
+        return True
+    if scene.privacy == AsyncScene.PRIVACY_OPEN:
+        return True
+    return bool(_scene_member_characters(scene, account))
+
+
+def _can_post_to_scene(scene, account) -> bool:
+    """Determine if account may add posts to this scene."""
+    if _is_admin(account) or scene.creator == account:
+        return True
+    return bool(_scene_member_characters(scene, account))
+
+
+def _can_manage_scene(scene, account) -> bool:
+    """Only creator/admin can change scene metadata or completion."""
+    return _is_admin(account) or scene.creator == account
+
+
+def _dots(value: int, max_value: int = 5) -> str:
+    """Render UTF-8 dot rating."""
+    safe_value = max(0, min(int(value or 0), max_value))
+    return ("●" * safe_value) + ("○" * (max_value - safe_value))
+
+
+def _format_name(value: str) -> str:
+    """Humanize a stat key."""
+    return str(value).replace("_", " ").title()
+
+
+def _format_merits(merits: dict) -> list[dict]:
+    """Normalize merit data for display."""
+    rows = []
+    for merit_name, merit_value in (merits or {}).items():
+        dots = merit_value.get("dots", 0) if isinstance(merit_value, dict) else 0
+        base_name = merit_name
+        if ":" in merit_name:
+            base_name, instance = merit_name.split(":", 1)
+            label = f"{_format_name(base_name)} ({_format_name(instance)})"
+        else:
+            label = _format_name(base_name)
+        rows.append({"label": label, "dots": _dots(dots)})
+    rows.sort(key=lambda item: item["label"])
+    return rows
+
+
+def _format_powers(powers: dict) -> list[str]:
+    """Format powers for display."""
+    labels = []
+    for power_name in (powers or {}).keys():
+        if ":" in power_name:
+            _, short_name = power_name.split(":", 1)
+            labels.append(_format_name(short_name))
+        else:
+            labels.append(_format_name(power_name))
+    return sorted(labels)
+
+
+def _build_sheet_display(character) -> dict:
+    """Build a CoD-friendly sheet display payload."""
+    stats = getattr(character.db, "stats", {}) or {}
+    attributes = stats.get("attributes", {})
+    skills = stats.get("skills", {})
+    advantages = stats.get("advantages", {})
+    bio = stats.get("bio", {})
+    merits = stats.get("merits", {})
+    powers = stats.get("powers", {})
+
+    section_map = {
+        "mental": ("intelligence", "wits", "resolve"),
+        "physical": ("strength", "dexterity", "stamina"),
+        "social": ("presence", "manipulation", "composure"),
+    }
+
+    attributes_display = {
+        section: [
+            {"label": _format_name(attr), "dots": _dots(attributes.get(attr, 0))}
+            for attr in attrs
+        ]
+        for section, attrs in section_map.items()
+    }
+
+    skill_groups = {
+        "mental": ("academics", "computer", "crafts", "investigation", "medicine", "occult", "politics", "science"),
+        "physical": ("athletics", "brawl", "drive", "firearms", "larceny", "stealth", "survival", "weaponry"),
+        "social": ("animal_ken", "empathy", "expression", "intimidation", "persuasion", "socialize", "streetwise", "subterfuge"),
+    }
+    skills_display = {
+        section: [
+            {"label": _format_name(skill), "dots": _dots(skills.get(skill, 0))}
+            for skill in skill_names
+        ]
+        for section, skill_names in skill_groups.items()
+    }
+
+    advantages_display = [
+        {"label": _format_name(name), "value": value}
+        for name, value in advantages.items()
+    ]
+    advantages_display.sort(key=lambda item: item["label"])
+
+    return {
+        "header": {
+            "name": character.key,
+            "template": stats.get("other", {}).get("template", "Mortal"),
+            "concept": bio.get("concept", ""),
+            "seeming": bio.get("seeming", ""),
+            "kith": bio.get("kith", ""),
+        },
+        "bio": bio,
+        "attributes": attributes_display,
+        "skills": skills_display,
+        "advantages": advantages_display,
+        "merits": _format_merits(merits),
+        "powers": _format_powers(powers),
+    }
+
+
+def _parse_json_body(request):
+    """Parse JSON body or return None."""
+    try:
+        return json.loads(request.body.decode("utf-8"))
+    except (ValueError, UnicodeDecodeError):
+        return None
+
+
+def _parse_int_list(value):
+    """Parse list of ints from list or comma-separated string."""
+    if not value:
+        return []
+    if isinstance(value, list):
+        candidates = value
+    else:
+        candidates = [chunk.strip() for chunk in str(value).split(",")]
+    output = []
+    for item in candidates:
+        try:
+            output.append(int(item))
+        except (TypeError, ValueError):
+            continue
+    return output
+
+
+def _scene_wiki_url(scene) -> str:
+    """Build external wiki URL for a published scene log."""
+    if not scene.wiki_log_slug:
+        return ""
+    base_url = getattr(settings, "ASYNC_WIKI_LOG_BASE_URL", "").strip()
+    if not base_url:
+        return ""
+    return f"{base_url.rstrip('/')}/{scene.wiki_log_slug}"
+
+
+def _serialize_scene(scene, include_posts: bool = False, account=None):
+    """Serialize scene for API output."""
+    payload = {
+        "id": scene.id,
+        "title": scene.title,
+        "privacy": scene.privacy,
+        "scene_type": scene.scene_type,
+        "pacing": scene.pacing,
+        "is_completed": scene.is_completed,
+        "is_public_log": scene.is_public_log,
+        "wiki_log_slug": scene.wiki_log_slug,
+        "wiki_log_url": _scene_wiki_url(scene),
+        "location": scene.location,
+        "ic_date": str(scene.ic_date),
+        "plot": scene.plot,
+        "tags": scene.tags,
+        "notes": scene.notes,
+        "summary": scene.summary,
+        "creator": scene.creator.username,
+        "participants": [
+            {"id": char.id, "name": char.key, "owner": char.account.username if char.account else None}
+            for char in scene.participants.all()
+        ],
+        "related_scene_ids": list(scene.related_scenes.values_list("id", flat=True)),
+        "created_at": scene.created_at.isoformat(),
+        "updated_at": scene.updated_at.isoformat(),
+        "last_activity_at": scene.last_activity_at.isoformat(),
+    }
+    if account is not None:
+        payload["can_manage"] = _can_manage_scene(scene, account)
+        payload["can_post"] = _can_post_to_scene(scene, account)
+    if include_posts:
+        payload["posts"] = [
+            {
+                "id": post.id,
+                "post_type": post.post_type,
+                "content": post.content,
+                "account": post.account.username,
+                "character_name": post.character.db_key if post.character else None,
+                "created_at": post.created_at.isoformat(),
+            }
+            for post in scene.posts.select_related("account", "character").all()
+        ]
+    return payload
+
+
+def _format_room_label(room) -> str:
+    """Format room location as `Room Name -- Hierarchy1 -- Hierarchy2`."""
+    hierarchy = getattr(room.db, "location_hierarchy", []) or []
+    if isinstance(hierarchy, str):
+        hierarchy = [hierarchy]
+    clean = [str(item).strip() for item in hierarchy if str(item).strip()]
+    if len(clean) < 2:
+        clean += ["Unknown"] * (2 - len(clean))
+    parts = [room.key] + clean[:2]
+    return " -- ".join(parts)
+
+
+def _available_room_locations():
+    """Return all rooms with hierarchy labels for scene creation."""
+    Room = class_from_module("typeclasses.rooms.Room")
+    rooms = Room.objects.all().order_by("db_key")
+    return [{"id": room.id, "label": _format_room_label(room), "name": room.key} for room in rooms]
+
+
+def _publish_scene_log_to_wiki(scene) -> tuple[bool, str]:
+    """
+    Publish scene log to internal wiki and return status/message.
+
+    Uses `ASYNC_WIKI_LOG_USERNAME` to attribute edits to a dedicated service user.
+    """
+    try:
+        from world.wiki.models import WikiCategory, WikiPage
+    except Exception as err:  # pragma: no cover - defensive for deploy mismatch
+        return False, f"Wiki app unavailable: {err}"
+
+    UserModel = get_user_model()
+    service_username = getattr(settings, "ASYNC_WIKI_LOG_USERNAME", "").strip()
+    category_slug = getattr(settings, "ASYNC_WIKI_LOG_CATEGORY_SLUG", "").strip()
+
+    author = scene.creator
+    if service_username:
+        author = UserModel.objects.filter(username=service_username).first() or scene.creator
+
+    category = None
+    if category_slug:
+        category = WikiCategory.objects.filter(slug=category_slug).first()
+
+    participant_names = ", ".join(sorted({char.key for char in scene.participants.all()}))
+    header = [
+        f"# Scene {scene.id}: {scene.title}",
+        "",
+        f"- **IC Date:** {scene.ic_date}",
+        f"- **Location:** {scene.location or 'Unknown'}",
+        f"- **Type:** {scene.scene_type}",
+        f"- **Pacing:** {scene.pacing}",
+        f"- **Participants:** {participant_names or 'Unknown'}",
+    ]
+    if scene.plot:
+        header.append(f"- **Plot:** {scene.plot}")
+    if scene.tags:
+        header.append(f"- **Tags:** {scene.tags}")
+    if scene.summary:
+        header.extend(["", "## Summary", scene.summary])
+
+    body_lines = ["", "## Scene Log"]
+    for post in scene.posts.select_related("account", "character").all():
+        speaker = post.character.db_key if post.character else post.account.username
+        body_lines.extend(
+            [
+                "",
+                f"### {speaker} [{post.post_type}]",
+                post.content,
+            ]
+        )
+
+    title = f"Scene Log {scene.id}: {scene.title}"
+    content = "\n".join(header + body_lines)
+
+    page = WikiPage.objects.create(
+        title=title,
+        content=content,
+        summary=f"Async scene log generated from scene #{scene.id}.",
+        category=category,
+        tags=f"scene-log,{scene.tags}".strip(","),
+        published=True,
+        staff_only=False,
+        featured=False,
+        created_by=author,
+        updated_by=author,
+    )
+    scene.wiki_log_slug = page.slug
+    scene.is_public_log = True
+    scene.save(update_fields=["wiki_log_slug", "is_public_log", "updated_at"])
+    return True, page.slug
+
+
+def _validate_choice(value: str, choices: tuple[tuple[str, str], ...], field_name: str):
+    """Validate a choice value and raise JSON error payload."""
+    valid = {choice[0] for choice in choices}
+    if value not in valid:
+        return JsonResponse({"error": f"Invalid {field_name}."}, status=400)
+    return None
 
 
 @login_required
@@ -69,7 +383,9 @@ def api_character_sheet(request, character_id: int):
     if not _can_access_character(request.user, character):
         return JsonResponse({"error": "You do not have access to this character."}, status=403)
 
-    return JsonResponse(build_character_sheet_payload(character))
+    payload = build_character_sheet_payload(character)
+    payload["sheet_display"] = _build_sheet_display(character)
+    return JsonResponse(payload)
 
 
 @login_required
@@ -98,9 +414,8 @@ def api_my_actions(request):
 @require_http_methods(["POST"])
 def api_submit_action(request):
     """Submit a new async action from the web portal."""
-    try:
-        body = json.loads(request.body.decode("utf-8"))
-    except (ValueError, UnicodeDecodeError):
+    body = _parse_json_body(request)
+    if body is None:
         return HttpResponseBadRequest("Invalid JSON body.")
 
     character_id = body.get("character_id")
@@ -133,6 +448,302 @@ def api_submit_action(request):
             "action": {
                 "id": action.id,
                 "status": action.status,
+            },
+        },
+        status=201,
+    )
+
+
+@login_required
+@require_GET
+def api_scene_list(request):
+    """List scenes split by public ongoing/completed and personal access."""
+    scenes = AsyncScene.objects.prefetch_related("participants").all()
+    visible = [scene for scene in scenes if _can_view_scene(scene, request.user)]
+
+    public_ongoing = [
+        _serialize_scene(scene, account=request.user)
+        for scene in visible
+        if scene.privacy == AsyncScene.PRIVACY_OPEN and not scene.is_completed
+    ]
+    public_completed = [
+        _serialize_scene(scene, account=request.user)
+        for scene in visible
+        if scene.privacy == AsyncScene.PRIVACY_OPEN and scene.is_completed and scene.is_public_log
+    ]
+    my_scenes = [
+        _serialize_scene(scene, account=request.user)
+        for scene in visible
+        if scene.creator == request.user or _scene_member_characters(scene, request.user)
+    ]
+
+    return JsonResponse(
+        {
+            "public_ongoing": public_ongoing,
+            "public_completed": public_completed,
+            "my_scenes": my_scenes,
+        }
+    )
+
+
+@login_required
+@require_GET
+def api_scene_detail(request, scene_id: int):
+    """Get a single scene with posts."""
+    scene = get_object_or_404(
+        AsyncScene.objects.prefetch_related("participants", "posts__account", "posts__character"),
+        id=scene_id,
+    )
+    if not _can_view_scene(scene, request.user):
+        return JsonResponse({"error": "You do not have access to this scene."}, status=403)
+    return JsonResponse({"scene": _serialize_scene(scene, include_posts=True, account=request.user)})
+
+
+@login_required
+@require_http_methods(["POST"])
+def api_scene_create(request):
+    """Create a new async scene."""
+    body = _parse_json_body(request)
+    if body is None:
+        return HttpResponseBadRequest("Invalid JSON body.")
+
+    title = (body.get("title") or "").strip()
+    if not title:
+        return JsonResponse({"error": "title is required."}, status=400)
+
+    character_id = body.get("character_id")
+    if not character_id:
+        return JsonResponse({"error": "character_id is required."}, status=400)
+
+    character = _character_by_id(int(character_id))
+    if not _can_access_character(request.user, character):
+        return JsonResponse({"error": "You do not own this character."}, status=403)
+
+    ic_date_raw = (body.get("ic_date") or "").strip()
+    ic_date = timezone.localdate()
+    if ic_date_raw:
+        try:
+            ic_date = timezone.datetime.fromisoformat(ic_date_raw).date()
+        except ValueError:
+            return JsonResponse({"error": "ic_date must be YYYY-MM-DD."}, status=400)
+
+    scene_type = (body.get("scene_type") or AsyncScene.TYPE_SOCIAL).strip()
+    pacing = (body.get("pacing") or AsyncScene.PACING_TRADITIONAL).strip()
+    privacy = (body.get("privacy") or AsyncScene.PRIVACY_PRIVATE).strip()
+
+    choice_error = _validate_choice(scene_type, AsyncScene.TYPE_CHOICES, "scene_type")
+    if choice_error:
+        return choice_error
+    choice_error = _validate_choice(pacing, AsyncScene.PACING_CHOICES, "pacing")
+    if choice_error:
+        return choice_error
+    choice_error = _validate_choice(privacy, AsyncScene.PRIVACY_CHOICES, "privacy")
+    if choice_error:
+        return choice_error
+
+    location = (body.get("location") or "").strip()
+    room_id = body.get("room_id")
+    if room_id:
+        try:
+            selected_room_id = int(room_id)
+        except (TypeError, ValueError):
+            selected_room_id = 0
+        room_options = {opt["id"]: opt["label"] for opt in _available_room_locations()}
+        location = room_options.get(selected_room_id, location)
+
+    scene = AsyncScene.objects.create(
+        creator=request.user,
+        title=title,
+        notes=(body.get("notes") or "").strip(),
+        location=location,
+        ic_date=ic_date,
+        scene_type=scene_type,
+        pacing=pacing,
+        privacy=privacy,
+        is_completed=bool(body.get("is_completed", False)),
+        plot=(body.get("plot") or "").strip(),
+        tags=(body.get("tags") or "").strip(),
+        summary=(body.get("summary") or "").strip(),
+    )
+    scene.participants.add(character)
+
+    related_ids = _parse_int_list(body.get("related_scene_ids"))
+    if related_ids:
+        scene.related_scenes.add(*AsyncScene.objects.filter(id__in=related_ids))
+
+    scene.last_activity_at = timezone.now()
+    scene.save(update_fields=["last_activity_at", "updated_at"])
+
+    return JsonResponse({"ok": True, "scene": _serialize_scene(scene, account=request.user)}, status=201)
+
+
+@login_required
+@require_GET
+def api_scene_locations(request):
+    """List all room locations in hierarchy format."""
+    return JsonResponse({"locations": _available_room_locations()})
+
+
+@login_required
+@require_http_methods(["POST"])
+def api_scene_join(request, scene_id: int):
+    """Join scene as one of your characters."""
+    body = _parse_json_body(request)
+    if body is None:
+        return HttpResponseBadRequest("Invalid JSON body.")
+
+    scene = get_object_or_404(AsyncScene, id=scene_id)
+    if not _can_view_scene(scene, request.user):
+        return JsonResponse({"error": "You do not have access to this scene."}, status=403)
+
+    character_id = body.get("character_id")
+    if not character_id:
+        return JsonResponse({"error": "character_id is required."}, status=400)
+    character = _character_by_id(int(character_id))
+    if not _can_access_character(request.user, character):
+        return JsonResponse({"error": "You do not own this character."}, status=403)
+
+    scene.participants.add(character)
+    scene.last_activity_at = timezone.now()
+    scene.save(update_fields=["last_activity_at", "updated_at"])
+    return JsonResponse({"ok": True})
+
+
+@login_required
+@require_http_methods(["POST"])
+def api_scene_update(request, scene_id: int):
+    """Update scene metadata (creator/admin)."""
+    body = _parse_json_body(request)
+    if body is None:
+        return HttpResponseBadRequest("Invalid JSON body.")
+
+    scene = get_object_or_404(AsyncScene, id=scene_id)
+    if not _can_manage_scene(scene, request.user):
+        return JsonResponse({"error": "You do not have permission to edit this scene."}, status=403)
+
+    if "title" in body:
+        scene.title = (body.get("title") or "").strip() or scene.title
+    if "notes" in body:
+        scene.notes = (body.get("notes") or "").strip()
+    if "location" in body:
+        scene.location = (body.get("location") or "").strip()
+    if "plot" in body:
+        scene.plot = (body.get("plot") or "").strip()
+    if "tags" in body:
+        scene.tags = (body.get("tags") or "").strip()
+    if "summary" in body:
+        scene.summary = (body.get("summary") or "").strip()
+    if "privacy" in body:
+        privacy = (body.get("privacy") or "").strip()
+        choice_error = _validate_choice(privacy, AsyncScene.PRIVACY_CHOICES, "privacy")
+        if choice_error:
+            return choice_error
+        scene.privacy = privacy
+    if "scene_type" in body:
+        scene_type = (body.get("scene_type") or "").strip()
+        choice_error = _validate_choice(scene_type, AsyncScene.TYPE_CHOICES, "scene_type")
+        if choice_error:
+            return choice_error
+        scene.scene_type = scene_type
+    if "pacing" in body:
+        pacing = (body.get("pacing") or "").strip()
+        choice_error = _validate_choice(pacing, AsyncScene.PACING_CHOICES, "pacing")
+        if choice_error:
+            return choice_error
+        scene.pacing = pacing
+
+    ic_date_raw = (body.get("ic_date") or "").strip()
+    if ic_date_raw:
+        try:
+            scene.ic_date = timezone.datetime.fromisoformat(ic_date_raw).date()
+        except ValueError:
+            return JsonResponse({"error": "ic_date must be YYYY-MM-DD."}, status=400)
+
+    scene.last_activity_at = timezone.now()
+    scene.save()
+    return JsonResponse({"ok": True, "scene": _serialize_scene(scene, account=request.user)})
+
+
+@login_required
+@require_http_methods(["POST"])
+def api_scene_complete(request, scene_id: int):
+    """Stop/complete scene and optionally publish a public wiki log."""
+    body = _parse_json_body(request)
+    if body is None:
+        return HttpResponseBadRequest("Invalid JSON body.")
+
+    scene = get_object_or_404(AsyncScene, id=scene_id)
+    if not _can_manage_scene(scene, request.user):
+        return JsonResponse({"error": "You do not have permission to complete this scene."}, status=403)
+
+    scene.is_completed = True
+    if "summary" in body:
+        scene.summary = (body.get("summary") or "").strip()
+    scene.last_activity_at = timezone.now()
+    scene.save(update_fields=["is_completed", "summary", "last_activity_at", "updated_at"])
+
+    publish_log = bool(body.get("publish_public_log", False))
+    if publish_log:
+        scene.privacy = AsyncScene.PRIVACY_OPEN
+        scene.save(update_fields=["privacy", "updated_at"])
+        ok, message = _publish_scene_log_to_wiki(scene)
+        if not ok:
+            return JsonResponse(
+                {
+                    "ok": False,
+                    "error": f"Scene completed but wiki log publishing failed: {message}",
+                    "scene": _serialize_scene(scene, account=request.user),
+                },
+                status=500,
+            )
+
+    return JsonResponse({"ok": True, "scene": _serialize_scene(scene, account=request.user)})
+
+
+@login_required
+@require_http_methods(["POST"])
+def api_scene_post(request, scene_id: int):
+    """Add a new post to a scene."""
+    body = _parse_json_body(request)
+    if body is None:
+        return HttpResponseBadRequest("Invalid JSON body.")
+
+    scene = get_object_or_404(AsyncScene, id=scene_id)
+    if not _can_post_to_scene(scene, request.user):
+        return JsonResponse({"error": "You do not have posting access to this scene."}, status=403)
+
+    content = (body.get("content") or "").strip()
+    if not content:
+        return JsonResponse({"error": "content is required."}, status=400)
+
+    character = None
+    character_id = body.get("character_id")
+    if character_id:
+        character = _character_by_id(int(character_id))
+        if not _can_access_character(request.user, character):
+            return JsonResponse({"error": "You do not own this character."}, status=403)
+        scene.participants.add(character)
+
+    post_type = (body.get("post_type") or AsyncScenePost.TYPE_POSE).strip()
+    valid_post_types = {choice[0] for choice in AsyncScenePost.TYPE_CHOICES}
+    if post_type not in valid_post_types:
+        return JsonResponse({"error": "Invalid post_type."}, status=400)
+
+    post = AsyncScenePost.objects.create(
+        scene=scene,
+        account=request.user,
+        character=character,
+        post_type=post_type,
+        content=content,
+    )
+    scene.last_activity_at = timezone.now()
+    scene.save(update_fields=["last_activity_at", "updated_at"])
+    return JsonResponse(
+        {
+            "ok": True,
+            "post": {
+                "id": post.id,
+                "created_at": post.created_at.isoformat(),
             },
         },
         status=201,

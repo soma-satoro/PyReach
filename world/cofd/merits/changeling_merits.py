@@ -94,7 +94,7 @@ changeling_merits = [
         name="Elemental Warrior",
         min_value=1,
         max_value=5,
-        description="Choose one physical element. (-) Wind Cuts to the Bone: Exceptional success on elemental attack on threshold of three instead of five. (--) Defensive Flurry: Dodging adds half Wyrd (rounded down) as bonus dice and can apply against Firearms. (---) Hungry Leaping Flames: Spend Glamour to make elemental attack, increasing range by ten yards and potentially wreaking environmental effects. (----) Antaean Endurance: While immersed in or fortified on element, add half Wyrd as temporary Health and bonus dice to resist fatigue, poison, unconsciousness. (-----) Wrath of Titans: Spend Glamour to inflict Blinded, Deafened, or Knocked Down Tilts with strikes for the scene",
+        description="Choose one physical element. (*) Wind Cuts to the Bone: Exceptional success on elemental attack on threshold of three instead of five. (**) Defensive Flurry: Dodging adds half Wyrd (rounded down) as bonus dice and can apply against Firearms. (***) Hungry Leaping Flames: Spend Glamour to make elemental attack, increasing range by ten yards and potentially wreaking environmental effects. (****) Antaean Endurance: While immersed in or fortified on element, add half Wyrd as temporary Health and bonus dice to resist fatigue, poison, unconsciousness. (*****) Wrath of Titans: Spend Glamour to inflict Blinded, Deafened, or Knocked Down Tilts with strikes for the scene",
         merit_type="style",
         prerequisite="[dexterity:3,wits:3],[brawl:2,firearms:2,weaponry:2],elemental_weapon_or_primal_glory_or_elemental_seeming"
     ),
@@ -102,7 +102,7 @@ changeling_merits = [
         name="Enchanting Performance",
         min_value=1,
         max_value=3,
-        description="(-) Limerick: Hurl an insult and roll Presence + Expression - Composure to penalize a target's Social rolls on others by your successes for the scene. (--) Poem: When you open a Door by an expressive performance, spend Glamour to open another. (---) Sonnet: Spend Glamour to deliver a performance with an Expression roll, taking the rote quality. Success renders an audience member Inspired",
+        description="(*) Limerick: Hurl an insult and roll Presence + Expression - Composure to penalize a target's Social rolls on others by your successes for the scene. (**) Poem: When you open a Door by an expressive performance, spend Glamour to open another. (***) Sonnet: Spend Glamour to deliver a performance with an Expression roll, taking the rote quality. Success renders an audience member Inspired",
         merit_type="style",
         prerequisite="presence:3,expression:3"
     ),
@@ -206,7 +206,7 @@ changeling_merits = [
         name="Hedge Duelist",
         min_value=1,
         max_value=3,
-        description="These maneuvers work in the Hedge. (-) Thousand Falling Leaves: Half your normal damage on an attack to inflict -1 Defense on the target. (--) Emerald Shield: Receive 2/0 magical Armor. (---) Bite Like Thorns: Add a foe's wound penalties as bonus attack dice",
+        description="These maneuvers work in the Hedge. (*) Thousand Falling Leaves: Half your normal damage on an attack to inflict -1 Defense on the target. (**) Emerald Shield: Receive 2/0 magical Armor. (***) Bite Like Thorns: Add a foe's wound penalties as bonus attack dice",
         merit_type="style",
         prerequisite="[presence:2,manipulation:2],[brawl:2,weaponry:2],social_skill:2"
     ),

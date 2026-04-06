@@ -5,34 +5,87 @@
 {% block content %}
 <div class="section-header">
     <h1 class="section-title"><i class="fas fa-hourglass-half"></i> Async Play</h1>
-    <p class="section-subtitle">Submit downtime actions and view your sheet data from any browser.</p>
+    <p class="section-subtitle">Public scenes and logs, plus command-style posting for play-by-post.</p>
 </div>
 
 <div class="character-card" style="margin-bottom: 1.5rem;">
-    <h3 style="margin-top: 0;">Submit Action</h3>
-    <div style="display: grid; gap: 0.75rem;">
-        <label for="character-select">Character</label>
-        <select id="character-select" class="form-control"></select>
+    <h3 style="margin-top: 0;">Character Sheet</h3>
+    <label for="character-select">Character</label>
+    <select id="character-select" class="form-control"></select>
+    <div id="sheet-view" style="margin-top: 1rem;"><p>Select a character.</p></div>
+</div>
 
-        <label for="action-title">Title</label>
-        <input id="action-title" class="form-control" maxlength="120" placeholder="Short summary" />
-
-        <label for="action-content">Action Details</label>
-        <textarea id="action-content" class="form-control" rows="6" placeholder="Describe your action and intent."></textarea>
-
-        <button id="submit-action" class="btn btn-primary">
-            <i class="fas fa-paper-plane"></i> Submit Async Action
-        </button>
+<div class="character-card" style="margin-bottom: 1.5rem;">
+    <h3 style="margin-top: 0;">Create New Scene</h3>
+    <div style="display:grid;gap:0.75rem;">
+        <label for="scene-character">As Character</label>
+        <select id="scene-character" class="form-control"></select>
+        <label for="scene-title">Title</label>
+        <input id="scene-title" class="form-control" maxlength="140" />
+        <label for="scene-location-id">Location</label>
+        <select id="scene-location-id" class="form-control"></select>
+        <label for="scene-ic-date">IC Date</label>
+        <input id="scene-ic-date" class="form-control" type="date" />
+        <label for="scene-privacy">Privacy</label>
+        <select id="scene-privacy" class="form-control">
+            <option value="private">Private</option>
+            <option value="open">Public</option>
+        </select>
+        <label for="scene-type">Scene Type</label>
+        <select id="scene-type" class="form-control">
+            <option value="social">Social</option>
+            <option value="event">Event</option>
+            <option value="vignette">Vignette</option>
+        </select>
+        <label for="scene-pacing">Scene Pacing</label>
+        <select id="scene-pacing" class="form-control">
+            <option value="traditional">Traditional</option>
+            <option value="distracted">Distracted</option>
+            <option value="asynchronous">Asynchronous</option>
+        </select>
+        <label for="scene-notes">Notes</label>
+        <textarea id="scene-notes" class="form-control" rows="2"></textarea>
+        <label for="scene-plot">Plot</label>
+        <input id="scene-plot" class="form-control" maxlength="140" />
+        <label for="scene-tags">Tags</label>
+        <input id="scene-tags" class="form-control" maxlength="240" />
+        <label for="scene-summary">Summary / Scene Set</label>
+        <textarea id="scene-summary" class="form-control" rows="3"></textarea>
+        <button id="create-scene" class="btn btn-primary">Create Scene</button>
     </div>
 </div>
 
 <div class="character-card" style="margin-bottom: 1.5rem;">
-    <h3 style="margin-top: 0;">Character Sheet Hook (JSON)</h3>
-    <pre id="sheet-json" style="white-space: pre-wrap; overflow-x: auto; max-height: 24rem;"></pre>
+    <h3 style="margin-top: 0;">Public Ongoing Scenes</h3>
+    <div id="scene-list-public-ongoing"></div>
+</div>
+
+<div class="character-card" style="margin-bottom: 1.5rem;">
+    <h3 style="margin-top: 0;">Public Scene Logs</h3>
+    <div id="scene-list-public-completed"></div>
+</div>
+
+<div class="character-card" style="margin-bottom: 1.5rem;">
+    <h3 style="margin-top: 0;">Your Scenes</h3>
+    <div id="scene-list-mine"></div>
+</div>
+
+<div class="character-card" style="margin-bottom: 1.5rem;">
+    <h3 style="margin-top: 0;">Scene Detail</h3>
+    <div id="scene-detail">Select a scene.</div>
+</div>
+
+<div class="character-card" style="margin-bottom: 1.5rem;">
+    <h3 style="margin-top: 0;">Submit Async Action</h3>
+    <label for="action-title">Title</label>
+    <input id="action-title" class="form-control" maxlength="120" />
+    <label for="action-content" style="margin-top:0.4rem;">Details</label>
+    <textarea id="action-content" class="form-control" rows="4"></textarea>
+    <button id="submit-action" class="btn btn-primary" style="margin-top:0.5rem;">Submit Action</button>
 </div>
 
 <div class="character-card">
-    <h3 style="margin-top: 0;">Submitted Actions</h3>
+    <h3 style="margin-top: 0;">Submitted Async Actions</h3>
     <div id="actions-list"></div>
 </div>
 {% endblock %}
@@ -43,6 +96,17 @@ const API_MY_CHARACTERS = "{% url 'asyncplay:api_my_characters' %}";
 const API_CHARACTER_SHEET_TEMPLATE = "{% url 'asyncplay:api_character_sheet' character_id=0 %}";
 const API_MY_ACTIONS = "{% url 'asyncplay:api_my_actions' %}";
 const API_SUBMIT_ACTION = "{% url 'asyncplay:api_submit_action' %}";
+const API_SCENES = "{% url 'asyncplay:api_scene_list' %}";
+const API_SCENE_LOCATIONS = "{% url 'asyncplay:api_scene_locations' %}";
+const API_CREATE_SCENE = "{% url 'asyncplay:api_scene_create' %}";
+const API_SCENE_DETAIL_TEMPLATE = "{% url 'asyncplay:api_scene_detail' scene_id=0 %}";
+const API_SCENE_JOIN_TEMPLATE = "{% url 'asyncplay:api_scene_join' scene_id=0 %}";
+const API_SCENE_UPDATE_TEMPLATE = "{% url 'asyncplay:api_scene_update' scene_id=0 %}";
+const API_SCENE_COMPLETE_TEMPLATE = "{% url 'asyncplay:api_scene_complete' scene_id=0 %}";
+const API_SCENE_POST_TEMPLATE = "{% url 'asyncplay:api_scene_post' scene_id=0 %}";
+
+let activeSceneId = null;
+let cachedCharacters = [];
 
 function getCookie(name) {
     const value = `; ${document.cookie}`;
@@ -54,10 +118,42 @@ function getCookie(name) {
 async function fetchJson(url, options = {}) {
     const response = await fetch(url, options);
     const data = await response.json();
-    if (!response.ok) {
-        throw new Error(data.error || "Request failed");
-    }
+    if (!response.ok) throw new Error(data.error || "Request failed");
     return data;
+}
+
+function renderDottedRows(rows) {
+    return rows.map((row) => `
+        <div style="display:flex;justify-content:space-between;border-bottom:1px solid var(--color-border);padding:0.2rem 0;">
+            <span>${row.label}</span><span style="font-family:monospace;">${row.dots}</span>
+        </div>`).join("");
+}
+
+function renderSheetView(payload) {
+    const container = document.getElementById("sheet-view");
+    const sheet = payload.sheet_display;
+    if (!sheet) {
+        container.innerHTML = "<p>No sheet data available.</p>";
+        return;
+    }
+    container.innerHTML = `
+        <h4>${sheet.header.name} (${sheet.header.template})</h4>
+        <div><strong>Concept:</strong> ${sheet.header.concept || "-"}</div>
+        <div class="grid grid-3" style="gap:1rem;margin-top:0.75rem;">
+            <div><h5>Mental</h5>${renderDottedRows(sheet.attributes.mental || [])}</div>
+            <div><h5>Physical</h5>${renderDottedRows(sheet.attributes.physical || [])}</div>
+            <div><h5>Social</h5>${renderDottedRows(sheet.attributes.social || [])}</div>
+        </div>
+        <div class="grid grid-3" style="gap:1rem;margin-top:0.75rem;">
+            <div><h5>Mental Skills</h5>${renderDottedRows(sheet.skills.mental || [])}</div>
+            <div><h5>Physical Skills</h5>${renderDottedRows(sheet.skills.physical || [])}</div>
+            <div><h5>Social Skills</h5>${renderDottedRows(sheet.skills.social || [])}</div>
+        </div>
+    `;
+}
+
+function sceneUrl(templateUrl, sceneId, suffix) {
+    return templateUrl.replace(`/0/${suffix}/`, `/${sceneId}/${suffix}/`).replace("/0/", `/${sceneId}/`);
 }
 
 function renderActions(actions) {
@@ -67,80 +163,244 @@ function renderActions(actions) {
         return;
     }
     container.innerHTML = actions.map((action) => `
-        <div style="padding: 0.75rem 0; border-bottom: 1px solid var(--color-border);">
-            <strong>${action.title}</strong> - ${action.character_name}
-            <div><small>Status: ${action.status}</small></div>
-            <div style="margin-top: 0.35rem;">${action.content}</div>
-            ${action.staff_response ? `<div style="margin-top: 0.35rem;"><em>Staff: ${action.staff_response}</em></div>` : ""}
+        <div style="padding:0.6rem 0;border-bottom:1px solid var(--color-border);">
+            <strong>${action.title}</strong> - ${action.character_name} <small>[${action.status}]</small>
+        </div>`).join("");
+}
+
+function renderSceneCollection(containerId, scenes, emptyText) {
+    const container = document.getElementById(containerId);
+    if (!scenes.length) {
+        container.innerHTML = `<p>${emptyText}</p>`;
+        return;
+    }
+    container.innerHTML = scenes.map((scene) => `
+        <div style="padding:0.65rem 0;border-bottom:1px solid var(--color-border);">
+            <strong>${scene.title}</strong>
+            <div><small>${scene.scene_type} / ${scene.pacing} / ${scene.privacy} | ${scene.ic_date}</small></div>
+            <div><small>${scene.location || "-"}</small></div>
+            ${scene.wiki_log_url ? `<div><small><a href="${scene.wiki_log_url}" target="_blank">Open Wiki Log</a></small></div>` : ""}
+            <button class="btn btn-sm btn-secondary scene-open" data-scene-id="${scene.id}" style="margin-top:0.5rem;">Open</button>
+        </div>`).join("");
+    container.querySelectorAll(".scene-open").forEach((button) => {
+        button.addEventListener("click", async () => {
+            activeSceneId = parseInt(button.dataset.sceneId, 10);
+            await loadSceneDetail(activeSceneId);
+        });
+    });
+}
+
+function renderSceneDetail(scene) {
+    const container = document.getElementById("scene-detail");
+    const characterOptions = cachedCharacters.map((charData) =>
+        `<option value="${charData.id}">${charData.name} (${charData.template})</option>`).join("");
+    const posts = (scene.posts || []).map((post) => `
+        <div style="padding:0.5rem 0;border-bottom:1px solid var(--color-border);">
+            <div><strong>${post.character_name || post.account}</strong> <small>[${post.post_type}]</small></div>
+            <div>${post.content}</div>
+        </div>`).join("");
+
+    container.innerHTML = `
+        <h4>${scene.title}</h4>
+        <div><small>${scene.scene_type} / ${scene.pacing} / ${scene.privacy}</small></div>
+        <div><strong>Location:</strong> ${scene.location || "-"}</div>
+        ${scene.wiki_log_url ? `<div><strong>Wiki Log:</strong> <a href="${scene.wiki_log_url}" target="_blank">${scene.wiki_log_url}</a></div>` : ""}
+        <div style="margin-top:0.8rem;">
+            <h5>Commands</h5>
+            <select id="scene-post-type" class="form-control">
+                <option value="pose">Pose</option>
+                <option value="ooc">OOC</option>
+                <option value="gm_emit">GM Emit</option>
+                <option value="scene_set">Scene Set</option>
+            </select>
+            <select id="scene-post-character" class="form-control" style="margin-top:0.4rem;">${characterOptions}</select>
+            <textarea id="scene-post-content" class="form-control" rows="3" style="margin-top:0.4rem;"></textarea>
+            <div style="display:flex;gap:0.5rem;margin-top:0.5rem;">
+                <button id="scene-join" class="btn btn-sm btn-secondary">Join</button>
+                <button id="scene-post-submit" class="btn btn-sm btn-primary">Post</button>
+            </div>
         </div>
-    `).join("");
+        ${scene.can_manage ? `
+            <div style="margin-top:0.8rem;">
+                <h5>Manage</h5>
+                <input id="scene-edit-title" class="form-control" value="${scene.title || ""}" />
+                <input id="scene-edit-location" class="form-control" value="${scene.location || ""}" style="margin-top:0.4rem;" />
+                <textarea id="scene-edit-summary" class="form-control" rows="2" style="margin-top:0.4rem;">${scene.summary || ""}</textarea>
+                <label style="display:flex;gap:0.4rem;align-items:center;margin-top:0.4rem;"><input type="checkbox" id="scene-publish-log"> Post public log to wiki</label>
+                <div style="display:flex;gap:0.5rem;margin-top:0.5rem;">
+                    <button id="scene-save-edit" class="btn btn-sm btn-secondary">Edit Scene</button>
+                    <button id="scene-stop" class="btn btn-sm btn-secondary">Stop Scene</button>
+                </div>
+            </div>
+        ` : ""}
+        <div style="margin-top:0.8rem;"><h5>Posts</h5>${posts || "<p>No posts yet.</p>"}</div>
+    `;
 }
 
 async function loadCharacters() {
     const payload = await fetchJson(API_MY_CHARACTERS);
     const select = document.getElementById("character-select");
+    const sceneSelect = document.getElementById("scene-character");
+    cachedCharacters = payload.characters || [];
     select.innerHTML = "";
-
-    payload.characters.forEach((charData) => {
+    sceneSelect.innerHTML = "";
+    cachedCharacters.forEach((charData) => {
         const option = document.createElement("option");
         option.value = charData.id;
         option.textContent = `${charData.name} (${charData.template})`;
         select.appendChild(option);
+        sceneSelect.appendChild(option.cloneNode(true));
     });
+    if (cachedCharacters.length) await loadSheet(select.value);
+}
 
-    if (!payload.characters.length) {
-        select.innerHTML = "<option value=''>No approved characters available</option>";
-        document.getElementById("sheet-json").textContent = "No approved characters found.";
-        return;
-    }
-
-    await loadSheet(select.value);
+async function loadLocations() {
+    const payload = await fetchJson(API_SCENE_LOCATIONS);
+    const select = document.getElementById("scene-location-id");
+    select.innerHTML = "";
+    (payload.locations || []).forEach((location) => {
+        const option = document.createElement("option");
+        option.value = location.id;
+        option.textContent = location.label;
+        select.appendChild(option);
+    });
 }
 
 async function loadSheet(characterId) {
     if (!characterId) return;
     const url = API_CHARACTER_SHEET_TEMPLATE.replace("/0/sheet/", `/${characterId}/sheet/`);
-    const payload = await fetchJson(url);
-    document.getElementById("sheet-json").textContent = JSON.stringify(payload, null, 2);
+    renderSheetView(await fetchJson(url));
 }
 
 async function loadActions() {
-    const payload = await fetchJson(API_MY_ACTIONS);
-    renderActions(payload.actions);
+    renderActions((await fetchJson(API_MY_ACTIONS)).actions || []);
 }
 
 async function submitAction() {
-    const characterId = parseInt(document.getElementById("character-select").value, 10);
-    const title = document.getElementById("action-title").value.trim();
-    const content = document.getElementById("action-content").value.trim();
-
     await fetchJson(API_SUBMIT_ACTION, {
         method: "POST",
-        headers: {
-            "Content-Type": "application/json",
-            "X-CSRFToken": getCookie("csrftoken")
-        },
+        headers: {"Content-Type": "application/json", "X-CSRFToken": getCookie("csrftoken")},
         body: JSON.stringify({
-            character_id: characterId,
-            title: title,
-            content: content
+            character_id: parseInt(document.getElementById("character-select").value, 10),
+            title: document.getElementById("action-title").value.trim(),
+            content: document.getElementById("action-content").value.trim()
         })
     });
-
     document.getElementById("action-title").value = "";
     document.getElementById("action-content").value = "";
     await loadActions();
 }
 
+async function loadScenes() {
+    const payload = await fetchJson(API_SCENES);
+    renderSceneCollection("scene-list-public-ongoing", payload.public_ongoing || [], "No public ongoing scenes.");
+    renderSceneCollection("scene-list-public-completed", payload.public_completed || [], "No public scene logs yet.");
+    renderSceneCollection("scene-list-mine", payload.my_scenes || [], "You are not in any scenes yet.");
+}
+
+async function loadSceneDetail(sceneId) {
+    const scene = (await fetchJson(sceneUrl(API_SCENE_DETAIL_TEMPLATE, sceneId, ""))).scene;
+    renderSceneDetail(scene);
+
+    document.getElementById("scene-join").addEventListener("click", async () => {
+        const characterId = parseInt(document.getElementById("scene-post-character").value, 10);
+        await fetchJson(sceneUrl(API_SCENE_JOIN_TEMPLATE, sceneId, "join"), {
+            method: "POST",
+            headers: {"Content-Type": "application/json", "X-CSRFToken": getCookie("csrftoken")},
+            body: JSON.stringify({character_id: characterId})
+        });
+        await loadSceneDetail(sceneId);
+        await loadScenes();
+    });
+
+    document.getElementById("scene-post-submit").addEventListener("click", async () => {
+        const characterId = parseInt(document.getElementById("scene-post-character").value, 10);
+        await fetchJson(sceneUrl(API_SCENE_POST_TEMPLATE, sceneId, "post"), {
+            method: "POST",
+            headers: {"Content-Type": "application/json", "X-CSRFToken": getCookie("csrftoken")},
+            body: JSON.stringify({
+                character_id: characterId,
+                post_type: document.getElementById("scene-post-type").value,
+                content: document.getElementById("scene-post-content").value.trim()
+            })
+        });
+        await loadSceneDetail(sceneId);
+        await loadScenes();
+    });
+
+    const editButton = document.getElementById("scene-save-edit");
+    const stopButton = document.getElementById("scene-stop");
+    if (editButton) {
+        editButton.addEventListener("click", async () => {
+            await fetchJson(sceneUrl(API_SCENE_UPDATE_TEMPLATE, sceneId, "update"), {
+                method: "POST",
+                headers: {"Content-Type": "application/json", "X-CSRFToken": getCookie("csrftoken")},
+                body: JSON.stringify({
+                    title: document.getElementById("scene-edit-title").value.trim(),
+                    location: document.getElementById("scene-edit-location").value.trim(),
+                    summary: document.getElementById("scene-edit-summary").value.trim()
+                })
+            });
+            await loadSceneDetail(sceneId);
+            await loadScenes();
+        });
+    }
+    if (stopButton) {
+        stopButton.addEventListener("click", async () => {
+            await fetchJson(sceneUrl(API_SCENE_COMPLETE_TEMPLATE, sceneId, "complete"), {
+                method: "POST",
+                headers: {"Content-Type": "application/json", "X-CSRFToken": getCookie("csrftoken")},
+                body: JSON.stringify({
+                    summary: document.getElementById("scene-edit-summary").value.trim(),
+                    publish_public_log: !!document.getElementById("scene-publish-log").checked
+                })
+            });
+            await loadSceneDetail(sceneId);
+            await loadScenes();
+        });
+    }
+}
+
+async function createScene() {
+    const result = await fetchJson(API_CREATE_SCENE, {
+        method: "POST",
+        headers: {"Content-Type": "application/json", "X-CSRFToken": getCookie("csrftoken")},
+        body: JSON.stringify({
+            character_id: parseInt(document.getElementById("scene-character").value, 10),
+            title: document.getElementById("scene-title").value.trim(),
+            room_id: parseInt(document.getElementById("scene-location-id").value, 10),
+            ic_date: document.getElementById("scene-ic-date").value,
+            privacy: document.getElementById("scene-privacy").value,
+            scene_type: document.getElementById("scene-type").value,
+            pacing: document.getElementById("scene-pacing").value,
+            notes: document.getElementById("scene-notes").value.trim(),
+            plot: document.getElementById("scene-plot").value.trim(),
+            tags: document.getElementById("scene-tags").value.trim(),
+            summary: document.getElementById("scene-summary").value.trim()
+        })
+    });
+    activeSceneId = result.scene.id;
+    await loadScenes();
+    await loadSceneDetail(activeSceneId);
+}
+
 document.addEventListener("DOMContentLoaded", async () => {
     try {
         await loadCharacters();
+        await loadLocations();
         await loadActions();
-
+        await loadScenes();
+        document.getElementById("scene-ic-date").value = new Date().toISOString().slice(0, 10);
         document.getElementById("character-select").addEventListener("change", async (event) => {
             await loadSheet(event.target.value);
         });
-
+        document.getElementById("create-scene").addEventListener("click", async () => {
+            try {
+                await createScene();
+            } catch (error) {
+                alert(error.message);
+            }
+        });
         document.getElementById("submit-action").addEventListener("click", async () => {
             try {
                 await submitAction();

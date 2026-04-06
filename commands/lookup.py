@@ -88,6 +88,8 @@ class CmdLookup(MuxCommand):
     aliases = ["+dict", "+dictionary", "+info", "+reference"]
     locks = "cmd:all()"
     help_category = "Chargen & Character Info"
+
+    _FRAME_LINE_RE = re.compile(r"^=+>\s.+\s<+=+$")
     
     def get_theme_colors(self):
         """Get theme colors from server config or defaults.
@@ -148,6 +150,95 @@ class CmdLookup(MuxCommand):
         footer = f"|{header_color}" + "=" * equals_per_side + ">" + f"|{text_color}" + footer_content + f"|{header_color}" + "<" + "=" * equals_per_side + "|n"
         
         return footer
+
+    @staticmethod
+    def _strip_ansi(text):
+        """Strip Evennia-style ANSI codes for frame detection."""
+        return re.sub(r"\|.", "", text or "")
+
+    def _is_frame_line(self, line):
+        """Return True if a line looks like a lookup header/footer frame."""
+        clean_line = self._strip_ansi(line).strip()
+        return bool(self._FRAME_LINE_RE.match(clean_line))
+
+    def _message_has_header_footer(self, message):
+        """
+        Detect whether a message already has lookup-style frame lines.
+
+        Returns:
+            tuple[bool, bool]: (has_header, has_footer)
+        """
+        lines = [line for line in (message or "").splitlines() if line.strip()]
+        if not lines:
+            return False, False
+
+        first_slice = lines[:3]
+        last_slice = lines[-3:]
+        has_header = any(self._is_frame_line(line) for line in first_slice)
+        has_footer = any(self._is_frame_line(line) for line in last_slice)
+        return has_header, has_footer
+
+    def _flush_lookup_output_buffer(self):
+        """Flush captured lookup output as a single consistently framed message."""
+        if not hasattr(self, "_lookup_output_buffer"):
+            return
+        if not hasattr(self, "_lookup_original_msg"):
+            return
+
+        if not self._lookup_output_buffer:
+            return
+
+        combined = "\n".join(
+            part for part in self._lookup_output_buffer if isinstance(part, str)
+        ).strip("\n")
+        if not combined:
+            return
+
+        has_header, has_footer = self._message_has_header_footer(combined)
+        if not has_header:
+            combined = f"{self.format_header('Chronicles of Darkness Reference')}\n\n{combined}"
+        if not has_footer:
+            combined = f"{combined.rstrip()}\n\n{self.format_footer('Chronicles of Darkness Reference')}"
+
+        self._lookup_original_msg(combined)
+
+    def at_pre_cmd(self):
+        """
+        Capture all lookup output and normalize framing in at_post_cmd.
+
+        This keeps legacy handlers (that still call self.caller.msg multiple times or
+        skip framing) consistent with modern framed lookup output.
+        """
+        pre_result = super().at_pre_cmd()
+        if pre_result:
+            return pre_result
+        self._lookup_output_buffer = []
+        self._lookup_original_msg = getattr(self.caller, "msg", None)
+
+        if not self._lookup_original_msg:
+            return pre_result
+
+        def _buffered_msg(text=None, **kwargs):
+            # Pass through advanced msg() calls untouched (not expected in +lookup).
+            if kwargs:
+                self._lookup_original_msg(text, **kwargs)
+                return
+            if text is None:
+                self._lookup_output_buffer.append("")
+                return
+            self._lookup_output_buffer.append(str(text))
+
+        self.caller.msg = _buffered_msg
+        return pre_result
+
+    def at_post_cmd(self):
+        """Restore caller.msg and emit normalized framed lookup output."""
+        try:
+            self._flush_lookup_output_buffer()
+        finally:
+            if hasattr(self, "_lookup_original_msg") and self._lookup_original_msg:
+                self.caller.msg = self._lookup_original_msg
+            super().at_post_cmd()
     
     def func(self):
         if not self.args and not self.switches:
@@ -2123,7 +2214,14 @@ class CmdLookup(MuxCommand):
             else:
                 msg += f"|cCost:|n {stat_data.min_value}-{stat_data.max_value} dots\n"
             msg += f"|cPrerequisites:|n {LOOKUP_DATA.format_prerequisites_display(stat_data.prerequisite)}\n"
-            msg += f"|cDescription:|n {stat_data.description}\n"
+            description = str(stat_data.description or "").strip()
+            has_dot_tiers = bool(re.search(r"\(\*+\)\s", description))
+            if has_dot_tiers:
+                # Style merits often encode dot tiers inline "(*) ... (**) ..."; split for readability.
+                formatted_description = re.sub(r"\s+(?=\(\*+\)\s)", "\n", description).strip()
+                msg += f"|cDescription:|n\n{formatted_description}\n"
+            else:
+                msg += f"|cDescription:|n {description}\n"
             
         elif stat_type == 'advantage':
             msg = f"|w{stat_data.name.title()} (Advantage)|n\n"
@@ -2816,7 +2914,8 @@ class CmdLookup(MuxCommand):
     
     def show_contract_details(self, contract_key, contract_data):
         """Show detailed information about a specific changeling contract."""
-        msg = f"|w{contract_data['name']} (Changeling Contract)|n\n"
+        msg = self.format_header(f"{contract_data['name']} - Changeling Contract")
+        msg += "\n\n"
         
         # Contract Type
         contract_type = contract_data['contract_type'].replace('_', ' ').title()
@@ -2848,7 +2947,8 @@ class CmdLookup(MuxCommand):
         msg += f"\n|cSource:|n {contract_data['book']}\n"
         
         # Usage
-        msg += f"\n|gTo add to character:|n +stat contract={contract_key}\n"
+        msg += f"\n|gTo add to character:|n +stat contract={contract_key}\n\n"
+        msg += self.format_footer("Chronicles of Darkness Reference")
         
         self.caller.msg(msg)
     

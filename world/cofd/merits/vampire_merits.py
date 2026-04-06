@@ -53,7 +53,7 @@ vampire_merits = [
         name="Cacophony Savvy",
         min_value=1,
         max_value=3,
-        description="You have your finger on the pulse of the Kindred underground. Adept with codes and cants that allow Kindred culture to flourish. Each level builds on previous. (-) Gettin' Up: Read signs with Intelligence + Streetwise. (--) Backpacker: Know new Kindred's feeding grounds and aliases within a week. (---) Wearing a Hat: Once per chapter, ask Storyteller questions about city affairs. Drawback: Must regularly contribute news and gossip to stay active.",
+        description="You have your finger on the pulse of the Kindred underground. Adept with codes and cants that allow Kindred culture to flourish. Each level builds on previous. (*) Gettin' Up: Read signs with Intelligence + Streetwise. (**) Backpacker: Know new Kindred's feeding grounds and aliases within a week. (***) Wearing a Hat: Once per chapter, ask Storyteller questions about city affairs. Drawback: Must regularly contribute news and gossip to stay active.",
         merit_type="social",
         prerequisite="city_status:1"
     ),
@@ -109,7 +109,7 @@ vampire_merits = [
         name="Dynasty Membership",
         min_value=1,
         max_value=3,
-        description="Claims membership to long-standing dynasty of Kindred. (-) New Kid: Once per chapter, add dynasty senior's Clan Status to Social dice pool. (--) Exemplar: Ignore first Door in Social engagements against those who respect/fear dynasty. (---) Patriarch/Matriarch: Once per chapter, make demand of dynasty member who gains Tasked Condition. Drawback: Must make association known. Dynasty must have at least three members.",
+        description="Claims membership to long-standing dynasty of Kindred. (*) New Kid: Once per chapter, add dynasty senior's Clan Status to Social dice pool. (**) Exemplar: Ignore first Door in Social engagements against those who respect/fear dynasty. (***) Patriarch/Matriarch: Once per chapter, make demand of dynasty member who gains Tasked Condition. Drawback: Must make association known. Dynasty must have at least three members.",
         merit_type="social",
         prerequisite="clan_status:1"
     ),
@@ -381,7 +381,7 @@ vampire_merits = [
         name="Kindred Dueling",
         min_value=1,
         max_value=5,
-        description="Fighting style for Kindred combat with edged weapons. (-) Hamstring: Target limb to deny Physical Intensity benefits. (--) Taunt: Remove dice to force frenzy roll with penalty. (---) Carving: Weapon deals lethal to Kindred. (----) Pincushion: Lodge weapon to prevent Vitae healing. (-----) Spray: Sacrifice Defense to remove Vitae instead of Health.",
+        description="Fighting style for Kindred combat with edged weapons. (*) Hamstring: Target limb to deny Physical Intensity benefits. (**) Taunt: Remove dice to force frenzy roll with penalty. (***) Carving: Weapon deals lethal to Kindred. (****) Pincushion: Lodge weapon to prevent Vitae healing. (*****) Spray: Sacrifice Defense to remove Vitae instead of Health.",
         merit_type="physical",
         prerequisite="composure:3,weaponry:2"
     ),
@@ -389,7 +389,7 @@ vampire_merits = [
         name="Riding the Wave",
         min_value=1,
         max_value=5,
-        description="Fighting style for using Beast while riding the wave. (-) Ravage: Fangs become 1L weapons. (--) Primal Strength: Double Strength bonus for instant strength actions. (---) In the Zone: Willpower for riding wave gives +3 dice to actions. (----) Unyielding: Recover Willpower spent to initiate ride after successful scene. (-----) Animal Grace: When spending Willpower to attack or defend, gain both +2 Defense and +3 attack.",
+        description="Fighting style for using Beast while riding the wave. (*) Ravage: Fangs become 1L weapons. (**) Primal Strength: Double Strength bonus for instant strength actions. (***) In the Zone: Willpower for riding wave gives +3 dice to actions. (****) Unyielding: Recover Willpower spent to initiate ride after successful scene. (*****) Animal Grace: When spending Willpower to attack or defend, gain both +2 Defense and +3 attack.",
         merit_type="physical",
         prerequisite="composure:3,resolve:3"
     ),
