@@ -3298,7 +3298,12 @@ class CmdLookup(MuxCommand):
         from world.cofd.powers.changeling_seemings import get_entitlement
         
         # Normalize entitlement name
-        entitlement_key = entitlement_name.lower().replace(" ", "_")
+        entitlement_key = (
+            entitlement_name.lower()
+            .replace(" ", "_")
+            .replace("-", "_")
+            .replace("'", "")
+        )
         
         # Get entitlement data
         entitlement_data = get_entitlement(entitlement_key)
@@ -3329,6 +3334,16 @@ class CmdLookup(MuxCommand):
         msg += f"|wEntitlement Blessings:|n\n"
         for blessing in entitlement_data['blessings']:
             msg += f"  * {blessing}\n"
+
+        # Optional extended entitlement notes.
+        if entitlement_data.get("privileges_and_duties"):
+            msg += f"\n|wPrivileges and Duties:|n\n{entitlement_data['privileges_and_duties']}\n"
+        if entitlement_data.get("mask_mien"):
+            msg += f"\n|wMask and Mien:|n\n{entitlement_data['mask_mien']}\n"
+        if entitlement_data.get("bequeathal"):
+            msg += f"\n|wBequeathal:|n\n{entitlement_data['bequeathal']}\n"
+        if entitlement_data.get("token_details"):
+            msg += f"\n|wHeraldry Token Notes:|n\n{entitlement_data['token_details']}\n"
         
         msg += f"\n|cSource:|n {entitlement_data['book']}\n"
         msg += f"|cSet on Character:|n |y+stat entitlement={entitlement_key}|n\n\n"

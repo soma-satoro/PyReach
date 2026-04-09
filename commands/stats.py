@@ -1,6 +1,7 @@
 from evennia.commands.default.muxcommand import MuxCommand
 from evennia.utils import evtable
 import difflib
+import re
 from world.cofd.stat_dictionary import (
     attribute_dictionary, skill_dictionary, 
     advantage_dictionary, anchor_dictionary
@@ -1113,6 +1114,82 @@ class CmdStat(MuxCommand):
                                 if valid_val.lower() == value_lower:
                                     stored_value = valid_val  # Use the exact valid value format
                                     break
+
+                # Entitlement gating: require Wyrd 2+ and associated entitlement-merit prerequisites.
+                if stat == "entitlement" and character_template.lower() in ["changeling", "legacy_changeling"]:
+                    entitlement_key = (
+                        stored_value.lower()
+                        .replace(" ", "_")
+                        .replace("-", "_")
+                        .replace("'", "")
+                    )
+
+                    # Global floor for any entitlement.
+                    try:
+                        current_wyrd = int(target.db.stats.get("advantages", {}).get("wyrd", 0))
+                    except (TypeError, ValueError):
+                        current_wyrd = 0
+
+                    if current_wyrd < 2:
+                        self.caller.msg("|rYou must have at least Wyrd 2 to take an entitlement.|n")
+                        return
+
+                    from world.cofd.merits.changeling_merits import changeling_merits_dict
+
+                    associated_merits = []
+                    for merit_key, merit_data in changeling_merits_dict.items():
+                        prereq_text = str(getattr(merit_data, "prerequisite", "") or "").lower()
+                        if f"entitlement:{entitlement_key}" in prereq_text:
+                            associated_merits.append((merit_key, merit_data))
+
+                    if not associated_merits:
+                        self.caller.msg(
+                            f"|rNo associated entitlement merit is configured for '{stored_value}'.|n"
+                        )
+                        self.caller.msg(
+                            "|wAdd/update the entitlement merit definition first, then set entitlement.|n"
+                        )
+                        return
+
+                    # Pick the most restrictive associated title merit when multiple candidates exist.
+                    associated_merits.sort(
+                        key=lambda item: (
+                            int(getattr(item[1], "max_value", 0) or 0),
+                            int(getattr(item[1], "min_value", 0) or 0),
+                        ),
+                        reverse=True,
+                    )
+                    assoc_merit_key, assoc_merit = associated_merits[0]
+                    assoc_merit_name = getattr(assoc_merit, "name", assoc_merit_key)
+                    assoc_prereq = str(getattr(assoc_merit, "prerequisite", "") or "")
+
+                    # Evaluate the associated merit prerequisites but ignore its entitlement token,
+                    # since this check is specifically for taking the entitlement itself.
+                    prereq_without_entitlement = re.sub(
+                        r"(?i)\bentitlement:[^,\]]+\b,?",
+                        "",
+                        assoc_prereq,
+                    )
+                    prereq_without_entitlement = re.sub(
+                        r"\s*,\s*,\s*",
+                        ", ",
+                        prereq_without_entitlement,
+                    ).strip(" ,")
+
+                    unmet = []
+                    if prereq_without_entitlement and hasattr(target, "get_unmet_merit_prerequisites"):
+                        merit_dots = int(getattr(assoc_merit, "min_value", 1) or 1)
+                        unmet = target.get_unmet_merit_prerequisites(
+                            prereq_without_entitlement,
+                            merit_dots=merit_dots,
+                        )
+
+                    if unmet:
+                        self.caller.msg(
+                            f"|rYou do not meet prerequisites for the associated entitlement merit '{assoc_merit_name}'.|n"
+                        )
+                        self.caller.msg(f"|wMissing:|n {', '.join(unmet)}")
+                        return
                 
                 # Store in bio category (use stored_value which may be normalized)
                 target.db.stats["bio"][stat] = stored_value

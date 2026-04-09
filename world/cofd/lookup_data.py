@@ -365,7 +365,7 @@ class LookupData:
     
     def find_stat(self, stat_name):
         """Find a stat by name across all categories."""
-        stat_name = stat_name.lower().replace(" ", "_")
+        stat_name = stat_name.lower().replace(" ", "_").replace("-", "_").replace("'", "")
         
         # Check attributes
         if stat_name in self.attributes:
@@ -385,7 +385,7 @@ class LookupData:
         
         # Check merits
         for merit in self.all_merits:
-            if merit.name.lower().replace(" ", "_") == stat_name:
+            if merit.name.lower().replace(" ", "_").replace("-", "_").replace("'", "") == stat_name:
                 return ('merit', merit)
         
         return None

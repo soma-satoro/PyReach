@@ -56,7 +56,35 @@ CHANGELING_KITHS = [
 
 # Valid entitlements for Changeling characters
 CHANGELING_ENTITLEMENTS = [ 
-    "Baron of the Lesser Ones", "Dauphines of Wayward Children", "Master of Keys", "Modiste of Elfhame", "Thorn Dancer", "Sibylline Fishers", "Spiderborn Riders"
+    "Baron of the Lesser Ones",
+    "Dauphines of Wayward Children",
+    "Master of Keys",
+    "Modiste of Elfhame",
+    "Thorn Dancer",
+    "Sibylline Fishers",
+    "Spiderborn Riders",
+    "College of Worms",
+    "Duchy of the Icebound Heart",
+    "Tolltaker Knights",
+    "Margravate of the Brim",
+    "Noble Sages of the Unknown Reaches",
+    "Satrapy of Pearls",
+    "Scarecrow Minister",
+    "Bishop of Blackbirds",
+    "Magistrates of the Wax Mask",
+    "Magus of the Gilded Thorns",
+    "Sacred Band of the Golden Standard",
+    "Squire of the Broken Bough",
+    "Adjudicator of the Wheel",
+    "Diviners of Worms",
+    "Duchess of Truth and Loss",
+    "Guildmaster of Goldspinners",
+    "Paragon of Story Heroes",
+    "Castellan of the Broken Cage",
+    "Eternal Echo",
+    "Knights of the Knowledge of the Tongue",
+    "Legate of the Black Apple",
+    "Lost Pantheon",
 ]
 
 # Valid changeling contracts (2e + project homebrew extensions).
