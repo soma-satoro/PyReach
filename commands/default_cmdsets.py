@@ -79,103 +79,45 @@ class CharacterCmdSet(default_cmds.CharacterCmdSet):
         #
         # any commands you add below will overload the default ones.
         #
-        # Core commands
-        self.add(CmdRoll())
-        self.add(CmdExperience())
-        self.add(CmdCondition())
-        self.add(CmdTilt())
-        self.add(CmdJobs())
-        # Sheet management and stat views
-        self.add(CmdSheet())
-        self.add(CmdHealth())
-        
-        # Character management
-        self.add(CmdStat())
-        self.add(CmdRecalc())
-        self.add(CmdAspiration())
-        self.add(CmdIntegrity())
-        self.add(CmdLookup())
-        self.add(CmdLegacy())
-        self.add(CmdSubmit())
-        self.add(CmdBio())
-        self.add(CmdCensus())
-        
-        # Shapeshifting (Werewolf)
-        self.add(CmdShift())
-        self.add(CmdForm())
-        
-        # Demon Systems
-        self.add(CmdCover())
-        self.add(CmdDemon())
-        
-        # Reality Systems (Changeling, Werewolf, Mage)
-        self.add(CmdMien())
-        self.add(CmdMask())
-        self.add(CmdReach())
-        self.add(CmdLocus())
-        self.add(CmdHedge())
-        self.add(CmdPledge())
-        
-        # Voting and recommendations
-        self.add(CmdVote())
-        self.add(CmdRecommend())
-        self.add(CmdVoteAdmin())
-
-        # Equipment commands
-        self.add(CmdEquipment())
-        self.add(CmdBuyConfig())
-        self.add(CmdBuy())
-        self.add(CmdAddResources())
-
-        # Testing (remove after verification)
-        self.add(CmdTestXP())
-        
-        # Social and investigation
-        self.add(CmdSocial())
-        self.add(CmdMystery())
-        self.add(CmdGroups())
-        self.add(CmdRoster())
-        self.add(CmdGroupMerit())
-        self.add(CmdTotem())
-
-        # Combat
-        self.add(CmdCombat())
-        self.add(CmdInitiative())
-        self.add(CmdEquippedGear())
-        self.add(CmdCombatHelp())
-        
-        # NPCs
-        self.add(CmdNPC())
-        
-        # Admin commands
-        self.add(CmdTemplate())
-        self.add(CmdInitAreaManager())
-        self.add(CmdStoryteller())
-        self.add(CmdConfigOOCIC())
-        self.add(CmdSummon())
-        self.add(CmdReturn())
-        self.add(CmdApprove())
-        self.add(CmdUnapprove())
-        self.add(CmdFixGroupTypes())
-
-        # Building commands (areas, rooms, places, mapping)
-        self.add(CmdAreaManage())
-        self.add(CmdRoomSetup())
-        self.add(CmdRoomInfo())
-        self.add(CmdPlaces())
-        self.add(CmdMap())
-        self.add(CmdTempRoom())
-        
-        # OOC/IC Movement commands
-        self.add(CmdGo())
-        self.add(CmdJoin())
-        self.add(CmdCoords())
-        
-        # Hangout commands
-        self.add(CmdHangouts())
-        
-        # Custom help command with ANSI stripping to prevent the color codes from breaking the help text
-        self.add(CmdHelp())
+        command_groups = (
+            # Core commands
+            (CmdRoll, CmdExperience, CmdCondition, CmdTilt, CmdJobs),
+            # Sheet management and stat views
+            (CmdSheet, CmdHealth),
+            # Character management
+            (CmdStat, CmdRecalc, CmdAspiration, CmdIntegrity, CmdLookup, CmdLegacy, CmdSubmit, CmdBio, CmdCensus),
+            # Shapeshifting (Werewolf)
+            (CmdShift, CmdForm),
+            # Demon systems
+            (CmdCover, CmdDemon),
+            # Reality systems (Changeling, Werewolf, Mage)
+            (CmdMien, CmdMask, CmdReach, CmdLocus, CmdHedge, CmdPledge),
+            # Voting and recommendations
+            (CmdVote, CmdRecommend, CmdVoteAdmin),
+            # Equipment commands
+            (CmdEquipment, CmdBuyConfig, CmdBuy, CmdAddResources),
+            # Testing (remove after verification)
+            (CmdTestXP,),
+            # Social and investigation
+            (CmdSocial, CmdMystery, CmdGroups, CmdRoster, CmdGroupMerit, CmdTotem),
+            # Combat
+            (CmdCombat, CmdInitiative, CmdEquippedGear, CmdCombatHelp),
+            # NPCs
+            (CmdNPC,),
+            # Admin commands
+            (CmdTemplate, CmdInitAreaManager, CmdStoryteller, CmdConfigOOCIC, CmdSummon, CmdReturn, CmdApprove, CmdUnapprove, CmdFixGroupTypes),
+            # Building commands (areas, rooms, places, mapping)
+            (CmdAreaManage, CmdRoomSetup, CmdRoomInfo, CmdPlaces, CmdMap, CmdTempRoom),
+            # OOC/IC movement commands
+            (CmdGo, CmdJoin, CmdCoords),
+            # Hangout commands
+            (CmdHangouts,),
+            # Custom help command with ANSI stripping to prevent color codes from breaking help text
+            (CmdHelp,),
+        )
+        for group in command_groups:
+            for command_cls in group:
+                self.add(command_cls())
         
         # CommonMux custom commands
         self.add(CommonMuxCmdSet())

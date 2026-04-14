@@ -239,6 +239,87 @@ class CmdLookup(MuxCommand):
             if hasattr(self, "_lookup_original_msg") and self._lookup_original_msg:
                 self.caller.msg = self._lookup_original_msg
             super().at_post_cmd()
+
+    def _handle_simple_detail_lookup(self, args):
+        """
+        Handle categories that share identical list-vs-detail behavior.
+
+        Returns:
+            bool: True if a matching category was handled.
+        """
+        lookup_specs = [
+            (("clans", "clan"), self.show_clans, self.show_clan_details),
+            (("covenants", "covenant"), self.show_covenants, self.show_covenant_details),
+            (("paths", "path"), self.show_paths, self.show_path_details),
+            (("orders", "order"), self.show_orders, self.show_order_details),
+            (("legacies", "legacy"), self.show_legacies, self.show_legacy_details),
+            (("templates", "template"), self.show_templates, self.show_template_details),
+            (("auspices", "auspice"), self.show_auspices, self.show_auspice_details),
+            (("tribes", "tribe"), self.show_tribes, self.show_tribe_details),
+            (("lodges", "lodge"), self.show_lodges, self.show_lodge_details),
+            (("seemings", "seeming"), self.show_seemings, self.show_seeming_details),
+            (("courts", "court"), self.show_courts, self.show_court_details),
+            (("kiths", "kith"), self.show_kiths, self.show_kith_details),
+            (("entitlements", "entitlement"), self.show_entitlements, self.show_entitlement_details),
+            (("keys",), self.show_geist_keys, self.show_geist_key),
+            (("haunts",), self.show_geist_haunts, self.show_geist_haunt),
+            (("incarnations", "incarnation"), self.show_incarnations, self.show_incarnation_details),
+            (("agendas", "agenda"), self.show_agendas, self.show_agenda_details),
+            (("embeds", "embed"), self.show_embeds, self.show_embed_details),
+            (("exploits", "exploit"), self.show_exploits, self.show_exploit_details),
+            (
+                ("demon_modifications", "modifications", "modification"),
+                self.show_demon_modifications,
+                self.show_demon_modification_details,
+            ),
+            (
+                ("demon_technologies", "technologies", "technology"),
+                self.show_demon_technologies,
+                self.show_demon_technology_details,
+            ),
+            (
+                ("demon_propulsions", "propulsions", "propulsion"),
+                self.show_demon_propulsions,
+                self.show_demon_propulsion_details,
+            ),
+            (
+                ("demon_processes", "processes", "process"),
+                self.show_demon_processes,
+                self.show_demon_process_details,
+            ),
+            (("transmutations", "transmutation"), self.show_transmutations, self.show_transmutation_details),
+            (("elpides", "elpis"), self.show_elpides, self.show_elpis_details),
+            (("torments", "torment"), self.show_torments, self.show_torment_details),
+            (("alembics",), self.show_alembics, self.show_alembic_details),
+            (("bestowments", "bestowment"), self.show_bestowments, self.show_bestowment_details),
+            (("compacts", "compact"), self.show_compacts, self.show_compact_details),
+            (("conspiracies", "conspiracy"), self.show_conspiracies, self.show_conspiracy_details),
+            (("lineages", "lineage"), self.show_lineages, self.show_lineage_details),
+            (("athanors", "athanor"), self.show_athanors, self.show_athanor_details),
+            (("guilds", "guild"), self.show_guilds, self.show_guild_details),
+            (("decrees", "decree"), self.show_decrees, self.show_decree_details),
+            (("judges", "judge"), self.show_judges, self.show_judge_details),
+            (("utterances", "utterance"), self.show_utterances, self.show_utterance_details),
+            (("affinities", "affinity"), self.show_affinities, self.show_affinity_details),
+            (("burdens", "burden"), self.show_burdens, self.show_burden_details),
+            (("krewe",), self.show_krewe_types, self.show_krewe_details),
+            (("ceremonies", "ceremony"), self.show_ceremonies, self.show_ceremony_details),
+            (("origins", "origin"), self.show_origins, self.show_origin_details),
+            (("clades", "clade"), self.show_clades, self.show_clade_details),
+            (("variations",), self.show_variations, self.show_deviant_variation),
+            (("adaptations",), self.show_adaptations, self.show_deviant_adaptation),
+            (("scars",), self.show_scars, self.show_deviant_scar),
+        ]
+
+        for aliases, list_handler, detail_handler in lookup_specs:
+            if any(args.startswith(alias) for alias in aliases):
+                parts = args.split()
+                if len(parts) > 1:
+                    detail_handler(" ".join(parts[1:]))
+                else:
+                    list_handler()
+                return True
+        return False
     
     def func(self):
         if not self.args and not self.switches:
@@ -385,14 +466,6 @@ class CmdLookup(MuxCommand):
                     self.show_stat_details(stat_name, category_filter="spells")
             else:
                 self.show_spells(None)
-        elif args.startswith("clans") or args.startswith("clan"):
-            parts = args.split()
-            if len(parts) > 1:
-                # It's a specific clan lookup
-                clan_name = " ".join(parts[1:])
-                self.show_clan_details(clan_name)
-            else:
-                self.show_clans()
         elif args.startswith("bloodlines") or args.startswith("bloodline"):
             parts = args.split()
             if len(parts) > 1:
@@ -401,62 +474,6 @@ class CmdLookup(MuxCommand):
                 self.show_bloodline_details(bloodline_name)
             else:
                 self.show_bloodlines()
-        elif args.startswith("covenants") or args.startswith("covenant"):
-            parts = args.split()
-            if len(parts) > 1:
-                # It's a specific covenant lookup
-                covenant_name = " ".join(parts[1:])
-                self.show_covenant_details(covenant_name)
-            else:
-                self.show_covenants()
-        elif args.startswith("paths") or args.startswith("path"):
-            parts = args.split()
-            if len(parts) > 1:
-                # It's a specific path lookup
-                path_name = " ".join(parts[1:])
-                self.show_path_details(path_name)
-            else:
-                self.show_paths()
-        elif args.startswith("orders") or args.startswith("order"):
-            parts = args.split()
-            if len(parts) > 1:
-                # It's a specific order lookup
-                order_name = " ".join(parts[1:])
-                self.show_order_details(order_name)
-            else:
-                self.show_orders()
-        elif args.startswith("legacies") or args.startswith("legacy"):
-            parts = args.split()
-            if len(parts) > 1:
-                # It's a specific legacy lookup
-                legacy_name = " ".join(parts[1:])
-                self.show_legacy_details(legacy_name)
-            else:
-                self.show_legacies()
-        elif args.startswith("templates") or args.startswith("template"):
-            parts = args.split()
-            if len(parts) > 1:
-                # It's a specific template lookup
-                template_name = " ".join(parts[1:])
-                self.show_template_details(template_name)
-            else:
-                self.show_templates()
-        elif args.startswith("auspices") or args.startswith("auspice"):
-            parts = args.split()
-            if len(parts) > 1:
-                # It's a specific auspice lookup
-                auspice_name = " ".join(parts[1:])
-                self.show_auspice_details(auspice_name)
-            else:
-                self.show_auspices()
-        elif args.startswith("tribes") or args.startswith("tribe"):
-            parts = args.split()
-            if len(parts) > 1:
-                # It's a specific tribe lookup
-                tribe_name = " ".join(parts[1:])
-                self.show_tribe_details(tribe_name)
-            else:
-                self.show_tribes()
         elif args.startswith("gifts"):
             parts = args.split()
             if len(parts) > 1:
@@ -490,14 +507,6 @@ class CmdLookup(MuxCommand):
                     self.show_stat_details(stat_name, category_filter="rites")
             else:
                 self.show_werewolf_rites(None)
-        elif args.startswith("lodges") or args.startswith("lodge"):
-            parts = args.split()
-            if len(parts) > 1:
-                # It's a specific lodge lookup
-                lodge_name = " ".join(parts[1:])
-                self.show_lodge_details(lodge_name)
-            else:
-                self.show_lodges()
         elif args.startswith("contracts"):
             parts = args.split()
             if len(parts) > 1:
@@ -521,158 +530,8 @@ class CmdLookup(MuxCommand):
                     self.show_stat_details(stat_name, category_filter="contracts")
             else:
                 self.show_changeling_contracts(None)
-        elif args.startswith("seemings") or args.startswith("seeming"):
-            parts = args.split()
-            if len(parts) > 1:
-                # It's a specific seeming lookup
-                seeming_name = " ".join(parts[1:])
-                self.show_seeming_details(seeming_name)
-            else:
-                self.show_seemings()
-        elif args.startswith("courts") or args.startswith("court"):
-            parts = args.split()
-            if len(parts) > 1:
-                # It's a specific court lookup
-                court_name = " ".join(parts[1:])
-                self.show_court_details(court_name)
-            else:
-                self.show_courts()
-        elif args.startswith("kiths") or args.startswith("kith"):
-            parts = args.split()
-            if len(parts) > 1:
-                # It's a specific kith lookup
-                kith_name = " ".join(parts[1:])
-                self.show_kith_details(kith_name)
-            else:
-                self.show_kiths()
-        elif args.startswith("entitlements") or args.startswith("entitlement"):
-            parts = args.split()
-            if len(parts) > 1:
-                # It's a specific entitlement lookup
-                entitlement_name = " ".join(parts[1:])
-                self.show_entitlement_details(entitlement_name)
-            else:
-                self.show_entitlements()
-        elif args.startswith("keys"):
-            parts = args.split()
-            if len(parts) > 1:
-                # It's a specific key lookup
-                key_name = " ".join(parts[1:])
-                self.show_geist_key(key_name)
-            else:
-                self.show_geist_keys()
-        elif args.startswith("haunts"):
-            parts = args.split()
-            if len(parts) > 1:
-                # It's a specific haunt lookup
-                haunt_name = " ".join(parts[1:])
-                self.show_geist_haunt(haunt_name)
-            else:
-                self.show_geist_haunts()
-        elif args.startswith("incarnations") or args.startswith("incarnation"):
-            parts = args.split()
-            if len(parts) > 1:
-                # It's a specific incarnation lookup
-                incarnation_name = " ".join(parts[1:])
-                self.show_incarnation_details(incarnation_name)
-            else:
-                self.show_incarnations()
-        elif args.startswith("agendas") or args.startswith("agenda"):
-            parts = args.split()
-            if len(parts) > 1:
-                # It's a specific agenda lookup
-                agenda_name = " ".join(parts[1:])
-                self.show_agenda_details(agenda_name)
-            else:
-                self.show_agendas()
-        elif args.startswith("embeds") or args.startswith("embed"):
-            parts = args.split()
-            if len(parts) > 1:
-                # It's a specific embed lookup
-                embed_name = " ".join(parts[1:])
-                self.show_embed_details(embed_name)
-            else:
-                self.show_embeds()
-        elif args.startswith("exploits") or args.startswith("exploit"):
-            parts = args.split()
-            if len(parts) > 1:
-                # It's a specific exploit lookup
-                exploit_name = " ".join(parts[1:])
-                self.show_exploit_details(exploit_name)
-            else:
-                self.show_exploits()
-        elif args.startswith("demon_modifications") or args.startswith("modifications") or args.startswith("modification"):
-            parts = args.split()
-            if len(parts) > 1:
-                # It's a specific modification lookup
-                modification_name = " ".join(parts[1:])
-                self.show_demon_modification_details(modification_name)
-            else:
-                self.show_demon_modifications()
-        elif args.startswith("demon_technologies") or args.startswith("technologies") or args.startswith("technology"):
-            parts = args.split()
-            if len(parts) > 1:
-                # It's a specific technology lookup
-                technology_name = " ".join(parts[1:])
-                self.show_demon_technology_details(technology_name)
-            else:
-                self.show_demon_technologies()
-        elif args.startswith("demon_propulsions") or args.startswith("propulsions") or args.startswith("propulsion"):
-            parts = args.split()
-            if len(parts) > 1:
-                # It's a specific propulsion lookup
-                propulsion_name = " ".join(parts[1:])
-                self.show_demon_propulsion_details(propulsion_name)
-            else:
-                self.show_demon_propulsions()
-        elif args.startswith("demon_processes") or args.startswith("processes") or args.startswith("process"):
-            parts = args.split()
-            if len(parts) > 1:
-                # It's a specific process lookup
-                process_name = " ".join(parts[1:])
-                self.show_demon_process_details(process_name)
-            else:
-                self.show_demon_processes()
-        elif args.startswith("transmutations") or args.startswith("transmutation"):
-            parts = args.split()
-            if len(parts) > 1:
-                # It's a specific transmutation lookup
-                transmutation_name = " ".join(parts[1:])
-                self.show_transmutation_details(transmutation_name)
-            else:
-                self.show_transmutations()
-        elif args.startswith("elpides") or args.startswith("elpis"):
-            parts = args.split()
-            if len(parts) > 1:
-                # It's a specific elpis lookup
-                elpis_name = " ".join(parts[1:])
-                self.show_elpis_details(elpis_name)
-            else:
-                self.show_elpides()
-        elif args.startswith("torments") or args.startswith("torment"):
-            parts = args.split()
-            if len(parts) > 1:
-                # It's a specific torment lookup
-                torment_name = " ".join(parts[1:])
-                self.show_torment_details(torment_name)
-            else:
-                self.show_torments()
-        elif args.startswith("alembics"):
-            parts = args.split()
-            if len(parts) > 1:
-                # It's a specific alembic lookup
-                alembic_name = " ".join(parts[1:])
-                self.show_alembic_details(alembic_name)
-            else:
-                self.show_alembics()
-        elif args.startswith("bestowments") or args.startswith("bestowment"):
-            parts = args.split()
-            if len(parts) > 1:
-                # It's a specific bestowment lookup
-                bestowment_name = " ".join(parts[1:])
-                self.show_bestowment_details(bestowment_name)
-            else:
-                self.show_bestowments()
+        elif self._handle_simple_detail_lookup(args):
+            return
         elif args.startswith("endowments"):
             parts = args.split()
             if len(parts) > 1:
@@ -703,142 +562,6 @@ class CmdLookup(MuxCommand):
                     self.show_tactic_details(tactic_name)
             else:
                 self.show_tactics(None)
-        elif args.startswith("compacts") or args.startswith("compact"):
-            parts = args.split()
-            if len(parts) > 1:
-                # It's a specific compact lookup
-                compact_name = " ".join(parts[1:])
-                self.show_compact_details(compact_name)
-            else:
-                self.show_compacts()
-        elif args.startswith("conspiracies") or args.startswith("conspiracy"):
-            parts = args.split()
-            if len(parts) > 1:
-                # It's a specific conspiracy lookup
-                conspiracy_name = " ".join(parts[1:])
-                self.show_conspiracy_details(conspiracy_name)
-            else:
-                self.show_conspiracies()
-        elif args.startswith("lineages") or args.startswith("lineage"):
-            parts = args.split()
-            if len(parts) > 1:
-                # It's a specific lineage lookup
-                lineage_name = " ".join(parts[1:])
-                self.show_lineage_details(lineage_name)
-            else:
-                self.show_lineages()
-        elif args.startswith("athanors") or args.startswith("athanor"):
-            parts = args.split()
-            if len(parts) > 1:
-                # It's a specific athanor lookup
-                athanor_name = " ".join(parts[1:])
-                self.show_athanor_details(athanor_name)
-            else:
-                self.show_athanors()
-        elif args.startswith("guilds") or args.startswith("guild"):
-            parts = args.split()
-            if len(parts) > 1:
-                # It's a specific guild lookup
-                guild_name = " ".join(parts[1:])
-                self.show_guild_details(guild_name)
-            else:
-                self.show_guilds()
-        elif args.startswith("decrees") or args.startswith("decree"):
-            parts = args.split()
-            if len(parts) > 1:
-                # It's a specific decree lookup
-                decree_name = " ".join(parts[1:])
-                self.show_decree_details(decree_name)
-            else:
-                self.show_decrees()
-        elif args.startswith("judges") or args.startswith("judge"):
-            parts = args.split()
-            if len(parts) > 1:
-                # It's a specific judge lookup
-                judge_name = " ".join(parts[1:])
-                self.show_judge_details(judge_name)
-            else:
-                self.show_judges()
-        elif args.startswith("utterances") or args.startswith("utterance"):
-            parts = args.split()
-            if len(parts) > 1:
-                # It's a specific utterance lookup
-                utterance_name = " ".join(parts[1:])
-                self.show_utterance_details(utterance_name)
-            else:
-                self.show_utterances()
-        elif args.startswith("affinities") or args.startswith("affinity"):
-            parts = args.split()
-            if len(parts) > 1:
-                # It's a specific affinity lookup
-                affinity_name = " ".join(parts[1:])
-                self.show_affinity_details(affinity_name)
-            else:
-                self.show_affinities()
-        elif args.startswith("burdens") or args.startswith("burden"):
-            parts = args.split()
-            if len(parts) > 1:
-                # It's a specific burden lookup
-                burden_name = " ".join(parts[1:])
-                self.show_burden_details(burden_name)
-            else:
-                self.show_burdens()
-        elif args.startswith("krewe"):
-            parts = args.split()
-            if len(parts) > 1:
-                # It's a specific krewe type lookup
-                krewe_name = " ".join(parts[1:])
-                self.show_krewe_details(krewe_name)
-            else:
-                self.show_krewe_types()
-        elif args.startswith("ceremonies") or args.startswith("ceremony"):
-            parts = args.split()
-            if len(parts) > 1:
-                # It's a specific ceremony lookup
-                ceremony_name = " ".join(parts[1:])
-                self.show_ceremony_details(ceremony_name)
-            else:
-                self.show_ceremonies()
-        elif args.startswith("origins") or args.startswith("origin"):
-            parts = args.split()
-            if len(parts) > 1:
-                # It's a specific origin lookup
-                origin_name = " ".join(parts[1:])
-                self.show_origin_details(origin_name)
-            else:
-                self.show_origins()
-        elif args.startswith("clades") or args.startswith("clade"):
-            parts = args.split()
-            if len(parts) > 1:
-                # It's a specific clade lookup
-                clade_name = " ".join(parts[1:])
-                self.show_clade_details(clade_name)
-            else:
-                self.show_clades()
-        elif args.startswith("variations"):
-            parts = args.split()
-            if len(parts) > 1:
-                # It's a specific variation lookup
-                variation_name = " ".join(parts[1:])
-                self.show_deviant_variation(variation_name)
-            else:
-                self.show_variations()
-        elif args.startswith("adaptations"):
-            parts = args.split()
-            if len(parts) > 1:
-                # It's a specific adaptation lookup
-                adaptation_name = " ".join(parts[1:])
-                self.show_deviant_adaptation(adaptation_name)
-            else:
-                self.show_adaptations()
-        elif args.startswith("scars"):
-            parts = args.split()
-            if len(parts) > 1:
-                # It's a specific scar lookup
-                scar_name = " ".join(parts[1:])
-                self.show_deviant_scar(scar_name)
-            else:
-                self.show_scars()
         elif args == "mortal+" or args == "mortal_plus":
             self.show_mortal_plus_types()
         elif args == "psychic" or args == "psychic_powers":

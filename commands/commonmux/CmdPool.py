@@ -326,8 +326,6 @@ class CmdPool(MuxCommand):
         else:
             self.caller.msg("Valid actions: /set, /reset") 
 
-from evennia.commands.default.muxcommand import MuxCommand
-
 class CmdGain(MuxCommand):
     """
     Regain points in character pools (willpower and supernatural pools).
@@ -602,8 +600,6 @@ class CmdGain(MuxCommand):
         
         self.caller.msg(f"You gain {gained} {pool_name}. Current: {new_current}/{maximum}")
 
-
-from evennia.commands.default.muxcommand import MuxCommand
 
 class CmdSpend(MuxCommand):
     """

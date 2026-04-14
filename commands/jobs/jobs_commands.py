@@ -1,11 +1,10 @@
-from evennia.commands.cmdset import CmdSet
 from django.db import models, transaction, connection
 from evennia.utils import create, evtable, logger
 from evennia.comms.models import ChannelDB
 from evennia.commands.default.muxcommand import MuxCommand
-from world.jobs.models import Job, JobTemplate, Queue, JobAttachment, ArchivedJob, Queue
+from evennia.commands.cmdset import CmdSet
+from world.jobs.models import Job, JobTemplate, Queue, JobAttachment, ArchivedJob
 from evennia.utils.search import search_account, search_object
-from django.db import models, transaction, connection
 from evennia.utils.utils import crop
 from evennia.utils.ansi import ANSIString
 from world.utils.ansi_utils import wrap_ansi
